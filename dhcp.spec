@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 1
 Version: 3.0.1rc12
-Release: 6
+Release: 8
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -21,6 +21,8 @@ Patch114: dhcp-3.0pl2-initialize.patch
 Patch115: dhcp-3.0.1rc12-RHscript.patch
 Patch116: dhcp-3.0.1rc12-staticroutes.patch
 Patch117: dhcp-3.0.1rc12-pie.patch
+Patch118: dhcp-3.0.1rc12-inherit-leases.patch
+
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -79,6 +81,7 @@ Libraries for interfacing with the ISC DHCP server.
 %patch115 -p1 -b .RHscript
 %patch116 -p1 -b .staticroutes
 %patch117 -p1 -b .pie
+%patch118 -p1 -b .inherit-leases
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -198,6 +201,12 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Wed Jun 8 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc12-8
+- add alex's dhcp-3.0.1rc12-inherit-leases.patch patch
+
+* Tue Jun  8 2004 Bill Nottingham <notting@redhat.com> 1:3.0.1rc12-7
+- set device on default gateway route
+
 * Mon May 17 2004 Thomas Woerner <twoerner@redhat.com> 1:3.0.1rc12-6
 - compiling dhcpd PIE
 
