@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 7
 Version: 3.0.1
-Release: 9
+Release: 10
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -28,6 +28,8 @@ Patch122: dhcp-3.0.1-default_gateway.patch
 Patch123: dhcp-3.0.1.preserve-sent-options.patch
 Patch124: dhcp-3.0.1-mis_host.patch
 Patch125: dhcp-3.0.1-new-host.patch
+Patch126: dhcp-3.0.1-host_dereference.patch
+
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -93,6 +95,7 @@ Libraries for interfacing with the ISC DHCP server.
 %patch123 -p1 -b .preserve-sent-options
 %patch124 -p1 -b .mis-host 
 %patch125 -p1 -b .new-host
+%patch126 -p1 -b .host-dereference
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -212,6 +215,11 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Wed Oct 06 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-10
+- clean-up last patch: new-host.patch adds host_reference(host)
+- without host_dereference(host) before returns in ack_lease
+- (dhcp-3.0.1-host_dereference.patch)
+
 * Mon Sep 27 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-9
 - Fix bug 133522:
 - PXE Boot clients with static leases not given 'file' option
