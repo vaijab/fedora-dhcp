@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 1
 Version: 3.0.1rc12
-Release: 8
+Release: 9
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -201,7 +201,10 @@ fi
 %{_mandir}/man3/*
 
 %changelog
-* Wed Jun 8 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc12-8
+* Thu Jun 10 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc12-9
+- add route back in after route up call
+
+* Wed Jun 9 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc12-8
 - add alex's dhcp-3.0.1rc12-inherit-leases.patch patch
 
 * Tue Jun  8 2004 Bill Nottingham <notting@redhat.com> 1:3.0.1rc12-7
