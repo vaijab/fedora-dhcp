@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 1
 Version: 2.0pl5
-Release: 6
+Release: 7
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -18,13 +18,13 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
 individual devices on an IP network to get their own network
 configuration information (IP address, subnetmask, broadcast address,
-etc.) from a DHCP server.  The overall purpose of DHCP is to make it
-easier to administer a large network.  The dhcp package includes the DHCP
-server and a DHCP relay agent.
+etc.) from a DHCP server. The overall purpose of DHCP is to make it
+easier to administer a large network. The dhcp package includes the
+DHCP server and a DHCP relay agent.
 
 You should install dhcp if you want to set up a DHCP server on your
-network. You will also need to install the pump package, which provides
-the DHCP client daemon, on client machines.
+network. You will also need to install the pump package, which
+provides the DHCP client daemon, on client machines.
 
 %prep
 %setup -q
@@ -50,7 +50,7 @@ strip %{buildroot}/usr/sbin/* || :
 mkdir -p %{buildroot}/etc/rc.d/init.d
 install -m 0755 %SOURCE2 %{buildroot}/etc/rc.d/init.d/dhcpd
 
-touch %{buildroot}%{_localstatedir}/lib/dhcp/dhcp.leases
+touch %{buildroot}%{_localstatedir}/lib/dhcp/dhcpd.leases
 
 cat <<EOF > %{buildroot}/etc/sysconfig/dhcpd
 # Command line options here
@@ -78,7 +78,7 @@ fi
 %defattr(-,root,root)
 %doc CHANGES README RELNOTES dhcpd.conf.sample
 %dir %{_localstatedir}/lib/dhcp
-%config(noreplace) %{_localstatedir}/lib/dhcp/dhcp.leases
+%config(noreplace) %{_localstatedir}/lib/dhcp/dhcpd.leases
 %config(noreplace) /etc/sysconfig/dhcpd
 %config /etc/rc.d/init.d/dhcpd
 %{_sbindir}/dhcpd
@@ -101,6 +101,9 @@ fi
 #/usr/man/man8/dhclient-script.8
 
 %changelog
+* Mon Aug 20 2001 Elliot Lee <sopwith@redhat.com>
+- Fix #5405 for real - it is dhcpd.leases not dhcp.leases.
+
 * Mon Jul 16 2001 Elliot Lee <sopwith@redhat.com>
 - /etc/sysconfig/dhcpd
 - Include dhcp.leases file (#5405)
