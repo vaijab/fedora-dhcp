@@ -18,10 +18,25 @@
 
 [ -f /usr/sbin/dhcpd ] || exit 0
 [ -f /etc/dhcpd.conf ] || exit 0
-[ -f /var/lib/dhcp/dhcpd.leases ] || exit 0
+[ -f /var/lib/dhcp/dhcpd.leases ] || touch /var/lib/dhcp/dhcpd.leases 
 
 RETVAL=0
 prog="dhcpd"
+
+configtest()
+{
+	local retval TEMP=/tmp/dhcpd$$.err
+
+	/usr/sbin/dhcpd -t 2>$TEMP
+	retval=$?
+	if [ $retval -ne 0 ]
+	then
+		cat $TEMP
+		rm -f $TEMP
+	fi
+
+	return $retval
+}
 
 start() {
 	# Start daemons.
@@ -52,6 +67,7 @@ case "$1" in
 	stop
 	;;
   restart|reload)
+	configtest || exit $?
 	stop
 	start
 	RETVAL=$?
@@ -64,7 +80,7 @@ case "$1" in
 	fi
 	;;
   configtest)
-	dhcpd -t
+	configtest
 	RETVAL=$?
 	;;
   status)
