@@ -1,8 +1,8 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
-Epoch: 6
+Epoch: 7
 Version: 3.0.1
-Release: EL4_1
+Release: 7
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -23,8 +23,9 @@ Patch117: dhcp-3.0.1rc12-pie.patch
 Patch118: dhcp-3.0.1rc12-inherit-leases.patch
 Patch119: dhcp-3.0.1rc13-noexpr.patch
 Patch120: dhcp-3.0.1rc14-noconfig.patch
-#Patch121: dhcp-3.0.1-change_resolv_conf.patch
-#Patch122: dhcp-3.0.1-default_gateway.patch
+Patch121: dhcp-3.0.1-change_resolv_conf.patch
+Patch122: dhcp-3.0.1-default_gateway.patch
+Patch123: dhcp-3.0.1.preserve-sent-options.patch
 
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -86,9 +87,9 @@ Libraries for interfacing with the ISC DHCP server.
 %patch118 -p1 -b .inherit-leases
 %patch119 -p1 -b .noexp
 %patch120 -p1 -b .noconfig
-# These depend on new initscripts-7.60
-#%patch121 -p1 -b .change_resolv_conf
-#%patch122 -p1 -b .default_gateway
+%patch121 -p1 -b .change_resolv_conf
+%patch122 -p1 -b .default_gateway
+%patch123 -p1 -b .preserve-sent-options
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -208,8 +209,14 @@ fi
 %{_mandir}/man3/*
 
 %changelog
-* Fri Aug 3  2004 Jason Vas Dias <jvdias@redhat.com> 6:3.0.1.EL-1
-- Build for RHEL-3.0-U3
+* Mon Aug 16 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-7
+- Forward DNS update by client was disabled by a bug that I
+- found in code where 'client->sent_options' was being 
+- freed too early.
+- Re-enabled it after contacting upstream maintainer
+- who confirmed that this was a bug (bug #130069) -
+- submitted patch dhcp-3.0.1.preserve-sent-options.patch.
+- Upstream maintainer informs me this patch will be in dhcp-3.0.2 .
 
 * Tue Aug 3  2004 Jason Vas Dias <jvdias@redhat.com> 6:3.0.1-6
 - Allow 2.0 kernels to obtain default gateway via dhcp 
