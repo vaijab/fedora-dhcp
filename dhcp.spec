@@ -1,7 +1,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.2rc3
-Release: 3
+Release: 4
 Epoch:   8
 License: distributable
 Group: System Environment/Daemons
@@ -37,6 +37,8 @@ Patch131: dhcp-3.0.1-dhclient-script-big-fix.patch
 Patch132: dhcp-3.0.2rc3-fix-hex.patch
 Patch133: dhcp-3.0.2rc3-mem.patch
 Patch134: dhcp-3.0.2rc3-dhclient_routes.patch
+Patch135: dhcp-3.0.1-z-relro-now.patch
+Patch136: dhcp-3.0.2rc3-dhclient-restorecon.patch
 
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -117,6 +119,8 @@ Libraries for interfacing with the ISC DHCP server.
 %patch132 -p1 -b .fix-hex
 %patch133 -p1 -b .mem
 %patch134 -p1 -b .dhclient_routes
+%patch135 -p1 -b .-z-relro-now
+%patch136 -p1 -b .dhclient-restorecon
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -182,7 +186,7 @@ touch debugfiles.list
 :;
 
 %clean
-#rm -rf %{buildroot}
+rm -rf %{buildroot}
 
 %post
 /sbin/chkconfig --add dhcpd
