@@ -1,8 +1,8 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 1
-Version: 3.0pl2
-Release: 6.16
+Version: 3.0.1rc12
+Release: 1 
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -10,25 +10,21 @@ Source1: dhcpd.conf.sample
 Source2: dhcpd.init
 Source3: dhcrelay.init
 Patch: dhcp-3.0-alignment.patch
-Patch10: dhcp-3.0pl1-RHscript.patch
 Patch100: dhcp-3.0-jbuild.patch
-Patch101: dhcp-3.0pl1-dhhostname-68650.patch
 Patch102: dhcp-3.0pl1-dhcpctlman-69731.patch
 Patch103: dhcp-3.0pl1-miscfixes.patch
-Patch104: dhcp-3.0pl1-fixoptparse.patch
-Patch105: dhcp-3.0pl1-ntp.patch
 Patch106: dhcp-3.0pl1-minires.patch
-Patch107: dhcp-3.0pl1-hops.patch
-Patch108: dhcp-3.0pl1-ntpscript.patch
 Patch109: dhcpd-manpage.patch
-Patch110: dhcp-3.0pl2-memleaks.patch
-Patch111: dhcp-clientscript.patch
 Patch112: dhcp-3.0pl2-div0.patch
+Patch113: dhcp-3.0pl2-selinux.patch
+Patch114: dhcp-3.0pl2-initialize.patch
+Patch115: dhcp-3.0.1rc12-RHscript.patch
 
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
 Requires: kernel >= 2.2.18
+BuildRequires: groff
 
 %description
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
@@ -46,6 +42,7 @@ the ISC DHCP service and relay agent.
 Summary: Development headers and libraries for interfacing to the DHCP server
 Requires: initscripts >= 6.75
 Group: System Environment/Base
+Obsoletes: dhcpcd
 
 %package devel
 Summary: Development headers and libraries for interfacing to the DHCP server
@@ -70,20 +67,15 @@ Libraries for interfacing with the ISC DHCP server.
 %setup -q
 
 %patch -p1 -b .alignment
-%patch10 -p1 -b .RHscript
 %patch100 -p1 -b .jbuild
-%patch101 -p1
 %patch102 -p1
 %patch103 -p1 -b .miscfixes
-%patch104 -p1 -b .fixoptparse
-%patch105 -p1 -b .ntp
 %patch106 -p1 -b .minires
-%patch107 -p1 -b .hops
-%patch108 -p1 -b .ntpscript
 %patch109 -p1 -b .dhcpdman
-%patch110 -p1 -b .memleaks
-%patch111 -p1 -b .clientscript
 %patch112 -p1 -b .div0
+%patch113 -p1 -b .selinux
+%patch114 -p1 -b .initialize
+%patch115 -p1 -b .RHscript
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -198,6 +190,19 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Wed Jan 21 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.20
+- Fix initialization of memory to prevent compiler error
+
+* Mon Jan 5 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.19
+- Close leaseFile before exec, to fix selinux error message
+
+* Mon Dec 29 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.18
+- Add BuildRequires groff
+- Replace resolv.conf if renew and data changes
+
+* Sun Nov 30 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.17
+- Add obsoletes dhcpcd
+
 * Wed Oct 8 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.16
 - Fix location of ntp driftfile
 
