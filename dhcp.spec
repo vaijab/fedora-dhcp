@@ -2,6 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.2rc3
 Release: 1
+Epoch:   8
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -60,7 +61,7 @@ Obsoletes: dhcpcd
 
 %package devel
 Summary: Development headers and libraries for interfacing to the DHCP server
-Requires: dhcp = %{version}
+Requires: dhcp = %{epoch}:%{version}
 Group: Development/Libraries
 
 %description -n dhclient
@@ -229,6 +230,9 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Thu Jan 06 2005 Jason Vas Dias <jvdias@redhat.com> 8:3.0.2rc3.1
+- still need an epoch to get past nvre test 
+
 * Thu Jan 06 2005 Jason Vas Dias <jvdias@redhat.com> 3.0.2rc3-1
 - fix bug 144417: much improved dhclient-script 
 
