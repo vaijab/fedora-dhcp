@@ -1,7 +1,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.2rc3
-Release: 4
+Release: 8
 Epoch:   8
 License: distributable
 Group: System Environment/Daemons
@@ -246,7 +246,11 @@ fi
 %{_mandir}/man3/*
 
 %changelog
-* Mon Feb 14 2005 Jason Vas Dias <jvdias@redhat.com> 3.0.2rc3-4
+* Tue Feb 14 2005 Jason Vas Dias <jvdias@redhat.com> 8:3.0.2rc3-8
+- Add better execshield security link options
+- fix dhcpd.init when no /etc/dhcpd.conf exists and -cf in DHCPDARGS
+
+* Mon Feb 14 2005 Jason Vas Dias <jvdias@redhat.com> 8:3.0.2rc3-4
 - make dhclient-script TIMEOUT mode do exactly the same configuration
 - as BOUND / RENEW / REBIND / REBOOT if router ping succeeds
 
