@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 7
 Version: 3.0.1
-Release: 11
+Release: 12
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -29,6 +29,8 @@ Patch123: dhcp-3.0.1.preserve-sent-options.patch
 Patch124: dhcp-3.0.1-mis_host.patch
 Patch125: dhcp-3.0.1-new-host.patch
 Patch126: dhcp-3.0.1-host_dereference.patch
+Patch127: dhcp-3.0.1-restrict-unconfigured-IF.patch
+Patch128: dhcp-3.0.1-check-empty-new-routers.patch
 
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -96,6 +98,8 @@ Libraries for interfacing with the ISC DHCP server.
 %patch124 -p1 -b .mis-host 
 %patch125 -p1 -b .new-host
 %patch126 -p1 -b .host-dereference
+%patch127 -p1 -b .restrict-unconfigured-IF
+%patch128 -p1 -b .check-empty-new-routers
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -215,6 +219,13 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Tue Nov 16 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-12
+- fix bug 138181 & bug 139468: do not attempt to listen/send on
+-     unconfigured  loopback, point-to-point or non-broadcast 
+-     interfaces (don't generate annoying log messages)
+- fix bug 138869: dhclient-script: check if '$new_routers' is
+-     empty before doing 'set $new_routers;...;ping ... $1'
+
 * Wed Oct 06 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-11
 - dhcp-3.0.2b1 came out today. A diff of the 'ack_lease' function
 - Dave Hankins and I patched exposed a missing '!' on an if clause
