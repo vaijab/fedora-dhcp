@@ -29,7 +29,7 @@ configtest()
 {
         CFA=''
         if [[ "$DHCPDARGS" = *-cf* ]]; then
-	    CFA=`echo $DHCPDARGS | sed 's/^.*-cf[\ \	]*/-cf/;s/[\ \	].*$//'`;
+	    CFA=`echo $DHCPDARGS | sed 's/^.*-cf[\ \	]*/-cf/;s/[\ \	].*$//;s/-cf/-cf /'`;
         fi;
 	/usr/sbin/dhcpd -t $CFA	
 	return $?
@@ -38,7 +38,7 @@ configtest()
 start() {
 	# Start daemons.
 	echo -n $"Starting $prog: "
-	daemon /usr/sbin/dhcpd 2>/dev/null
+	daemon /usr/sbin/dhcpd ${DHCPDARGS} 2>/dev/null
 	RETVAL=$?
 	echo
 	if [ $RETVAL -eq 0 ]; then 
