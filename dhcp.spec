@@ -1,7 +1,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.2
-Release: 2
+Release: 3
 Epoch:   10
 License: distributable
 Group: System Environment/Daemons
@@ -248,6 +248,9 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Mon Mar 07 2005 Jason Vas Dias <jvdias@redhat.com> 10.3.0.2-3
+- rebuild for gcc4/glibc-2.3.4-14; fix bad memset
+
 * Thu Feb 24 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-2
 - Fix bug 143640: do not allow more than one dhclient to configure an interface
 
