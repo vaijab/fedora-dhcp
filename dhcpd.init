@@ -20,10 +20,11 @@
 [ -f /var/lib/dhcp/dhcpd.leases ] || exit 0
 
 RETVAL=0
+prog="dhcpd"
 
 start() {
 	# Start daemons.
-	echo -n "Starting dhcpd: "
+	echo -n $"Starting $prog: "
 	daemon /usr/sbin/dhcpd
 	RETVAL=$?
 	echo
@@ -33,7 +34,7 @@ start() {
 
 stop() {
 	# Stop daemons.
-	echo -n "Shutting down dhcpd: "
+	echo -n $"Shutting down $prog: "
 	killproc dhcpd
 	RETVAL=$?
 	echo
@@ -66,7 +67,7 @@ case "$1" in
 	RETVAL=$?
 	;;
   *)
-	echo "Usage: dhcpd {start|stop|restart|condrestart|status}"
+	echo $"Usage: $0 {start|stop|restart|condrestart|status}"
 	exit 1
 esac
 

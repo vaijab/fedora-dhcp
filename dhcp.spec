@@ -1,16 +1,16 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 1
-Version: 2.0
-Release: 12
+Version: 2.0pl5
+Release: 4
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
 Source1: dhcpd.conf.sample
 Source2: dhcpd.init
-Patch0: dhcp-%{version}-buildroot.patch
-Patch1: dhcp-%{version}-js.patch
-Patch2: dhcp-%{version}-unaligned.patch
+Patch0: dhcp-2.0-buildroot.patch
+Patch1: dhcp-2.0-js.patch
+Patch2: dhcp-2.0-unaligned.patch
 Obsoletes: dhcpd
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
@@ -28,7 +28,7 @@ the DHCP client daemon, on client machines.
 
 %prep
 %setup -q
-%patch0 -p1 -b .ewt
+%patch0 -p1
 %patch1 -p1 -b .js
 %ifarch sparc sparc64 alpha
 %patch2 -p1 -b .unaligned
@@ -93,6 +93,19 @@ fi
 #/usr/man/man8/dhclient-script.8
 
 %changelog
+* Wed Feb 14 2001 Tim Waugh <twaugh@redhat.com>
+- Fix initscript typo (bug #27624).
+
+* Wed Feb  7 2001 Trond Eivind Glomsrød <teg@redhat.com>
+- Improve spec file i18n
+
+* Mon Feb  5 2001 Bernhard Rosenkraenzer <bero@redhat.com>
+- i18nize init script (#26084)
+
+* Sun Sep 10 2000 Florian La Roche <Florian.LaRoche@redhat.de>
+- update to 2.0pl5
+- redo buildroot patch
+
 * Wed Aug 30 2000 Matt Wilson <msw@redhat.com>
 - rebuild to cope with glibc locale binary incompatibility, again
 
