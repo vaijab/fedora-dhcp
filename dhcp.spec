@@ -1,8 +1,8 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 1
-Version: 3.0.1rc12
-Release: 9
+Version: 3.0.1rc13
+Release: 1
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -11,11 +11,10 @@ Source2: dhcpd.init
 Source3: dhcrelay.init
 Patch: dhcp-3.0-alignment.patch
 Patch100: dhcp-3.0-jbuild.patch
-Patch102: dhcp-3.0pl1-dhcpctlman-69731.patch
+Patch102: dhcp-3.0.1rc13-dhcpctlman.patch
 Patch103: dhcp-3.0pl1-miscfixes.patch
 Patch106: dhcp-3.0pl1-minires.patch
 Patch109: dhcpd-manpage.patch
-Patch112: dhcp-3.0pl2-div0.patch
 Patch113: dhcp-3.0pl2-selinux.patch
 Patch114: dhcp-3.0pl2-initialize.patch
 Patch115: dhcp-3.0.1rc12-RHscript.patch
@@ -71,11 +70,10 @@ Libraries for interfacing with the ISC DHCP server.
 
 %patch -p1 -b .alignment
 %patch100 -p1 -b .jbuild
-%patch102 -p1
+%patch102 -p1 -b .dhcpctlman
 %patch103 -p1 -b .miscfixes
 %patch106 -p1 -b .minires
 %patch109 -p1 -b .dhcpdman
-%patch112 -p1 -b .div0
 %patch113 -p1 -b .selinux
 %patch114 -p1 -b .initialize
 %patch115 -p1 -b .RHscript
@@ -165,7 +163,7 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc CHANGES README RELNOTES dhcpd.conf.sample
+%doc README RELNOTES dhcpd.conf.sample
 %dir %{_localstatedir}/lib/dhcp
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcp/dhcpd.leases
 %config(noreplace) /etc/sysconfig/dhcpd
@@ -201,6 +199,9 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Thu Jun 10 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc13-1
+- Update to latest package from ISC
+
 * Thu Jun 10 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc12-9
 - add route back in after route up call
 
