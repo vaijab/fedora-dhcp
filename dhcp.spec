@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 1
 Version: 2.0pl5
-Release: 7
+Release: 8
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -101,6 +101,9 @@ fi
 #/usr/man/man8/dhclient-script.8
 
 %changelog
+* Sun Aug 26 2001 Elliot Lee <sopwith@redhat.com> 2.0pl5-8
+- Fix #26446
+
 * Mon Aug 20 2001 Elliot Lee <sopwith@redhat.com>
 - Fix #5405 for real - it is dhcpd.leases not dhcp.leases.
 
