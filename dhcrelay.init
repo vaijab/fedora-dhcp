@@ -15,7 +15,7 @@
 # Source dhcrelay configuration. We can't default a DHCPSERVERS entry!
 if [ -f /etc/sysconfig/dhcrelay ] ; then
 	. /etc/sysconfig/dhcrelay
-	[ -n "$INTERFACES" ] || exit 0
+	[ -n "$DHCPSERVERS" ] || exit 0
 else
 	exit 0
 fi

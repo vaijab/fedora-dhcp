@@ -63,12 +63,16 @@ case "$1" in
 	    RETVAL=$?
 	fi
 	;;
+  configtest)
+	dhcpd -t
+	RETVAL=$?
+	;;
   status)
 	status dhcpd
 	RETVAL=$?
 	;;
   *)
-	echo $"Usage: $0 {start|stop|restart|condrestart|status}"
+	echo $"Usage: $0 {start|stop|restart|condrestart|configtest|status}"
 	exit 1
 esac
 

@@ -1,8 +1,8 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 1
-Version: 3.0pl1
-Release: 23
+Version: 3.0pl2
+Release: 6.16
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -20,6 +20,10 @@ Patch105: dhcp-3.0pl1-ntp.patch
 Patch106: dhcp-3.0pl1-minires.patch
 Patch107: dhcp-3.0pl1-hops.patch
 Patch108: dhcp-3.0pl1-ntpscript.patch
+Patch109: dhcpd-manpage.patch
+Patch110: dhcp-3.0pl2-memleaks.patch
+Patch111: dhcp-clientscript.patch
+Patch112: dhcp-3.0pl2-div0.patch
 
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -45,7 +49,7 @@ Group: System Environment/Base
 
 %package devel
 Summary: Development headers and libraries for interfacing to the DHCP server
-Requires: dhcp = %{version}
+Requires: dhcp = %{epoch}:%{version}
 Group: Development/Libraries
 
 %description -n dhclient
@@ -76,6 +80,10 @@ Libraries for interfacing with the ISC DHCP server.
 %patch106 -p1 -b .minires
 %patch107 -p1 -b .hops
 %patch108 -p1 -b .ntpscript
+%patch109 -p1 -b .dhcpdman
+%patch110 -p1 -b .memleaks
+%patch111 -p1 -b .clientscript
+%patch112 -p1 -b .div0
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -190,6 +198,81 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Wed Oct 8 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.16
+- Fix location of ntp driftfile
+
+* Fri Sep 5 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.15
+- Bump Release
+
+* Fri Sep 5 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.14
+- Add div0 patch
+
+* Wed Aug 20 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.13
+- Add SEARCH to client script
+
+* Wed Aug 20 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.12
+- Bump Release
+
+* Wed Aug 20 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.11
+- Add configtest
+
+* Fri Aug 1 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.10
+- increment for base 
+
+* Fri Aug 1 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.9
+- Don't update resolv.conf on renewals
+
+* Tue Jul  29 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.8
+- increment for base 
+
+* Tue Jul  29 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.7
+- Fix name of driftfile
+
+* Tue Jul  29 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.6
+- increment for base 
+
+* Tue Jul  29 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.5
+- Change dhcrelay script to check DHCPSERVERS
+
+* Mon Jul  7 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.4
+- increment for base 
+
+* Mon Jul  7 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.3
+- Fix dhclient-script to support PEERNTP and PEERNIS flags.
+- patch submitted by aoliva@redhat.com
+
+* Sun Jun  8 2003 Tim Powers <timp@redhat.com> 1:3.0pl2-6.1
+- add epoch to dhcp-devel versioned requires on dhcp
+- build for RHEL
+
+* Wed Jun 04 2003 Elliot Lee <sopwith@redhat.com>
+- rebuilt
+
+* Tue May 27 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl2-5
+- Fix memory leak in parser.
+
+* Mon May 19 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl2-4
+- Change Rev for RHEL
+
+* Mon May 19 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl2-3
+- Change example to not give out 255 address.
+
+* Tue Apr 29 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl2-2
+- Change Rev for RHEL
+
+* Mon Apr 28 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl2-1
+- upgrade to 3.0pl2
+
+* Wed Mar 26 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-26
+- add usage for dhcprelay -c
+- add man page for dhcprelay -c
+
+* Fri Mar 7 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-25
+- Fix man dhcpd.conf man page
+
+* Tue Mar 4 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-24
+- Fix man dhcpctl.3 page
+
 * Mon Feb 3 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-23
 - fix script to handle ntp.conf correctly
 
