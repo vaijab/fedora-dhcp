@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 7
 Version: 3.0.1
-Release: 10
+Release: 11
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -215,11 +215,17 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Wed Oct 06 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-11
+- dhcp-3.0.2b1 came out today. A diff of the 'ack_lease' function
+- Dave Hankins and I patched exposed a missing '!' on an if clause
+- that got dropped with the 'new-host' patch. Replacing the '!' .
+- Also found one missing host_dereference.
+
 * Wed Oct 06 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-10
 - clean-up last patch: new-host.patch adds host_reference(host)
 - without host_dereference(host) before returns in ack_lease
 - (dhcp-3.0.1-host_dereference.patch)
-
+ 
 * Mon Sep 27 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-9
 - Fix bug 133522:
 - PXE Boot clients with static leases not given 'file' option
