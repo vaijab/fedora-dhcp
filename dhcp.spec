@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 1
 Version: 3.0pl1
-Release: 8
+Release: 9
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -159,6 +159,7 @@ fi
 %dir %{_localstatedir}/lib/dhcp
 /sbin/dhclient
 /sbin/dhclient-script
+%{_mandir}/man5/dhcp-options.5*
 %{_mandir}/man5/dhclient.conf.5*
 %{_mandir}/man5/dhclient.leases.5*
 %{_mandir}/man8/dhclient.8*
@@ -171,6 +172,9 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Wed Aug 28 2002 Elliot Lee <sopwith@redhat.com> 3.0pl1-9
+- Fix #72795
+
 * Mon Aug 26 2002 Elliot Lee <sopwith@redhat.com> 3.0pl1-8
 - More #68650 (modify requested options)
 - Fix #71453 (dhcpctl man page) and #71474 (include libdst.a) and
