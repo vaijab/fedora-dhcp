@@ -1,0 +1,181 @@
+Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
+Name: dhcp
+Epoch: 1
+Version: 2.0
+Release: 12
+Copyright: distributable
+Group: System Environment/Daemons
+Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
+Source1: dhcpd.conf.sample
+Source2: dhcpd.init
+Patch0: dhcp-%{version}-buildroot.patch
+Patch1: dhcp-%{version}-js.patch
+Patch2: dhcp-%{version}-unaligned.patch
+Obsoletes: dhcpd
+BuildRoot: %{_tmppath}/%{name}-%{version}-root
+
+%description
+DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
+individual devices on an IP network to get their own network
+configuration information (IP address, subnetmask, broadcast address,
+etc.) from a DHCP server.  The overall purpose of DHCP is to make it
+easier to administer a large network.  The dhcp package includes the DHCP
+server and a DHCP relay agent.
+
+You should install dhcp if you want to set up a DHCP server on your
+network. You will also need to install the pump package, which provides
+the DHCP client daemon, on client machines.
+
+%prep
+%setup -q
+%patch0 -p1 -b .ewt
+%patch1 -p1 -b .js
+%ifarch sparc sparc64 alpha
+%patch2 -p1 -b .unaligned
+%endif
+
+cp %SOURCE1 .
+
+%build
+%configure
+make CC="gcc -pipe" DEBUG="$RPM_OPT_FLAGS -D_PATH_DHCPD_DB=\\\"/var/lib/dhcp/dhcpd.leases\\\" -D_PATH_DHCLIENT_DB=\\\"/var/lib/dhcp/dhclient.leases\\\""
+
+
+%install
+rm -rf %{buildroot}
+mkdir -p %{buildroot}
+
+make install DESTDIR=%{buildroot}
+strip %{buildroot}/usr/sbin/* || :
+
+mkdir -p %{buildroot}/etc/rc.d/init.d
+install -m 0755 %SOURCE2 %{buildroot}/etc/rc.d/init.d/dhcpd
+
+%clean
+rm -rf %{buildroot}
+
+%post
+/sbin/chkconfig --add dhcpd
+
+%preun
+if [ $1 = 0 ]; then	# execute this only if we are NOT doing an upgrade
+    service dhcpd stop >/dev/null 2>&1
+    /sbin/chkconfig --del dhcpd 
+fi
+
+%postun
+if [ "$1" -ge "1" ]; then
+    service dhcpd condrestart >/dev/null 2>&1
+fi
+
+%files
+%defattr(-,root,root)
+%doc CHANGES README RELNOTES dhcpd.conf.sample
+%dir %{_localstatedir}/lib/dhcp
+%config /etc/rc.d/init.d/dhcpd
+%{_sbindir}/dhcpd
+%{_sbindir}/dhcrelay
+%{_mandir}/man5/dhcpd.conf.5*
+%{_mandir}/man5/dhcpd.leases.5*
+%{_mandir}/man5/dhcp-options.5*
+%{_mandir}/man8/dhcpd.8*
+%{_mandir}/man8/dhcrelay.8*
+
+#%files client
+#%defattr(-,root,root)
+#%doc CHANGES README RELNOTES TODO doc/*
+#%dir /var/dhcpd
+#/etc/dhclient-script
+#/sbin/dhclient
+#/usr/man/man5/dhclient.conf.5
+#/usr/man/man5/dhclient.leases.5
+#/usr/man/man8/dhclient.8
+#/usr/man/man8/dhclient-script.8
+
+%changelog
+* Wed Aug 30 2000 Matt Wilson <msw@redhat.com>
+- rebuild to cope with glibc locale binary incompatibility, again
+
+* Mon Aug 14 2000 Preston Brown <pbrown@redhat.com>
+- check for existence of /var/lib/dhcpd.leases in initscript before starting
+
+* Wed Jul 19 2000 Jakub Jelinek <jakub@redhat.com>
+- rebuild to cope with glibc locale binary incompatibility
+
+* Sat Jul 15 2000 Bill Nottingham <notting@redhat.com>
+- move initscript back
+
+* Wed Jul 12 2000 Prospector <bugzilla@redhat.com>
+- automatic rebuild
+
+* Fri Jul  7 2000 Florian La Roche <Florian.LaRoche@redhat.com>
+- /etc/rc.d/init.d -> /etc/init.d
+- fix /var/state/dhcp -> /var/lib/dhcp
+
+* Fri Jun 16 2000 Preston Brown <pbrown@redhat.com>
+- condrestart for initscript, graceful upgrades.
+
+* Thu Feb 03 2000 Erik Troan <ewt@redhat.com>
+- gzipped man pages
+- marked /etc/rc.d/init.d/dhcp as a config file
+
+* Mon Jan 24 2000 Jakub Jelinek <jakub@redhat.com>
+- fix booting of JavaStations
+  (reported by Pete Zaitcev <zaitcev@metabyte.com>).
+- fix SIGBUS crashes on SPARC (apparently gcc is too clever).
+
+* Fri Sep 10 1999 Bill Nottingham <notting@redhat.com>
+- chkconfig --del in %preun, not %postun
+
+* Mon Aug 16 1999 Bill Nottingham <notting@redhat.com>
+- initscript munging
+
+* Fri Jun 25 1999 Jeff Johnson <jbj@redhat.com>
+- update to 2.0.
+
+* Fri Jun 18 1999 Bill Nottingham <notting@redhat.com>
+- don't run by default
+
+* Wed Jun  2 1999 Jeff Johnson <jbj@redhat.com>
+- update to 2.0b1pl28.
+
+* Tue Apr 06 1999 Preston Brown <pbrown@redhat.com>
+- strip binaries
+
+* Mon Apr 05 1999 Cristian Gafton <gafton@redhat.com>
+- copy the source file in %prep, not move
+
+* Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com> 
+- auto rebuild in the new build environment (release 4)
+
+* Mon Jan 11 1999 Erik Troan <ewt@redhat.com>
+- added a sample dhcpd.conf file
+- we don't need to dump rfc's in /usr/doc
+
+* Sun Sep 13 1998 Cristian Gafton <gafton@redhat.com>
+- modify dhcpd.init to exit if /etc/dhcpd.conf is not present
+
+* Sat Jun 27 1998 Jeff Johnson <jbj@redhat.com>
+- Upgraded to 2.0b1pl6 (patch1 no longer needed).
+
+* Thu Jun 11 1998 Erik Troan <ewt@redhat.com>
+- applied patch from Chris Evans which makes the server a bit more paranoid
+  about dhcp requests coming in from the wire
+
+* Mon Jun 01 1998 Erik Troan <ewt@redhat.com>
+- updated to dhcp 2.0b1pl1
+- got proper man pages in the package
+
+* Tue Mar 31 1998 Erik Troan <ewt@redhat.com>
+- updated to build in a buildroot properly
+- don't package up the client, as it doens't work very well <sigh>
+
+* Tue Mar 17 1998 Bryan C. Andregg <bandregg@redhat.com>
+- Build rooted and corrected file listing.
+
+* Mon Mar 16 1998 Mike Wangsmo <wanger@redhat.com>
+- removed the actual inet.d links (chkconfig takes care of this for us)
+  and made the %postun section handle upgrades.
+
+* Mon Mar 16 1998 Bryan C. Andregg <bandregg@redhat.com>
+- First package.
