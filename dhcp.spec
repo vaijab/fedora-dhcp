@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 2
 Version: 3.0.1rc14
-Release: 4
+Release: 5
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -22,6 +22,7 @@ Patch116: dhcp-3.0.1rc12-staticroutes.patch
 Patch117: dhcp-3.0.1rc12-pie.patch
 Patch118: dhcp-3.0.1rc12-inherit-leases.patch
 Patch119: dhcp-3.0.1rc13-noexpr.patch
+Patch120: dhcp-3.0.1rc14-noconfig.patch
 
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -82,6 +83,7 @@ Libraries for interfacing with the ISC DHCP server.
 %patch117 -p1 -b .pie
 %patch118 -p1 -b .inherit-leases
 %patch119 -p1 -b .noexp
+%patch120 -p1 -b .noconfig
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -201,6 +203,10 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Thu Jun 24 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc14-5
+- Allow dhclient-script to continue without a config file.  
+- It will use default values.
+
 * Wed Jun 23 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc14-4
 - fix inherit-leases patch
 
