@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 7
 Version: 3.0.1
-Release: 7
+Release: 8
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -26,6 +26,7 @@ Patch120: dhcp-3.0.1rc14-noconfig.patch
 Patch121: dhcp-3.0.1-change_resolv_conf.patch
 Patch122: dhcp-3.0.1-default_gateway.patch
 Patch123: dhcp-3.0.1.preserve-sent-options.patch
+Patch124: dhcp-3.0.1-mis_host.patch
 
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -90,6 +91,7 @@ Libraries for interfacing with the ISC DHCP server.
 %patch121 -p1 -b .change_resolv_conf
 %patch122 -p1 -b .default_gateway
 %patch123 -p1 -b .preserve-sent-options
+%patch124 -p1 -b .mis-host 
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -209,6 +211,14 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Fri Sep 10 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-8
+- Fix bug 131212: 
+- If "deny booting" is defined for some group of hosts,
+- then after one of those hosts is denied booting, all
+- hosts are denied booting, because of a pointer not being
+- cleared in the lease record. 
+- An upstream patch was obtained which will be in dhcp-3.0.2 .
+
 * Mon Aug 16 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-7
 - Forward DNS update by client was disabled by a bug that I
 - found in code where 'client->sent_options' was being 
