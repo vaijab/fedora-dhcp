@@ -1,7 +1,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.2rc3
-Release: 1
+Release: 2
 Epoch:   8
 Copyright: distributable
 Group: System Environment/Daemons
@@ -34,12 +34,14 @@ Patch128: dhcp-3.0.1-check-empty-new-routers.patch
 Patch129: dhcp-3.0.1-fix-ntp.patch
 Patch130: dhcp-3.0.1-release-mode-ifup.patch
 Patch131: dhcp-3.0.1-dhclient-script-big-fix.patch
+Patch132: dhcp-3.0.2rc3-fix-hex.patch
 
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
 Requires: kernel >= 2.2.18
-BuildRequires: compat-gcc >= 8-3.3.4.2   groff
+BuildRequires:  groff
+#BuildRequires: compat-gcc >= 8-3.3.4.2   groff
 
 %description
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
@@ -110,6 +112,7 @@ Libraries for interfacing with the ISC DHCP server.
 %patch129 -p1 -b .fix-ntp
 %patch130 -p1 -b .release-mode-ifup
 %patch131 -p1 -b .dhclient-script-big-fix
+%patch132 -p1 -b .fix-hex
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -138,10 +141,10 @@ RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIE"
 %else
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fpie"
 %endif
-RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed 's/\ \-mtune\=[^\=\ ]*//'`
+#RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed 's/\ \-mtune\=[^\=\ ]*//'`
 ./configure --copts "$RPM_OPT_FLAGS"
-make %{?_smp_mflags} CC="gcc33"
-#make %{?_smp_mflags} CC="cc"
+#make %{?_smp_mflags} CC="gcc33"
+make %{?_smp_mflags} CC="cc"
 
 %install
 rm -rf %{buildroot}
@@ -230,7 +233,10 @@ fi
 %{_mandir}/man3/*
 
 %changelog
-* Thu Jan 06 2005 Jason Vas Dias <jvdias@redhat.com> 8:3.0.2rc3.1
+* Mon Jan 24 2005 Jason Vas Dias <jvdias@redhat.com> 8:3.0.2rc3-2
+- fix bug 145997: allow hex 32-bit integers in user specified options
+
+* Thu Jan 06 2005 Jason Vas Dias <jvdias@redhat.com> 8:3.0.2rc3-1
 - still need an epoch to get past nvre test 
 
 * Thu Jan 06 2005 Jason Vas Dias <jvdias@redhat.com> 3.0.2rc3-1
