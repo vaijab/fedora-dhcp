@@ -1,8 +1,8 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
-Epoch: 1
-Version: 3.0.1rc13
-Release: 2
+Epoch: 2
+Version: 3.0.1rc14
+Release: 3
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -21,6 +21,7 @@ Patch115: dhcp-3.0.1rc12-RHscript.patch
 Patch116: dhcp-3.0.1rc12-staticroutes.patch
 Patch117: dhcp-3.0.1rc12-pie.patch
 Patch118: dhcp-3.0.1rc12-inherit-leases.patch
+Patch119: dhcp-3.0.1rc13-noexpr.patch
 
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -80,6 +81,7 @@ Libraries for interfacing with the ISC DHCP server.
 %patch116 -p1 -b .staticroutes
 %patch117 -p1 -b .pie
 %patch118 -p1 -b .inherit-leases
+%patch119 -p1 -b .noexp
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -199,6 +201,14 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Tue Jun 22 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc14-2
+- Turn on inherit-leases patch
+
+* Tue Jun 22 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc14-1
+- User kernelversion instead of uname-r
+- Update to latest package from ISC
+- Remove inherit-leases patch for now.
+
 * Tue Jun 15 2004 Elliot Lee <sopwith@redhat.com>
 - rebuilt
 
