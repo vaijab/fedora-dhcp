@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 1
 Version: 3.0pl1
-Release: 9
+Release: 23
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -15,9 +15,16 @@ Patch100: dhcp-3.0-jbuild.patch
 Patch101: dhcp-3.0pl1-dhhostname-68650.patch
 Patch102: dhcp-3.0pl1-dhcpctlman-69731.patch
 Patch103: dhcp-3.0pl1-miscfixes.patch
+Patch104: dhcp-3.0pl1-fixoptparse.patch
+Patch105: dhcp-3.0pl1-ntp.patch
+Patch106: dhcp-3.0pl1-minires.patch
+Patch107: dhcp-3.0pl1-hops.patch
+Patch108: dhcp-3.0pl1-ntpscript.patch
+
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
+Requires: kernel >= 2.2.18
 
 %description
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
@@ -58,12 +65,17 @@ Libraries for interfacing with the ISC DHCP server.
 %prep
 %setup -q
 
-%patch -p1
-%patch10 -p1
-%patch100 -p1
+%patch -p1 -b .alignment
+%patch10 -p1 -b .RHscript
+%patch100 -p1 -b .jbuild
 %patch101 -p1
 %patch102 -p1
-%patch103 -p1
+%patch103 -p1 -b .miscfixes
+%patch104 -p1 -b .fixoptparse
+%patch105 -p1 -b .ntp
+%patch106 -p1 -b .minires
+%patch107 -p1 -b .hops
+%patch108 -p1 -b .ntpscript
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -81,7 +93,14 @@ cat <<EOF >>includes/site.h
 EOF
 
 %build
+cat <<EOF >findptrsize.c
+#include <stdio.h>
+int main(void) { printf("%%d\n", sizeof(void *)); return 0; }
+EOF
+cc -o findptrsize findptrsize.c
+[ "`./findptrsize`" -ge 8 ] && RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DPTRSIZE_64BIT"
 ./configure --copts "$RPM_OPT_FLAGS"
+
 make %{?_smp_mflags} CC="cc"
 
 %install
@@ -146,7 +165,6 @@ fi
 %{_sbindir}/dhcpd
 %{_sbindir}/dhcrelay
 %{_mandir}/man1/omshell.1*
-%{_mandir}/man5/dhcp-options.5*
 %{_mandir}/man5/dhcp-eval.5*
 %{_mandir}/man5/dhcpd.conf.5*
 %{_mandir}/man5/dhcpd.leases.5*
@@ -159,11 +177,11 @@ fi
 %dir %{_localstatedir}/lib/dhcp
 /sbin/dhclient
 /sbin/dhclient-script
-%{_mandir}/man5/dhcp-options.5*
 %{_mandir}/man5/dhclient.conf.5*
 %{_mandir}/man5/dhclient.leases.5*
 %{_mandir}/man8/dhclient.8*
 %{_mandir}/man8/dhclient-script.8*
+%{_mandir}/man5/dhcp-options.5*
 
 %files devel
 %defattr(-,root,root)
@@ -172,6 +190,51 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Mon Feb 3 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-23
+- fix script to handle ntp.conf correctly
+
+* Thu Jan 29 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-22
+- Increment release to add to 8.1
+
+* Wed Jan 29 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-21
+- Implement max hops patch
+
+* Wed Jan 29 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-20
+- It has now been decided to just have options within dhclient kit
+
+* Sun Jan 26 2003 Florian La Roche <Florian.LaRoche@redhat.de>
+- add defattr() to have files not owned by root
+
+* Fri Jan 24 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-17
+- require kernel version
+
+* Fri Jan 24 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-16
+- move dhcp-options to separate package 
+
+* Wed Jan 22 2003 Tim Powers <timp@redhat.com>
+- rebuilt
+
+* Thu Jan 9 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-15
+- eliminate dhcp-options from dhclient in order to get errata out
+
+* Wed Jan 8 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-14
+- VU#284857 - ISC DHCPD minires library contains multiple buffer overflows
+
+* Mon Jan 6 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-13
+- Fix when ntp is not installed.
+
+* Mon Jan 6 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-12
+- Fix #73079 (dhcpctl man page) 
+
+* Thu Nov 14 2002 Elliot Lee <sopwith@redhat.com> 3.0pl1-11
+- Use generic PTRSIZE_64BIT detection instead of ifarch.
+
+* Thu Nov 14 2002 Preston Brown <pbrown@redhat.com> 3.0pl1-10
+- fix parsing of command line args in dhclient.  It was missing a few.
+
+* Mon Oct 07 2002 Florian La Roche <Florian.LaRoche@redhat.de>
+- work on 64bit archs
+
 * Wed Aug 28 2002 Elliot Lee <sopwith@redhat.com> 3.0pl1-9
 - Fix #72795
 
@@ -299,7 +362,7 @@ fi
 - strip binaries
 
 * Mon Apr 05 1999 Cristian Gafton <gafton@redhat.com>
-- copy the source file in %prep, not move
+- copy the source file in prep, not move
 
 * Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com> 
 - auto rebuild in the new build environment (release 4)
