@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 1
 Version: 3.0pl1
-Release: 6
+Release: 7
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -169,6 +169,9 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Thu Aug 15 2002 Elliot Lee <sopwith@redhat.com> 3.0pl1-7
+- More #68650 (modify existing patch to also set NIS domain)
+
 * Tue Aug 13 2002 Elliot Lee <sopwith@redhat.com> 3.0pl1-6
 - Patch102 (dhcp-3.0pl1-dhcpctlman-69731.patch) to fix #69731
 
