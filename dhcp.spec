@@ -244,6 +244,10 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Mon Feb 14 2005 Jason Vas Dias <jvdias@redhat.com> 3.0.1-34_EL
+- fix bug 147926: dhclient-script should do restorecon for modified conf files
+- optimize execshield protection
+
 * Thu Feb 10 2005 Jason Vas Dias <jvdias@redhat.com> 8.3.0.4rc3-3
 - fix bug 147375: dhcpd heap corruption on 32-bit 'subnet' masks
 - fix bug 147502: dhclient should honor GATEWAYDEV and GATEWAY settings            
