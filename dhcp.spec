@@ -1,7 +1,8 @@
+%{?!DHCLIENT_EXTENDED_OPTION_ENVIRONMENT:%define DHCLIENT_EXTENDED_OPTION_ENVIRONMENT 1}
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.2
-Release: 6
+Release: 7
 Epoch:   10
 License: distributable
 Group: System Environment/Daemons
@@ -127,8 +128,9 @@ Libraries for interfacing with the ISC DHCP server.
 %patch137 -p1 -b .dhclient-dhconfig
 %patch138 -p1 -b .pid_file_excl
 %patch139 -p1 -b .dhclient-no-restorecon-or-route
+%if %{DHCLIENT_EXTENDED_OPTION_ENVIRONMENT}
 %patch140 -p1 -b .extended_option_environment
-
+%endif
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcp
@@ -155,6 +157,9 @@ cc -o findptrsize findptrsize.c
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIE"
 %else
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fpie"
+%endif
+%if %{DHCLIENT_EXTENDED_OPTION_ENVIRONMENT}
+    RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DEXTENDED_NEW_OPTION_INFO"
 %endif
 #RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed 's/\ \-mtune\=[^\=\ ]*//'`
 ./configure --copts "$RPM_OPT_FLAGS"
@@ -253,7 +258,7 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
-* Mon Apr 04 2005 Jason Vas Dias <jvdias@redhat.com>
+* Mon Apr 04 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-7
 - Add '-x' "extended option environment" dhclient argument:
 -  When -x option given to dhclient:
 -    dhclient enables arbitrary option processing by writing information
