@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 1
 Version: 3.0.1rc12
-Release: 4
+Release: 6
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -19,7 +19,8 @@ Patch112: dhcp-3.0pl2-div0.patch
 Patch113: dhcp-3.0pl2-selinux.patch
 Patch114: dhcp-3.0pl2-initialize.patch
 Patch115: dhcp-3.0.1rc12-RHscript.patch
-
+Patch116: dhcp-3.0.1rc12-staticroutes.patch
+Patch117: dhcp-3.0.1rc12-pie.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -76,6 +77,8 @@ Libraries for interfacing with the ISC DHCP server.
 %patch113 -p1 -b .selinux
 %patch114 -p1 -b .initialize
 %patch115 -p1 -b .RHscript
+%patch116 -p1 -b .staticroutes
+%patch117 -p1 -b .pie
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -99,6 +102,11 @@ int main(void) { printf("%%d\n", sizeof(void *)); return 0; }
 EOF
 cc -o findptrsize findptrsize.c
 [ "`./findptrsize`" -ge 8 ] && RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DPTRSIZE_64BIT"
+%ifarch s390 s390x
+RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIC"
+%else
+RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fpic"
+%endif
 ./configure --copts "$RPM_OPT_FLAGS"
 
 make %{?_smp_mflags} CC="cc"
@@ -190,6 +198,12 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Mon May 17 2004 Thomas Woerner <twoerner@redhat.com> 1:3.0.1rc12-6
+- compiling dhcpd PIE
+
+* Thu Mar 25 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc12-5
+- Add static routes patch to dhclient-script
+
 * Wed Mar 25 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc12-4
 - Fix init to check config during restart 
 
