@@ -1,7 +1,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.2rc3
-Release: 8
+Release: 8_FC4
 Epoch:   8
 License: distributable
 Group: System Environment/Daemons
