@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 7
 Version: 3.0.1
-Release: 16
+Release: 17
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -38,7 +38,7 @@ URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
 Requires: kernel >= 2.2.18
-BuildRequires: groff
+BuildRequires: compat-gcc >= 8-3.3.4.2   groff
 
 %description
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
@@ -132,10 +132,10 @@ RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIC"
 %else
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fpic"
 %endif
-#RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed 's/\ \-mtune\=[^\=\ ]*//'`
+RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed 's/\ \-mtune\=[^\=\ ]*//'`
 ./configure --copts "$RPM_OPT_FLAGS"
-#make %{?_smp_mflags} CC="gcc33"
-make %{?_smp_mflags} CC="cc"
+make %{?_smp_mflags} CC="gcc33"
+#make %{?_smp_mflags} CC="cc"
 
 %install
 rm -rf %{buildroot}
@@ -224,7 +224,15 @@ fi
 %{_mandir}/man3/*
 
 %changelog
-* Mon Jan 02 2005 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-16
+* Thu Jan 06 2005 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-17
+- fix bug 144250: gcc-3.4.3-11 is broken :
+- log_error ("Lease with bogus binding state: %d size: %d",
+-			   comp -> binding_state,
+-			   sizeof(comp->binding_state));
+- prints:    'Lease with bogus binding state: 257 1'    !
+- compiling with gcc33 (compat-gcc-8-3.3.4.2 fixes for now).
+
+* Mon Jan 03 2005 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-16
 - fix bug 143704: dhclient -r does not work if lease held by
 - dhclient run from ifup . dhclient will now look for the pid
 - files created by ifup .
