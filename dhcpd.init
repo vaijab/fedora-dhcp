@@ -18,24 +18,17 @@
 
 [ -f /usr/sbin/dhcpd ] || exit 0
 [ -f /etc/dhcpd.conf ] || exit 0
-[ -f /var/lib/dhcp/dhcpd.leases ] || touch /var/lib/dhcp/dhcpd.leases 
-
+if [ ! -f /var/lib/dhcp/dhcpd.leases ] ; then
+   touch /var/lib/dhcp/dhcpd.leases
+   [ -x /sbin/restorecon ] && [ -d /selinux ] && /sbin/restorecon /var/lib/dhcp/dhcpd.leases 
+fi
 RETVAL=0
 prog="dhcpd"
 
 configtest()
 {
-	local retval TEMP=/tmp/dhcpd$$.err
-
-	/usr/sbin/dhcpd -t 2>$TEMP
-	retval=$?
-	if [ $retval -ne 0 ]
-	then
-		cat $TEMP
-		rm -f $TEMP
-	fi
-
-	return $retval
+	/usr/sbin/dhcpd -t	
+	return $?
 }
 
 start() {
