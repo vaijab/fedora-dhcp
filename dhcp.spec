@@ -1,51 +1,92 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 1
-Version: 2.0pl5
-Release: 8
+Version: 3.0pl1
+Release: 6
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
 Source1: dhcpd.conf.sample
 Source2: dhcpd.init
-Patch0: dhcp-2.0-buildroot.patch
-Patch1: dhcp-2.0-js.patch
-Patch2: dhcp-2.0-unaligned.patch
-Obsoletes: dhcpd
+Source3: dhcrelay.init
+Patch: dhcp-3.0-alignment.patch
+Patch10: dhcp-3.0pl1-RHscript.patch
+Patch100: dhcp-3.0-jbuild.patch
+Patch101: dhcp-3.0pl1-dhhostname-68650.patch
+Patch102: dhcp-3.0pl1-dhcpctlman-69731.patch
+URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
+Prereq: /sbin/chkconfig
 
 %description
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
 individual devices on an IP network to get their own network
 configuration information (IP address, subnetmask, broadcast address,
 etc.) from a DHCP server. The overall purpose of DHCP is to make it
-easier to administer a large network. The dhcp package includes the
-DHCP server and a DHCP relay agent.
+easier to administer a large network.  The dhcp package includes the
+ISC DHCP service and relay agent.
 
-You should install dhcp if you want to set up a DHCP server on your
-network. You will also need to install the pump package, which
-provides the DHCP client daemon, on client machines.
+To use DHCP on your network, install a DHCP service (or relay agent),
+and on clients run a DHCP client daemon.  The dhcp package provides
+the ISC DHCP service and relay agent.
+
+%package -n dhclient
+Summary: Development headers and libraries for interfacing to the DHCP server
+Requires: initscripts >= 6.75
+Group: System Environment/Base
+
+%package devel
+Summary: Development headers and libraries for interfacing to the DHCP server
+Requires: dhcp = %{version}
+Group: Development/Libraries
+
+%description -n dhclient
+DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
+individual devices on an IP network to get their own network
+configuration information (IP address, subnetmask, broadcast address,
+etc.) from a DHCP server. The overall purpose of DHCP is to make it
+easier to administer a large network.
+
+To use DHCP on your network, install a DHCP service (or relay agent),
+and on clients run a DHCP client daemon.  The dhclient package 
+provides the ISC DHCP client daemon.
+
+%description devel
+Libraries for interfacing with the ISC DHCP server.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1 -b .js
-%ifarch sparc sparc64 alpha
-%patch2 -p1 -b .unaligned
-%endif
+
+%patch -p1
+%patch10 -p1
+%patch100 -p1
+%patch101 -p1
+%patch102 -p1
 
 cp %SOURCE1 .
 
 %build
-%configure
-make CC="gcc -pipe" DEBUG="$RPM_OPT_FLAGS -D_PATH_DHCPD_DB=\\\"/var/lib/dhcp/dhcpd.leases\\\" -D_PATH_DHCLIENT_DB=\\\"/var/lib/dhcp/dhclient.leases\\\""
+cat <<EOF >site.conf
+VARDB=%{_localstatedir}/lib/dhcp
+ADMMANDIR=%{_mandir}/man8
+FFMANDIR=%{_mandir}/man5
+LIBMANDIR=%{_mandir}/man3
+USRMANDIR=%{_mandir}/man1
+LIBDIR=%{_libdir}
+INCDIR=%{_includedir}
+EOF
+cat <<EOF >>includes/site.h
+#define _PATH_DHCPD_DB          "%{_localstatedir}/lib/dhcp/dhcpd.leases"
+#define _PATH_DHCLIENT_DB       "%{_localstatedir}/lib/dhcp/dhclient.leases"
+EOF
+./configure --copts "$RPM_OPT_FLAGS"
+make %{?_smp_mflags} CC="cc"
 
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/etc/sysconfig
 
 make install DESTDIR=%{buildroot}
-strip %{buildroot}/usr/sbin/* || :
 
 mkdir -p %{buildroot}/etc/rc.d/init.d
 install -m 0755 %SOURCE2 %{buildroot}/etc/rc.d/init.d/dhcpd
@@ -57,50 +98,116 @@ cat <<EOF > %{buildroot}/etc/sysconfig/dhcpd
 DHCPDARGS=
 EOF
 
+install -m0755 %SOURCE3 %{buildroot}/etc/rc.d/init.d/dhcrelay
+
+cat <<EOF > %{buildroot}/etc/sysconfig/dhcrelay
+# Command line options here
+INTERFACES=""
+DHCPSERVERS=""
+EOF
+
+# Copy sample dhclient.conf file into position
+cp client/dhclient.conf dhclient.conf.sample
+chmod 755 %{buildroot}/sbin/dhclient-script
+
 %clean
 rm -rf %{buildroot}
 
 %post
 /sbin/chkconfig --add dhcpd
+/sbin/chkconfig --add dhcrelay
 
 %preun
 if [ $1 = 0 ]; then	# execute this only if we are NOT doing an upgrade
     service dhcpd stop >/dev/null 2>&1
+    service dhcrelay stop >/dev/null 2>&1
     /sbin/chkconfig --del dhcpd 
+    /sbin/chkconfig --del dhcrelay
 fi
 
 %postun
 if [ "$1" -ge "1" ]; then
     service dhcpd condrestart >/dev/null 2>&1
+    service dhcrelay condrestart >/dev/null 2>&1
 fi
 
 %files
 %defattr(-,root,root)
 %doc CHANGES README RELNOTES dhcpd.conf.sample
 %dir %{_localstatedir}/lib/dhcp
-%config(noreplace) %{_localstatedir}/lib/dhcp/dhcpd.leases
+%verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcp/dhcpd.leases
 %config(noreplace) /etc/sysconfig/dhcpd
+%config(noreplace) /etc/sysconfig/dhcrelay
 %config /etc/rc.d/init.d/dhcpd
+%config /etc/rc.d/init.d/dhcrelay
+%{_bindir}/omshell
 %{_sbindir}/dhcpd
 %{_sbindir}/dhcrelay
+%{_mandir}/man1/omshell.1*
+%{_mandir}/man5/dhcp-options.5*
+%{_mandir}/man5/dhcp-eval.5*
 %{_mandir}/man5/dhcpd.conf.5*
 %{_mandir}/man5/dhcpd.leases.5*
-%{_mandir}/man5/dhcp-options.5*
 %{_mandir}/man8/dhcpd.8*
 %{_mandir}/man8/dhcrelay.8*
 
-#%files client
-#%defattr(-,root,root)
-#%doc CHANGES README RELNOTES TODO doc/*
-#%dir /var/dhcpd
-#/etc/dhclient-script
-#/sbin/dhclient
-#/usr/man/man5/dhclient.conf.5
-#/usr/man/man5/dhclient.leases.5
-#/usr/man/man8/dhclient.8
-#/usr/man/man8/dhclient-script.8
+%files -n dhclient
+%defattr(-,root,root)
+%doc dhclient.conf.sample
+%dir %{_localstatedir}/lib/dhcp
+/sbin/dhclient
+/sbin/dhclient-script
+%{_mandir}/man5/dhclient.conf.5*
+%{_mandir}/man5/dhclient.leases.5*
+%{_mandir}/man8/dhclient.8*
+%{_mandir}/man8/dhclient-script.8*
+
+%files devel
+%defattr(-,root,root)
+%{_includedir}/*
+%{_libdir}/*.a
+%{_mandir}/man3/*
 
 %changelog
+* Tue Aug 13 2002 Elliot Lee <sopwith@redhat.com> 3.0pl1-6
+- Patch102 (dhcp-3.0pl1-dhcpctlman-69731.patch) to fix #69731
+
+* Tue Aug 13 2002 Elliot Lee <sopwith@redhat.com> 3.0pl1-5
+- Patch101 (dhcp-3.0pl1-dhhostname-68650.patch) to fix #68650
+
+* Fri Jul 12 2002 Elliot Lee <sopwith@redhat.com> 3.0pl1-4
+- Fix unaligned accesses when decoding a UDP packet
+
+* Thu Jul 11 2002 Elliot Lee <sopwith@redhat.com> 3.0pl1-3
+- No apparent reason for the dhclient -> dhcp dep mentioned in #68001, so removed it
+
+* Wed Jun 27 2002 David Sainty <saint@redhat.com> 3.0pl1-2
+- Move dhclient.conf.sample from dhcp to dhclient
+
+* Mon Jun 25 2002 David Sainty <saint@redhat.com> 3.0pl1-1
+- Change to dhclient, dhcp, dhcp-devel packaging
+- Move to 3.0pl1, do not strip binaries
+- Drop in sysconfig-enabled dhclient-script
+
+* Thu May 23 2002 Tim Powers <timp@redhat.com>
+- automated rebuild
+
+* Sat Jan 26 2002 Florian La Roche <Florian.LaRoche@redhat.de>
+- prereq chkconfig
+
+* Tue Jan 22 2002 Elliot Lee <sopwith@redhat.com> 3.0-5
+- Split headers/libs into a devel subpackage (#58656)
+
+* Wed Jan 09 2002 Tim Powers <timp@redhat.com>
+- automated rebuild
+
+* Fri Dec 28 2001 Elliot Lee <sopwith@redhat.com> 3.0-3
+- Fix the #52856 nit.
+- Include dhcrelay scripts from #49186
+
+* Thu Dec 20 2001 Elliot Lee <sopwith@redhat.com> 3.0-2
+- Update to 3.0, include devel files installed by it (as part of the main package).
+
 * Sun Aug 26 2001 Elliot Lee <sopwith@redhat.com> 2.0pl5-8
 - Fix #26446
 
