@@ -1,7 +1,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.2
-Release: 3
+Release: 4
 Epoch:   10
 License: distributable
 Group: System Environment/Daemons
@@ -209,6 +209,7 @@ if [ "$1" -ge "1" ]; then
     service dhcpd condrestart >/dev/null 2>&1
     service dhcrelay condrestart >/dev/null 2>&1
 fi
+exit 0
 
 %files
 %defattr(-,root,root)
@@ -248,6 +249,9 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Thu Mar 24 2005 Florian La Roche <laroche@redhat.com>
+- add "exit 0" to post script
+
 * Mon Mar 07 2005 Jason Vas Dias <jvdias@redhat.com> 10.3.0.2-3
 - rebuild for gcc4/glibc-2.3.4-14; fix bad memset
 
