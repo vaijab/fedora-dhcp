@@ -1,8 +1,8 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
-Version: 3.0.2rc3
-Release: 8_FC4
-Epoch:   8
+Version: 3.0.2
+Release: 1
+Epoch:   10
 License: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -246,6 +246,9 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Mon Feb 21 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-1
+- Upgrade to ISC 3.0.2 Final Release (documentation change only).
+
 * Tue Feb 14 2005 Jason Vas Dias <jvdias@redhat.com> 8:3.0.2rc3-8
 - Add better execshield security link options
 - fix dhcpd.init when no /etc/dhcpd.conf exists and -cf in DHCPDARGS
