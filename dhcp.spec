@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 7
 Version: 3.0.1
-Release: 8
+Release: 9
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -27,7 +27,7 @@ Patch121: dhcp-3.0.1-change_resolv_conf.patch
 Patch122: dhcp-3.0.1-default_gateway.patch
 Patch123: dhcp-3.0.1.preserve-sent-options.patch
 Patch124: dhcp-3.0.1-mis_host.patch
-
+Patch125: dhcp-3.0.1-new-host.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -92,6 +92,7 @@ Libraries for interfacing with the ISC DHCP server.
 %patch122 -p1 -b .default_gateway
 %patch123 -p1 -b .preserve-sent-options
 %patch124 -p1 -b .mis-host 
+%patch125 -p1 -b .new-host
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -211,6 +212,12 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Mon Sep 27 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-9
+- Fix bug 133522:
+- PXE Boot clients with static leases not given 'file' option
+- 104 by server - PXE booting was disabled for 'fixed-address'
+- clients. 
+
 * Fri Sep 10 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-8
 - Fix bug 131212: 
 - If "deny booting" is defined for some group of hosts,
