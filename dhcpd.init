@@ -21,7 +21,7 @@ CF='/etc/dhcpd.conf'
 if [[ "$DHCPDARGS" = *-cf* ]]; then
     CF=`echo $DHCPDARGS | sed 's/^.*-cf[\ \	]*//;s/[\ \	].*$//';`;
 fi;
-[ -f $cf ] || exit 0
+[ -f "$CF" ] || exit 0
 if [ ! -f /var/lib/dhcp/dhcpd.leases ] ; then
    touch /var/lib/dhcp/dhcpd.leases
    [ -x /sbin/restorecon ] && [ -d /selinux ] && /sbin/restorecon /var/lib/dhcp/dhcpd.leases 
