@@ -1,7 +1,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.2
-Release: 4
+Release: 6
 Epoch:   10
 License: distributable
 Group: System Environment/Daemons
@@ -41,7 +41,8 @@ Patch135: dhcp-3.0.1-z-relro-now.patch
 Patch136: dhcp-3.0.2rc3-dhclient-restorecon.patch
 Patch137: dhcp-3.0.1-dhclient-config.patch
 Patch138: dhcp-3.0.2-pid_file_excl.patch
-
+Patch139: dhcp-3.0.2-dhclient-no-restorecon-or-route.patch
+Patch140: dhcp-3.0.2-extended_option_environment.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -62,7 +63,7 @@ and on clients run a DHCP client daemon.  The dhcp package provides
 the ISC DHCP service and relay agent.
 
 %package -n dhclient
-Summary: Development headers and libraries for interfacing to the DHCP server
+Summary: Provides the dhclient ISC DHCP client daemon and dhclient-script .
 Requires: initscripts >= 6.75
 Group: System Environment/Base
 Obsoletes: dhcpcd
@@ -125,6 +126,8 @@ Libraries for interfacing with the ISC DHCP server.
 %patch136 -p1 -b .dhclient-restorecon
 %patch137 -p1 -b .dhclient-dhconfig
 %patch138 -p1 -b .pid_file_excl
+%patch139 -p1 -b .dhclient-no-restorecon-or-route
+%patch140 -p1 -b .extended_option_environment
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -155,6 +158,7 @@ RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fpie"
 %endif
 #RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed 's/\ \-mtune\=[^\=\ ]*//'`
 ./configure --copts "$RPM_OPT_FLAGS"
+# -DDEBUG_PACKET -DDEBUG_EXPRESSIONS"
 # -DDEBUG_MEMORY_LEAKAGE -DDEBUG_MALLOC_POOL -DDEBUG_REFCNT_DMALLOC_FREE -DDEBUG_RC_HISTORY -DDEBUG_MALLOC_POOL_EXHAUSTIVELY -DDEBUG_MEMORY_LEAKAGE_ON_EXIT -DRC_MALLOC=3"
 #make %{?_smp_mflags} CC="gcc33"
 make %{?_smp_mflags} CC="cc"
@@ -249,6 +253,17 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Mon Apr 04 2005 Jason Vas Dias <jvdias@redhat.com>
+- Add '-x' "extended option environment" dhclient argument:
+-  When -x option given to dhclient:
+-    dhclient enables arbitrary option processing by writing information
+-    about user or vendor defined option space options to environment.
+-
+- fix bug 153244: dhclient should not use restorecon
+- fix bug 151023: dhclient no 'headers & libraries' 
+- fix bug 149780: add 'DHCLIENT_IGNORE_GATEWAY' variable
+- remove all usage of /sbin/route from dhclient-script
+
 * Thu Mar 24 2005 Florian La Roche <laroche@redhat.com>
 - add "exit 0" to post script
 
