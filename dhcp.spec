@@ -1,8 +1,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
-Name: dhcp
-Epoch: 7
-Version: 3.0.1
-Release: 17
+Name:    dhcp
+Version: 3.0.2rc3
+Release: 1
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -33,6 +32,7 @@ Patch127: dhcp-3.0.1-restrict-unconfigured-IF.patch
 Patch128: dhcp-3.0.1-check-empty-new-routers.patch
 Patch129: dhcp-3.0.1-fix-ntp.patch
 Patch130: dhcp-3.0.1-release-mode-ifup.patch
+Patch131: dhcp-3.0.1-dhclient-script-big-fix.patch
 
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -60,7 +60,7 @@ Obsoletes: dhcpcd
 
 %package devel
 Summary: Development headers and libraries for interfacing to the DHCP server
-Requires: dhcp = %{epoch}:%{version}
+Requires: dhcp = %{version}
 Group: Development/Libraries
 
 %description -n dhclient
@@ -96,14 +96,19 @@ Libraries for interfacing with the ISC DHCP server.
 %patch120 -p1 -b .noconfig
 %patch121 -p1 -b .change_resolv_conf
 %patch122 -p1 -b .default_gateway
-%patch123 -p1 -b .preserve-sent-options
-%patch124 -p1 -b .mis-host 
-%patch125 -p1 -b .new-host
-%patch126 -p1 -b .host-dereference
+# Patch123 is now upstream in dhcp-3.0.2
+# %patch123 -p1 -b .preserve-sent-options
+# Patch124 is now upstream in dhcp-3.0.2
+# %patch124 -p1 -b .mis-host 
+# Patch125 is now upstream in dhcp-3.0.2
+# %patch125 -p1 -b .new-host
+# Patch126 is now upstream in dhcp-3.0.2
+# %patch126 -p1 -b .host-dereference
 %patch127 -p1 -b .restrict-unconfigured-IF
 %patch128 -p1 -b .check-empty-new-routers
 %patch129 -p1 -b .fix-ntp
 %patch130 -p1 -b .release-mode-ifup
+%patch131 -p1 -b .dhclient-script-big-fix
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -128,9 +133,9 @@ EOF
 cc -o findptrsize findptrsize.c
 [ "`./findptrsize`" -ge 8 ] && RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DPTRSIZE_64BIT"
 %ifarch s390 s390x
-RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIC"
+RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIE"
 %else
-RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fpic"
+RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fpie"
 %endif
 RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed 's/\ \-mtune\=[^\=\ ]*//'`
 ./configure --copts "$RPM_OPT_FLAGS"
@@ -224,6 +229,13 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Thu Jan 06 2005 Jason Vas Dias <jvdias@redhat.com> 3.0.2rc3-1
+- fix bug 144417: much improved dhclient-script 
+
+* Thu Jan 06 2005 Jason Vas Dias <jvdias@redhat.com> 3.0.2rc3-1
+- Upgrade to latest release from ISC, which includes most of our
+- recent patches anyway.
+
 * Thu Jan 06 2005 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-17
 - fix bug 144250: gcc-3.4.3-11 is broken :
 - log_error ("Lease with bogus binding state: %d size: %d",
