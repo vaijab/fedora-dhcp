@@ -39,6 +39,7 @@ Patch133: dhcp-3.0.2rc3-mem.patch
 Patch134: dhcp-3.0.2rc3-dhclient_routes.patch
 Patch135: dhcp-3.0.1-z-relro-now.patch
 Patch136: dhcp-3.0.2rc3-dhclient-restorecon.patch
+Patch137: dhcp-3.0.1-dhclient-config.patch
 
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -121,6 +122,7 @@ Libraries for interfacing with the ISC DHCP server.
 %patch134 -p1 -b .dhclient_routes
 %patch135 -p1 -b .-z-relro-now
 %patch136 -p1 -b .dhclient-restorecon
+%patch137 -p1 -b .dhclient-dhconfig
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -244,7 +246,11 @@ fi
 %{_mandir}/man3/*
 
 %changelog
-* Mon Feb 14 2005 Jason Vas Dias <jvdias@redhat.com> 3.0.1-34_EL
+* Mon Feb 14 2005 Jason Vas Dias <jvdias@redhat.com> 3.0.2rc3-4
+- make dhclient-script TIMEOUT mode do exactly the same configuration
+- as BOUND / RENEW / REBIND / REBOOT if router ping succeeds
+
+* Mon Feb 14 2005 Jason Vas Dias <jvdias@redhat.com> 3.0.2rc3-4
 - fix bug 147926: dhclient-script should do restorecon for modified conf files
 - optimize execshield protection
 
