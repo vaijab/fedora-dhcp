@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 1
 Version: 2.0pl5
-Release: 4
+Release: 6
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -40,16 +40,22 @@ cp %SOURCE1 .
 %configure
 make CC="gcc -pipe" DEBUG="$RPM_OPT_FLAGS -D_PATH_DHCPD_DB=\\\"/var/lib/dhcp/dhcpd.leases\\\" -D_PATH_DHCLIENT_DB=\\\"/var/lib/dhcp/dhclient.leases\\\""
 
-
 %install
 rm -rf %{buildroot}
-mkdir -p %{buildroot}
+mkdir -p %{buildroot}/etc/sysconfig
 
 make install DESTDIR=%{buildroot}
 strip %{buildroot}/usr/sbin/* || :
 
 mkdir -p %{buildroot}/etc/rc.d/init.d
 install -m 0755 %SOURCE2 %{buildroot}/etc/rc.d/init.d/dhcpd
+
+touch %{buildroot}%{_localstatedir}/lib/dhcp/dhcp.leases
+
+cat <<EOF > %{buildroot}/etc/sysconfig/dhcpd
+# Command line options here
+DHCPDARGS=
+EOF
 
 %clean
 rm -rf %{buildroot}
@@ -72,6 +78,8 @@ fi
 %defattr(-,root,root)
 %doc CHANGES README RELNOTES dhcpd.conf.sample
 %dir %{_localstatedir}/lib/dhcp
+%config(noreplace) %{_localstatedir}/lib/dhcp/dhcp.leases
+%config(noreplace) /etc/sysconfig/dhcpd
 %config /etc/rc.d/init.d/dhcpd
 %{_sbindir}/dhcpd
 %{_sbindir}/dhcrelay
@@ -93,6 +101,13 @@ fi
 #/usr/man/man8/dhclient-script.8
 
 %changelog
+* Mon Jul 16 2001 Elliot Lee <sopwith@redhat.com>
+- /etc/sysconfig/dhcpd
+- Include dhcp.leases file (#5405)
+
+* Sun Jun 24 2001 Elliot Lee <sopwith@redhat.com>
+- Bump release + rebuild.
+
 * Wed Feb 14 2001 Tim Waugh <twaugh@redhat.com>
 - Fix initscript typo (bug #27624).
 
