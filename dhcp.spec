@@ -1,8 +1,8 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
-Epoch: 2
-Version: 3.0.1rc14
-Release: 5
+Epoch: 4
+Version: 3.0.1
+Release: 4
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -203,6 +203,9 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Fri Jul 16 2004 Jason Vas Dias <jvdias@redhat.com> 3:3.0.1
+- Upgraded to new ISC 3.0.1 version
+
 * Thu Jun 24 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc14-5
 - Allow dhclient-script to continue without a config file.  
 - It will use default values.
