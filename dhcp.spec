@@ -140,11 +140,11 @@ int main(void) { printf("%%d\n", sizeof(void *)); return 0; }
 EOF
 cc -o findptrsize findptrsize.c
 [ "`./findptrsize`" -ge 8 ] && RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DPTRSIZE_64BIT"
-#%ifarch s390 s390x
-#RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIE"
-#%else
-#RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fpie"
-#%endif
+%ifarch s390 s390x
+RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIE"
+%else
+RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fpie"
+%endif
 #RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed 's/\ \-mtune\=[^\=\ ]*//'`
 ./configure --copts "$RPM_OPT_FLAGS"
 # -DDEBUG_MEMORY_LEAKAGE -DDEBUG_MALLOC_POOL -DDEBUG_REFCNT_DMALLOC_FREE -DDEBUG_RC_HISTORY -DDEBUG_MALLOC_POOL_EXHAUSTIVELY -DDEBUG_MEMORY_LEAKAGE_ON_EXIT -DRC_MALLOC=3"

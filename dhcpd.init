@@ -27,17 +27,30 @@ prog="dhcpd"
 
 configtest()
 {
-	/usr/sbin/dhcpd -t	
+        CFA=''
+        if [[ "$DHCPDARGS" = *-cf* ]]; then
+	    CFA=`echo $DHCPDARGS | sed 's/^.*-cf[\ \	]*/-cf/;s/[\ \	].*$//'`;
+        fi;
+	/usr/sbin/dhcpd -t $CFA	
 	return $?
 }
 
 start() {
 	# Start daemons.
 	echo -n $"Starting $prog: "
-	daemon /usr/sbin/dhcpd ${DHCPDARGS}
+	daemon /usr/sbin/dhcpd 2>/dev/null
 	RETVAL=$?
 	echo
-	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/dhcpd
+	if [ $RETVAL -eq 0 ]; then 
+	    touch /var/lock/subsys/dhcpd
+	    if [ -x /usr/bin/logger ]; then
+		/usr/bin/logger -t dhcpd 'dhcpd startup succeeded'
+	    fi;
+	else
+	    if [ -x /usr/bin/logger ]; then
+		/usr/bin/logger -t dhcpd 'dhcpd startup failed'
+	    fi;
+        fi
 	return $RETVAL
 }
 
@@ -47,7 +60,16 @@ stop() {
 	killproc dhcpd
 	RETVAL=$?
 	echo
-	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/dhcpd
+	if [ $RETVAL -eq 0 ]; then
+           rm -f /var/lock/subsys/dhcpd
+	   if [ -x /usr/bin/logger ]; then
+		/usr/bin/logger -t dhcpd 'dhcpd shutdown succeeded'
+	   fi;
+	else
+	   if [ -x /usr/bin/logger ]; then
+		/usr/bin/logger -t dhcpd 'dhcpd shutdown failed'
+	   fi;
+	fi
 	return $RETVAL
 }
 
