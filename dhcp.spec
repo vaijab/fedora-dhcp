@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 7
 Version: 3.0.1
-Release: 12
+Release: 14
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -31,6 +31,7 @@ Patch125: dhcp-3.0.1-new-host.patch
 Patch126: dhcp-3.0.1-host_dereference.patch
 Patch127: dhcp-3.0.1-restrict-unconfigured-IF.patch
 Patch128: dhcp-3.0.1-check-empty-new-routers.patch
+Patch129: dhcp-3.0.1-fix-ntp.patch
 
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -100,6 +101,7 @@ Libraries for interfacing with the ISC DHCP server.
 %patch126 -p1 -b .host-dereference
 %patch127 -p1 -b .restrict-unconfigured-IF
 %patch128 -p1 -b .check-empty-new-routers
+%patch129 -p1 -b .fix-ntp
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -219,6 +221,10 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Wed Nov 17 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-14
+- NTP: fix bug 139715: merge in new ntp servers only rather than replace
+- all the ntp configuration files; restart ntpd if configuration changed.
+
 * Tue Nov 16 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-12
 - fix bug 138181 & bug 139468: do not attempt to listen/send on
 -     unconfigured  loopback, point-to-point or non-broadcast 
