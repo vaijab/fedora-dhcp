@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 2
 Version: 3.0.1rc14
-Release: 3
+Release: 4
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -201,6 +201,9 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Wed Jun 23 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc14-4
+- fix inherit-leases patch
+
 * Tue Jun 22 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc14-2
 - Turn on inherit-leases patch
 
