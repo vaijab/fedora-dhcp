@@ -1,9 +1,9 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.2rc3
-Release: 2
+Release: 3
 Epoch:   8
-Copyright: distributable
+License: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
 Source1: dhcpd.conf.sample
@@ -35,6 +35,8 @@ Patch129: dhcp-3.0.1-fix-ntp.patch
 Patch130: dhcp-3.0.1-release-mode-ifup.patch
 Patch131: dhcp-3.0.1-dhclient-script-big-fix.patch
 Patch132: dhcp-3.0.2rc3-fix-hex.patch
+Patch133: dhcp-3.0.2rc3-mem.patch
+Patch134: dhcp-3.0.2rc3-dhclient_routes.patch
 
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -113,6 +115,8 @@ Libraries for interfacing with the ISC DHCP server.
 %patch130 -p1 -b .release-mode-ifup
 %patch131 -p1 -b .dhclient-script-big-fix
 %patch132 -p1 -b .fix-hex
+%patch133 -p1 -b .mem
+%patch134 -p1 -b .dhclient_routes
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -136,13 +140,14 @@ int main(void) { printf("%%d\n", sizeof(void *)); return 0; }
 EOF
 cc -o findptrsize findptrsize.c
 [ "`./findptrsize`" -ge 8 ] && RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DPTRSIZE_64BIT"
-%ifarch s390 s390x
-RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIE"
-%else
-RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fpie"
-%endif
+#%ifarch s390 s390x
+#RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIE"
+#%else
+#RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fpie"
+#%endif
 #RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed 's/\ \-mtune\=[^\=\ ]*//'`
 ./configure --copts "$RPM_OPT_FLAGS"
+# -DDEBUG_MEMORY_LEAKAGE -DDEBUG_MALLOC_POOL -DDEBUG_REFCNT_DMALLOC_FREE -DDEBUG_RC_HISTORY -DDEBUG_MALLOC_POOL_EXHAUSTIVELY -DDEBUG_MEMORY_LEAKAGE_ON_EXIT -DRC_MALLOC=3"
 #make %{?_smp_mflags} CC="gcc33"
 make %{?_smp_mflags} CC="cc"
 
@@ -173,9 +178,11 @@ EOF
 # Copy sample dhclient.conf file into position
 cp client/dhclient.conf dhclient.conf.sample
 chmod 755 %{buildroot}/sbin/dhclient-script
+touch debugfiles.list
+:;
 
 %clean
-rm -rf %{buildroot}
+#rm -rf %{buildroot}
 
 %post
 /sbin/chkconfig --add dhcpd
@@ -233,6 +240,13 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Thu Feb 10 2005 Jason Vas Dias <jvdias@redhat.com> 8.3.0.4rc3-3
+- fix bug 147375: dhcpd heap corruption on 32-bit 'subnet' masks
+- fix bug 147502: dhclient should honor GATEWAYDEV and GATEWAY settings            
+- fix bug 146600: dhclient's timeout mode ping should use -I
+- fix bug 146524: dhcpd.init should discard dhcpd's initial output message
+- fix bug 147739: dhcpd.init configtest should honor -cf in DHCPDARGS
+
 * Mon Jan 24 2005 Jason Vas Dias <jvdias@redhat.com> 8:3.0.2rc3-2
 - fix bug 145997: allow hex 32-bit integers in user specified options
 
