@@ -2,7 +2,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name: dhcp
 Epoch: 1
 Version: 3.0pl1
-Release: 7
+Release: 8
 Copyright: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -14,6 +14,7 @@ Patch10: dhcp-3.0pl1-RHscript.patch
 Patch100: dhcp-3.0-jbuild.patch
 Patch101: dhcp-3.0pl1-dhhostname-68650.patch
 Patch102: dhcp-3.0pl1-dhcpctlman-69731.patch
+Patch103: dhcp-3.0pl1-miscfixes.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -62,10 +63,9 @@ Libraries for interfacing with the ISC DHCP server.
 %patch100 -p1
 %patch101 -p1
 %patch102 -p1
+%patch103 -p1
 
 cp %SOURCE1 .
-
-%build
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcp
 ADMMANDIR=%{_mandir}/man8
@@ -79,6 +79,8 @@ cat <<EOF >>includes/site.h
 #define _PATH_DHCPD_DB          "%{_localstatedir}/lib/dhcp/dhcpd.leases"
 #define _PATH_DHCLIENT_DB       "%{_localstatedir}/lib/dhcp/dhclient.leases"
 EOF
+
+%build
 ./configure --copts "$RPM_OPT_FLAGS"
 make %{?_smp_mflags} CC="cc"
 
@@ -169,6 +171,11 @@ fi
 %{_mandir}/man3/*
 
 %changelog
+* Mon Aug 26 2002 Elliot Lee <sopwith@redhat.com> 3.0pl1-8
+- More #68650 (modify requested options)
+- Fix #71453 (dhcpctl man page) and #71474 (include libdst.a) and
+  #72622 (hostname setting)
+
 * Thu Aug 15 2002 Elliot Lee <sopwith@redhat.com> 3.0pl1-7
 - More #68650 (modify existing patch to also set NIS domain)
 
@@ -182,7 +189,8 @@ fi
 - Fix unaligned accesses when decoding a UDP packet
 
 * Thu Jul 11 2002 Elliot Lee <sopwith@redhat.com> 3.0pl1-3
-- No apparent reason for the dhclient -> dhcp dep mentioned in #68001, so removed it
+- No apparent reason for the dhclient -> dhcp dep mentioned in #68001,
+  so removed it
 
 * Wed Jun 27 2002 David Sainty <saint@redhat.com> 3.0pl1-2
 - Move dhclient.conf.sample from dhcp to dhclient
