@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.2
-Release: 7
+Release: 8
 Epoch:   10
 License: distributable
 Group: System Environment/Daemons
@@ -44,6 +44,9 @@ Patch137: dhcp-3.0.1-dhclient-config.patch
 Patch138: dhcp-3.0.2-pid_file_excl.patch
 Patch139: dhcp-3.0.2-dhclient-no-restorecon-or-route.patch
 Patch140: dhcp-3.0.2-extended_option_environment.patch
+Patch141: dhcp-3.0.2-dhclient-no_isc_blurb.patch
+Patch142: dhcp-3.0.2-dhclient-script-restorecon.patch
+
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -131,6 +134,9 @@ Libraries for interfacing with the ISC DHCP server.
 %if %{DHCLIENT_EXTENDED_OPTION_ENVIRONMENT}
 %patch140 -p1 -b .extended_option_environment
 %endif
+%patch141 -p1 -b .no_isc_blurb
+%patch142 -p1 -b .restore_restorecon
+
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcp
@@ -220,6 +226,21 @@ if [ "$1" -ge "1" ]; then
 fi
 exit 0
 
+%post -n dhclient
+if [ "$1" -ge "1" ]; then
+   if [ -e /etc/selinux/config ]; then
+      . /etc/selinux/config
+      if [ "$SELINUX" = "Enforcing" ]; then
+         /usr/sbin/setenforce 0;
+	 /usr/bin/chcon 'system_u:object_r:sbin_t' /sbin/dhclient
+	 /usr/bin/chcon 'system_u:object_r:sbin_t' /sbin/dhclient-script
+	 /usr/sbin/setenforce 1;
+      elif [ "$SELINUX" != "disabled" ]; then
+	 /usr/bin/chcon 'root:object_r:bin_t' /sbin/dhclient
+      fi;
+   fi;
+fi;
+
 %files
 %defattr(-,root,root)
 %doc README RELNOTES dhcpd.conf.sample
@@ -258,6 +279,15 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Mon Apr 18 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-8
+- Fix bugs 153244 & 155142: 
+      o restore dhclient-script 'restorecon's
+      o give dhclient and dhclient-script an exec context of 
+        'system_u:object_r:sbin_t' that allows them to run
+        domainname / hostname and to update configuration files
+        in dhclient post script.       
+- Prevent dhclient emitting verbose ISC 'blurb' on error exit in -q mode
+
 * Mon Apr 04 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-7
 - Add '-x' "extended option environment" dhclient argument:
 -  When -x option given to dhclient:
