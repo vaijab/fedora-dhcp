@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.2
-Release: 8
+Release: 9
 Epoch:   10
 License: distributable
 Group: System Environment/Daemons
@@ -226,21 +226,6 @@ if [ "$1" -ge "1" ]; then
 fi
 exit 0
 
-%post -n dhclient
-if [ "$1" -ge "1" ]; then
-   if [ -e /etc/selinux/config ]; then
-      . /etc/selinux/config
-      if [ "$SELINUX" = "Enforcing" ]; then
-         /usr/sbin/setenforce 0;
-	 /usr/bin/chcon 'system_u:object_r:sbin_t' /sbin/dhclient
-	 /usr/bin/chcon 'system_u:object_r:sbin_t' /sbin/dhclient-script
-	 /usr/sbin/setenforce 1;
-      elif [ "$SELINUX" != "disabled" ]; then
-	 /usr/bin/chcon 'root:object_r:bin_t' /sbin/dhclient
-      fi;
-   fi;
-fi;
-
 %files
 %defattr(-,root,root)
 %doc README RELNOTES dhcpd.conf.sample
@@ -279,8 +264,14 @@ fi;
 %{_mandir}/man3/*
 
 %changelog
+* Thu Apr 21 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-9
+- bugs 153244 & 155143 are now fixed with SELinux policy; 
+  autotrans now works for dhcpc_t, so restorecons are not required,
+  and dhclient runs OK under dhcpc_t with SELinux enforcing.
+- fix bug 155506: 'predhclien' typo (emacs!).
+ 
 * Mon Apr 18 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-8
-- Fix bugs 153244 & 155142: 
+- Fix bugs 153244 & 155143: 
       o restore dhclient-script 'restorecon's
       o give dhclient and dhclient-script an exec context of 
         'system_u:object_r:sbin_t' that allows them to run
