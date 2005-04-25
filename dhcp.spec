@@ -46,7 +46,7 @@ Patch139: dhcp-3.0.2-dhclient-no-restorecon-or-route.patch
 Patch140: dhcp-3.0.2-extended_option_environment.patch
 Patch141: dhcp-3.0.2-dhclient-no_isc_blurb.patch
 Patch142: dhcp-3.0.2-dhclient-script-restorecon.patch
-
+Patch143: dhcp-3.0.2-dhclient-script-dhcdbd.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -136,6 +136,7 @@ Libraries for interfacing with the ISC DHCP server.
 %endif
 %patch141 -p1 -b .no_isc_blurb
 %patch142 -p1 -b .restore_restorecon
+%patch143 -p1 -b .dhclient-script-dhcdbd
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -264,6 +265,10 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Mon Apr 25 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-11
+- dhclient-script dhcdbd extensions. 
+- Tested to have no effect unless dhcdbd invokes dhclient.
+ 
 * Thu Apr 21 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-9
 - bugs 153244 & 155143 are now fixed with SELinux policy; 
   autotrans now works for dhcpc_t, so restorecons are not required,
