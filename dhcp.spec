@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.2
-Release: 10
+Release: 11
 Epoch:   10
 License: distributable
 Group: System Environment/Daemons
@@ -47,6 +47,7 @@ Patch140: dhcp-3.0.2-extended_option_environment.patch
 Patch141: dhcp-3.0.2-dhclient-no_isc_blurb.patch
 Patch142: dhcp-3.0.2-dhclient-script-restorecon.patch
 Patch143: dhcp-3.0.2-dhclient-script-dhcdbd.patch
+Patch144: dhcp-3.0.2-dhclient-script-fix-init-state-1.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -137,7 +138,7 @@ Libraries for interfacing with the ISC DHCP server.
 %patch141 -p1 -b .no_isc_blurb
 %patch142 -p1 -b .restore_restorecon
 %patch143 -p1 -b .dhclient-script-dhcdbd
-
+%patch144 -p1 -b .dhclient-script-fix-init-state-1
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcp
@@ -265,7 +266,12 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
-* Mon Apr 25 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-11
+* Wed Apr 27 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-11
+- as pointed out by Peter Jones, dhclient-script spews
+- 'chkconfig: Usage' if run in init state 1 (runlevel returns "unknown".)
+- this is now corrected.
+
+* Mon Apr 25 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-10
 - dhclient-script dhcdbd extensions. 
 - Tested to have no effect unless dhcdbd invokes dhclient.
  
