@@ -48,6 +48,8 @@ Patch141: dhcp-3.0.2-dhclient-no_isc_blurb.patch
 Patch142: dhcp-3.0.2-dhclient-script-restorecon.patch
 Patch143: dhcp-3.0.2-dhclient-script-dhcdbd.patch
 Patch144: dhcp-3.0.2-dhclient-script-fix-init-state-1.patch
+Patch145: dhcp-3.0.2-dhclient-script-dbus-fix-interface.patch
+
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -139,6 +141,8 @@ Libraries for interfacing with the ISC DHCP server.
 %patch142 -p1 -b .restore_restorecon
 %patch143 -p1 -b .dhclient-script-dhcdbd
 %patch144 -p1 -b .dhclient-script-fix-init-state-1
+%patch145 -p1 -b .dhclient-script-dbus-fix-interface
+
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcp
@@ -266,6 +270,10 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Tue May 03 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-12
+- Rebuild for new glibc
+- Fix dhcdbd set for multiple interfaces
+
 * Wed Apr 27 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-11
 - as pointed out by Peter Jones, dhclient-script spews
 - 'chkconfig: Usage' if run in init state 1 (runlevel returns "unknown".)
