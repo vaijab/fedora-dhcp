@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.2
-Release: 12
+Release: 14
 Epoch:   10
 License: distributable
 Group: System Environment/Daemons
@@ -49,6 +49,10 @@ Patch142: dhcp-3.0.2-dhclient-script-restorecon.patch
 Patch143: dhcp-3.0.2-dhclient-script-dhcdbd.patch
 Patch144: dhcp-3.0.2-dhclient-script-fix-init-state-1.patch
 Patch145: dhcp-3.0.2-dhclient-script-dbus-fix-interface.patch
+Patch146: dhcp-3.0.2-dhclient_nodelay.patch
+Patch147: dhcp-3.0.2-dhclient_decline_backoff.patch
+Patch148: dhcp-3.0.2-uint8_binding_state.patch
+Patch149: dhcp-3.0.2-dhclient_script_fast+arping.patch
 
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -142,6 +146,10 @@ Libraries for interfacing with the ISC DHCP server.
 %patch143 -p1 -b .dhclient-script-dhcdbd
 %patch144 -p1 -b .dhclient-script-fix-init-state-1
 %patch145 -p1 -b .dhclient-script-dbus-fix-interface
+%patch146 -p1 -b .dhclient_no_delay
+%patch147 -p1 -b .dhclient_decline_backoff
+%patch148 -p1 -b .uint8_binding_state
+%patch149 -p1 -b .dhclient_script_fast+arping
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -270,6 +278,14 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Fri May 10 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-14
+- Fix bug 159929: prevent dhclient flooding network on repeated DHCPDECLINE
+- dhclient fast startup: 
+   remove dhclient's  random 1-5 second delay on startup if only
+   configuring one interface 
+   remove dhclient_script's "sleep 1" on PREINIT
+- fix new gcc-4.0.0-11 compiler warnings for binding_state_t
+
 * Tue May 03 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-12
 - Rebuild for new glibc
 - Fix dhcdbd set for multiple interfaces
