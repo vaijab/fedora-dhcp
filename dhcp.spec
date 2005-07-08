@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.2
-Release: 14
+Release: 14.FC5
 Epoch:   10
 License: distributable
 Group: System Environment/Daemons
@@ -53,7 +53,7 @@ Patch146: dhcp-3.0.2-dhclient_nodelay.patch
 Patch147: dhcp-3.0.2-dhclient_decline_backoff.patch
 Patch148: dhcp-3.0.2-uint8_binding_state.patch
 Patch149: dhcp-3.0.2-dhclient_script_fast+arping.patch
-
+Patch150: dhcp-3.0.2-glibc-headers-2.3.5-11.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -150,7 +150,7 @@ Libraries for interfacing with the ISC DHCP server.
 %patch147 -p1 -b .dhclient_decline_backoff
 %patch148 -p1 -b .uint8_binding_state
 %patch149 -p1 -b .dhclient_script_fast+arping
-
+%patch150 -p1 -b .glibc-headers-2.3.5-11
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcp
@@ -278,6 +278,9 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Fri Jul 08 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-14.FC5
+- Allow package to compile with glibc-headers-2.3.5-11 (tr.c's use of __u16)
+
 * Fri May 10 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-14
 - Fix bug 159929: prevent dhclient flooding network on repeated DHCPDECLINE
 - dhclient fast startup: 
