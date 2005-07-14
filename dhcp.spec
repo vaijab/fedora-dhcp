@@ -1,8 +1,8 @@
 %{?!DHCLIENT_EXTENDED_OPTION_ENVIRONMENT:%define DHCLIENT_EXTENDED_OPTION_ENVIRONMENT 1}
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
-Version: 3.0.2
-Release: 14.FC5
+Version: 3.0.3rc1
+Release: 1
 Epoch:   10
 License: distributable
 Group: System Environment/Daemons
@@ -53,7 +53,7 @@ Patch146: dhcp-3.0.2-dhclient_nodelay.patch
 Patch147: dhcp-3.0.2-dhclient_decline_backoff.patch
 Patch148: dhcp-3.0.2-uint8_binding_state.patch
 Patch149: dhcp-3.0.2-dhclient_script_fast+arping.patch
-Patch150: dhcp-3.0.2-glibc-headers-2.3.5-11.patch
+Patch150: dhcp-3.0.3rc1-no-__u16.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -117,21 +117,19 @@ Libraries for interfacing with the ISC DHCP server.
 %patch120 -p1 -b .noconfig
 %patch121 -p1 -b .change_resolv_conf
 %patch122 -p1 -b .default_gateway
-# Patch123 is now upstream in dhcp-3.0.2
+# patches now upstream:
 # %patch123 -p1 -b .preserve-sent-options
-# Patch124 is now upstream in dhcp-3.0.2
 # %patch124 -p1 -b .mis-host 
-# Patch125 is now upstream in dhcp-3.0.2
 # %patch125 -p1 -b .new-host
-# Patch126 is now upstream in dhcp-3.0.2
 # %patch126 -p1 -b .host-dereference
-%patch127 -p1 -b .restrict-unconfigured-IF
+# %patch127 -p1 -b .restrict-unconfigured-IF
 %patch128 -p1 -b .check-empty-new-routers
 %patch129 -p1 -b .fix-ntp
 %patch130 -p1 -b .release-mode-ifup
 %patch131 -p1 -b .dhclient-script-big-fix
-%patch132 -p1 -b .fix-hex
-%patch133 -p1 -b .mem
+# patches now upstream:
+# %patch132 -p1 -b .fix-hex
+# %patch133 -p1 -b .mem
 %patch134 -p1 -b .dhclient_routes
 %patch135 -p1 -b .-z-relro-now
 %patch136 -p1 -b .dhclient-restorecon
@@ -148,9 +146,10 @@ Libraries for interfacing with the ISC DHCP server.
 %patch145 -p1 -b .dhclient-script-dbus-fix-interface
 %patch146 -p1 -b .dhclient_no_delay
 %patch147 -p1 -b .dhclient_decline_backoff
-%patch148 -p1 -b .uint8_binding_state
+# patch now upstream:
+# %patch148 -p1 -b .uint8_binding_state
 %patch149 -p1 -b .dhclient_script_fast+arping
-%patch150 -p1 -b .glibc-headers-2.3.5-11
+%patch150 -p1 -b .no-__u16
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcp
@@ -278,6 +277,10 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Thu Jul 14 2004 Jason Vas Dias <jvdias@redhat.com> 10:3.0.3rc1-1
+- Upgrade to upstream version 3.0.3rc1
+- fix bug 163203: silence ISC blurb on configtest 
+
 * Fri Jul 08 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-14.FC5
 - Allow package to compile with glibc-headers-2.3.5-11 (tr.c's use of __u16)
 
