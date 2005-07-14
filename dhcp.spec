@@ -277,7 +277,7 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
-* Thu Jul 14 2004 Jason Vas Dias <jvdias@redhat.com> 10:3.0.3rc1-1
+* Thu Jul 14 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.3rc1-1
 - Upgrade to upstream version 3.0.3rc1
 - fix bug 163203: silence ISC blurb on configtest 
 

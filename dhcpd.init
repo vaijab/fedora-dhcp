@@ -35,7 +35,7 @@ configtest()
         if [[ "$DHCPDARGS" = *-cf* ]]; then
 	    CFA=`echo $DHCPDARGS | sed 's/^.*-cf[\ \	]*/-cf/;s/[\ \	].*$//;s/-cf/-cf /'`;
         fi;
-	/usr/sbin/dhcpd -t $CFA	
+	/usr/sbin/dhcpd -q -t $CFA	
 	return $?
 }
 
