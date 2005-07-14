@@ -54,6 +54,7 @@ Patch147: dhcp-3.0.2-dhclient_decline_backoff.patch
 Patch148: dhcp-3.0.2-uint8_binding_state.patch
 Patch149: dhcp-3.0.2-dhclient_script_fast+arping.patch
 Patch150: dhcp-3.0.3rc1-no-__u16.patch
+Patch151: dhcp-3.0.3rc1-boot-file-server.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -150,6 +151,7 @@ Libraries for interfacing with the ISC DHCP server.
 # %patch148 -p1 -b .uint8_binding_state
 %patch149 -p1 -b .dhclient_script_fast+arping
 %patch150 -p1 -b .no-__u16
+%patch151 -p1 -b .boot-file-server
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcp
@@ -280,6 +282,11 @@ exit 0
 * Thu Jul 14 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.3rc1-1
 - Upgrade to upstream version 3.0.3rc1
 - fix bug 163203: silence ISC blurb on configtest 
+- fix default 'boot file server' value (packet->siaddr):
+  In dhcp-3.0.2(-), this was defaulted to the server address;
+  now it defaults to 0.0.0.0 (a rather silly default!) and 
+  must be specified with the 'next-server' option ( not the tftp-boot-server option ?!?)
+  which causes PXE boot clients to fail to load anything after the boot file.
 
 * Fri Jul 08 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-14.FC5
 - Allow package to compile with glibc-headers-2.3.5-11 (tr.c's use of __u16)
