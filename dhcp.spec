@@ -1,9 +1,9 @@
 %{?!DHCLIENT_EXTENDED_OPTION_ENVIRONMENT:%define DHCLIENT_EXTENDED_OPTION_ENVIRONMENT 1}
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
-Version: 3.0.3rc1
+Version: 3.0.3
 Release: 1
-Epoch:   10
+Epoch:   11
 License: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -55,6 +55,8 @@ Patch148: dhcp-3.0.2-uint8_binding_state.patch
 Patch149: dhcp-3.0.2-dhclient_script_fast+arping.patch
 Patch150: dhcp-3.0.3rc1-no-__u16.patch
 Patch151: dhcp-3.0.3rc1-boot-file-server.patch
+Patch152: dhcp-3.0.3-fast_dhclient.patch
+Patch153: dhcp-3.0.3-dhclient-script-ypbind-hup-ok.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -151,7 +153,12 @@ Libraries for interfacing with the ISC DHCP server.
 # %patch148 -p1 -b .uint8_binding_state
 %patch149 -p1 -b .dhclient_script_fast+arping
 %patch150 -p1 -b .no-__u16
-%patch151 -p1 -b .boot-file-server
+# %patch151 -p1 -b .boot-file-server
+# RFC2131 compliance: force users to specify either the
+# next-server or server-name options for the tftp-boot-server.
+%patch152 -p1 -b .fast_dhclient
+%patch153 -p1 -b .ypbind_hup_ok
+
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcp
@@ -279,6 +286,14 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Fri Jul 29 2005 Jason Vas Dias <jvdias@redhat.com> 11:3.0.3-1
+- Upgrade to upstream version 3.0.3 
+- Don't apply the 'default boot file server' patch: legacy
+  dhcp behaviour broke RFC 2131, which requires that the siaddr
+  field only be non-zero if the next-server or tftp-server-name
+  options are specified.
+- Try removing the 1-5 second wait on dhclient startup altogether.
+ 
 * Thu Jul 14 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.3rc1-1
 - Upgrade to upstream version 3.0.3rc1
 - fix bug 163203: silence ISC blurb on configtest 
