@@ -10,6 +10,7 @@ Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
 Source1: dhcpd.conf.sample
 Source2: dhcpd.init
 Source3: dhcrelay.init
+Source4: dhcpd.conf
 Patch: dhcp-3.0-alignment.patch
 Patch100: dhcp-3.0-jbuild.patch
 Patch102: dhcp-3.0.1rc13-dhcpctlman.patch
@@ -223,6 +224,9 @@ EOF
 # Copy sample dhclient.conf file into position
 cp client/dhclient.conf dhclient.conf.sample
 chmod 755 %{buildroot}/sbin/dhclient-script
+# Fix bug 163367: install default (empty) dhcpd.conf:
+cp -fp %SOURCE4 %{buildroot}/etc
+
 touch debugfiles.list
 :;
 
@@ -255,6 +259,7 @@ exit 0
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcp/dhcpd.leases
 %config(noreplace) /etc/sysconfig/dhcpd
 %config(noreplace) /etc/sysconfig/dhcrelay
+%config(noreplace) /etc/dhcpd.conf
 %config /etc/rc.d/init.d/dhcpd
 %config /etc/rc.d/init.d/dhcrelay
 %{_bindir}/omshell
@@ -293,6 +298,7 @@ exit 0
   field only be non-zero if the next-server or tftp-server-name
   options are specified.
 - Try removing the 1-5 second wait on dhclient startup altogether.
+- fix bug 163367: supply default configuration file for dhcpd
  
 * Thu Jul 14 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.3rc1-1
 - Upgrade to upstream version 3.0.3rc1
