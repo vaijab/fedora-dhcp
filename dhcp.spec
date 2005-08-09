@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.3
-Release: 1
+Release: 2
 Epoch:   11
 License: distributable
 Group: System Environment/Daemons
@@ -61,7 +61,6 @@ Patch153: dhcp-3.0.3-dhclient-script-ypbind-hup-ok.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
-Requires: kernel >= 2.2.18
 BuildRequires:  groff
 #BuildRequires: compat-gcc >= 8-3.3.4.2   groff
 
@@ -291,6 +290,9 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Tue Aug  9 2005 Jeremy Katz <katzj@redhat.com> - 11:3.0.3-2
+- don't explicitly require 2.2 era kernel, it's fairly overkill at this point
+
 * Fri Jul 29 2005 Jason Vas Dias <jvdias@redhat.com> 11:3.0.3-1
 - Upgrade to upstream version 3.0.3 
 - Don't apply the 'default boot file server' patch: legacy
