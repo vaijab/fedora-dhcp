@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.3
-Release: 2
+Release: 3
 Epoch:   11
 License: distributable
 Group: System Environment/Daemons
@@ -58,6 +58,9 @@ Patch150: dhcp-3.0.3rc1-no-__u16.patch
 Patch151: dhcp-3.0.3rc1-boot-file-server.patch
 Patch152: dhcp-3.0.3-fast_dhclient.patch
 Patch153: dhcp-3.0.3-dhclient-script-ypbind-hup-ok.patch
+Patch154: dhcp-3.0.3-trailing_nul_options.patch
+Patch155: dhcp-3.0.3-gcc4_warnings.patch
+Patch156: dhcp-3.0.3-version.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -158,7 +161,9 @@ Libraries for interfacing with the ISC DHCP server.
 # next-server or server-name options for the tftp-boot-server.
 %patch152 -p1 -b .fast_dhclient
 %patch153 -p1 -b .ypbind_hup_ok
-
+%patch154 -p1 -b .trailing_nul_options
+%patch155 -p1 -b .gcc4_warnings
+%patch156 -p1 -b .version
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcp
@@ -179,6 +184,7 @@ cat <<EOF >findptrsize.c
 #include <stdio.h>
 int main(void) { printf("%%d\n", sizeof(void *)); return 0; }
 EOF
+RPM_OPT_FLAGS="$RPM_OPT_FLAGS -Dlint -Werror"
 cc -o findptrsize findptrsize.c
 [ "`./findptrsize`" -ge 8 ] && RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DPTRSIZE_64BIT"
 %ifarch s390 s390x
@@ -190,6 +196,7 @@ RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fpie"
     RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DEXTENDED_NEW_OPTION_INFO"
 %endif
 #RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed 's/\ \-mtune\=[^\=\ ]*//'`
+export RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 ./configure --copts "$RPM_OPT_FLAGS"
 # -DDEBUG_PACKET -DDEBUG_EXPRESSIONS"
 # -DDEBUG_MEMORY_LEAKAGE -DDEBUG_MALLOC_POOL -DDEBUG_REFCNT_DMALLOC_FREE -DDEBUG_RC_HISTORY -DDEBUG_MALLOC_POOL_EXHAUSTIVELY -DDEBUG_MEMORY_LEAKAGE_ON_EXIT -DRC_MALLOC=3"
@@ -290,6 +297,12 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Tue Aug 23 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-3
+- fix bug 160655: strip trailing '\0' bytes from text options before append
+- fix gcc4 compiler warnings ; now compiles with -Werror
+- add RPM_OPT_FLAGS to link as suggested in gcc man-page on '-pie' option
+- change ISC version string to 'V3.0.3-RedHat' at request of ISC
+
 * Tue Aug  9 2005 Jeremy Katz <katzj@redhat.com> - 11:3.0.3-2
 - don't explicitly require 2.2 era kernel, it's fairly overkill at this point
 
