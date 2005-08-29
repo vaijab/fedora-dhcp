@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.3
-Release: 3
+Release: 4
 Epoch:   11
 License: distributable
 Group: System Environment/Daemons
@@ -61,6 +61,7 @@ Patch153: dhcp-3.0.3-dhclient-script-ypbind-hup-ok.patch
 Patch154: dhcp-3.0.3-trailing_nul_options.patch
 Patch155: dhcp-3.0.3-gcc4_warnings.patch
 Patch156: dhcp-3.0.3-version.patch
+Patch157: dhcp-3.0.3-dhclient-script-up-down-hooks.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -164,6 +165,7 @@ Libraries for interfacing with the ISC DHCP server.
 %patch154 -p1 -b .trailing_nul_options
 %patch155 -p1 -b .gcc4_warnings
 %patch156 -p1 -b .version
+%patch157 -p1 -b .dhclient-script-up-down-hooks
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcp
@@ -297,6 +299,13 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Mon Aug 29 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-4
+- fix bug 166926: make dhclient-script handle interface-mtu option
+  make dhclient-script support /etc/dhclient{,-$IF}-{up,down}-hooks scripts
+  to allow easy customization to support other non-default DHCP options -
+  documented in 'man 8 dhclient-script' .
+- handle the 'time-offset' DHCP option, requested by default.
+
 * Tue Aug 23 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-3
 - fix bug 160655: strip trailing '\0' bytes from text options before append
 - fix gcc4 compiler warnings ; now compiles with -Werror
@@ -733,7 +742,7 @@ exit 0
 * Wed Feb 14 2001 Tim Waugh <twaugh@redhat.com>
 - Fix initscript typo (bug #27624).
 
-* Wed Feb  7 2001 Trond Eivind Glomsrød <teg@redhat.com>
+* Wed Feb  7 2001 Trond Eivind GlomsrÃ¸d <teg@redhat.com>
 - Improve spec file i18n
 
 * Mon Feb  5 2001 Bernhard Rosenkraenzer <bero@redhat.com>
