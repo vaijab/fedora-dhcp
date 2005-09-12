@@ -62,6 +62,7 @@ Patch154: dhcp-3.0.3-trailing_nul_options.patch
 Patch155: dhcp-3.0.3-gcc4_warnings.patch
 Patch156: dhcp-3.0.3-version.patch
 Patch157: dhcp-3.0.3-dhclient-script-up-down-hooks.patch
+Patch158: dhcp-3.0.3-bz167273.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -166,6 +167,7 @@ Libraries for interfacing with the ISC DHCP server.
 %patch155 -p1 -b .gcc4_warnings
 %patch156 -p1 -b .version
 %patch157 -p1 -b .dhclient-script-up-down-hooks
+%patch158 -p1 -b .bz167273
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcp
@@ -299,6 +301,11 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Mon Sep 12 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-6
+- fix bug 167273: time-offset should not set timezone by default
+                  tzdata's Etc/* files are named with reverse sign
+                  for hours west - ie. 'GMT+5' is GMT offset -18000seconds.
+
 * Mon Aug 29 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-4
 - fix bug 166926: make dhclient-script handle interface-mtu option
   make dhclient-script support /etc/dhclient{,-$IF}-{up,down}-hooks scripts
