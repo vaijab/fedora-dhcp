@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.3
-Release: 6
+Release: 7
 Epoch:   11
 License: distributable
 Group: System Environment/Daemons
@@ -63,6 +63,7 @@ Patch155: dhcp-3.0.3-gcc4_warnings.patch
 Patch156: dhcp-3.0.3-version.patch
 Patch157: dhcp-3.0.3-dhclient-script-up-down-hooks.patch
 Patch158: dhcp-3.0.3-bz167273.patch
+Patch159: dhcp-3.0.3-failover_ports.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -168,9 +169,10 @@ Libraries for interfacing with the ISC DHCP server.
 %patch156 -p1 -b .version
 %patch157 -p1 -b .dhclient-script-up-down-hooks
 %patch158 -p1 -b .bz167273
+%patch159 -p1 -b .failover_ports
 cp %SOURCE1 .
 cat <<EOF >site.conf
-VARDB=%{_localstatedir}/lib/dhcp
+VARDB=%{_localstatedir}/lib/dhcpd
 ADMMANDIR=%{_mandir}/man8
 FFMANDIR=%{_mandir}/man5
 LIBMANDIR=%{_mandir}/man3
@@ -179,8 +181,8 @@ LIBDIR=%{_libdir}
 INCDIR=%{_includedir}
 EOF
 cat <<EOF >>includes/site.h
-#define _PATH_DHCPD_DB          "%{_localstatedir}/lib/dhcp/dhcpd.leases"
-#define _PATH_DHCLIENT_DB       "%{_localstatedir}/lib/dhcp/dhclient.leases"
+#define _PATH_DHCPD_DB          "%{_localstatedir}/lib/dhcpd/dhcpd.leases"
+#define _PATH_DHCLIENT_DB       "%{_localstatedir}/lib/dhclient/dhclient.leases"
 EOF
 
 %build
@@ -205,7 +207,7 @@ export RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 # -DDEBUG_PACKET -DDEBUG_EXPRESSIONS"
 # -DDEBUG_MEMORY_LEAKAGE -DDEBUG_MALLOC_POOL -DDEBUG_REFCNT_DMALLOC_FREE -DDEBUG_RC_HISTORY -DDEBUG_MALLOC_POOL_EXHAUSTIVELY -DDEBUG_MEMORY_LEAKAGE_ON_EXIT -DRC_MALLOC=3"
 #make %{?_smp_mflags} CC="gcc33"
-make %{?_smp_mflags} CC="cc"
+make %{?_smp_mflags} CC="%{__cc}"
 
 %install
 rm -rf %{buildroot}
@@ -216,8 +218,8 @@ make install DESTDIR=%{buildroot}
 mkdir -p %{buildroot}/etc/rc.d/init.d
 install -m 0755 %SOURCE2 %{buildroot}/etc/rc.d/init.d/dhcpd
 
-touch %{buildroot}%{_localstatedir}/lib/dhcp/dhcpd.leases
-
+touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd.leases
+mkdir -p  %{buildroot}%{_localstatedir}/lib/dhclient/
 cat <<EOF > %{buildroot}/etc/sysconfig/dhcpd
 # Command line options here
 DHCPDARGS=
@@ -265,8 +267,8 @@ exit 0
 %files
 %defattr(-,root,root)
 %doc README RELNOTES dhcpd.conf.sample
-%dir %{_localstatedir}/lib/dhcp
-%verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcp/dhcpd.leases
+%dir %{_localstatedir}/lib/dhcpd
+%verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
 %config(noreplace) /etc/sysconfig/dhcpd
 %config(noreplace) /etc/sysconfig/dhcrelay
 %config(noreplace) /etc/dhcpd.conf
@@ -285,7 +287,7 @@ exit 0
 %files -n dhclient
 %defattr(-,root,root)
 %doc dhclient.conf.sample
-%dir %{_localstatedir}/lib/dhcp
+%dir %{_localstatedir}/lib/dhclient
 /sbin/dhclient
 /sbin/dhclient-script
 %{_mandir}/man5/dhclient.conf.5*
@@ -301,6 +303,11 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Fri Sep 23 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-7
+- fix bug 169164: separate /var/lib/{dhcpd,dhclient} directories
+- fix bug 167292: update failover port info in dhcpd.conf.5; give
+                  failover ports default values in server/confpars.c
+ 
 * Mon Sep 12 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-6
 - fix bug 167273: time-offset should not set timezone by default
                   tzdata's Etc/* files are named with reverse sign
