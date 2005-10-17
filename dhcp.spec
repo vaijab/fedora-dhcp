@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.3
-Release: 7
+Release: 8
 Epoch:   11
 License: distributable
 Group: System Environment/Daemons
@@ -64,6 +64,7 @@ Patch156: dhcp-3.0.3-version.patch
 Patch157: dhcp-3.0.3-dhclient-script-up-down-hooks.patch
 Patch158: dhcp-3.0.3-bz167273.patch
 Patch159: dhcp-3.0.3-failover_ports.patch
+Patch160: dhcp-3.0.3-rt15293_bz160655.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -164,12 +165,14 @@ Libraries for interfacing with the ISC DHCP server.
 # next-server or server-name options for the tftp-boot-server.
 %patch152 -p1 -b .fast_dhclient
 %patch153 -p1 -b .ypbind_hup_ok
-%patch154 -p1 -b .trailing_nul_options
+#%patch154 -p1 -b .trailing_nul_options
 %patch155 -p1 -b .gcc4_warnings
 %patch156 -p1 -b .version
 %patch157 -p1 -b .dhclient-script-up-down-hooks
 %patch158 -p1 -b .bz167273
 %patch159 -p1 -b .failover_ports
+%patch160 -p1 -b .fix_dhcpd_ms_trailing_nuls
+#%patch160 -p1 -b .fix_dhcpd_ms_trailing_nuls
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
@@ -303,6 +306,10 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Thu Oct 13 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-8
+- further fix for bug 160655 / ISC bug 15293 - upstream patch:
+  do NOT always strip trailing nulls in the dhcpd server
+
 * Fri Sep 23 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-7
 - fix bug 169164: separate /var/lib/{dhcpd,dhclient} directories
 - fix bug 167292: update failover port info in dhcpd.conf.5; give
