@@ -65,6 +65,7 @@ Patch157: dhcp-3.0.3-dhclient-script-up-down-hooks.patch
 Patch158: dhcp-3.0.3-bz167273.patch
 Patch159: dhcp-3.0.3-failover_ports.patch
 Patch160: dhcp-3.0.3-rt15293_bz160655.patch
+Patch161: dhcp-3.0.3-static-routes.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -171,8 +172,8 @@ Libraries for interfacing with the ISC DHCP server.
 %patch157 -p1 -b .dhclient-script-up-down-hooks
 %patch158 -p1 -b .bz167273
 %patch159 -p1 -b .failover_ports
-%patch160 -p1 -b .fix_dhcpd_ms_trailing_nuls
-#%patch160 -p1 -b .fix_dhcpd_ms_trailing_nuls
+%patch160 -p1 -b .rt15293_bz160655
+%patch161 -p1 -b .static-routes
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
@@ -306,9 +307,10 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
-* Thu Oct 13 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-8
+* Thu Oct 13 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-10
 - further fix for bug 160655 / ISC bug 15293 - upstream patch:
   do NOT always strip trailing nulls in the dhcpd server
+- handle static-routes option properly in dhclient-script
 
 * Fri Sep 23 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-7
 - fix bug 169164: separate /var/lib/{dhcpd,dhclient} directories
