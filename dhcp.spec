@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.3
-Release: 8
+Release: 10
 Epoch:   11
 License: distributable
 Group: System Environment/Daemons
@@ -66,6 +66,7 @@ Patch158: dhcp-3.0.3-bz167273.patch
 Patch159: dhcp-3.0.3-failover_ports.patch
 Patch160: dhcp-3.0.3-rt15293_bz160655.patch
 Patch161: dhcp-3.0.3-static-routes.patch
+Patch162: dhcp-3.0.3-dhclient_script_route_metrics.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -174,6 +175,7 @@ Libraries for interfacing with the ISC DHCP server.
 %patch159 -p1 -b .failover_ports
 %patch160 -p1 -b .rt15293_bz160655
 %patch161 -p1 -b .static-routes
+%patch162 -p1 -b .dhclient_script_route_metrics
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
@@ -307,10 +309,28 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
-* Thu Oct 13 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-10
+* Tue Oct 18 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-10
+- Allow dhclient route metrics to be specified with DHCP options:
+  The dhcp-options(5) man-page states:
+  'option routers ... Routers should be listed in order of preference' 
+  and
+  'option static-routes ... are listed in descending order of priority' .
+  No preference / priority could be set with previous dhclient-script .
+  Now, dhclient-script provides: 
+  Default Gateway (option 'routers') metrics:
+    Instead of allowing only one default gateway, if more than one router 
+    is specified in the routers option, routers following the first router
+    will have a 'metric' of their position in the list (1,...N>1).
+  Option static-routes metrics:
+    If a target appears in the list more than once, routes for duplicate
+    targets will have successively greater metrics, starting at 1.
+
+* Mon Oct 17 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-8
 - further fix for bug 160655 / ISC bug 15293 - upstream patch:
   do NOT always strip trailing nulls in the dhcpd server
-- handle static-routes option properly in dhclient-script
+- handle static-routes option properly in dhclient-script :
+  trailing 0 octets in the 'target' IP specify the class -
+  ie '172.16.0.0 w.x.y.z' specifies '172.16/16 via w.x.y.z'.
 
 * Fri Sep 23 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-7
 - fix bug 169164: separate /var/lib/{dhcpd,dhclient} directories
