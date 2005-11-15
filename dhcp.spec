@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.3
-Release: 10
+Release: 11
 Epoch:   11
 License: distributable
 Group: System Environment/Daemons
@@ -67,6 +67,8 @@ Patch159: dhcp-3.0.3-failover_ports.patch
 Patch160: dhcp-3.0.3-rt15293_bz160655.patch
 Patch161: dhcp-3.0.3-static-routes.patch
 Patch162: dhcp-3.0.3-dhclient_script_route_metrics.patch
+Patch163: dhcp-3.0.3-dhclient-script-bz171312.patch
+Patch164: dhcp-3.0.3-bz167028-ibm-unicast-bootp.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -176,6 +178,8 @@ Libraries for interfacing with the ISC DHCP server.
 %patch160 -p1 -b .rt15293_bz160655
 %patch161 -p1 -b .static-routes
 %patch162 -p1 -b .dhclient_script_route_metrics
+%patch163 -p1 -b .bz171312
+%patch164 -p1 -b .bz167028
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
@@ -309,6 +313,13 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Tue Nov 15 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-11
+- Rebuild for FC-5
+- fix bug 167028 - test IBM's unicast bootp patch (from xma@us.ibm.com)
+- fix bug 171312 - silence chkconfig error message if ypbind not installed
+- fix dhcpd.init when -cf arg given to dhcpd
+- make dhcpd init touch /var/lib/dhcpd/dhcpd.leases, not /var/lib/dhcp/dhcpd.leases
+
 * Tue Oct 18 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-10
 - Allow dhclient route metrics to be specified with DHCP options:
   The dhcp-options(5) man-page states:
