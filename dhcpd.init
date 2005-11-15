@@ -17,25 +17,38 @@
 [ ${NETWORKING} = "no" ] && exit 0
 
 [ -f /usr/sbin/dhcpd ] || exit 0
-CF='/etc/dhcpd.conf'
-if [[ "$DHCPDARGS" = *-cf* ]]; then
-    CF=`echo $DHCPDARGS | sed 's/^.*-cf[\ \	]*//;s/[\ \	].*$//';`;
-fi;
-[ -f "$CF" ] || exit 0
-if [ ! -f /var/lib/dhcp/dhcpd.leases ] ; then
-   touch /var/lib/dhcp/dhcpd.leases
-   [ -x /sbin/restorecon ] && [ -d /selinux ] && /sbin/restorecon /var/lib/dhcp/dhcpd.leases 
+
+cfOption()
+{ let i=0; 
+  for a in $*; 
+  do ((++i)); 
+     if [ $a = -cf ]; then 
+	 ((++i)); 
+	 eval 'echo $'$i;
+     elif [[ $a = -cf* ]]; then 
+	 echo ${a#-cf}; 
+     fi; 
+  done; 
+}
+
+CF=`cfOption $DHCPDARGS`
+if [ -z "$CF" ]; then
+   CF='/etc/dhcpd.conf';
 fi
+
+[ -f "$CF" ] || exit 0
+if [ ! -f /var/lib/dhcpd/dhcpd.leases ] ; then
+   mkdir -p /var/lib/dhcpd
+   touch /var/lib/dhcpd/dhcpd.leases
+   [ -x /sbin/restorecon ] && [ -d /selinux ] && /sbin/restorecon /var/lib/dhcp/dhcpd.leases >/dev/null 2>&1
+fi
+
 RETVAL=0
 prog="dhcpd"
 
 configtest()
-{
-        CFA=''
-        if [[ "$DHCPDARGS" = *-cf* ]]; then
-	    CFA=`echo $DHCPDARGS | sed 's/^.*-cf[\ \	]*/-cf/;s/[\ \	].*$//;s/-cf/-cf /'`;
-        fi;
-	/usr/sbin/dhcpd -q -t $CFA	
+{        
+	/usr/sbin/dhcpd -q -t -cf $CF
 	return $?
 }
 
@@ -98,7 +111,7 @@ case "$1" in
 	    RETVAL=$?
 	fi
 	;;
-  configtest)
+  configtest|check|testconfig|test)
 	configtest
 	RETVAL=$?
 	;;
