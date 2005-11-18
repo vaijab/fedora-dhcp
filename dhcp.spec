@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.3
-Release: 11
+Release: 12
 Epoch:   11
 License: distributable
 Group: System Environment/Daemons
@@ -69,6 +69,8 @@ Patch161: dhcp-3.0.3-static-routes.patch
 Patch162: dhcp-3.0.3-dhclient_script_route_metrics.patch
 Patch163: dhcp-3.0.3-dhclient-script-bz171312.patch
 Patch164: dhcp-3.0.3-bz167028-ibm-unicast-bootp.patch
+Patch165: dhcp-3.0.3-trailing_nul_options_2.patch
+Patch166: dhcp-3.0.3-bz173619.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -180,6 +182,8 @@ Libraries for interfacing with the ISC DHCP server.
 %patch162 -p1 -b .dhclient_script_route_metrics
 %patch163 -p1 -b .bz171312
 %patch164 -p1 -b .bz167028
+%patch165 -p1 -b .trailing_nul_options_2
+%patch166 -p1 -b .bz173619
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
@@ -313,6 +317,12 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Fri Nov 19 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-12
+- fix bug 173619: dhclient-script should reconfig on RENEW if 
+                  subnet-mask, broadcast-address, mtu, routers, etc.
+		  have changed
+- apply upstream improvements to trailing nul options fix of bug 160655
+  
 * Tue Nov 15 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-11
 - Rebuild for FC-5
 - fix bug 167028 - test IBM's unicast bootp patch (from xma@us.ibm.com)
