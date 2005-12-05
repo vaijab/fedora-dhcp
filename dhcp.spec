@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.3
-Release: 14
+Release: 16
 Epoch:   11
 License: distributable
 Group: System Environment/Daemons
@@ -71,6 +71,7 @@ Patch163: dhcp-3.0.3-dhclient-script-bz171312.patch
 Patch164: dhcp-3.0.3-bz167028-ibm-unicast-bootp.patch
 Patch165: dhcp-3.0.3-trailing_nul_options_2.patch
 Patch166: dhcp-3.0.3-bz173619.patch
+Patch167: dhcp-3.0.3-gcc4.1-Werrors.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -184,6 +185,7 @@ Libraries for interfacing with the ISC DHCP server.
 %patch164 -p1 -b .bz167028
 %patch165 -p1 -b .trailing_nul_options_2
 %patch166 -p1 -b .bz173619
+%patch167 -p1 -b .gcc4.1-Werrors
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
@@ -317,6 +319,9 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Mon Dec 05 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-16
+- fix gcc 4.1 compile warnings (-Werror)
+
 * Fri Nov 19 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-12
 - fix bug 173619: dhclient-script should reconfig on RENEW if 
                   subnet-mask, broadcast-address, mtu, routers, etc.
