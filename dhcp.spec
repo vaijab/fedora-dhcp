@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.3
-Release: 16
+Release: 16.1
 Epoch:   11
 License: distributable
 Group: System Environment/Daemons
@@ -319,6 +319,9 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Fri Dec 09 2005 Jesse Keating <jkeating@redhat.com>
+- rebuilt
+
 * Mon Dec 05 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-16
 - fix gcc 4.1 compile warnings (-Werror)
 
