@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.3
-Release: 18
+Release: 20
 Epoch:   11
 License: distributable
 Group: System Environment/Daemons
@@ -73,6 +73,8 @@ Patch165: dhcp-3.0.3-trailing_nul_options_2.patch
 Patch166: dhcp-3.0.3-bz173619.patch
 Patch167: dhcp-3.0.3-gcc4.1-Werrors.patch
 Patch168: dhcp-3.0.3-bz176270.patch
+Patch169: dhcp-3.0.3-bz176615.patch
+Patch170: dhcp-3.0.3-bz177845.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -188,6 +190,8 @@ Libraries for interfacing with the ISC DHCP server.
 %patch166 -p1 -b .bz173619
 %patch167 -p1 -b .gcc4.1-Werrors
 %patch168 -p1 -b .bz176270
+%patch169 -p1 -b .bz176615
+%patch170 -p1 -b .bz177845
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
@@ -321,6 +325,11 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Mon Jan 16 2006 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-20
+- fix bug 177845: allow client ip-address as default router 
+- fix bug 176615: fix DDNS update when Windows-NT client sends 
+	          host-name with trailing nul
+
 * Tue Dec 20 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-18
 - fix bug 176270: allow routers with an octet of 255 in their IP address
 
