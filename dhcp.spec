@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.3
-Release: 21
+Release: 21.1
 Epoch:   11
 License: distributable
 Group: System Environment/Daemons
@@ -325,6 +325,9 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Mon Feb 06 2006 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-21.1
+- Rebuild for new gcc, glibc and glibc-kernheaders
+
 * Sun Jan 22 2006 Dan Williams <dcbw@redhat.com> - 11:3.0.3-21
 - Fix dhclient-script to use /bin/dbus-send now that all dbus related
     binaries are in /bin rather than /usr/bin
