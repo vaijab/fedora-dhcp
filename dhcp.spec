@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.3
-Release: 21.1
+Release: 21.1.1
 Epoch:   11
 License: distributable
 Group: System Environment/Daemons
@@ -325,6 +325,9 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Fri Feb 10 2006 Jesse Keating <jkeating@redhat.com> - 11:3.0.3-21.1.1
+- bump again for double-long bug on ppc(64)
+
 * Mon Feb 06 2006 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-21.1
 - Rebuild for new gcc, glibc and glibc-kernheaders
 
