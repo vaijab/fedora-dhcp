@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.3
-Release: 21.1.1
+Release: 22
 Epoch:   11
 License: distributable
 Group: System Environment/Daemons
@@ -75,6 +75,7 @@ Patch167: dhcp-3.0.3-gcc4.1-Werrors.patch
 Patch168: dhcp-3.0.3-bz176270.patch
 Patch169: dhcp-3.0.3-bz176615.patch
 Patch170: dhcp-3.0.3-bz177845.patch
+Patch171: dhcp-3.0.3-bz181482.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -192,6 +193,7 @@ Libraries for interfacing with the ISC DHCP server.
 %patch168 -p1 -b .bz176270
 %patch169 -p1 -b .bz176615
 %patch170 -p1 -b .bz177845
+%patch171 -p1 -b .bz181482
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
@@ -325,6 +327,11 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Tue Feb 14 2006 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-22
+- fix bug 181482: resolv.conf not updated on RENEW :
+  since dhcp-3.0.1rc12-RHScript.patch: "$new_domain_servers" should have
+  been "$new_domain_name_servers" :-(
+
 * Fri Feb 10 2006 Jesse Keating <jkeating@redhat.com> - 11:3.0.3-21.1.1
 - bump again for double-long bug on ppc(64)
 
