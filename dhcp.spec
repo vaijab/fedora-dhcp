@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.3
-Release: 22
+Release: 24
 Epoch:   11
 License: distributable
 Group: System Environment/Daemons
@@ -327,6 +327,9 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Mon Feb 20 2006 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-24
+- Apply upstream fix for bug 176615 / ISC RT#15811
+
 * Tue Feb 14 2006 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-22
 - fix bug 181482: resolv.conf not updated on RENEW :
   since dhcp-3.0.1rc12-RHScript.patch: "$new_domain_servers" should have
