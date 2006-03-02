@@ -2,7 +2,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.3
-Release: 24
+Release: 26
 Epoch:   11
 License: distributable
 Group: System Environment/Daemons
@@ -76,6 +76,8 @@ Patch168: dhcp-3.0.3-bz176270.patch
 Patch169: dhcp-3.0.3-bz176615.patch
 Patch170: dhcp-3.0.3-bz177845.patch
 Patch171: dhcp-3.0.3-bz181482.patch
+Patch172: dhcp-3.0.3-dhclient_ibmzSeries_broadcast.patch
+Patch173: dhcp-3.0.3-dhclient_ibmzSeries_-I_option.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -194,6 +196,8 @@ Libraries for interfacing with the ISC DHCP server.
 %patch169 -p1 -b .bz176615
 %patch170 -p1 -b .bz177845
 %patch171 -p1 -b .bz181482
+%patch172 -p1 -b .dhclient_ibmzSeries_broadcast
+%patch173 -p1 -b .dhclient_ibmzSeries_-I_option
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
@@ -233,6 +237,8 @@ export RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 #make %{?_smp_mflags} CC="gcc33"
 make %{?_smp_mflags} CC="%{__cc}"
 
+%define debug_package %{nil}
+
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/etc/sysconfig
@@ -265,6 +271,8 @@ cp -fp %SOURCE4 %{buildroot}/etc
 
 touch debugfiles.list
 :;
+/usr/lib/rpm/brp-compress
+exit 0
 
 %clean
 rm -rf %{buildroot}
@@ -327,6 +335,12 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Thu Mar 02 2006 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-26
+- fix bug 181908: enable dhclient to operate on IBM zSeries z/OS linux guests:
+  o add -I <dhcp-client-identifier> dhclient command line option
+  o add -B "always broadcast" dhclient command line option
+  o add 'bootp-broadcast-always;' dhclient.conf statement
+
 * Mon Feb 20 2006 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-24
 - Apply upstream fix for bug 176615 / ISC RT#15811
 
