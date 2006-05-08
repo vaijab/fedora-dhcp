@@ -1,9 +1,10 @@
 %{?!DHCLIENT_EXTENDED_OPTION_ENVIRONMENT:%define DHCLIENT_EXTENDED_OPTION_ENVIRONMENT 1}
+%{?!NODEBUGINFO: %define NODEBUGINFO 0}
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
-Version: 3.0.3
-Release: 26
-Epoch:   11
+Version: 3.0.4
+Release: 1
+Epoch:   12
 License: distributable
 Group: System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -60,7 +61,7 @@ Patch152: dhcp-3.0.3-fast_dhclient.patch
 Patch153: dhcp-3.0.3-dhclient-script-ypbind-hup-ok.patch
 Patch154: dhcp-3.0.3-trailing_nul_options.patch
 Patch155: dhcp-3.0.3-gcc4_warnings.patch
-Patch156: dhcp-3.0.3-version.patch
+Patch156: dhcp-3.0.4-version.patch
 Patch157: dhcp-3.0.3-dhclient-script-up-down-hooks.patch
 Patch158: dhcp-3.0.3-bz167273.patch
 Patch159: dhcp-3.0.3-failover_ports.patch
@@ -71,13 +72,14 @@ Patch163: dhcp-3.0.3-dhclient-script-bz171312.patch
 Patch164: dhcp-3.0.3-bz167028-ibm-unicast-bootp.patch
 Patch165: dhcp-3.0.3-trailing_nul_options_2.patch
 Patch166: dhcp-3.0.3-bz173619.patch
-Patch167: dhcp-3.0.3-gcc4.1-Werrors.patch
+Patch167: dhcp-3.0.4-gcc4_warnings.patch
 Patch168: dhcp-3.0.3-bz176270.patch
 Patch169: dhcp-3.0.3-bz176615.patch
 Patch170: dhcp-3.0.3-bz177845.patch
 Patch171: dhcp-3.0.3-bz181482.patch
-Patch172: dhcp-3.0.3-dhclient_ibmzSeries_broadcast.patch
-Patch173: dhcp-3.0.3-dhclient_ibmzSeries_-I_option.patch
+Patch172: dhcp-3.0.4-dhcient_ibmzSeries_broadcast.patch
+Patch173: dhcp-3.0.4-dhclient_ibmzSeries_-I_option.patch
+Patch174: dhcp-3.0.4-H_host-name_-F_fqdn_-T_timeout_options.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -172,32 +174,37 @@ Libraries for interfacing with the ISC DHCP server.
 # patch now upstream:
 # %patch148 -p1 -b .uint8_binding_state
 %patch149 -p1 -b .dhclient_script_fast+arping
-%patch150 -p1 -b .no-__u16
+# %patch150 -p1 -b .no-__u16
+# ^- patch now upstream
 # %patch151 -p1 -b .boot-file-server
-# RFC2131 compliance: force users to specify either the
+# ^- RFC2131 compliance: force users to specify either the
 # next-server or server-name options for the tftp-boot-server.
 %patch152 -p1 -b .fast_dhclient
 %patch153 -p1 -b .ypbind_hup_ok
 #%patch154 -p1 -b .trailing_nul_options
-%patch155 -p1 -b .gcc4_warnings
+# ! %patch155 -p1 -b .gcc4_warnings
 %patch156 -p1 -b .version
 %patch157 -p1 -b .dhclient-script-up-down-hooks
 %patch158 -p1 -b .bz167273
 %patch159 -p1 -b .failover_ports
-%patch160 -p1 -b .rt15293_bz160655
+#%patch160 -p1 -b .rt15293_bz160655
+#^- patch now upstream 
 %patch161 -p1 -b .static-routes
 %patch162 -p1 -b .dhclient_script_route_metrics
 %patch163 -p1 -b .bz171312
 %patch164 -p1 -b .bz167028
-%patch165 -p1 -b .trailing_nul_options_2
+#%patch165 -p1 -b .trailing_nul_options_2
+#^- patch now upstream
 %patch166 -p1 -b .bz173619
-%patch167 -p1 -b .gcc4.1-Werrors
+%patch167 -p1 -b .gcc4_warnings
 %patch168 -p1 -b .bz176270
-%patch169 -p1 -b .bz176615
+# %patch169 -p1 -b .bz176615
+# ^- patch now upstream
 %patch170 -p1 -b .bz177845
 %patch171 -p1 -b .bz181482
 %patch172 -p1 -b .dhclient_ibmzSeries_broadcast
 %patch173 -p1 -b .dhclient_ibmzSeries_-I_option
+%patch174 -p1 -b .dhclient_-H_host-name_-F_fqdn_-T_timeout_options
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
@@ -218,8 +225,8 @@ cat <<EOF >findptrsize.c
 #include <stdio.h>
 int main(void) { printf("%%d\n", sizeof(void *)); return 0; }
 EOF
-RPM_OPT_FLAGS="$RPM_OPT_FLAGS -Dlint -Werror"
-cc -o findptrsize findptrsize.c
+RPM_OPT_FLAGS="$RPM_OPT_FLAGS -Dlint -Werror -Wno-unused"
+%{__cc} -o findptrsize findptrsize.c
 [ "`./findptrsize`" -ge 8 ] && RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DPTRSIZE_64BIT"
 %ifarch s390 s390x
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIE"
@@ -230,14 +237,18 @@ RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fpie"
     RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DEXTENDED_NEW_OPTION_INFO"
 %endif
 #RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed 's/\ \-mtune\=[^\=\ ]*//'`
-export RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
-./configure --copts "$RPM_OPT_FLAGS"
+%if %{NODEBUGINFO}
+export RPM_OPT_FLAGS="$RPM_OPT_FLAGS -g3 -gdwarf-2"
+%endif
+CC="%{__cc}" ./configure --copts "$RPM_OPT_FLAGS"
 # -DDEBUG_PACKET -DDEBUG_EXPRESSIONS"
 # -DDEBUG_MEMORY_LEAKAGE -DDEBUG_MALLOC_POOL -DDEBUG_REFCNT_DMALLOC_FREE -DDEBUG_RC_HISTORY -DDEBUG_MALLOC_POOL_EXHAUSTIVELY -DDEBUG_MEMORY_LEAKAGE_ON_EXIT -DRC_MALLOC=3"
 #make %{?_smp_mflags} CC="gcc33"
 make %{?_smp_mflags} CC="%{__cc}"
 
+%if %{NODEBUGINFO}
 %define debug_package %{nil}
+%endif
 
 %install
 rm -rf %{buildroot}
@@ -268,11 +279,12 @@ cp client/dhclient.conf dhclient.conf.sample
 chmod 755 %{buildroot}/sbin/dhclient-script
 # Fix bug 163367: install default (empty) dhcpd.conf:
 cp -fp %SOURCE4 %{buildroot}/etc
-
 touch debugfiles.list
-:;
+%if %{NODEBUGINFO}
 /usr/lib/rpm/brp-compress
 exit 0
+%endif
+:;
 
 %clean
 rm -rf %{buildroot}
@@ -335,6 +347,13 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Sat May 06 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-1
+- Upgrade to upstream version 3.0.4, released Friday 2006-05-05 .
+- Add new dhclient command line arguments:
+  -H <host-name> : parse as dhclient.conf 'send host-name "<host-name>";'
+  -F <fqdn>      : parse as dhclient.conf 'send fqdn.fqdn "<fqdn>";'
+  -T <timeout>   : parse as dhclient.conf 'timeout <timeout>;'
+
 * Thu Mar 02 2006 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-26
 - fix bug 181908: enable dhclient to operate on IBM zSeries z/OS linux guests:
   o add -I <dhcp-client-identifier> dhclient command line option
