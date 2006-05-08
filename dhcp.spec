@@ -12,6 +12,7 @@ Source1: dhcpd.conf.sample
 Source2: dhcpd.init
 Source3: dhcrelay.init
 Source4: dhcpd.conf
+Source5: findptrsize.c
 Patch: dhcp-3.0-alignment.patch
 Patch100: dhcp-3.0-jbuild.patch
 Patch102: dhcp-3.0.1rc13-dhcpctlman.patch
@@ -221,12 +222,9 @@ cat <<EOF >>includes/site.h
 EOF
 
 %build
-cat <<EOF >findptrsize.c
-#include <stdio.h>
-int main(void) { printf("%%d\n", sizeof(void *)); return 0; }
-EOF
+cp -fp %SOURCE5 .
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -Dlint -Werror -Wno-unused"
-%{__cc} -o findptrsize findptrsize.c
+%{__cc} -I. -o findptrsize findptrsize.c
 [ "`./findptrsize`" -ge 8 ] && RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DPTRSIZE_64BIT"
 %ifarch s390 s390x
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIE"
