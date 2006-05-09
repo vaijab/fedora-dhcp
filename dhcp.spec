@@ -3,7 +3,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 1
+Release: 2
 Epoch:   12
 License: distributable
 Group: System Environment/Daemons
@@ -345,6 +345,10 @@ exit 0
 %{_mandir}/man3/*
 
 %changelog
+* Mon May 08 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-2
+- Add new dhclient command line argument:
+  -V <vendor-class-identifier>
+
 * Sat May 06 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-1
 - Upgrade to upstream version 3.0.4, released Friday 2006-05-05 .
 - Add new dhclient command line arguments:
