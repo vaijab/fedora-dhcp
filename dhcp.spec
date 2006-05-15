@@ -13,7 +13,13 @@ Source2: dhcpd.init
 Source3: dhcrelay.init
 Source4: dhcpd.conf
 Source5: findptrsize.c
-Patch: dhcp-3.0-alignment.patch
+# new libdhcp4client package:
+Source6: libdhcp4client.Makefile
+Source7: dhcp-3.0.4-libdhcp4client.patch
+Source8: libdhcp4client.pc
+Source9: dhcptables.pl
+#
+Patch: 	  dhcp-3.0-alignment.patch
 Patch100: dhcp-3.0-jbuild.patch
 Patch102: dhcp-3.0.1rc13-dhcpctlman.patch
 Patch103: dhcp-3.0pl1-miscfixes.patch
@@ -123,6 +129,24 @@ provides the ISC DHCP client daemon.
 
 %description devel
 Libraries for interfacing with the ISC DHCP server.
+
+%package -n 	libdhcp4client
+Summary: The ISC DHCP IPv4 client in a library for invocation from other programs
+Group:   Development/Libraries
+
+%description -n libdhcp4client
+The Internet Software Consortium (ISC) Dynamic Host Configuration Protocol (DHCP)
+Internet Protocol version 4 (IPv4) client software in a library suitable for
+linkage with and invocation by other programs.
+
+%package -n 	libdhcp4client-devel
+Summary: Header files for development with the ISC DHCP IPv4 client library
+Group:   Development/Libraries
+
+%description -n libdhcp4client-devel
+Header files for development with the Internet Software Consortium (ISC) 
+Dynamic Host Configuration Protocol (DHCP) Internet Protocol version 4 (IPv4) 
+client library .
 
 %prep
 %setup -q
@@ -243,6 +267,11 @@ CC="%{__cc}" ./configure --copts "$RPM_OPT_FLAGS"
 # -DDEBUG_MEMORY_LEAKAGE -DDEBUG_MALLOC_POOL -DDEBUG_REFCNT_DMALLOC_FREE -DDEBUG_RC_HISTORY -DDEBUG_MALLOC_POOL_EXHAUSTIVELY -DDEBUG_MEMORY_LEAKAGE_ON_EXIT -DRC_MALLOC=3"
 #make %{?_smp_mflags} CC="gcc33"
 make %{?_smp_mflags} CC="%{__cc}"
+cp -fp %{SOURCE6} libdhcp4client.Makefile
+cp -fp %{SOURCE7} libdhcp4client.patch
+sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
+make -f libdhcp4client.Makefile %{?_smp_mflags} CC="%{__cc}"
+
 
 %if %{NODEBUGINFO}
 %define debug_package %{nil}
@@ -275,10 +304,32 @@ EOF
 # Copy sample dhclient.conf file into position
 cp client/dhclient.conf dhclient.conf.sample
 chmod 755 %{buildroot}/sbin/dhclient-script
+#
+# Why not ship the doc/ documentation ? Some of it is quite useful.
+# Also generate DHCP options tables for C, perl, python:
+#
+chmod +x %SOURCE9
+%SOURCE9 > doc/dhcp_options.h
+%SOURCE9 -pe > doc/dhcp_options.pl
+%SOURCE9 -py > doc/dhcp_options.py
+%SOURCE9 -d  > doc/dhcp_options.txt
+#
 # Fix bug 163367: install default (empty) dhcpd.conf:
 cp -fp %SOURCE4 %{buildroot}/etc
-touch debugfiles.list
-%if %{NODEBUGINFO}
+#
+# libdhcp4client install
+sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE8 >libdhcp4client.pc
+make -f libdhcp4client.Makefile install DESTDIR=$RPM_BUILD_ROOT LIBDIR=%{_libdir}
+%if !%{NODEBUGINFO}
+#
+# Fix debuginfo files list - don't ship links to .c files in the buildroot :-)
+work=work.`./configure --print-sysname`;
+find $work -type l -a -name '*.c' | 
+while read f; do 
+   rm -f $f; 
+   cp -fp ${f#$work/} $f; 
+done
+%else
 /usr/lib/rpm/brp-compress
 exit 0
 %endif
@@ -308,7 +359,7 @@ exit 0
 
 %files
 %defattr(-,root,root)
-%doc README RELNOTES dhcpd.conf.sample
+%doc README RELNOTES dhcpd.conf.sample doc/*
 %dir %{_localstatedir}/lib/dhcpd
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
 %config(noreplace) /etc/sysconfig/dhcpd
@@ -340,11 +391,28 @@ exit 0
 
 %files devel
 %defattr(-,root,root)
+%exclude %{_libdir}/libdhcp4client*
+%exclude %{_includedir}/dhcp4client
 %{_includedir}/*
 %{_libdir}/*.a
 %{_mandir}/man3/*
 
+%files -n libdhcp4client
+%defattr(-,root,root,-)
+%{_libdir}/libdhcp4client*
+
+%files -n libdhcp4client-devel
+%defattr(0644,root,root,0755)
+%{_includedir}/dhcp4client*
+/usr/lib/pkgconfig/libdhcp4client.pc
+
 %changelog
+* Sun May 14 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-2
+- Add the libdhcp4client library package for use by the new libdhcp 
+  package, which enables dhclient to be invoked by programs in a 
+  single process from the library. The normal dhclient code is
+  unmodified by this.
+
 * Mon May 08 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-2
 - Add new dhclient command line argument:
   -V <vendor-class-identifier>
