@@ -312,11 +312,11 @@ chmod 755 %{buildroot}/sbin/dhclient-script
 # Why not ship the doc/ documentation ? Some of it is quite useful.
 # Also generate DHCP options tables for C, perl, python:
 #
-chmod +x %SOURCE9
-%SOURCE9 > doc/dhcp_options.h
-%SOURCE9 -pe > doc/dhcp_options.pl
-%SOURCE9 -py > doc/dhcp_options.py
-%SOURCE9 -d  > doc/dhcp_options.txt
+#chmod +x %SOURCE9
+#%SOURCE9 > doc/dhcp_options.h
+#%SOURCE9 -pe > doc/dhcp_options.pl
+#%SOURCE9 -py > doc/dhcp_options.py
+#%SOURCE9 -d  > doc/dhcp_options.txt
 #
 # Fix bug 163367: install default (empty) dhcpd.conf:
 cp -fp %SOURCE4 %{buildroot}/etc
