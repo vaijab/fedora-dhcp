@@ -1,5 +1,6 @@
 %{?!DHCLIENT_EXTENDED_OPTION_ENVIRONMENT:%define DHCLIENT_EXTENDED_OPTION_ENVIRONMENT 1}
 %{?!NODEBUGINFO: %define NODEBUGINFO 0}
+%{?!LIBDHCP4CLIENT: %define LIBDHCP4CLIENT 0}
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
@@ -87,6 +88,7 @@ Patch171: dhcp-3.0.3-bz181482.patch
 Patch172: dhcp-3.0.4-dhcient_ibmzSeries_broadcast.patch
 Patch173: dhcp-3.0.4-dhclient_ibmzSeries_-I_option.patch
 Patch174: dhcp-3.0.4-H_host-name_-F_fqdn_-T_timeout_options.patch
+Patch175: dhcp-3.0.4-bz191470.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -230,6 +232,7 @@ client library .
 %patch172 -p1 -b .dhclient_ibmzSeries_broadcast
 %patch173 -p1 -b .dhclient_ibmzSeries_-I_option
 %patch174 -p1 -b .dhclient_-H_host-name_-F_fqdn_-T_timeout_options
+%patch175 -p1 -b .bz191470
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
@@ -267,11 +270,12 @@ CC="%{__cc}" ./configure --copts "$RPM_OPT_FLAGS"
 # -DDEBUG_MEMORY_LEAKAGE -DDEBUG_MALLOC_POOL -DDEBUG_REFCNT_DMALLOC_FREE -DDEBUG_RC_HISTORY -DDEBUG_MALLOC_POOL_EXHAUSTIVELY -DDEBUG_MEMORY_LEAKAGE_ON_EXIT -DRC_MALLOC=3"
 #make %{?_smp_mflags} CC="gcc33"
 make %{?_smp_mflags} CC="%{__cc}"
+%if %{LIBDHCP4CLIENT}
 cp -fp %{SOURCE6} libdhcp4client.Makefile
 cp -fp %{SOURCE7} libdhcp4client.patch
 sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
 make -f libdhcp4client.Makefile %{?_smp_mflags} CC="%{__cc}"
-
+%endif
 
 %if %{NODEBUGINFO}
 %define debug_package %{nil}
@@ -317,9 +321,11 @@ chmod +x %SOURCE9
 # Fix bug 163367: install default (empty) dhcpd.conf:
 cp -fp %SOURCE4 %{buildroot}/etc
 #
+%if %{LIBDHCP4CLIENT}
 # libdhcp4client install
 sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE8 >libdhcp4client.pc
 make -f libdhcp4client.Makefile install DESTDIR=$RPM_BUILD_ROOT LIBDIR=%{_libdir}
+%endif
 %if !%{NODEBUGINFO}
 #
 # Fix debuginfo files list - don't ship links to .c files in the buildroot :-)
@@ -391,12 +397,15 @@ exit 0
 
 %files devel
 %defattr(-,root,root)
+%if %{LIBDHCP4CLIENT}
 %exclude %{_libdir}/libdhcp4client*
 %exclude %{_includedir}/dhcp4client
+%endif
 %{_includedir}/*
 %{_libdir}/*.a
 %{_mandir}/man3/*
 
+%if %{LIBDHCP4CLIENT}
 %files -n libdhcp4client
 %defattr(-,root,root,-)
 %{_libdir}/libdhcp4client*
@@ -405,8 +414,13 @@ exit 0
 %defattr(0644,root,root,0755)
 %{_includedir}/dhcp4client*
 /usr/lib/pkgconfig/libdhcp4client.pc
+%endif
 
 %changelog
+* Tue May 16 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-2
+- Fix bug 191470: prevent dhcpd writing 8 byte dhcp-lease-time 
+                  option in packets on 64-bit platforms
+
 * Sun May 14 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-2
 - Add the libdhcp4client library package for use by the new libdhcp 
   package, which enables dhclient to be invoked by programs in a 
