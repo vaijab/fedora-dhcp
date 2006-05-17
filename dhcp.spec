@@ -274,7 +274,8 @@ make %{?_smp_mflags} CC="%{__cc}"
 cp -fp %{SOURCE6} libdhcp4client.Makefile
 cp -fp %{SOURCE7} libdhcp4client.patch
 sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
-make -f libdhcp4client.Makefile %{?_smp_mflags} CC="%{__cc}"
+make -f libdhcp4client.Makefile CC="%{__cc}"
+# can't handle make -j yet!
 %endif
 
 %if %{NODEBUGINFO}
