@@ -1,10 +1,10 @@
 %{?!DHCLIENT_EXTENDED_OPTION_ENVIRONMENT:%define DHCLIENT_EXTENDED_OPTION_ENVIRONMENT 1}
 %{?!NODEBUGINFO: %define NODEBUGINFO 0}
-%{?!LIBDHCP4CLIENT: %define LIBDHCP4CLIENT 0}
+%{?!LIBDHCP4CLIENT: %define LIBDHCP4CLIENT 1}
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 2
+Release: 4
 Epoch:   12
 License: distributable
 Group: System Environment/Daemons
@@ -417,6 +417,9 @@ exit 0
 %endif
 
 %changelog
+* Wed May 17 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-4
+- Enable libdhcp4client build
+
 * Tue May 16 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-2
 - Fix bug 191470: prevent dhcpd writing 8 byte dhcp-lease-time 
                   option in packets on 64-bit platforms
