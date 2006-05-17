@@ -92,7 +92,7 @@ Patch175: dhcp-3.0.4-bz191470.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
-BuildRequires:  groff
+BuildRequires:  groff perl
 #BuildRequires: compat-gcc >= 8-3.3.4.2   groff
 
 %description
@@ -313,11 +313,10 @@ chmod 755 %{buildroot}/sbin/dhclient-script
 # Why not ship the doc/ documentation ? Some of it is quite useful.
 # Also generate DHCP options tables for C, perl, python:
 #
-#chmod +x %SOURCE9
-#%SOURCE9 > doc/dhcp_options.h
-#%SOURCE9 -pe > doc/dhcp_options.pl
-#%SOURCE9 -py > doc/dhcp_options.py
-#%SOURCE9 -d  > doc/dhcp_options.txt
+/usr/bin/perl %SOURCE9 > doc/dhcp_options.h
+/usr/bin/perl %SOURCE9 -pe > doc/dhcp_options.pl
+/usr/bin/perl %SOURCE9 -py > doc/dhcp_options.py
+/usr/bin/perl %SOURCE9 -d  > doc/dhcp_options.txt
 #
 # Fix bug 163367: install default (empty) dhcpd.conf:
 cp -fp %SOURCE4 %{buildroot}/etc
