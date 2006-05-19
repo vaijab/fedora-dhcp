@@ -4,7 +4,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 4
+Release: 6
 Epoch:   12
 License: distributable
 Group: System Environment/Daemons
@@ -408,15 +408,20 @@ exit 0
 %if %{LIBDHCP4CLIENT}
 %files -n libdhcp4client
 %defattr(-,root,root,-)
-%{_libdir}/libdhcp4client*
+%{_libdir}/libdhcp4client.so.*
 
 %files -n libdhcp4client-devel
 %defattr(0644,root,root,0755)
 %{_includedir}/dhcp4client*
 /usr/lib/pkgconfig/libdhcp4client.pc
+%{_libdir}/libdhcp4client.a
+%{_libdir}/libdhcp4client.so
 %endif
 
 %changelog
+* Fri May 19 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-6
+- Make libdhcp4client a versioned .so (BZ 192146)
+
 * Wed May 17 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-4
 - Enable libdhcp4client build
 
