@@ -363,6 +363,10 @@ if [ "$1" -ge "1" ]; then
 fi
 exit 0
 
+%post -n libdhcp4client -p /sbin/ldconfig
+
+%postun -n libdhcp4client -p /sbin/ldconfig
+
 %files
 %defattr(-,root,root)
 %doc README RELNOTES dhcpd.conf.sample doc/*
@@ -413,7 +417,7 @@ exit 0
 %files -n libdhcp4client-devel
 %defattr(0644,root,root,0755)
 %{_includedir}/dhcp4client*
-/usr/lib/pkgconfig/libdhcp4client.pc
+%{_libdir}/pkgconfig/libdhcp4client.pc
 %{_libdir}/libdhcp4client.a
 %{_libdir}/libdhcp4client.so
 %endif
