@@ -4,7 +4,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 6
+Release: 8
 Epoch:   12
 License: distributable
 Group: System Environment/Daemons
