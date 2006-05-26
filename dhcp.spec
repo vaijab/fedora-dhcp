@@ -4,7 +4,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 8
+Release: 8.1
 Epoch:   12
 License: distributable
 Group: System Environment/Daemons
@@ -423,7 +423,12 @@ exit 0
 %endif
 
 %changelog
-* Fri May 19 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-6
+* Fri May 26 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-8.1
+- fix a libdhcp4client memory leak (1 strdup) and 
+  fill in client->packet.siaddr before bind_lease() for pump
+  nextServer option.
+
+* Fri May 19 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-8
 - Make libdhcp4client a versioned .so (BZ 192146)
 
 * Wed May 17 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-4
