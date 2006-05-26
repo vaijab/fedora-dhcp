@@ -4,7 +4,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 8.1
+Release: 10
 Epoch:   12
 License: distributable
 Group: System Environment/Daemons
@@ -89,6 +89,8 @@ Patch172: dhcp-3.0.4-dhcient_ibmzSeries_broadcast.patch
 Patch173: dhcp-3.0.4-dhclient_ibmzSeries_-I_option.patch
 Patch174: dhcp-3.0.4-H_host-name_-F_fqdn_-T_timeout_options.patch
 Patch175: dhcp-3.0.4-bz191470.patch
+Patch176: dhcp-3.0.4-dhclient-R_option.patch
+Patch177: dhcp-3.0.4-dhclient-script-METRIC.patch
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -233,6 +235,8 @@ client library .
 %patch173 -p1 -b .dhclient_ibmzSeries_-I_option
 %patch174 -p1 -b .dhclient_-H_host-name_-F_fqdn_-T_timeout_options
 %patch175 -p1 -b .bz191470
+%patch176 -p1 -b .dhclient-R_option
+%patch177 -p1 -b .dhclient-script-METRIC
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
@@ -423,6 +427,10 @@ exit 0
 %endif
 
 %changelog
+* Fri May 26 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-10
+- fix bug 193047: allow $METRIC to be specified for dhclient routes
+- add a '-R <request option list>' dhclient argument
+
 * Fri May 26 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-8.1
 - fix a libdhcp4client memory leak (1 strdup) and 
   fill in client->packet.siaddr before bind_lease() for pump
