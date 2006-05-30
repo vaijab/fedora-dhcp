@@ -4,7 +4,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 10
+Release: 12
 Epoch:   12
 License: distributable
 Group: System Environment/Daemons
@@ -427,6 +427,9 @@ exit 0
 %endif
 
 %changelog
+* Tue May 30 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-12
+- Make -R option take effect in per-interface client configs
+
 * Fri May 26 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-10
 - fix bug 193047: allow $METRIC to be specified for dhclient routes
 - add a '-R <request option list>' dhclient argument
