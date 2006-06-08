@@ -4,7 +4,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 12
+Release: 14
 Epoch:   12
 License: distributable
 Group: System Environment/Daemons
@@ -91,6 +91,8 @@ Patch174: dhcp-3.0.4-H_host-name_-F_fqdn_-T_timeout_options.patch
 Patch175: dhcp-3.0.4-bz191470.patch
 Patch176: dhcp-3.0.4-dhclient-R_option.patch
 Patch177: dhcp-3.0.4-dhclient-script-METRIC.patch
+Patch178: dhcp-3.0.4-dhclient-script-ntp-fudge-bz191461.patch
+#
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -237,6 +239,7 @@ client library .
 %patch175 -p1 -b .bz191470
 %patch176 -p1 -b .dhclient-R_option
 %patch177 -p1 -b .dhclient-script-METRIC
+%patch178 -p1 -b .dhclient-script-ntp-fudge-bz191461
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
@@ -314,6 +317,12 @@ EOF
 cp client/dhclient.conf dhclient.conf.sample
 chmod 755 %{buildroot}/sbin/dhclient-script
 #
+# Create per-package copies of dhcp-options and dhcp-eval common man-pages:
+cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-options.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcpd-options.5 
+cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-options.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhclient-options.5 
+cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-eval.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcpd-eval.5 
+cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-eval.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhclient-eval.5 
+#
 # Why not ship the doc/ documentation ? Some of it is quite useful.
 # Also generate DHCP options tables for C, perl, python:
 #
@@ -351,6 +360,14 @@ rm -rf %{buildroot}
 %post
 /sbin/chkconfig --add dhcpd
 /sbin/chkconfig --add dhcrelay
+if [ "$1" -ge 1 ]; then
+   if [ ! -e %{_mandir}/man5/dhcp-options.5.gz ]; then
+	/bin/ln -s %{_mandir}/man5/dhcpd-options.5.gz %{_mandir}/man5/dhcp-options.5.gz;
+   fi;
+   if [ ! -e %{_mandir}/man5/dhcp-eval.5.gz ]; then
+	/bin/ln -s %{_mandir}/man5/dhcpd-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz;
+   fi;
+fi;
 
 %preun
 if [ $1 = 0 ]; then	# execute this only if we are NOT doing an upgrade
@@ -364,8 +381,37 @@ fi
 if [ "$1" -ge "1" ]; then
     service dhcpd condrestart >/dev/null 2>&1
     service dhcrelay condrestart >/dev/null 2>&1
+elif [ "$1" -eq 0 ]; then
+    if [ -e %{_mandir}/man5/dhclient-options.5.gz  ]; then
+	/bin/ln -sf %{_mandir}/man5/dhclient-options.5.gz %{_mandir}/man5/dhcp-options.5.gz;
+    fi;
+    if [ -e %{_mandir}/man5/dhclient-eval.5.gz  ]; then
+	/bin/ln -sf %{_mandir}/man5/dhclient-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz;
+    fi;
 fi
 exit 0
+
+%post -n dhclient
+if [ "$1" -ge 1 ]; then
+   if [ ! -e %{_mandir}/man5/dhcp-options.5.gz ]; then
+	/bin/ln -s %{_mandir}/man5/dhclient-options.5.gz %{_mandir}/man5/dhcp-options.5.gz;
+   fi;
+   if [ ! -e %{_mandir}/man5/dhcp-eval.5.gz ]; then
+	/bin/ln -s %{_mandir}/man5/dhclient-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz;
+   fi;   
+fi
+:;
+
+%postun -n dhclient
+if [ "$1" -eq 0 ]; then
+    if [ -e %{_mandir}/man5/dhcpd-options.5.gz  ]; then
+	/bin/ln -sf %{_mandir}/man5/dhcpd-options.5.gz %{_mandir}/man5/dhcp-options.5.gz;
+    fi;
+    if [ -e %{_mandir}/man5/dhcpd-eval.5.gz  ]; then
+	/bin/ln -sf %{_mandir}/man5/dhcpd-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz;
+    fi;
+fi
+:;   
 
 %post -n libdhcp4client -p /sbin/ldconfig
 
@@ -385,11 +431,14 @@ exit 0
 %{_sbindir}/dhcpd
 %{_sbindir}/dhcrelay
 %{_mandir}/man1/omshell.1*
-%{_mandir}/man5/dhcp-eval.5*
 %{_mandir}/man5/dhcpd.conf.5*
 %{_mandir}/man5/dhcpd.leases.5*
 %{_mandir}/man8/dhcpd.8*
 %{_mandir}/man8/dhcrelay.8*
+%{_mandir}/man5/dhcpd-options.5*
+%{_mandir}/man5/dhcpd-eval.5*
+%ghost %{_mandir}/man5/dhcp-options.5.gz
+%ghost %{_mandir}/man5/dhcp-eval.5.gz
 
 %files -n dhclient
 %defattr(-,root,root)
@@ -401,7 +450,10 @@ exit 0
 %{_mandir}/man5/dhclient.leases.5*
 %{_mandir}/man8/dhclient.8*
 %{_mandir}/man8/dhclient-script.8*
-%{_mandir}/man5/dhcp-options.5*
+%{_mandir}/man5/dhclient-options.5*
+%{_mandir}/man5/dhclient-eval.5*
+%ghost %{_mandir}/man5/dhcp-options.5.gz
+%ghost %{_mandir}/man5/dhcp-eval.5.gz
 
 %files devel
 %defattr(-,root,root)
@@ -427,6 +479,11 @@ exit 0
 %endif
 
 %changelog
+* Thu Jun 08 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-14
+- fix bug 191461: preserve ntp.conf local clock fudge statements
+- fix bug 193047: both dhcp and dhclient need to ship common
+                  man-pages: dhcp-options(5) dhcp-eval(5)
+
 * Tue May 30 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-12
 - Make -R option take effect in per-interface client configs
 
