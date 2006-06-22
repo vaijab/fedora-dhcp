@@ -495,6 +495,7 @@ fi
 * Thu Jun 22 2006 Peter Jones <pjones@redhat.com> - 12:3.0.4-15
 - Make timeout dispatch code not recurse while traversing a linked
   list, so it doesn't try to free an entries that have been removed.
+  (bz #195723)
 - Don't patch in a makefile, do it in the spec.
 
 * Thu Jun 08 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-14
