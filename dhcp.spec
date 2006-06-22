@@ -94,7 +94,7 @@ Patch178: dhcp-3.0.4-dhclient-script-ntp-fudge-bz191461.patch
 Patch179: dhcp-3.0.4-lib-makefile.patch
 
 # patches that _must_ go after the split
-Patch180: libdhcp4client.patch
+Patch180: dhcp-3.0.4-libdhcp4client.patch
 Patch181: dhcp-3.0.4-timeouts.patch
 
 URL: http://isc.org/products/DHCP/
