@@ -4,7 +4,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 14
+Release: 15
 Epoch:   12
 License: distributable
 Group: System Environment/Daemons
@@ -14,11 +14,8 @@ Source2: dhcpd.init
 Source3: dhcrelay.init
 Source4: dhcpd.conf
 Source5: findptrsize.c
-# new libdhcp4client package:
-Source6: libdhcp4client.Makefile
-Source7: dhcp-3.0.4-libdhcp4client.patch
-Source8: libdhcp4client.pc
-Source9: dhcptables.pl
+Source6: libdhcp4client.pc
+Source7: dhcptables.pl
 #
 Patch: 	  dhcp-3.0-alignment.patch
 Patch100: dhcp-3.0-jbuild.patch
@@ -92,7 +89,14 @@ Patch175: dhcp-3.0.4-bz191470.patch
 Patch176: dhcp-3.0.4-dhclient-R_option.patch
 Patch177: dhcp-3.0.4-dhclient-script-METRIC.patch
 Patch178: dhcp-3.0.4-dhclient-script-ntp-fudge-bz191461.patch
-#
+
+# patch to make the library subtree
+Patch179: dhcp-3.0.4-lib-makefile.patch
+
+# patches that _must_ go after the split
+Patch180: libdhcp4client.patch
+Patch181: dhcp-3.0.4-timeouts.patch
+
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Prereq: /sbin/chkconfig
@@ -240,6 +244,8 @@ client library .
 %patch176 -p1 -b .dhclient-R_option
 %patch177 -p1 -b .dhclient-script-METRIC
 %patch178 -p1 -b .dhclient-script-ntp-fudge-bz191461
+%patch179 -p1 -b .lib-makefile
+
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
@@ -255,7 +261,6 @@ cat <<EOF >>includes/site.h
 #define _PATH_DHCLIENT_DB       "%{_localstatedir}/lib/dhclient/dhclient.leases"
 EOF
 
-%build
 cp -fp %SOURCE5 .
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -Dlint -Werror -Wno-unused"
 %{__cc} -I. -o findptrsize findptrsize.c
@@ -276,10 +281,18 @@ CC="%{__cc}" ./configure --copts "$RPM_OPT_FLAGS"
 # -DDEBUG_PACKET -DDEBUG_EXPRESSIONS"
 # -DDEBUG_MEMORY_LEAKAGE -DDEBUG_MALLOC_POOL -DDEBUG_REFCNT_DMALLOC_FREE -DDEBUG_RC_HISTORY -DDEBUG_MALLOC_POOL_EXHAUSTIVELY -DDEBUG_MEMORY_LEAKAGE_ON_EXIT -DRC_MALLOC=3"
 #make %{?_smp_mflags} CC="gcc33"
+
+%if %{LIBDHCP4CLIENT}
+sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
+make -f libdhcp4client.Makefile CC="%{__cc}" libdhcp4client/.
+%patch180 -p1 -b .lib
+%patch181 -p1 -b .timeouts
+# can't handle make -j yet!
+%endif
+
+%build
 make %{?_smp_mflags} CC="%{__cc}"
 %if %{LIBDHCP4CLIENT}
-cp -fp %{SOURCE6} libdhcp4client.Makefile
-cp -fp %{SOURCE7} libdhcp4client.patch
 sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
 make -f libdhcp4client.Makefile CC="%{__cc}"
 # can't handle make -j yet!
@@ -326,17 +339,17 @@ cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-eval.5 ${RPM_BUILD_ROOT}%{_mandir}/
 # Why not ship the doc/ documentation ? Some of it is quite useful.
 # Also generate DHCP options tables for C, perl, python:
 #
-/usr/bin/perl %SOURCE9 > doc/dhcp_options.h
-/usr/bin/perl %SOURCE9 -pe > doc/dhcp_options.pl
-/usr/bin/perl %SOURCE9 -py > doc/dhcp_options.py
-/usr/bin/perl %SOURCE9 -d  > doc/dhcp_options.txt
+/usr/bin/perl %SOURCE7 > doc/dhcp_options.h
+/usr/bin/perl %SOURCE7 -pe > doc/dhcp_options.pl
+/usr/bin/perl %SOURCE7 -py > doc/dhcp_options.py
+/usr/bin/perl %SOURCE7 -d  > doc/dhcp_options.txt
 #
 # Fix bug 163367: install default (empty) dhcpd.conf:
 cp -fp %SOURCE4 %{buildroot}/etc
 #
 %if %{LIBDHCP4CLIENT}
 # libdhcp4client install
-sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE8 >libdhcp4client.pc
+sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE6 >libdhcp4client.pc
 make -f libdhcp4client.Makefile install DESTDIR=$RPM_BUILD_ROOT LIBDIR=%{_libdir}
 %endif
 %if !%{NODEBUGINFO}
@@ -479,6 +492,11 @@ fi
 %endif
 
 %changelog
+* Thu Jun 22 2006 Peter Jones <pjones@redhat.com> - 12:3.0.4-15
+- Make timeout dispatch code not recurse while traversing a linked
+  list, so it doesn't try to free an entries that have been removed.
+- Don't patch in a makefile, do it in the spec.
+
 * Thu Jun 08 2006 Jason Vas Dias <jvdias@redhat.com> - 12:3.0.4-14
 - fix bug 191461: preserve ntp.conf local clock fudge statements
 - fix bug 193047: both dhcp and dhclient need to ship common
