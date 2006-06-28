@@ -4,7 +4,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 16
+Release: 17
 Epoch:   12
 License: distributable
 Group: System Environment/Daemons
@@ -496,7 +496,10 @@ exit 0
 %endif
 
 %changelog
-* Wed Jun 28 2006 Florian La Roche <laroche@redhat.com>
+* Wed Jun 28 2006 Peter Jones <pjones@redhat.com> - 12:3.0.4-17
+- export timeout cancellation functions in libdhcp4client
+
+* Wed Jun 28 2006 Florian La Roche <laroche@redhat.com> - 12:3.0.4-16
 - add proper coreutils requires for the scripts
 
 * Thu Jun 22 2006 Peter Jones <pjones@redhat.com> - 12:3.0.4-15
