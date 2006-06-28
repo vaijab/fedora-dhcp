@@ -4,7 +4,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 15
+Release: 16
 Epoch:   12
 License: distributable
 Group: System Environment/Daemons
@@ -99,7 +99,9 @@ Patch181: dhcp-3.0.4-timeouts.patch
 
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
-Prereq: /sbin/chkconfig
+Requires(post): chkconfig, coreutils
+Requires(preun): chkconfig
+Requires(postun): coreutils
 BuildRequires:  groff perl
 #BuildRequires: compat-gcc >= 8-3.3.4.2   groff
 
@@ -134,7 +136,7 @@ etc.) from a DHCP server. The overall purpose of DHCP is to make it
 easier to administer a large network.
 
 To use DHCP on your network, install a DHCP service (or relay agent),
-and on clients run a DHCP client daemon.  The dhclient package 
+and on clients run a DHCP client daemon.  The dhclient package
 provides the ISC DHCP client daemon.
 
 %description devel
@@ -154,8 +156,8 @@ Summary: Header files for development with the ISC DHCP IPv4 client library
 Group:   Development/Libraries
 
 %description -n libdhcp4client-devel
-Header files for development with the Internet Software Consortium (ISC) 
-Dynamic Host Configuration Protocol (DHCP) Internet Protocol version 4 (IPv4) 
+Header files for development with the Internet Software Consortium (ISC)
+Dynamic Host Configuration Protocol (DHCP) Internet Protocol version 4 (IPv4)
 client library .
 
 %prep
@@ -179,7 +181,7 @@ client library .
 %patch122 -p1 -b .default_gateway
 # patches now upstream:
 # %patch123 -p1 -b .preserve-sent-options
-# %patch124 -p1 -b .mis-host 
+# %patch124 -p1 -b .mis-host
 # %patch125 -p1 -b .new-host
 # %patch126 -p1 -b .host-dereference
 # %patch127 -p1 -b .restrict-unconfigured-IF
@@ -223,7 +225,7 @@ client library .
 %patch158 -p1 -b .bz167273
 %patch159 -p1 -b .failover_ports
 #%patch160 -p1 -b .rt15293_bz160655
-#^- patch now upstream 
+#^- patch now upstream
 %patch161 -p1 -b .static-routes
 %patch162 -p1 -b .dhclient_script_route_metrics
 %patch163 -p1 -b .bz171312
@@ -331,10 +333,10 @@ cp client/dhclient.conf dhclient.conf.sample
 chmod 755 %{buildroot}/sbin/dhclient-script
 #
 # Create per-package copies of dhcp-options and dhcp-eval common man-pages:
-cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-options.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcpd-options.5 
-cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-options.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhclient-options.5 
-cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-eval.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcpd-eval.5 
-cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-eval.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhclient-eval.5 
+cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-options.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcpd-options.5
+cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-options.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhclient-options.5
+cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-eval.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcpd-eval.5
+cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-eval.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhclient-eval.5
 #
 # Why not ship the doc/ documentation ? Some of it is quite useful.
 # Also generate DHCP options tables for C, perl, python:
@@ -356,7 +358,7 @@ make -f libdhcp4client.Makefile install DESTDIR=$RPM_BUILD_ROOT LIBDIR=%{_libdir
 #
 # Fix debuginfo files list - don't ship links to .c files in the buildroot :-)
 work=work.`./configure --print-sysname`;
-find $work -type l -a -name '*.c' | 
+find $work -type l -a -name '*.c' |
 while read f; do 
    rm -f $f; 
    cp -fp ${f#$work/} $f; 
@@ -375,56 +377,58 @@ rm -rf %{buildroot}
 /sbin/chkconfig --add dhcrelay
 if [ "$1" -ge 1 ]; then
    if [ ! -e %{_mandir}/man5/dhcp-options.5.gz ]; then
-	/bin/ln -s %{_mandir}/man5/dhcpd-options.5.gz %{_mandir}/man5/dhcp-options.5.gz;
-   fi;
+	/bin/ln -s %{_mandir}/man5/dhcpd-options.5.gz %{_mandir}/man5/dhcp-options.5.gz
+   fi
    if [ ! -e %{_mandir}/man5/dhcp-eval.5.gz ]; then
-	/bin/ln -s %{_mandir}/man5/dhcpd-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz;
-   fi;
-fi;
+	/bin/ln -s %{_mandir}/man5/dhcpd-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz
+   fi
+fi
+exit 0
 
 %preun
 if [ $1 = 0 ]; then	# execute this only if we are NOT doing an upgrade
     service dhcpd stop >/dev/null 2>&1
     service dhcrelay stop >/dev/null 2>&1
-    /sbin/chkconfig --del dhcpd 
+    /sbin/chkconfig --del dhcpd
     /sbin/chkconfig --del dhcrelay
 fi
+exit 0
 
 %postun
 if [ "$1" -ge "1" ]; then
     service dhcpd condrestart >/dev/null 2>&1
     service dhcrelay condrestart >/dev/null 2>&1
 elif [ "$1" -eq 0 ]; then
-    if [ -e %{_mandir}/man5/dhclient-options.5.gz  ]; then
-	/bin/ln -sf %{_mandir}/man5/dhclient-options.5.gz %{_mandir}/man5/dhcp-options.5.gz;
-    fi;
-    if [ -e %{_mandir}/man5/dhclient-eval.5.gz  ]; then
-	/bin/ln -sf %{_mandir}/man5/dhclient-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz;
-    fi;
+    if [ -e %{_mandir}/man5/dhclient-options.5.gz ]; then
+	/bin/ln -sf %{_mandir}/man5/dhclient-options.5.gz %{_mandir}/man5/dhcp-options.5.gz
+    fi
+    if [ -e %{_mandir}/man5/dhclient-eval.5.gz ]; then
+	/bin/ln -sf %{_mandir}/man5/dhclient-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz
+    fi
 fi
 exit 0
 
 %post -n dhclient
 if [ "$1" -ge 1 ]; then
    if [ ! -e %{_mandir}/man5/dhcp-options.5.gz ]; then
-	/bin/ln -s %{_mandir}/man5/dhclient-options.5.gz %{_mandir}/man5/dhcp-options.5.gz;
-   fi;
+	/bin/ln -s %{_mandir}/man5/dhclient-options.5.gz %{_mandir}/man5/dhcp-options.5.gz
+   fi
    if [ ! -e %{_mandir}/man5/dhcp-eval.5.gz ]; then
-	/bin/ln -s %{_mandir}/man5/dhclient-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz;
-   fi;   
+	/bin/ln -s %{_mandir}/man5/dhclient-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz
+   fi
 fi
-:;
+exit 0
 
 %postun -n dhclient
 if [ "$1" -eq 0 ]; then
     if [ -e %{_mandir}/man5/dhcpd-options.5.gz  ]; then
-	/bin/ln -sf %{_mandir}/man5/dhcpd-options.5.gz %{_mandir}/man5/dhcp-options.5.gz;
-    fi;
+	/bin/ln -sf %{_mandir}/man5/dhcpd-options.5.gz %{_mandir}/man5/dhcp-options.5.gz
+    fi
     if [ -e %{_mandir}/man5/dhcpd-eval.5.gz  ]; then
-	/bin/ln -sf %{_mandir}/man5/dhcpd-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz;
-    fi;
+	/bin/ln -sf %{_mandir}/man5/dhcpd-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz
+    fi
 fi
-:;   
+exit 0
 
 %post -n libdhcp4client -p /sbin/ldconfig
 
@@ -492,6 +496,9 @@ fi
 %endif
 
 %changelog
+* Wed Jun 28 2006 Florian La Roche <laroche@redhat.com>
+- add proper coreutils requires for the scripts
+
 * Thu Jun 22 2006 Peter Jones <pjones@redhat.com> - 12:3.0.4-15
 - Make timeout dispatch code not recurse while traversing a linked
   list, so it doesn't try to free an entries that have been removed.
