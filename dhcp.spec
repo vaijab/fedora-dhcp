@@ -4,7 +4,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 18%{?dist}
+Release: 19%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -499,6 +499,9 @@ exit 0
 %endif
 
 %changelog
+* Thu Aug 17 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.4-19
+- Fix mkdir problem in libdhcp4client.Makefile
+
 * Thu Aug 17 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.4-18
 - Fix dhclient on s390x platform (#202911)
 
