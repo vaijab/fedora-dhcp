@@ -4,10 +4,10 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 17.1
+Release: 18%{?dist}
 Epoch:   12
 License: distributable
-Group: System Environment/Daemons
+Group:   System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
 Source1: dhcpd.conf.sample
 Source2: dhcpd.init
@@ -16,8 +16,8 @@ Source4: dhcpd.conf
 Source5: findptrsize.c
 Source6: libdhcp4client.pc
 Source7: dhcptables.pl
-#
-Patch: 	  dhcp-3.0-alignment.patch
+
+Patch:    dhcp-3.0-alignment.patch
 Patch100: dhcp-3.0-jbuild.patch
 Patch102: dhcp-3.0.1rc13-dhcpctlman.patch
 Patch103: dhcp-3.0pl1-miscfixes.patch
@@ -89,13 +89,14 @@ Patch175: dhcp-3.0.4-bz191470.patch
 Patch176: dhcp-3.0.4-dhclient-R_option.patch
 Patch177: dhcp-3.0.4-dhclient-script-METRIC.patch
 Patch178: dhcp-3.0.4-dhclient-script-ntp-fudge-bz191461.patch
+Patch179: dhcp-3.0.4-bz202911.patch
 
 # patch to make the library subtree
-Patch179: dhcp-3.0.4-lib-makefile.patch
+Patch499: dhcp-3.0.4-lib-makefile.patch
 
-# patches that _must_ go after the split
-Patch180: dhcp-3.0.4-libdhcp4client.patch
-Patch181: dhcp-3.0.4-timeouts.patch
+# patches that _must_ go after the split (in %%build)
+Patch500: dhcp-3.0.4-libdhcp4client.patch
+Patch501: dhcp-3.0.4-timeouts.patch
 
 URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -142,18 +143,18 @@ provides the ISC DHCP client daemon.
 %description devel
 Libraries for interfacing with the ISC DHCP server.
 
-%package -n 	libdhcp4client
+%package -n libdhcp4client
 Summary: The ISC DHCP IPv4 client in a library for invocation from other programs
-Group:   Development/Libraries
+Group: Development/Libraries
 
 %description -n libdhcp4client
-The Internet Software Consortium (ISC) Dynamic Host Configuration Protocol (DHCP)
-Internet Protocol version 4 (IPv4) client software in a library suitable for
-linkage with and invocation by other programs.
+The Internet Software Consortium (ISC) Dynamic Host Configuration Protocol
+(DHCP) Internet Protocol version 4 (IPv4) client software in a library
+suitable for linkage with and invocation by other programs.
 
-%package -n 	libdhcp4client-devel
+%package -n libdhcp4client-devel
 Summary: Header files for development with the ISC DHCP IPv4 client library
-Group:   Development/Libraries
+Group: Development/Libraries
 
 %description -n libdhcp4client-devel
 Header files for development with the Internet Software Consortium (ISC)
@@ -246,7 +247,9 @@ client library .
 %patch176 -p1 -b .dhclient-R_option
 %patch177 -p1 -b .dhclient-script-METRIC
 %patch178 -p1 -b .dhclient-script-ntp-fudge-bz191461
-%patch179 -p1 -b .lib-makefile
+%patch179 -p1 -b .bz202911
+
+%patch499 -p1 -b .lib-makefile
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -287,8 +290,8 @@ CC="%{__cc}" ./configure --copts "$RPM_OPT_FLAGS"
 %if %{LIBDHCP4CLIENT}
 sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
 make -f libdhcp4client.Makefile CC="%{__cc}" libdhcp4client/.
-%patch180 -p1 -b .lib
-%patch181 -p1 -b .timeouts
+%patch500 -p1 -b .lib
+%patch501 -p1 -b .timeouts
 # can't handle make -j yet!
 %endif
 
@@ -496,6 +499,9 @@ exit 0
 %endif
 
 %changelog
+* Thu Aug 17 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.4-18
+- Fix dhclient on s390x platform (#202911)
+
 * Wed Jul 12 2006 Jesse Keating <jkeating@redhat.com> - 12:3.0.4-17.1
 - rebuild
 
