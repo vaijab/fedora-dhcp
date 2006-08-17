@@ -33,17 +33,10 @@ Patch119: dhcp-3.0.1rc13-noexpr.patch
 Patch120: dhcp-3.0.1rc14-noconfig.patch
 Patch121: dhcp-3.0.1-change_resolv_conf.patch
 Patch122: dhcp-3.0.1-default_gateway.patch
-Patch123: dhcp-3.0.1.preserve-sent-options.patch
-Patch124: dhcp-3.0.1-mis_host.patch
-Patch125: dhcp-3.0.1-new-host.patch
-Patch126: dhcp-3.0.1-host_dereference.patch
-Patch127: dhcp-3.0.1-restrict-unconfigured-IF.patch
 Patch128: dhcp-3.0.1-check-empty-new-routers.patch
 Patch129: dhcp-3.0.1-fix-ntp.patch
 Patch130: dhcp-3.0.1-release-mode-ifup.patch
 Patch131: dhcp-3.0.1-dhclient-script-big-fix.patch
-Patch132: dhcp-3.0.2rc3-fix-hex.patch
-Patch133: dhcp-3.0.2rc3-mem.patch
 Patch134: dhcp-3.0.2rc3-dhclient_routes.patch
 Patch135: dhcp-3.0.1-z-relro-now.patch
 Patch136: dhcp-3.0.2rc3-dhclient-restorecon.patch
@@ -58,28 +51,20 @@ Patch144: dhcp-3.0.2-dhclient-script-fix-init-state-1.patch
 Patch145: dhcp-3.0.2-dhclient-script-dbus-fix-interface.patch
 Patch146: dhcp-3.0.2-dhclient_nodelay.patch
 Patch147: dhcp-3.0.2-dhclient_decline_backoff.patch
-Patch148: dhcp-3.0.2-uint8_binding_state.patch
 Patch149: dhcp-3.0.2-dhclient_script_fast+arping.patch
-Patch150: dhcp-3.0.3rc1-no-__u16.patch
-Patch151: dhcp-3.0.3rc1-boot-file-server.patch
 Patch152: dhcp-3.0.3-fast_dhclient.patch
 Patch153: dhcp-3.0.3-dhclient-script-ypbind-hup-ok.patch
-Patch154: dhcp-3.0.3-trailing_nul_options.patch
-Patch155: dhcp-3.0.3-gcc4_warnings.patch
 Patch156: dhcp-3.0.4-version.patch
 Patch157: dhcp-3.0.3-dhclient-script-up-down-hooks.patch
 Patch158: dhcp-3.0.3-bz167273.patch
 Patch159: dhcp-3.0.3-failover_ports.patch
-Patch160: dhcp-3.0.3-rt15293_bz160655.patch
 Patch161: dhcp-3.0.3-static-routes.patch
 Patch162: dhcp-3.0.3-dhclient_script_route_metrics.patch
 Patch163: dhcp-3.0.3-dhclient-script-bz171312.patch
 Patch164: dhcp-3.0.3-bz167028-ibm-unicast-bootp.patch
-Patch165: dhcp-3.0.3-trailing_nul_options_2.patch
 Patch166: dhcp-3.0.3-bz173619.patch
 Patch167: dhcp-3.0.4-gcc4_warnings.patch
 Patch168: dhcp-3.0.3-bz176270.patch
-Patch169: dhcp-3.0.3-bz176615.patch
 Patch170: dhcp-3.0.3-bz177845.patch
 Patch171: dhcp-3.0.3-bz181482.patch
 Patch172: dhcp-3.0.4-dhcient_ibmzSeries_broadcast.patch
@@ -180,19 +165,10 @@ client library .
 %patch120 -p1 -b .noconfig
 %patch121 -p1 -b .change_resolv_conf
 %patch122 -p1 -b .default_gateway
-# patches now upstream:
-# %patch123 -p1 -b .preserve-sent-options
-# %patch124 -p1 -b .mis-host
-# %patch125 -p1 -b .new-host
-# %patch126 -p1 -b .host-dereference
-# %patch127 -p1 -b .restrict-unconfigured-IF
 %patch128 -p1 -b .check-empty-new-routers
 %patch129 -p1 -b .fix-ntp
 %patch130 -p1 -b .release-mode-ifup
 %patch131 -p1 -b .dhclient-script-big-fix
-# patches now upstream:
-# %patch132 -p1 -b .fix-hex
-# %patch133 -p1 -b .mem
 %patch134 -p1 -b .dhclient_routes
 %patch135 -p1 -b .-z-relro-now
 %patch136 -p1 -b .dhclient-restorecon
@@ -209,35 +185,20 @@ client library .
 %patch145 -p1 -b .dhclient-script-dbus-fix-interface
 %patch146 -p1 -b .dhclient_no_delay
 %patch147 -p1 -b .dhclient_decline_backoff
-# patch now upstream:
-# %patch148 -p1 -b .uint8_binding_state
 %patch149 -p1 -b .dhclient_script_fast+arping
-# %patch150 -p1 -b .no-__u16
-# ^- patch now upstream
-# %patch151 -p1 -b .boot-file-server
-# ^- RFC2131 compliance: force users to specify either the
-# next-server or server-name options for the tftp-boot-server.
 %patch152 -p1 -b .fast_dhclient
 %patch153 -p1 -b .ypbind_hup_ok
-#%patch154 -p1 -b .trailing_nul_options
-# ! %patch155 -p1 -b .gcc4_warnings
 %patch156 -p1 -b .version
 %patch157 -p1 -b .dhclient-script-up-down-hooks
 %patch158 -p1 -b .bz167273
 %patch159 -p1 -b .failover_ports
-#%patch160 -p1 -b .rt15293_bz160655
-#^- patch now upstream
 %patch161 -p1 -b .static-routes
 %patch162 -p1 -b .dhclient_script_route_metrics
 %patch163 -p1 -b .bz171312
 %patch164 -p1 -b .bz167028
-#%patch165 -p1 -b .trailing_nul_options_2
-#^- patch now upstream
 %patch166 -p1 -b .bz173619
 %patch167 -p1 -b .gcc4_warnings
 %patch168 -p1 -b .bz176270
-# %patch169 -p1 -b .bz176615
-# ^- patch now upstream
 %patch170 -p1 -b .bz177845
 %patch171 -p1 -b .bz181482
 %patch172 -p1 -b .dhclient_ibmzSeries_broadcast
