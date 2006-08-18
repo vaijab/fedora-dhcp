@@ -5,7 +5,7 @@ Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
 Release: 19%{?dist}
-Epoch:   12
+Epoch:   13
 License: distributable
 Group:   System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -460,6 +460,10 @@ exit 0
 %endif
 
 %changelog
+* Fri Aug 18 2006 Jesse Keating <jkeating@redhat.com> - 12:3.0.4-20
+- rebuilt with latest binutils to pick up 64K -z commonpagesize on ppc*
+  (#203001)
+
 * Thu Aug 17 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.4-19
 - Fix mkdir problem in libdhcp4client.Makefile
 
