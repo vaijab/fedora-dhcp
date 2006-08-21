@@ -4,8 +4,8 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 19%{?dist}
-Epoch:   13
+Release: 20%{?dist}
+Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
