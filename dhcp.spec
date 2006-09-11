@@ -4,7 +4,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 20%{?dist}
+Release: 21%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -460,6 +460,9 @@ exit 0
 %endif
 
 %changelog
+* Mon Sep 11 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.4-21
+- Rebuild (#205505)
+
 * Fri Aug 18 2006 Jesse Keating <jkeating@redhat.com> - 12:3.0.4-20
 - rebuilt with latest binutils to pick up 64K -z commonpagesize on ppc*
   (#203001)
