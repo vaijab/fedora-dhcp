@@ -4,7 +4,7 @@
 Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 21%{?dist}
+Release: 22%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -75,6 +75,7 @@ Patch176: dhcp-3.0.4-dhclient-R_option.patch
 Patch177: dhcp-3.0.4-dhclient-script-METRIC.patch
 Patch178: dhcp-3.0.4-dhclient-script-ntp-fudge-bz191461.patch
 Patch179: dhcp-3.0.4-bz202911.patch
+Patch180: dhcp-3.0.4-dhclient-usage-to-stdout.patch
 
 # patch to make the library subtree
 Patch499: dhcp-3.0.4-lib-makefile.patch
@@ -209,6 +210,7 @@ client library .
 %patch177 -p1 -b .dhclient-script-METRIC
 %patch178 -p1 -b .dhclient-script-ntp-fudge-bz191461
 %patch179 -p1 -b .bz202911
+%patch180 -p1 -b .usage-to-stdout
 
 %patch499 -p1 -b .lib-makefile
 
@@ -460,6 +462,9 @@ exit 0
 %endif
 
 %changelog
+* Fri Oct 13 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.4-22
+- Send usage() screen in dhclient to stdout rather than the syslog (#210524)
+
 * Mon Sep 11 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.4-21
 - Rebuild (#205505)
 
