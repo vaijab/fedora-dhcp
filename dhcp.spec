@@ -1,13 +1,13 @@
-%{?!DHCLIENT_EXTENDED_OPTION_ENVIRONMENT:%define DHCLIENT_EXTENDED_OPTION_ENVIRONMENT 1}
-%{?!NODEBUGINFO: %define NODEBUGINFO 0}
 %{?!LIBDHCP4CLIENT: %define LIBDHCP4CLIENT 1}
-Summary: A DHCP (Dynamic Host Configuration Protocol) server and relay agent.
+
+Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 22%{?dist}
+Release: 23%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
+URL:     http://isc.org/products/DHCP/
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
 Source1: dhcpd.conf.sample
 Source2: dhcpd.init
@@ -17,80 +17,18 @@ Source5: findptrsize.c
 Source6: libdhcp4client.pc
 Source7: dhcptables.pl
 
-Patch:    dhcp-3.0-alignment.patch
-Patch100: dhcp-3.0-jbuild.patch
-Patch102: dhcp-3.0.1rc13-dhcpctlman.patch
-Patch103: dhcp-3.0pl1-miscfixes.patch
-Patch106: dhcp-3.0pl1-minires.patch
-Patch109: dhcpd-manpage.patch
-Patch113: dhcp-3.0pl2-selinux.patch
-Patch114: dhcp-3.0pl2-initialize.patch
-Patch115: dhcp-3.0.1rc12-RHscript.patch
-Patch116: dhcp-3.0.1rc12-staticroutes.patch
-Patch117: dhcp-3.0.1rc12-pie.patch
-Patch118: dhcp-3.0.1rc12-inherit-leases.patch
-Patch119: dhcp-3.0.1rc13-noexpr.patch
-Patch120: dhcp-3.0.1rc14-noconfig.patch
-Patch121: dhcp-3.0.1-change_resolv_conf.patch
-Patch122: dhcp-3.0.1-default_gateway.patch
-Patch128: dhcp-3.0.1-check-empty-new-routers.patch
-Patch129: dhcp-3.0.1-fix-ntp.patch
-Patch130: dhcp-3.0.1-release-mode-ifup.patch
-Patch131: dhcp-3.0.1-dhclient-script-big-fix.patch
-Patch134: dhcp-3.0.2rc3-dhclient_routes.patch
-Patch135: dhcp-3.0.1-z-relro-now.patch
-Patch136: dhcp-3.0.2rc3-dhclient-restorecon.patch
-Patch137: dhcp-3.0.1-dhclient-config.patch
-Patch138: dhcp-3.0.2-pid_file_excl.patch
-Patch139: dhcp-3.0.2-dhclient-no-restorecon-or-route.patch
-Patch140: dhcp-3.0.2-extended_option_environment.patch
-Patch141: dhcp-3.0.2-dhclient-no_isc_blurb.patch
-Patch142: dhcp-3.0.2-dhclient-script-restorecon.patch
-Patch143: dhcp-3.0.2-dhclient-script-dhcdbd.patch
-Patch144: dhcp-3.0.2-dhclient-script-fix-init-state-1.patch
-Patch145: dhcp-3.0.2-dhclient-script-dbus-fix-interface.patch
-Patch146: dhcp-3.0.2-dhclient_nodelay.patch
-Patch147: dhcp-3.0.2-dhclient_decline_backoff.patch
-Patch149: dhcp-3.0.2-dhclient_script_fast+arping.patch
-Patch152: dhcp-3.0.3-fast_dhclient.patch
-Patch153: dhcp-3.0.3-dhclient-script-ypbind-hup-ok.patch
-Patch156: dhcp-3.0.4-version.patch
-Patch157: dhcp-3.0.3-dhclient-script-up-down-hooks.patch
-Patch158: dhcp-3.0.3-bz167273.patch
-Patch159: dhcp-3.0.3-failover_ports.patch
-Patch161: dhcp-3.0.3-static-routes.patch
-Patch162: dhcp-3.0.3-dhclient_script_route_metrics.patch
-Patch163: dhcp-3.0.3-dhclient-script-bz171312.patch
-Patch164: dhcp-3.0.3-bz167028-ibm-unicast-bootp.patch
-Patch166: dhcp-3.0.3-bz173619.patch
-Patch167: dhcp-3.0.4-gcc4_warnings.patch
-Patch168: dhcp-3.0.3-bz176270.patch
-Patch170: dhcp-3.0.3-bz177845.patch
-Patch171: dhcp-3.0.3-bz181482.patch
-Patch172: dhcp-3.0.4-dhcient_ibmzSeries_broadcast.patch
-Patch173: dhcp-3.0.4-dhclient_ibmzSeries_-I_option.patch
-Patch174: dhcp-3.0.4-H_host-name_-F_fqdn_-T_timeout_options.patch
-Patch175: dhcp-3.0.4-bz191470.patch
-Patch176: dhcp-3.0.4-dhclient-R_option.patch
-Patch177: dhcp-3.0.4-dhclient-script-METRIC.patch
-Patch178: dhcp-3.0.4-dhclient-script-ntp-fudge-bz191461.patch
-Patch179: dhcp-3.0.4-bz202911.patch
-Patch180: dhcp-3.0.4-dhclient-usage-to-stdout.patch
-
-# patch to make the library subtree
-Patch499: dhcp-3.0.4-lib-makefile.patch
+Patch0:  dhcp-3.0.4-redhat.patch
+Patch1:  dhcp-3.0.4-lib-makefile.patch
 
 # patches that _must_ go after the split (in %%build)
 Patch500: dhcp-3.0.4-libdhcp4client.patch
 Patch501: dhcp-3.0.4-timeouts.patch
 
-URL: http://isc.org/products/DHCP/
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Requires(post): chkconfig, coreutils
 Requires(preun): chkconfig
 Requires(postun): coreutils
 BuildRequires:  groff perl
-#BuildRequires: compat-gcc >= 8-3.3.4.2   groff
 
 %description
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
@@ -149,70 +87,8 @@ client library .
 
 %prep
 %setup -q
-
-%patch -p1 -b .alignment
-%patch100 -p1 -b .jbuild
-%patch102 -p1 -b .dhcpctlman
-%patch103 -p1 -b .miscfixes
-%patch106 -p1 -b .minires
-%patch109 -p1 -b .dhcpdman
-%patch113 -p1 -b .selinux
-%patch114 -p1 -b .initialize
-%patch115 -p1 -b .RHscript
-%patch116 -p1 -b .staticroutes
-%patch117 -p1 -b .pie
-%patch118 -p1 -b .inherit-leases
-%patch119 -p1 -b .noexp
-%patch120 -p1 -b .noconfig
-%patch121 -p1 -b .change_resolv_conf
-%patch122 -p1 -b .default_gateway
-%patch128 -p1 -b .check-empty-new-routers
-%patch129 -p1 -b .fix-ntp
-%patch130 -p1 -b .release-mode-ifup
-%patch131 -p1 -b .dhclient-script-big-fix
-%patch134 -p1 -b .dhclient_routes
-%patch135 -p1 -b .-z-relro-now
-%patch136 -p1 -b .dhclient-restorecon
-%patch137 -p1 -b .dhclient-dhconfig
-%patch138 -p1 -b .pid_file_excl
-%patch139 -p1 -b .dhclient-no-restorecon-or-route
-%if %{DHCLIENT_EXTENDED_OPTION_ENVIRONMENT}
-%patch140 -p1 -b .extended_option_environment
-%endif
-%patch141 -p1 -b .no_isc_blurb
-%patch142 -p1 -b .restore_restorecon
-%patch143 -p1 -b .dhclient-script-dhcdbd
-%patch144 -p1 -b .dhclient-script-fix-init-state-1
-%patch145 -p1 -b .dhclient-script-dbus-fix-interface
-%patch146 -p1 -b .dhclient_no_delay
-%patch147 -p1 -b .dhclient_decline_backoff
-%patch149 -p1 -b .dhclient_script_fast+arping
-%patch152 -p1 -b .fast_dhclient
-%patch153 -p1 -b .ypbind_hup_ok
-%patch156 -p1 -b .version
-%patch157 -p1 -b .dhclient-script-up-down-hooks
-%patch158 -p1 -b .bz167273
-%patch159 -p1 -b .failover_ports
-%patch161 -p1 -b .static-routes
-%patch162 -p1 -b .dhclient_script_route_metrics
-%patch163 -p1 -b .bz171312
-%patch164 -p1 -b .bz167028
-%patch166 -p1 -b .bz173619
-%patch167 -p1 -b .gcc4_warnings
-%patch168 -p1 -b .bz176270
-%patch170 -p1 -b .bz177845
-%patch171 -p1 -b .bz181482
-%patch172 -p1 -b .dhclient_ibmzSeries_broadcast
-%patch173 -p1 -b .dhclient_ibmzSeries_-I_option
-%patch174 -p1 -b .dhclient_-H_host-name_-F_fqdn_-T_timeout_options
-%patch175 -p1 -b .bz191470
-%patch176 -p1 -b .dhclient-R_option
-%patch177 -p1 -b .dhclient-script-METRIC
-%patch178 -p1 -b .dhclient-script-ntp-fudge-bz191461
-%patch179 -p1 -b .bz202911
-%patch180 -p1 -b .usage-to-stdout
-
-%patch499 -p1 -b .lib-makefile
+%patch0 -p1 -b .redhat
+%patch1 -p1 -b .lib-makefile
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -238,17 +114,8 @@ RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIE"
 %else
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fpie"
 %endif
-%if %{DHCLIENT_EXTENDED_OPTION_ENVIRONMENT}
-    RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DEXTENDED_NEW_OPTION_INFO"
-%endif
-#RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed 's/\ \-mtune\=[^\=\ ]*//'`
-%if %{NODEBUGINFO}
-export RPM_OPT_FLAGS="$RPM_OPT_FLAGS -g3 -gdwarf-2"
-%endif
+RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DEXTENDED_NEW_OPTION_INFO"
 CC="%{__cc}" ./configure --copts "$RPM_OPT_FLAGS"
-# -DDEBUG_PACKET -DDEBUG_EXPRESSIONS"
-# -DDEBUG_MEMORY_LEAKAGE -DDEBUG_MALLOC_POOL -DDEBUG_REFCNT_DMALLOC_FREE -DDEBUG_RC_HISTORY -DDEBUG_MALLOC_POOL_EXHAUSTIVELY -DDEBUG_MEMORY_LEAKAGE_ON_EXIT -DRC_MALLOC=3"
-#make %{?_smp_mflags} CC="gcc33"
 
 %if %{LIBDHCP4CLIENT}
 sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
@@ -264,10 +131,6 @@ make %{?_smp_mflags} CC="%{__cc}"
 sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
 make -f libdhcp4client.Makefile CC="%{__cc}"
 # can't handle make -j yet!
-%endif
-
-%if %{NODEBUGINFO}
-%define debug_package %{nil}
 %endif
 
 %install
@@ -320,7 +183,6 @@ cp -fp %SOURCE4 %{buildroot}/etc
 sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE6 >libdhcp4client.pc
 make -f libdhcp4client.Makefile install DESTDIR=$RPM_BUILD_ROOT LIBDIR=%{_libdir}
 %endif
-%if !%{NODEBUGINFO}
 #
 # Fix debuginfo files list - don't ship links to .c files in the buildroot :-)
 work=work.`./configure --print-sysname`;
@@ -329,10 +191,6 @@ while read f; do
    rm -f $f; 
    cp -fp ${f#$work/} $f; 
 done
-%else
-/usr/lib/rpm/brp-compress
-exit 0
-%endif
 :;
 
 %clean
@@ -462,6 +320,11 @@ exit 0
 %endif
 
 %changelog
+* Sat Oct 14 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.4-23
+- Remove NODEBUGINFO junk from the spec file as well as old/unused code
+- Rolled all 68 patches in to one patch since more than half of them get
+  overridden by later patches anyway.
+
 * Fri Oct 13 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.4-22
 - Send usage() screen in dhclient to stdout rather than the syslog (#210524)
 
