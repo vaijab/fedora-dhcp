@@ -3,7 +3,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.4
-Release: 23%{?dist}
+Release: 24%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -13,9 +13,8 @@ Source1: dhcpd.conf.sample
 Source2: dhcpd.init
 Source3: dhcrelay.init
 Source4: dhcpd.conf
-Source5: findptrsize.c
-Source6: libdhcp4client.pc
-Source7: dhcptables.pl
+Source5: libdhcp4client.pc
+Source6: dhcptables.pl
 
 Patch0:  dhcp-3.0.4-redhat.patch
 Patch1:  dhcp-3.0.4-lib-makefile.patch
@@ -101,20 +100,23 @@ LIBDIR=%{_libdir}
 INCDIR=%{_includedir}
 EOF
 cat <<EOF >>includes/site.h
-#define _PATH_DHCPD_DB          "%{_localstatedir}/lib/dhcpd/dhcpd.leases"
-#define _PATH_DHCLIENT_DB       "%{_localstatedir}/lib/dhclient/dhclient.leases"
+#define _PATH_DHCPD_DB    "%{_localstatedir}/lib/dhcpd/dhcpd.leases"
+#define _PATH_DHCLIENT_DB "%{_localstatedir}/lib/dhclient/dhclient.leases"
 EOF
 
-cp -fp %SOURCE5 .
-RPM_OPT_FLAGS="$RPM_OPT_FLAGS -Dlint -Werror -Wno-unused"
-%{__cc} -I. -o findptrsize findptrsize.c
-[ "`./findptrsize`" -ge 8 ] && RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DPTRSIZE_64BIT"
-%ifarch s390 s390x
-RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIE"
-%else
-RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fpie"
+FLAGS="-Dlint -Werror -Wno-unused -DEXTENDED_NEW_OPTION_INFO"
+
+%ifarch ppc64 s390x
+FLAGS="$FLAGS -DPTRSIZE_64BIT"
 %endif
-RPM_OPT_FLAGS="$RPM_OPT_FLAGS -DEXTENDED_NEW_OPTION_INFO"
+
+%ifarch s390 s390x
+FLAGS="$FLAGS -fPIE"
+%else
+FLAGS="$FLAGS -fpie"
+%endif
+
+RPM_OPT_FLAGS="$RPM_OPT_FLAGS $FLAGS"
 CC="%{__cc}" ./configure --copts "$RPM_OPT_FLAGS"
 
 %if %{LIBDHCP4CLIENT}
@@ -122,7 +124,6 @@ sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
 make -f libdhcp4client.Makefile CC="%{__cc}" libdhcp4client/.
 %patch500 -p1 -b .lib
 %patch501 -p1 -b .timeouts
-# can't handle make -j yet!
 %endif
 
 %build
@@ -130,7 +131,6 @@ make %{?_smp_mflags} CC="%{__cc}"
 %if %{LIBDHCP4CLIENT}
 sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
 make -f libdhcp4client.Makefile CC="%{__cc}"
-# can't handle make -j yet!
 %endif
 
 %install
@@ -160,30 +160,29 @@ EOF
 # Copy sample dhclient.conf file into position
 cp client/dhclient.conf dhclient.conf.sample
 chmod 755 %{buildroot}/sbin/dhclient-script
-#
+
 # Create per-package copies of dhcp-options and dhcp-eval common man-pages:
 cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-options.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcpd-options.5
 cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-options.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhclient-options.5
 cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-eval.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcpd-eval.5
 cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-eval.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhclient-eval.5
-#
+
 # Why not ship the doc/ documentation ? Some of it is quite useful.
 # Also generate DHCP options tables for C, perl, python:
-#
-/usr/bin/perl %SOURCE7 > doc/dhcp_options.h
-/usr/bin/perl %SOURCE7 -pe > doc/dhcp_options.pl
-/usr/bin/perl %SOURCE7 -py > doc/dhcp_options.py
-/usr/bin/perl %SOURCE7 -d  > doc/dhcp_options.txt
-#
-# Fix bug 163367: install default (empty) dhcpd.conf:
+/usr/bin/perl %SOURCE6 > doc/dhcp_options.h
+/usr/bin/perl %SOURCE6 -pe > doc/dhcp_options.pl
+/usr/bin/perl %SOURCE6 -py > doc/dhcp_options.py
+/usr/bin/perl %SOURCE6 -d  > doc/dhcp_options.txt
+
+# Install default (empty) dhcpd.conf:
 cp -fp %SOURCE4 %{buildroot}/etc
-#
+
 %if %{LIBDHCP4CLIENT}
 # libdhcp4client install
-sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE6 >libdhcp4client.pc
+sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
 make -f libdhcp4client.Makefile install DESTDIR=$RPM_BUILD_ROOT LIBDIR=%{_libdir}
 %endif
-#
+
 # Fix debuginfo files list - don't ship links to .c files in the buildroot :-)
 work=work.`./configure --print-sysname`;
 find $work -type l -a -name '*.c' |
@@ -200,12 +199,12 @@ rm -rf %{buildroot}
 /sbin/chkconfig --add dhcpd
 /sbin/chkconfig --add dhcrelay
 if [ "$1" -ge 1 ]; then
-   if [ ! -e %{_mandir}/man5/dhcp-options.5.gz ]; then
-	/bin/ln -s %{_mandir}/man5/dhcpd-options.5.gz %{_mandir}/man5/dhcp-options.5.gz
-   fi
-   if [ ! -e %{_mandir}/man5/dhcp-eval.5.gz ]; then
-	/bin/ln -s %{_mandir}/man5/dhcpd-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz
-   fi
+    if [ ! -e %{_mandir}/man5/dhcp-options.5.gz ]; then
+        ln -s %{_mandir}/man5/dhcpd-options.5.gz %{_mandir}/man5/dhcp-options.5.gz
+    fi
+    if [ ! -e %{_mandir}/man5/dhcp-eval.5.gz ]; then
+        ln -s %{_mandir}/man5/dhcpd-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz
+    fi
 fi
 exit 0
 
@@ -224,32 +223,32 @@ if [ "$1" -ge "1" ]; then
     service dhcrelay condrestart >/dev/null 2>&1
 elif [ "$1" -eq 0 ]; then
     if [ -e %{_mandir}/man5/dhclient-options.5.gz ]; then
-	/bin/ln -sf %{_mandir}/man5/dhclient-options.5.gz %{_mandir}/man5/dhcp-options.5.gz
+        ln -sf %{_mandir}/man5/dhclient-options.5.gz %{_mandir}/man5/dhcp-options.5.gz
     fi
     if [ -e %{_mandir}/man5/dhclient-eval.5.gz ]; then
-	/bin/ln -sf %{_mandir}/man5/dhclient-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz
+        ln -sf %{_mandir}/man5/dhclient-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz
     fi
 fi
 exit 0
 
 %post -n dhclient
 if [ "$1" -ge 1 ]; then
-   if [ ! -e %{_mandir}/man5/dhcp-options.5.gz ]; then
-	/bin/ln -s %{_mandir}/man5/dhclient-options.5.gz %{_mandir}/man5/dhcp-options.5.gz
-   fi
-   if [ ! -e %{_mandir}/man5/dhcp-eval.5.gz ]; then
-	/bin/ln -s %{_mandir}/man5/dhclient-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz
-   fi
+    if [ ! -e %{_mandir}/man5/dhcp-options.5.gz ]; then
+        ln -s %{_mandir}/man5/dhclient-options.5.gz %{_mandir}/man5/dhcp-options.5.gz
+    fi
+    if [ ! -e %{_mandir}/man5/dhcp-eval.5.gz ]; then
+        ln -s %{_mandir}/man5/dhclient-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz
+    fi
 fi
 exit 0
 
 %postun -n dhclient
 if [ "$1" -eq 0 ]; then
     if [ -e %{_mandir}/man5/dhcpd-options.5.gz  ]; then
-	/bin/ln -sf %{_mandir}/man5/dhcpd-options.5.gz %{_mandir}/man5/dhcp-options.5.gz
+        ln -sf %{_mandir}/man5/dhcpd-options.5.gz %{_mandir}/man5/dhcp-options.5.gz
     fi
     if [ -e %{_mandir}/man5/dhcpd-eval.5.gz  ]; then
-	/bin/ln -sf %{_mandir}/man5/dhcpd-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz
+        ln -sf %{_mandir}/man5/dhcpd-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz
     fi
 fi
 exit 0
@@ -320,6 +319,11 @@ exit 0
 %endif
 
 %changelog
+* Fri Oct 27 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.4-24
+- Put typedef for dhcp_state_e before it's used in libdhcp_control.h (#212612)
+- Remove dhcpctl.3 from minires/Makefile.dist because it's in dhcpctl
+- Remove findptrsize.c and just set compiler flag for ppc64 and s390x
+
 * Sat Oct 14 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.4-23
 - Remove NODEBUGINFO junk from the spec file as well as old/unused code
 - Rolled all 68 patches in to one patch since more than half of them get
