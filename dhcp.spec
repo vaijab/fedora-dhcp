@@ -1,9 +1,7 @@
-%{?!LIBDHCP4CLIENT: %define LIBDHCP4CLIENT 1}
-
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
-Version: 3.0.4
-Release: 24%{?dist}
+Version: 3.0.5
+Release: 1%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -16,8 +14,17 @@ Source4: dhcpd.conf
 Source5: libdhcp4client.pc
 Source6: dhcptables.pl
 
-Patch0:  dhcp-3.0.4-redhat.patch
-Patch1:  dhcp-3.0.4-lib-makefile.patch
+Patch0:  dhcp-3.0.5-Makefile.patch
+Patch1:  dhcp-3.0.5-client.patch
+Patch2:  dhcp-3.0.5-common.patch
+Patch3:  dhcp-3.0.5-dhcpctl.patch
+Patch4:  dhcp-3.0.5-dst.patch
+Patch5:  dhcp-3.0.5-includes.patch
+Patch6:  dhcp-3.0.5-minires.patch
+Patch7:  dhcp-3.0.5-omapip.patch
+Patch8:  dhcp-3.0.5-relay.patch
+Patch9:  dhcp-3.0.5-server.patch
+Patch10: dhcp-3.0.4-lib-makefile.patch
 
 # patches that _must_ go after the split (in %%build)
 Patch500: dhcp-3.0.4-libdhcp4client.patch
@@ -86,8 +93,17 @@ client library .
 
 %prep
 %setup -q
-%patch0 -p1 -b .redhat
-%patch1 -p1 -b .lib-makefile
+%patch0 -p1 -b .Makefile
+%patch1 -p1 -b .client
+%patch2 -p1 -b .common
+%patch3 -p1 -b .dhcpctl
+%patch4 -p1 -b .dst
+%patch5 -p1 -b .includes
+%patch6 -p1 -b .minires
+%patch7 -p1 -b .omapip
+%patch8 -p1 -b .relay
+%patch9 -p1 -b .server
+%patch10 -p1 -b .lib-makefile
 
 cp %SOURCE1 .
 cat <<EOF >site.conf
@@ -119,19 +135,15 @@ FLAGS="$FLAGS -fpie"
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS $FLAGS"
 CC="%{__cc}" ./configure --copts "$RPM_OPT_FLAGS"
 
-%if %{LIBDHCP4CLIENT}
 sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
 make -f libdhcp4client.Makefile CC="%{__cc}" libdhcp4client/.
 %patch500 -p1 -b .lib
 %patch501 -p1 -b .timeouts
-%endif
 
 %build
 make %{?_smp_mflags} CC="%{__cc}"
-%if %{LIBDHCP4CLIENT}
 sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
 make -f libdhcp4client.Makefile CC="%{__cc}"
-%endif
 
 %install
 rm -rf %{buildroot}
@@ -177,11 +189,9 @@ cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-eval.5 ${RPM_BUILD_ROOT}%{_mandir}/
 # Install default (empty) dhcpd.conf:
 cp -fp %SOURCE4 %{buildroot}/etc
 
-%if %{LIBDHCP4CLIENT}
 # libdhcp4client install
 sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
 make -f libdhcp4client.Makefile install DESTDIR=$RPM_BUILD_ROOT LIBDIR=%{_libdir}
-%endif
 
 # Fix debuginfo files list - don't ship links to .c files in the buildroot :-)
 work=work.`./configure --print-sysname`;
@@ -297,15 +307,12 @@ exit 0
 
 %files devel
 %defattr(-,root,root)
-%if %{LIBDHCP4CLIENT}
 %exclude %{_libdir}/libdhcp4client*
 %exclude %{_includedir}/dhcp4client
-%endif
 %{_includedir}/*
 %{_libdir}/*.a
 %{_mandir}/man3/*
 
-%if %{LIBDHCP4CLIENT}
 %files -n libdhcp4client
 %defattr(-,root,root,-)
 %{_libdir}/libdhcp4client.so.*
@@ -316,9 +323,11 @@ exit 0
 %{_libdir}/pkgconfig/libdhcp4client.pc
 %{_libdir}/libdhcp4client.a
 %{_libdir}/libdhcp4client.so
-%endif
 
 %changelog
+* Tue Nov 07 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-1
+- Upgrade to ISC dhcp-3.0.5
+
 * Fri Oct 27 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.4-24
 - Put typedef for dhcp_state_e before it's used in libdhcp_control.h (#212612)
 - Remove dhcpctl.3 from minires/Makefile.dist because it's in dhcpctl
