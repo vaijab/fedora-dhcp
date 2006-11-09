@@ -1,7 +1,14 @@
+# Use 64-bit pointers on POWER and z/Series
+%ifarch ppc64 s390x
+%define bigptrs -DPTRSIZE_64BIT
+%endif
+
+%define workdir work.linux-2.2
+
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -24,11 +31,10 @@ Patch6:  dhcp-3.0.5-minires.patch
 Patch7:  dhcp-3.0.5-omapip.patch
 Patch8:  dhcp-3.0.5-relay.patch
 Patch9:  dhcp-3.0.5-server.patch
-Patch10: dhcp-3.0.4-lib-makefile.patch
-
-# patches that _must_ go after the split (in %%build)
-Patch500: dhcp-3.0.4-libdhcp4client.patch
-Patch501: dhcp-3.0.4-timeouts.patch
+Patch10: dhcp-3.0.5-libdhcp4client.patch
+Patch11: dhcp-3.0.5-timeouts.patch
+Patch12: dhcp-3.0.5-mkdep.patch
+Patch13: dhcp-3.0.5-fix-warnings.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Requires(post): chkconfig, coreutils
@@ -74,7 +80,7 @@ provides the ISC DHCP client daemon.
 Libraries for interfacing with the ISC DHCP server.
 
 %package -n libdhcp4client
-Summary: The ISC DHCP IPv4 client in a library for invocation from other programs
+Summary: ISC DHCP IPv4 client in a library for invocation from other programs
 Group: Development/Libraries
 
 %description -n libdhcp4client
@@ -103,8 +109,12 @@ client library .
 %patch7 -p1 -b .omapip
 %patch8 -p1 -b .relay
 %patch9 -p1 -b .server
-%patch10 -p1 -b .lib-makefile
+%patch10 -p1 -b .libdhcp4client
+%patch11 -p1 -b .timeouts
+%patch12 -p1 -b .mkdep
+%patch13 -p1 -b .warnings
 
+%build
 cp %SOURCE1 .
 cat <<EOF >site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
@@ -120,50 +130,35 @@ cat <<EOF >>includes/site.h
 #define _PATH_DHCLIENT_DB "%{_localstatedir}/lib/dhclient/dhclient.leases"
 EOF
 
-FLAGS="-Dlint -Werror -Wno-unused -DEXTENDED_NEW_OPTION_INFO"
+RPM_OPT_FLAGS="$RPM_OPT_FLAGS -Werror -Dlint -DEXTENDED_NEW_OPTION_INFO"
 
-%ifarch ppc64 s390x
-FLAGS="$FLAGS -DPTRSIZE_64BIT"
-%endif
+# DO NOT use the %%configure macro because this configure script is not autognu
+CC="%{__cc}" ./configure \
+   --copts "${RPM_OPT_FLAGS} %{?bigptrs}" \
+   --work-dir %{workdir}
 
-%ifarch s390 s390x
-FLAGS="$FLAGS -fPIE"
-%else
-FLAGS="$FLAGS -fpie"
-%endif
-
-RPM_OPT_FLAGS="$RPM_OPT_FLAGS $FLAGS"
-CC="%{__cc}" ./configure --copts "$RPM_OPT_FLAGS"
-
-sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
-make -f libdhcp4client.Makefile CC="%{__cc}" libdhcp4client/.
-%patch500 -p1 -b .lib
-%patch501 -p1 -b .timeouts
-
-%build
-make %{?_smp_mflags} CC="%{__cc}"
-sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
-make -f libdhcp4client.Makefile CC="%{__cc}"
+sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 > libdhcp4client.pc
+%{__make} %{?_smp_mflags} CC="%{__cc}"
 
 %install
-rm -rf %{buildroot}
-mkdir -p %{buildroot}/etc/sysconfig
+rm -rf $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
 
-make install DESTDIR=%{buildroot}
+make install DESTDIR=$RPM_BUILD_ROOT
 
-mkdir -p %{buildroot}/etc/rc.d/init.d
+mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
 install -m 0755 %SOURCE2 %{buildroot}/etc/rc.d/init.d/dhcpd
 
-touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd.leases
-mkdir -p  %{buildroot}%{_localstatedir}/lib/dhclient/
-cat <<EOF > %{buildroot}/etc/sysconfig/dhcpd
+touch $RPM_BUILD_ROOT%{_localstatedir}/lib/dhcpd/dhcpd.leases
+mkdir -p  $RPM_BUILD_ROOT%{_localstatedir}/lib/dhclient/
+cat <<EOF > $RPM_BUILD_ROOT/etc/sysconfig/dhcpd
 # Command line options here
 DHCPDARGS=
 EOF
 
-install -m0755 %SOURCE3 %{buildroot}/etc/rc.d/init.d/dhcrelay
+install -m0755 %SOURCE3 $RPM_BUILD_ROOT/etc/rc.d/init.d/dhcrelay
 
-cat <<EOF > %{buildroot}/etc/sysconfig/dhcrelay
+cat <<EOF > $RPM_BUILD_ROOT/etc/sysconfig/dhcrelay
 # Command line options here
 INTERFACES=""
 DHCPSERVERS=""
@@ -171,15 +166,15 @@ EOF
 
 # Copy sample dhclient.conf file into position
 cp client/dhclient.conf dhclient.conf.sample
-chmod 755 %{buildroot}/sbin/dhclient-script
+chmod 755 $RPM_BUILD_ROOT/sbin/dhclient-script
 
 # Create per-package copies of dhcp-options and dhcp-eval common man-pages:
-cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-options.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcpd-options.5
-cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-options.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhclient-options.5
-cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-eval.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcpd-eval.5
-cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-eval.5 ${RPM_BUILD_ROOT}%{_mandir}/man5/dhclient-eval.5
+cp -fp $RPM_BUILD_ROOT%{_mandir}/man5/dhcp-options.5 $RPM_BUILD_ROOT%{_mandir}/man5/dhcpd-options.5
+cp -fp $RPM_BUILD_ROOT%{_mandir}/man5/dhcp-options.5 $RPM_BUILD_ROOT%{_mandir}/man5/dhclient-options.5
+cp -fp $RPM_BUILD_ROOT%{_mandir}/man5/dhcp-eval.5 $RPM_BUILD_ROOT%{_mandir}/man5/dhcpd-eval.5
+cp -fp $RPM_BUILD_ROOT%{_mandir}/man5/dhcp-eval.5 $RPM_BUILD_ROOT%{_mandir}/man5/dhclient-eval.5
 
-# Why not ship the doc/ documentation ? Some of it is quite useful.
+# Why not ship the doc/ documentation?  Some of it is quite useful.
 # Also generate DHCP options tables for C, perl, python:
 /usr/bin/perl %SOURCE6 > doc/dhcp_options.h
 /usr/bin/perl %SOURCE6 -pe > doc/dhcp_options.pl
@@ -187,20 +182,18 @@ cp -fp ${RPM_BUILD_ROOT}%{_mandir}/man5/dhcp-eval.5 ${RPM_BUILD_ROOT}%{_mandir}/
 /usr/bin/perl %SOURCE6 -d  > doc/dhcp_options.txt
 
 # Install default (empty) dhcpd.conf:
-cp -fp %SOURCE4 %{buildroot}/etc
+cp -fp %SOURCE4 $RPM_BUILD_ROOT/etc
 
-# libdhcp4client install
-sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 >libdhcp4client.pc
-make -f libdhcp4client.Makefile install DESTDIR=$RPM_BUILD_ROOT LIBDIR=%{_libdir}
+install -p -m 0644 -D libdhcp4client.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig/libdhcp4client.pc
 
-# Fix debuginfo files list - don't ship links to .c files in the buildroot :-)
-work=work.`./configure --print-sysname`;
-find $work -type l -a -name '*.c' |
-while read f; do 
-   rm -f $f; 
-   cp -fp ${f#$work/} $f; 
+# Sources files can't be symlinks for debuginfo package generation
+find %{workdir} -type l |
+while read f; do
+    rm -f linkderef
+    cp $f linkderef
+    rm -f $f
+    mv linkderef $f
 done
-:;
 
 %clean
 rm -rf %{buildroot}
@@ -325,6 +318,12 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Thu Nov 09 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-2
+- Change the way libdhcp4client is compiled (patch main source, create new
+  Makefile rather than copy and patch code after main patches)
+- Fix up problems generating compiler warnings
+- Use 'gcc' for making dependencies
+
 * Tue Nov 07 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-1
 - Upgrade to ISC dhcp-3.0.5
 
