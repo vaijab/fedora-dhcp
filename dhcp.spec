@@ -21,19 +21,19 @@ Source4: dhcpd.conf
 Source5: libdhcp4client.pc
 Source6: dhcptables.pl
 
-Patch0:  dhcp-3.0.5-Makefile.patch
-Patch1:  dhcp-3.0.5-client.patch
-Patch2:  dhcp-3.0.5-common.patch
-Patch3:  dhcp-3.0.5-dhcpctl.patch
-Patch4:  dhcp-3.0.5-dst.patch
-Patch5:  dhcp-3.0.5-includes.patch
-Patch6:  dhcp-3.0.5-minires.patch
-Patch7:  dhcp-3.0.5-omapip.patch
-Patch8:  dhcp-3.0.5-relay.patch
-Patch9:  dhcp-3.0.5-server.patch
-Patch10: dhcp-3.0.5-libdhcp4client.patch
-Patch11: dhcp-3.0.5-timeouts.patch
-Patch12: dhcp-3.0.5-mkdep.patch
+Patch0:  dhcp-3.0.5-extended-new-option-info.patch
+Patch1:  dhcp-3.0.5-Makefile.patch
+Patch2:  dhcp-3.0.5-version.patch
+Patch3:  dhcp-3.0.5-client.patch
+Patch4:  dhcp-3.0.5-common.patch
+Patch5:  dhcp-3.0.5-dhcpctl.patch
+Patch6:  dhcp-3.0.5-dst.patch
+Patch7:  dhcp-3.0.5-includes.patch
+Patch8:  dhcp-3.0.5-omapip.patch
+Patch9:  dhcp-3.0.5-minires.patch
+Patch10: dhcp-3.0.5-server.patch
+Patch11: dhcp-3.0.5-libdhcp4client.patch
+Patch12: dhcp-3.0.5-timeouts.patch
 Patch13: dhcp-3.0.5-fix-warnings.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -99,19 +99,19 @@ client library .
 
 %prep
 %setup -q
-%patch0 -p1 -b .Makefile
-%patch1 -p1 -b .client
-%patch2 -p1 -b .common
-%patch3 -p1 -b .dhcpctl
-%patch4 -p1 -b .dst
-%patch5 -p1 -b .includes
-%patch6 -p1 -b .minires
-%patch7 -p1 -b .omapip
-%patch8 -p1 -b .relay
-%patch9 -p1 -b .server
-%patch10 -p1 -b .libdhcp4client
-%patch11 -p1 -b .timeouts
-%patch12 -p1 -b .mkdep
+%patch0 -p1 -b .enoi
+%patch1 -p1 -b .Makefile
+%patch2 -p1 -b .version
+%patch3 -p1 -b .client
+%patch4 -p1 -b .common
+%patch5 -p1 -b .dhcpctl
+%patch6 -p1 -b .dst
+%patch7 -p1 -b .includes
+%patch8 -p1 -b .omapip
+%patch9 -p1 -b .minires
+%patch10 -p1 -b .server
+%patch11 -p1 -b .libdhcp4client
+%patch12 -p1 -b .timeouts
 %patch13 -p1 -b .warnings
 
 %build
@@ -130,7 +130,7 @@ cat <<EOF >>includes/site.h
 #define _PATH_DHCLIENT_DB "%{_localstatedir}/lib/dhclient/dhclient.leases"
 EOF
 
-RPM_OPT_FLAGS="$RPM_OPT_FLAGS -Werror -Dlint -DEXTENDED_NEW_OPTION_INFO"
+RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIC -Werror -Dlint -DEXTENDED_NEW_OPTION_INFO"
 
 # DO NOT use the %%configure macro because this configure script is not autognu
 CC="%{__cc}" ./configure \
@@ -318,11 +318,14 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
-* Thu Nov 09 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-2
+* Fri Nov 10 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-2
 - Change the way libdhcp4client is compiled (patch main source, create new
   Makefile rather than copy and patch code after main patches)
 - Fix up problems generating compiler warnings
 - Use 'gcc' for making dependencies
+- Pass -fPIC instead of -fpie/-fPIE in compiler flags
+- Combine the extended new option info changes in to one patch file (makes
+  it easier for outside projects that want to use dhcdbd and NetworkManager)
 
 * Tue Nov 07 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-1
 - Upgrade to ISC dhcp-3.0.5
