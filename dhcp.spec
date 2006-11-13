@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.5
-Release: 2%{?dist}
+Release: 3%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -318,6 +318,11 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Mon Nov 13 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-3
+- Remove struct universe *universe from envadd_state in the client patch
+- Add struct universe *universe to envadd_state in the enoi patch
+- Add example dbusified dhclient-script in the enoi patch
+
 * Fri Nov 10 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-2
 - Change the way libdhcp4client is compiled (patch main source, create new
   Makefile rather than copy and patch code after main patches)
