@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.5
-Release: 4%{?dist}
+Release: 5%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -340,6 +340,9 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Tue Nov 14 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-5
+- Do not link res_query.o in to libdhcp4client (#215501)
+
 * Mon Nov 13 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-4
 - Enable relinquish_timeouts() and cancel_all_timeouts() even when
   DEBUG_MEMORY_LEAKAGE_ON_EXIT is not defined
