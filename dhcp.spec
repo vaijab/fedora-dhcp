@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.5
-Release: 3%{?dist}
+Release: 4%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -99,19 +99,48 @@ client library .
 
 %prep
 %setup -q
+
+# Extended new option info patch.  Adds the -x option to dhclient, which is
+# needed for dhcdbd and NetworkManager
 %patch0 -p1 -b .enoi
+
+# Build fixes
 %patch1 -p1 -b .Makefile
+
+# Add -RedHat to the version number
 %patch2 -p1 -b .version
+
+# Patches for the client/ subdirectory
 %patch3 -p1 -b .client
+
+# Patches for the common/ subdirectory
 %patch4 -p1 -b .common
+
+# Patches for the dhcpctl/ subdirectory
 %patch5 -p1 -b .dhcpctl
+
+# Patches for the dst/ subdirectory
 %patch6 -p1 -b .dst
+
+# Patches for the includes/ subdirectory
 %patch7 -p1 -b .includes
+
+# Patches for the omapip/ subdirectory
 %patch8 -p1 -b .omapip
+
+# Patches for the minires/ subdirectory
 %patch9 -p1 -b .minires
+
+# Patches for the server/ subdirectory
 %patch10 -p1 -b .server
+
+# Add the libdhcp4client target (library version of dhclient)
 %patch11 -p1 -b .libdhcp4client
+
+# Fix up timeout handling in dhclient and libdhcp4client
 %patch12 -p1 -b .timeouts
+
+# Fix up anything that fails -Wall -Werror
 %patch13 -p1 -b .warnings
 
 %build
@@ -173,13 +202,6 @@ cp -fp $RPM_BUILD_ROOT%{_mandir}/man5/dhcp-options.5 $RPM_BUILD_ROOT%{_mandir}/m
 cp -fp $RPM_BUILD_ROOT%{_mandir}/man5/dhcp-options.5 $RPM_BUILD_ROOT%{_mandir}/man5/dhclient-options.5
 cp -fp $RPM_BUILD_ROOT%{_mandir}/man5/dhcp-eval.5 $RPM_BUILD_ROOT%{_mandir}/man5/dhcpd-eval.5
 cp -fp $RPM_BUILD_ROOT%{_mandir}/man5/dhcp-eval.5 $RPM_BUILD_ROOT%{_mandir}/man5/dhclient-eval.5
-
-# Why not ship the doc/ documentation?  Some of it is quite useful.
-# Also generate DHCP options tables for C, perl, python:
-/usr/bin/perl %SOURCE6 > doc/dhcp_options.h
-/usr/bin/perl %SOURCE6 -pe > doc/dhcp_options.pl
-/usr/bin/perl %SOURCE6 -py > doc/dhcp_options.py
-/usr/bin/perl %SOURCE6 -d  > doc/dhcp_options.txt
 
 # Install default (empty) dhcpd.conf:
 cp -fp %SOURCE4 $RPM_BUILD_ROOT/etc
@@ -318,6 +340,16 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Mon Nov 13 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-4
+- Enable relinquish_timeouts() and cancel_all_timeouts() even when
+  DEBUG_MEMORY_LEAKAGE_ON_EXIT is not defined
+- Add prototypes for b64_pton() and b64_ntop in dst/
+- Move variable declarations and labels around in the fix-warnings patch
+- Expand the list of objects needed for libdhcp4client (#215328)
+- Use libres.a in libdhcp4client since it gives correct minires objects
+- Remove the dhcp options table in C, Perl, Python, and text format (these
+  were reference files added to /usr/share/doc)
+
 * Mon Nov 13 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-3
 - Remove struct universe *universe from envadd_state in the client patch
 - Add struct universe *universe to envadd_state in the enoi patch
