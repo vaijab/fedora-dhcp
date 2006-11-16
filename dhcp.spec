@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.5
-Release: 5%{?dist}
+Release: 6%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -329,7 +329,7 @@ exit 0
 %{_mandir}/man3/*
 
 %files -n libdhcp4client
-%defattr(-,root,root,-)
+%defattr(0755,root,root,0755)
 %{_libdir}/libdhcp4client.so.*
 
 %files -n libdhcp4client-devel
@@ -340,6 +340,9 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Thu Nov 16 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-6
+- Set permission of libdhcp4client.so.1 to 0755 (#215910)
+
 * Tue Nov 14 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-5
 - Do not link res_query.o in to libdhcp4client (#215501)
 
