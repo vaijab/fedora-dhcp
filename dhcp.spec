@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.5
-Release: 6%{?dist}
+Release: 7%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -35,6 +35,7 @@ Patch10: dhcp-3.0.5-server.patch
 Patch11: dhcp-3.0.5-libdhcp4client.patch
 Patch12: dhcp-3.0.5-timeouts.patch
 Patch13: dhcp-3.0.5-fix-warnings.patch
+Patch14: dhcp-3.0.5-md5.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Requires(post): chkconfig, coreutils
@@ -142,6 +143,9 @@ client library .
 
 # Fix up anything that fails -Wall -Werror
 %patch13 -p1 -b .warnings
+
+# Fix up the makefiles so we include the md5 stuff in the .a
+%patch14 -p1 -b .md5
 
 %build
 cp %SOURCE1 .
@@ -340,6 +344,9 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Wed Nov 22 2006 Peter Jones <pjones@redhat.com> - 12:3.0.5-7
+- Build the MD5 functions we link against.
+
 * Thu Nov 16 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-6
 - Set permission of libdhcp4client.so.1 to 0755 (#215910)
 
