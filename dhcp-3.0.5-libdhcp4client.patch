@@ -1,5 +1,5 @@
---- dhcp-3.0.5/client/dhclient.c.libdhcp4client	2006-11-14 15:46:27.000000000 -0500
-+++ dhcp-3.0.5/client/dhclient.c	2006-11-14 15:46:27.000000000 -0500
+--- dhcp-3.0.5/client/dhclient.c.libdhcp4client	2006-11-29 10:50:20.000000000 -0500
++++ dhcp-3.0.5/client/dhclient.c	2006-11-29 10:50:20.000000000 -0500
 @@ -78,7 +78,9 @@
  int extended_option_environment = 0;
  #endif
@@ -587,8 +587,8 @@
  	       ddns_dhcid, client_identifier;
  	struct option_cache *oc;
  	int ignorep;
---- dhcp-3.0.5/common/alloc.c.libdhcp4client	2006-11-14 15:46:27.000000000 -0500
-+++ dhcp-3.0.5/common/alloc.c	2006-11-14 15:46:27.000000000 -0500
+--- dhcp-3.0.5/common/alloc.c.libdhcp4client	2006-11-29 10:50:20.000000000 -0500
++++ dhcp-3.0.5/common/alloc.c	2006-11-29 10:50:20.000000000 -0500
 @@ -48,7 +48,6 @@
  	const char *file;
  	int line;
@@ -669,8 +669,8 @@
  	struct dns_zone *d;
  
  	if (!ptr) {
---- dhcp-3.0.5/common/discover.c.libdhcp4client	2006-11-14 15:46:27.000000000 -0500
-+++ dhcp-3.0.5/common/discover.c	2006-11-14 15:46:27.000000000 -0500
+--- dhcp-3.0.5/common/discover.c.libdhcp4client	2006-11-29 10:50:20.000000000 -0500
++++ dhcp-3.0.5/common/discover.c	2006-11-29 10:50:20.000000000 -0500
 @@ -120,28 +120,30 @@
     For each interface that's of type INET and not the loopback interface,
     register that interface with the network I/O software, figure out what
@@ -761,7 +761,7 @@
  
  	if (h -> type != dhcp_type_interface)
 --- dhcp-3.0.5/common/lpf.c.libdhcp4client	2004-11-24 12:39:15.000000000 -0500
-+++ dhcp-3.0.5/common/lpf.c	2006-11-14 15:46:27.000000000 -0500
++++ dhcp-3.0.5/common/lpf.c	2006-11-29 10:50:20.000000000 -0500
 @@ -69,8 +69,6 @@
  	struct interface_info *info;
  {
@@ -788,7 +788,7 @@
  	int offset = 0;
  	unsigned char ibuf [1536];
 --- dhcp-3.0.5/dst/hmac_link.c.libdhcp4client	2001-02-22 02:22:08.000000000 -0500
-+++ dhcp-3.0.5/dst/hmac_link.c	2006-11-14 15:46:27.000000000 -0500
++++ dhcp-3.0.5/dst/hmac_link.c	2006-11-29 10:50:20.000000000 -0500
 @@ -38,6 +38,10 @@
  
  #include "dst_internal.h"
@@ -876,7 +876,7 @@
  		return (0);
  	memset(dst_t_func[KEY_HMAC_MD5], 0, sizeof(struct dst_func));
 --- dhcp-3.0.5/omapip/alloc.c.libdhcp4client	2006-02-22 17:43:27.000000000 -0500
-+++ dhcp-3.0.5/omapip/alloc.c	2006-11-14 15:46:27.000000000 -0500
++++ dhcp-3.0.5/omapip/alloc.c	2006-11-29 10:50:20.000000000 -0500
 @@ -40,6 +40,41 @@
  
  #include <omapip/omapip_p.h>
@@ -948,8 +948,8 @@
  }
  
  #if defined (DEBUG_MEMORY_LEAKAGE) || defined (DEBUG_MALLOC_POOL) || \
---- dhcp-3.0.5/omapip/dispatch.c.libdhcp4client	2006-11-14 15:46:27.000000000 -0500
-+++ dhcp-3.0.5/omapip/dispatch.c	2006-11-14 15:46:27.000000000 -0500
+--- dhcp-3.0.5/omapip/dispatch.c.libdhcp4client	2006-11-29 10:50:20.000000000 -0500
++++ dhcp-3.0.5/omapip/dispatch.c	2006-11-29 10:50:20.000000000 -0500
 @@ -34,7 +34,7 @@
  
  #include <omapip/omapip_p.h>
@@ -959,8 +959,8 @@
  TIME cur_time;
  
  OMAPI_OBJECT_ALLOC (omapi_io,
---- dhcp-3.0.5/omapip/errwarn.c.libdhcp4client	2006-11-14 15:46:27.000000000 -0500
-+++ dhcp-3.0.5/omapip/errwarn.c	2006-11-14 15:46:27.000000000 -0500
+--- dhcp-3.0.5/omapip/errwarn.c.libdhcp4client	2006-11-29 10:50:20.000000000 -0500
++++ dhcp-3.0.5/omapip/errwarn.c	2006-11-29 10:50:20.000000000 -0500
 @@ -39,6 +39,11 @@
  #include <omapip/omapip_p.h>
  #include <errno.h>
@@ -1083,7 +1083,7 @@
  }
  
 --- dhcp-3.0.5/configure.libdhcp4client	2004-09-10 17:02:30.000000000 -0400
-+++ dhcp-3.0.5/configure	2006-11-14 15:46:27.000000000 -0500
++++ dhcp-3.0.5/configure	2006-11-29 10:50:20.000000000 -0500
 @@ -246,7 +246,7 @@
  fi
  
@@ -1093,8 +1093,8 @@
  fi
  
  for foo in $dirs; do
---- /dev/null	2006-11-14 14:31:39.117054826 -0500
-+++ dhcp-3.0.5/libdhcp4client/Makefile.dist	2006-11-14 15:47:02.000000000 -0500
+--- /dev/null	2006-11-25 13:38:58.174646239 -0500
++++ dhcp-3.0.5/libdhcp4client/Makefile.dist	2006-11-29 10:51:12.000000000 -0500
 @@ -0,0 +1,104 @@
 +# Makefile.dist for libdhcp4client
 +#
@@ -1120,12 +1120,12 @@
 +        common_upf.c common_packet.c common_dns.c common_comapi.c \
 +        dst_dst_api.c dst_base64.c common_ethernet.c common_tr.c \
 +        dst_dst_support.c common_execute.c omapip_result.c omapip_handle.c \
-+        dst_prandom.c
++        dst_prandom.c dst_md5_dgst.c
 +
 +OBJS     = $(SRCS:.c=.o)
 +INCLUDES = -I$(TOP) -I$(TOP)/includes -I$(TOP)/dst -I.
 +CFLAGS   = $(DEBUG) $(PREDEFINES) $(INCLUDES) $(COPTS) \
-+           -DCLIENT_PATH=${CLIENT_PATH} -DLIBDHCP
++           -DCLIENT_PATH=${CLIENT_PATH} -DLIBDHCP -DUSE_MD5
 +
 +all: $(PROGS)
 +
@@ -1200,8 +1200,8 @@
 +	$(CC) -shared -o $@ -Wl,-soname,$@ $(OBJS) `$(AR) t libres.a | grep -v res_query.o`
 +
 +# Dependencies (semi-automatically-generated)
---- /dev/null	2006-11-14 14:31:39.117054826 -0500
-+++ dhcp-3.0.5/libdhcp4client/dhcp4client.h	2006-11-14 15:46:27.000000000 -0500
+--- /dev/null	2006-11-25 13:38:58.174646239 -0500
++++ dhcp-3.0.5/libdhcp4client/dhcp4client.h	2006-11-29 10:50:20.000000000 -0500
 @@ -0,0 +1,24 @@
 +/* dhcp4client.h
 + *
@@ -1227,8 +1227,8 @@
 +extern int dhcpv4_client( struct libdhcp_control_s *dhc_ctl, int argc, char **argv, char **envp);
 +    /* The ISC IPv4 DHCP client main() function .
 +     */
---- /dev/null	2006-11-14 14:31:39.117054826 -0500
-+++ dhcp-3.0.5/libdhcp4client/libdhcp_control.h	2006-11-14 15:46:27.000000000 -0500
+--- /dev/null	2006-11-25 13:38:58.174646239 -0500
++++ dhcp-3.0.5/libdhcp4client/libdhcp_control.h	2006-11-29 10:50:20.000000000 -0500
 @@ -0,0 +1,102 @@
 +/* libdhcp_control.h
 + *
@@ -1333,7 +1333,7 @@
 +
 +#endif
 --- dhcp-3.0.5/Makefile.dist.libdhcp4client	2004-06-10 13:59:10.000000000 -0400
-+++ dhcp-3.0.5/Makefile.dist	2006-11-14 15:46:27.000000000 -0500
++++ dhcp-3.0.5/Makefile.dist	2006-11-29 10:50:20.000000000 -0500
 @@ -22,7 +22,7 @@
  #   http://www.isc.org/
  
