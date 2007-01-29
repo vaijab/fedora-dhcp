@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.5
-Release: 8%{?dist}
+Release: 9%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -19,7 +19,6 @@ Source2: dhcpd.init
 Source3: dhcrelay.init
 Source4: dhcpd.conf
 Source5: libdhcp4client.pc
-Source6: dhcptables.pl
 
 Patch0:  dhcp-3.0.5-extended-new-option-info.patch
 Patch1:  dhcp-3.0.5-Makefile.patch
@@ -32,9 +31,11 @@ Patch7:  dhcp-3.0.5-includes.patch
 Patch8:  dhcp-3.0.5-omapip.patch
 Patch9:  dhcp-3.0.5-minires.patch
 Patch10: dhcp-3.0.5-server.patch
-Patch11: dhcp-3.0.5-libdhcp4client.patch
-Patch12: dhcp-3.0.5-timeouts.patch
-Patch13: dhcp-3.0.5-fix-warnings.patch
+Patch11: dhcp-3.0.5-timeouts.patch
+Patch12: dhcp-3.0.5-fix-warnings.patch
+
+# adds libdhcp4client to the ISC code base
+Patch50: dhcp-3.0.5-libdhcp4client.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Requires(post): chkconfig, coreutils
@@ -134,14 +135,14 @@ client library .
 # Patches for the server/ subdirectory
 %patch10 -p1 -b .server
 
-# Add the libdhcp4client target (library version of dhclient)
-%patch11 -p1 -b .libdhcp4client
-
 # Fix up timeout handling in dhclient and libdhcp4client
-%patch12 -p1 -b .timeouts
+%patch11 -p1 -b .timeouts
 
 # Fix up anything that fails -Wall -Werror
-%patch13 -p1 -b .warnings
+%patch12 -p1 -b .warnings
+
+# Add the libdhcp4client target (library version of dhclient)
+%patch50 -p1 -b .libdhcp4client
 
 %build
 cp %SOURCE1 .
@@ -159,6 +160,9 @@ cat <<EOF >>includes/site.h
 #define _PATH_DHCLIENT_DB "%{_localstatedir}/lib/dhclient/dhclient.leases"
 EOF
 
+# Enable extended option info patch and set fortify source to 0 so that we
+# don't get inline functions that we don't want (for libdhcp4client)
+RPM_OPT_FLAGS="$(echo $RPM_OPT_FLAGS | sed -e 's/_FORTIFY_SOURCE=[0-9]/_FORTIFY_SOURCE=0/g')"
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIC -Werror -Dlint -DEXTENDED_NEW_OPTION_INFO"
 
 # DO NOT use the %%configure macro because this configure script is not autognu
@@ -330,7 +334,7 @@ exit 0
 
 %files -n libdhcp4client
 %defattr(0755,root,root,0755)
-%{_libdir}/libdhcp4client.so.*
+%{_libdir}/libdhcp4client-%{version}.so.*
 
 %files -n libdhcp4client-devel
 %defattr(0644,root,root,0755)
@@ -340,6 +344,12 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Mon Jan 29 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-9
+- Remove dhcptables.pl from the source package
+- Mark libres.a symbols hidden (#198496)
+- Set DT_SONAME on libdhcp4client to libdhcp4client-VERSION.so.0
+- Make function definition for dst_hmac_md5_init() match the prototype
+
 * Wed Nov 29 2006 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-8
 - Roll md5 patch in to libdhcp4client patch since it's related
 - Do not overwrite /etc/ntp/step-tickers (#217663)
