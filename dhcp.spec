@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.5
-Release: 10%{?dist}
+Release: 11%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -348,6 +348,9 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Tue Jan 30 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-11
+- Remove FORTIFY_SOURCE=0 leftovers from testing last week (whoops)
+
 * Tue Jan 30 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-10
 - Fix Xen networking problems with partial checksums (#221964)
 
