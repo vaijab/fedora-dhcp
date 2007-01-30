@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.5
-Release: 9%{?dist}
+Release: 10%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -33,6 +33,7 @@ Patch9:  dhcp-3.0.5-minires.patch
 Patch10: dhcp-3.0.5-server.patch
 Patch11: dhcp-3.0.5-timeouts.patch
 Patch12: dhcp-3.0.5-fix-warnings.patch
+Patch13: dhcp-3.0.5-xen-checksum.patch
 
 # adds libdhcp4client to the ISC code base
 Patch50: dhcp-3.0.5-libdhcp4client.patch
@@ -140,6 +141,9 @@ client library .
 
 # Fix up anything that fails -Wall -Werror
 %patch12 -p1 -b .warnings
+
+# Fix Xen host networking problems (partial checksums)
+%patch13 -p1 -b .xen
 
 # Add the libdhcp4client target (library version of dhclient)
 %patch50 -p1 -b .libdhcp4client
@@ -344,6 +348,9 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Tue Jan 30 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-10
+- Fix Xen networking problems with partial checksums (#221964)
+
 * Mon Jan 29 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-9
 - Remove dhcptables.pl from the source package
 - Mark libres.a symbols hidden (#198496)
