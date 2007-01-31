@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.5
-Release: 11%{?dist}
+Release: 12%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -346,6 +346,9 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Wed Jan 31 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-12
+- Rebuild
+
 * Tue Jan 30 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-11
 - Remove FORTIFY_SOURCE=0 leftovers from testing last week (whoops)
 
