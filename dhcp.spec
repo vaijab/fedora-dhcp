@@ -164,9 +164,7 @@ cat <<EOF >>includes/site.h
 #define _PATH_DHCLIENT_DB "%{_localstatedir}/lib/dhclient/dhclient.leases"
 EOF
 
-# Enable extended option info patch and set fortify source to 0 so that we
-# don't get inline functions that we don't want (for libdhcp4client)
-RPM_OPT_FLAGS="$(echo $RPM_OPT_FLAGS | sed -e 's/_FORTIFY_SOURCE=[0-9]/_FORTIFY_SOURCE=0/g')"
+# Enable extended option info patch
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIC -Werror -Dlint -DEXTENDED_NEW_OPTION_INFO"
 
 # DO NOT use the %%configure macro because this configure script is not autognu
