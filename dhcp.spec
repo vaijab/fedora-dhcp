@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.5
-Release: 12%{?dist}
+Release: 13%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -34,6 +34,7 @@ Patch10: dhcp-3.0.5-server.patch
 Patch11: dhcp-3.0.5-timeouts.patch
 Patch12: dhcp-3.0.5-fix-warnings.patch
 Patch13: dhcp-3.0.5-xen-checksum.patch
+Patch14: dhcp-3.0.5-ldap-configuration.patch
 
 # adds libdhcp4client to the ISC code base
 Patch50: dhcp-3.0.5-libdhcp4client.patch
@@ -42,7 +43,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Requires(post): chkconfig, coreutils
 Requires(preun): chkconfig
 Requires(postun): coreutils
-BuildRequires:  groff perl
+BuildRequires: groff perl openldap-devel
 
 %description
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
@@ -145,6 +146,9 @@ client library .
 # Fix Xen host networking problems (partial checksums)
 %patch13 -p1 -b .xen
 
+# Add support for dhcpd.conf data in LDAP
+%patch14 -p1 -b .ldapconf
+
 # Add the libdhcp4client target (library version of dhclient)
 %patch50 -p1 -b .libdhcp4client
 
@@ -180,6 +184,8 @@ rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
 
 make install DESTDIR=$RPM_BUILD_ROOT
+
+install -m 0755 contrib/dhcpd-conf-to-ldap.pl %{buildroot}/usr/bin/dhcpd-conf-to-ldap
 
 mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
 install -m 0755 %SOURCE2 %{buildroot}/etc/rc.d/init.d/dhcpd
@@ -290,7 +296,8 @@ exit 0
 
 %files
 %defattr(-,root,root)
-%doc README RELNOTES dhcpd.conf.sample doc/*
+%doc README README.ldap RELNOTES dhcpd.conf.sample doc/IANA-arp-parameters
+%doc doc/IANA-arp-parameters doc/api+protocol doc/*.txt
 %dir %{_localstatedir}/lib/dhcpd
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
 %config(noreplace) /etc/sysconfig/dhcpd
@@ -299,6 +306,7 @@ exit 0
 %config /etc/rc.d/init.d/dhcpd
 %config /etc/rc.d/init.d/dhcrelay
 %{_bindir}/omshell
+%{_bindir}/dhcpd-conf-to-ldap
 %{_sbindir}/dhcpd
 %{_sbindir}/dhcrelay
 %{_mandir}/man1/omshell.1*
@@ -346,6 +354,10 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Wed Jan 31 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-13
+- Add support for dhcpd(8) to read dhcpd.conf from an LDAP server (#224352)
+- Remove invalid ja_JP.eucJP man pages from /usr/share/doc
+
 * Wed Jan 31 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-12
 - Rebuild
 
