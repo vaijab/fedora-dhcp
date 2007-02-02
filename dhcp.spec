@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.5
-Release: 13%{?dist}
+Release: 14%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -354,6 +354,9 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Fri Feb 02 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-14
+- Only export the symbols we want in libdhcp4client (#198496)
+
 * Wed Jan 31 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-13
 - Add support for dhcpd(8) to read dhcpd.conf from an LDAP server (#224352)
 - Remove invalid ja_JP.eucJP man pages from /usr/share/doc
