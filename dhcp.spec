@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
 Name:    dhcp
 Version: 3.0.5
-Release: 15%{?dist}
+Release: 16%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -144,7 +144,7 @@ client library .
 %patch12 -p1 -b .warnings
 
 # Fix Xen host networking problems (partial checksums)
-%patch13 -p1 -b .xen
+#%patch13 -p1 -b .xen
 
 # Add support for dhcpd.conf data in LDAP
 %patch14 -p1 -b .ldapconf
@@ -354,6 +354,10 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Sun Feb 04 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-16
+- Disable xen-checksums patch for now as it breaks dhclient (#227266)
+- Updated fix-warnings patch
+
 * Sun Feb 04 2007 David Woodhouse <dwmw2@redhat.com> - 12:3.0.5-15
 - Fix broken file reading due to LDAP patch
 
