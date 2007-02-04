@@ -4,7 +4,7 @@
  static enum dhcp_token read_number PROTO ((int, struct parse *));
  static enum dhcp_token read_num_or_name PROTO ((int, struct parse *));
  static enum dhcp_token intern PROTO ((char *, enum dhcp_token));
-+static char read_function PROTO ((struct parse *));
++static int read_function PROTO ((struct parse *));
  
  isc_result_t new_parse (cfile, file, inbuf, buflen, name, eolp)
  	struct parse **cfile;
@@ -52,10 +52,10 @@
  }
 +
 +
-+static char
++static int
 +read_function (struct parse * cfile)
 +{
-+  char c;
++	int c;
 +
 +	cfile -> buflen = read (cfile -> file, cfile -> inbuf, cfile -> bufsiz);
 +	if (cfile -> buflen == 0) {
@@ -1718,7 +1718,7 @@
  	unsigned bufix, buflen;
  	unsigned bufsiz;
 +
-+	char (*read_function) (struct parse *);
++	int (*read_function) (struct parse *);
  };
  
  /* Variable-length array of data. */
@@ -2552,7 +2552,7 @@
 +}
 +
 +
-+static char
++static int
 +ldap_read_function (struct parse *cfile)
 +{
 +  char *dn, eofstring[2] = {EOF, '\0'};
