@@ -5,10 +5,10 @@
 
 %define workdir work.linux-2.2
 
-Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent.
+Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:    dhcp
 Version: 3.0.5
-Release: 16%{?dist}
+Release: 17%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -39,7 +39,7 @@ Patch14: dhcp-3.0.5-ldap-configuration.patch
 # adds libdhcp4client to the ISC code base
 Patch50: dhcp-3.0.5-libdhcp4client.patch
 
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires(post): chkconfig, coreutils
 Requires(preun): chkconfig
 Requires(postun): coreutils
@@ -354,6 +354,10 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Thu Feb 08 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-17
+- Remove period from summary line (package review)
+- Use preferred BuildRoot (package review)
+
 * Sun Feb 04 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-16
 - Disable xen-checksums patch for now as it breaks dhclient (#227266)
 - Updated fix-warnings patch
