@@ -1,5 +1,5 @@
---- dhcp-3.0.5/client/dhclient.c.libdhcp4client	2007-02-04 14:25:27.000000000 -0500
-+++ dhcp-3.0.5/client/dhclient.c	2007-02-04 14:29:41.000000000 -0500
+--- dhcp-3.0.5/client/dhclient.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
++++ dhcp-3.0.5/client/dhclient.c	2007-02-08 21:22:14.000000000 -0500
 @@ -78,7 +78,9 @@
  int extended_option_environment = 0;
  #endif
@@ -11,7 +11,7 @@
  static void usage PROTO ((void));
  
  void do_release(struct client_state *);
-@@ -89,10 +91,57 @@
+@@ -89,10 +91,58 @@
  
  extern u_int32_t default_requested_options[];
  
@@ -54,6 +54,7 @@
 +}
 +
 +extern void omapi_free_all_pointers(void);
++__attribute__ ((visibility ("default")))
 +int dhcpv4_client
 +(libdhcp_ctl, argc, argv, envp)
 +LIBDHCP_Control *libdhcp_ctl;
@@ -70,7 +71,7 @@
  	int i;
  	struct servent *ent;
  	struct interface_info *ip;
-@@ -118,7 +167,7 @@
+@@ -118,7 +168,7 @@
  	int timeout_arg = 0;
  	char *arg_conf = 0L;
  	int arg_conf_len=0;
@@ -79,7 +80,7 @@
  	/* Make sure we have stdin, stdout and stderr. */
  	i = open ("/dev/null", O_RDWR);
  	if (i == 0)
-@@ -139,7 +188,7 @@
+@@ -139,7 +189,7 @@
  #if !(defined (DEBUG) || defined (SYSLOG_4_2) || defined (__CYGWIN32__))
  	setlogmask (LOG_UPTO (LOG_INFO));
  #endif	
@@ -88,7 +89,7 @@
  	/* Set up the OMAPI. */
  	status = omapi_init ();
  	if (status != ISC_R_SUCCESS)
-@@ -468,9 +517,12 @@
+@@ -468,9 +518,12 @@
  		log_fatal("dhclient(%u) is already running - exiting. ", dhcpid);
  		return(1);
  	    }	    
@@ -103,7 +104,7 @@
  	if (!quiet) {
  		log_info ("%s %s", message, DHCP_VERSION);
  		log_info (copyright);
-@@ -479,7 +531,7 @@
+@@ -479,7 +532,7 @@
  		log_info ("%s", "");
  	} else
  		log_perror = 0;
@@ -112,7 +113,7 @@
  	/* If we're given a relay agent address to insert, for testing
  	   purposes, figure out what it is. */
  	if (relay) {
-@@ -766,12 +818,18 @@
+@@ -766,12 +819,18 @@
  		arg_conf_len = 0L;
  	}
  		
@@ -132,7 +133,7 @@
  	/* XXX */
  /* 	config_counter(&snd_counter, &rcv_counter); */
  
-@@ -789,7 +847,7 @@
+@@ -789,7 +848,7 @@
  		if (!persist) {
  			/* Nothing more to do. */
  			log_info ("No broadcast interfaces found - exiting.");
@@ -141,7 +142,7 @@
  		}
  	} else if (!release_mode) {
  		/* Call the script with the list of interfaces. */
-@@ -884,7 +942,7 @@
+@@ -884,7 +943,7 @@
  	dmalloc_longterm = dmalloc_outstanding;
  	dmalloc_outstanding = 0;
  #endif
@@ -150,7 +151,7 @@
  	/* If we're not supposed to wait before getting the address,
  	   don't. */
  	if (nowait)
-@@ -897,7 +955,125 @@
+@@ -897,7 +956,125 @@
  
  	/* Start dispatching packets and timeouts... */
  	dispatch ();
@@ -276,7 +277,7 @@
  	/*NOTREACHED*/
  	return 0;
  }
-@@ -1292,7 +1468,20 @@
+@@ -1292,7 +1469,20 @@
  	if (client -> new -> rebind < cur_time)
  		client -> new -> rebind = TIME_MAX;
  
@@ -297,7 +298,7 @@
  }
  
  void bind_lease (client)
-@@ -1328,6 +1517,9 @@
+@@ -1328,6 +1518,9 @@
  		return;
  	}
  
@@ -307,7 +308,7 @@
  	/* Write out the new lease. */
  	write_client_lease (client, client -> new, 0, 0);
  
-@@ -1427,13 +1619,13 @@
+@@ -1427,13 +1620,13 @@
  {
  	return 0;
  }
@@ -323,7 +324,7 @@
  int write_host (host)
  	struct host_decl *host;
  {
-@@ -2004,6 +2196,10 @@
+@@ -2004,6 +2197,10 @@
  	   tell the shell script that we failed to allocate an address,
  	   and try again later. */
  	if (onetry) {
@@ -334,7 +335,7 @@
  		if (!quiet)
  			log_info ("Unable to obtain a lease on first try.%s",
  				  "  Exiting.");
-@@ -2607,7 +2803,9 @@
+@@ -2607,7 +2804,9 @@
  	free_client_lease (lease, MDL);
  }
  
@@ -344,7 +345,7 @@
  
  void rewrite_client_leases ()
  {
-@@ -3048,6 +3246,54 @@
+@@ -3048,6 +3247,54 @@
  int script_go (client)
  	struct client_state *client;
  {
@@ -399,7 +400,7 @@
  	char *scriptName;
  	char *argv [2];
  	char **envp;
-@@ -3121,6 +3367,7 @@
+@@ -3121,6 +3368,7 @@
  	GET_TIME (&cur_time);
  	return (WIFEXITED (wstatus) ?
  		WEXITSTATUS (wstatus) : -WTERMSIG (wstatus));
@@ -407,7 +408,7 @@
  }
  
  void client_envadd (struct client_state *client,
-@@ -3211,6 +3458,9 @@
+@@ -3211,6 +3459,9 @@
  
  	/* Don't become a daemon if the user requested otherwise. */
  	if (no_daemon) {
@@ -417,7 +418,7 @@
  		write_client_pid_file ();
  		return;
  	}
-@@ -3219,7 +3469,9 @@
+@@ -3219,7 +3470,9 @@
  	if (state)
  		return;
  	state = 1;
@@ -428,8 +429,8 @@
  	/* Stop logging to stderr... */
  	log_perror = 0;
  
---- dhcp-3.0.5/common/discover.c.libdhcp4client	2007-02-04 14:25:27.000000000 -0500
-+++ dhcp-3.0.5/common/discover.c	2007-02-04 14:27:16.000000000 -0500
+--- dhcp-3.0.5/common/discover.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
++++ dhcp-3.0.5/common/discover.c	2007-02-08 21:01:16.000000000 -0500
 @@ -121,6 +121,10 @@
     register that interface with the network I/O software, figure out what
     subnet it's on, and add it to the list of interfaces. */
@@ -480,8 +481,8 @@
  
  	if (h -> type != dhcp_type_interface)
  		return ISC_R_INVALIDARG;
---- dhcp-3.0.5/common/lpf.c.libdhcp4client	2007-02-04 14:25:27.000000000 -0500
-+++ dhcp-3.0.5/common/lpf.c	2007-02-04 14:25:28.000000000 -0500
+--- dhcp-3.0.5/common/lpf.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
++++ dhcp-3.0.5/common/lpf.c	2007-02-08 21:01:16.000000000 -0500
 @@ -246,6 +246,7 @@
  	struct interface_info *info;
  {
@@ -490,8 +491,8 @@
  
  	/* Set up the bpf filter program structure.    This is defined in
  	   bpf.c */
---- dhcp-3.0.5/common/alloc.c.libdhcp4client	2007-02-04 14:25:27.000000000 -0500
-+++ dhcp-3.0.5/common/alloc.c	2007-02-04 14:25:28.000000000 -0500
+--- dhcp-3.0.5/common/alloc.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
++++ dhcp-3.0.5/common/alloc.c	2007-02-08 21:01:16.000000000 -0500
 @@ -1009,7 +1009,11 @@
  	return 1;
  }
@@ -504,8 +505,47 @@
  
  #if defined (DEBUG_MEMORY_LEAKAGE) || \
  		defined (DEBUG_MEMORY_LEAKAGE_ON_EXIT)
---- dhcp-3.0.5/dst/hmac_link.c.libdhcp4client	2007-02-04 14:25:27.000000000 -0500
-+++ dhcp-3.0.5/dst/hmac_link.c	2007-02-04 14:25:28.000000000 -0500
+--- dhcp-3.0.5/common/tree.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
++++ dhcp-3.0.5/common/tree.c	2007-02-08 21:24:40.000000000 -0500
+@@ -40,7 +40,7 @@
+ #include "dhcpd.h"
+ #include <omapip/omapip_p.h>
+ 
+-struct binding_scope *global_scope;
++struct binding_scope __attribute__ ((visibility ("default"))) *global_scope;
+ 
+ static int do_host_lookup PROTO ((struct data_string *,
+ 				  struct dns_host_entry *));
+@@ -2615,6 +2615,7 @@
+    result of that evaluation.   There should never be both an expression
+    and a valid data_string. */
+ 
++__attribute__ ((visibility ("default")))
+ int evaluate_option_cache (result, packet, lease, client_state,
+ 			   in_options, cfg_options, scope, oc, file, line)
+ 	struct data_string *result;
+--- dhcp-3.0.5/common/options.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
++++ dhcp-3.0.5/common/options.c	2007-02-08 21:23:37.000000000 -0500
+@@ -2153,6 +2153,7 @@
+ 	return 1;
+ }
+ 
++__attribute__ ((visibility ("default")))
+ void option_space_foreach (struct packet *packet, struct lease *lease,
+ 			   struct client_state *client_state,
+ 			   struct option_state *in_options,
+--- dhcp-3.0.5/common/dispatch.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
++++ dhcp-3.0.5/common/dispatch.c	2007-02-08 21:24:08.000000000 -0500
+@@ -358,6 +358,7 @@
+ #endif
+ }
+ 
++__attribute__ ((visibility ("default")))
+ void relinquish_timeouts ()
+ {
+ #ifdef LIBDHCP
+--- dhcp-3.0.5/dst/hmac_link.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
++++ dhcp-3.0.5/dst/hmac_link.c	2007-02-08 21:01:16.000000000 -0500
 @@ -38,6 +38,10 @@
  
  #include "dst_internal.h"
@@ -593,389 +633,18 @@
  		return (0);
  	memset(dst_t_func[KEY_HMAC_MD5], 0, sizeof(struct dst_func));
 --- dhcp-3.0.5/dst/md5_dgst.c.libdhcp4client	2004-06-14 14:50:06.000000000 -0400
-+++ dhcp-3.0.5/dst/md5_dgst.c	2007-02-04 14:25:28.000000000 -0500
++++ dhcp-3.0.5/dst/md5_dgst.c	2007-02-08 21:05:27.000000000 -0500
 @@ -65,7 +65,7 @@
  
  #ifdef USE_MD5 /* Added by ogud@tis.com 1998/1/26 */
  
 -const char *MD5_version="MD5 part of SSLeay 0.8.1 19-Jul-1997";
-+const char *MD5_version __attribute__((visibility ("hidden"))) ="MD5 part of SSLeay 0.8.1 19-Jul-1997";
++const char *MD5_version ="MD5 part of SSLeay 0.8.1 19-Jul-1997";
  
  /* Implemented from RFC1321 The MD5 Message-Digest Algorithm
   */
-@@ -81,6 +81,7 @@
- static void md5_block();
- #endif
- 
-+__attribute__((visibility ("hidden")))
- void MD5_Init(c)
- MD5_CTX *c;
- 	{
-@@ -93,6 +94,7 @@
- 	c->num=0;
- 	}
- 
-+__attribute__((visibility ("hidden")))
- void MD5_Update(c, data, len)
- MD5_CTX *c;
- const register unsigned char *data;
-@@ -298,6 +300,7 @@
- 	c->D+=D&0xffffffffL;
- 	}
- 
-+__attribute__((visibility ("hidden")))
- void MD5_Final(md, c)
- unsigned char *md;
- MD5_CTX *c;
---- dhcp-3.0.5/minires/ns_date.c.libdhcp4client	2004-06-10 13:59:40.000000000 -0400
-+++ dhcp-3.0.5/minires/ns_date.c	2007-02-04 14:25:28.000000000 -0500
-@@ -56,6 +56,7 @@
-    1 January 1970 (GMT assumed).  Format is yyyymmddhhmmss, all
-    digits required, no spaces allowed.  */
- 
-+__attribute__((visibility ("hidden")))
- u_int32_t
- ns_datetosecs(const char *cp, int *errp) {
- 	struct tm time;
---- dhcp-3.0.5/minires/ns_verify.c.libdhcp4client	2004-06-10 13:59:42.000000000 -0400
-+++ dhcp-3.0.5/minires/ns_verify.c	2007-02-04 14:25:28.000000000 -0500
-@@ -61,6 +61,7 @@
- 
- /* Public. */
- 
-+__attribute__((visibility ("hidden")))
- u_char *
- ns_find_tsig(u_char *msg, u_char *eom) {
- 	HEADER *hp = (HEADER *)msg;
-@@ -137,6 +138,7 @@
-  *	- TSIG verification succeeds, error set to BADSIG (ns_r_badsig)
-  *	- TSIG verification succeeds, error set to BADTIME (ns_r_badtime)
-  */
-+__attribute__((visibility ("hidden")))
- isc_result_t
- ns_verify(u_char *msg, unsigned *msglen, void *k,
- 	  const u_char *querysig, unsigned querysiglen,
---- dhcp-3.0.5/minires/ns_parse.c.libdhcp4client	2004-06-10 13:59:40.000000000 -0400
-+++ dhcp-3.0.5/minires/ns_parse.c	2007-02-04 14:25:28.000000000 -0500
-@@ -47,7 +47,7 @@
- /* Public. */
- 
- /* These need to be in the same order as the nres.h:ns_flag enum. */
--struct _ns_flagdata _ns_flagdata[16] = {
-+struct _ns_flagdata _ns_flagdata[16] __attribute__((visibility ("hidden"))) = {
- 	{ 0x8000, 15 },		/* qr. */
- 	{ 0x7800, 11 },		/* opcode. */
- 	{ 0x0400, 10 },		/* aa. */
-@@ -66,6 +66,7 @@
- 	{ 0x0000, 0 },		/* expansion (6/6). */
- };
- 
-+__attribute__((visibility ("hidden")))
- isc_result_t
- ns_skiprr(const u_char *ptr, const u_char *eom, ns_sect section, int count,
- 	  int *rc) {
-@@ -94,6 +95,7 @@
- 	return ISC_R_SUCCESS;
- }
- 
-+__attribute__((visibility ("hidden")))
- isc_result_t
- ns_initparse(const u_char *msg, unsigned msglen, ns_msg *handle) {
- 	const u_char *eom = msg + msglen;
-@@ -136,6 +138,7 @@
- 	return ISC_R_SUCCESS;
- }
- 
-+__attribute__((visibility ("hidden")))
- isc_result_t
- ns_parserr(ns_msg *handle, ns_sect section, int rrnum, ns_rr *rr) {
- 	int b;
---- dhcp-3.0.5/minires/ns_samedomain.c.libdhcp4client	2004-06-10 13:59:41.000000000 -0400
-+++ dhcp-3.0.5/minires/ns_samedomain.c	2007-02-04 14:25:28.000000000 -0500
-@@ -53,6 +53,7 @@
-  *	but NOT in "bar.top"
-  */
- 
-+__attribute__((visibility ("hidden")))
- int
- ns_samedomain(const char *a, const char *b) {
- 	size_t la, lb;
-@@ -152,6 +153,7 @@
-  * ns_subdomain(a, b)
-  *	is "a" a subdomain of "b"?
-  */
-+__attribute__((visibility ("hidden")))
- int
- ns_subdomain(const char *a, const char *b) {
- 	return (ns_samename(a, b) != 1 && ns_samedomain(a, b));
-@@ -169,6 +171,7 @@
-  *	foo\\. -> foo\\.
-  */
- 
-+__attribute__((visibility ("hidden")))
- isc_result_t
- ns_makecanon(const char *src, char *dst, size_t dstsize) {
- 	size_t n = strlen(src);
-@@ -198,6 +201,7 @@
-  *	1 if names are the same
-  */
- 
-+__attribute__((visibility ("hidden")))
- int
- ns_samename(const char *a, const char *b) {
- 	char ta[NS_MAXDNAME], tb[NS_MAXDNAME];
---- dhcp-3.0.5/minires/ns_name.c.libdhcp4client	2007-02-04 14:25:27.000000000 -0500
-+++ dhcp-3.0.5/minires/ns_name.c	2007-02-04 14:25:28.000000000 -0500
-@@ -60,6 +60,7 @@
-  *	The root is returned as "."
-  *	All other domains are returned in non absolute form
-  */
-+__attribute__((visibility ("hidden")))
- int
- ns_name_ntop(const u_char *src, char *dst, size_t dstsiz) {
- 	const u_char *cp;
-@@ -146,6 +147,7 @@
-  *	Enforces label and domain length limits.
-  */
- 
-+__attribute__((visibility ("hidden")))
- int
- ns_name_pton(const char *src, u_char *dst, size_t dstsiz) {
- 	u_char *label, *bp, *eom;
-@@ -255,6 +257,7 @@
-  *	Enforces label and domain length limits.
-  */
- 
-+__attribute__((visibility ("hidden")))
- int
- ns_name_ntol(const u_char *src, u_char *dst, size_t dstsiz) {
- 	const u_char *cp;
-@@ -299,6 +302,7 @@
-  * return:
-  *	-1 if it fails, or consumed octets if it succeeds.
-  */
-+__attribute__((visibility ("hidden")))
- int
- ns_name_unpack(const u_char *msg, const u_char *eom, const u_char *src,
- 	       u_char *dst, size_t dstsiz)
-@@ -387,6 +391,7 @@
-  *	try to compress names. If 'lastdnptr' is NULL, we don't update the
-  *	list.
-  */
-+__attribute__((visibility ("hidden")))
- int
- ns_name_pack(const u_char *src, u_char *dst, unsigned dstsiz,
- 	     const u_char **dnptrs, const u_char **lastdnptr)
-@@ -479,6 +484,7 @@
-  * note:
-  *	Root domain returns as "." not "".
-  */
-+__attribute__((visibility ("hidden")))
- int
- ns_name_uncompress(const u_char *msg, const u_char *eom, const u_char *src,
- 		   char *dst, size_t dstsiz)
-@@ -507,6 +513,7 @@
-  *	If 'dnptr' is NULL, we don't try to compress names. If 'lastdnptr'
-  *	is NULL, we don't update the list.
-  */
-+__attribute__((visibility ("hidden")))
- int
- ns_name_compress(const char *src, u_char *dst, size_t dstsiz,
- 		 const u_char **dnptrs, const u_char **lastdnptr)
-@@ -524,6 +531,7 @@
-  * return:
-  *	0 on success, -1 (with errno set) on failure.
-  */
-+__attribute__((visibility ("hidden")))
- int
- ns_name_skip(const u_char **ptrptr, const u_char *eom) {
- 	const u_char *cp;
---- dhcp-3.0.5/minires/ns_sign.c.libdhcp4client	2004-06-10 13:59:42.000000000 -0400
-+++ dhcp-3.0.5/minires/ns_sign.c	2007-02-04 14:25:28.000000000 -0500
-@@ -78,6 +78,7 @@
-  *	- bad key / sign failed (-BADKEY)
-  *	- not enough space (NS_TSIG_ERROR_NO_SPACE)
-  */
-+__attribute__((visibility ("hidden")))
- isc_result_t
- ns_sign(u_char *msg, unsigned *msglen, unsigned msgsize, int error, void *k,
- 	const u_char *querysig, unsigned querysiglen, u_char *sig,
---- dhcp-3.0.5/minires/res_comp.c.libdhcp4client	2007-02-04 14:25:27.000000000 -0500
-+++ dhcp-3.0.5/minires/res_comp.c	2007-02-04 14:25:28.000000000 -0500
-@@ -103,6 +103,7 @@
-  * 'exp_dn' is a pointer to a buffer of size 'length' for the result.
-  * Return size of compressed name or -1 if there was an error.
-  */
-+__attribute__((visibility ("hidden")))
- int
- dn_expand(const u_char *msg, const u_char *eom, const u_char *src,
- 	  char *dst, unsigned dstsiz)
-@@ -119,6 +120,7 @@
-  * Return the size of the compressed name or -1.
-  * 'length' is the size of the array pointed to by 'comp_dn'.
-  */
-+__attribute__((visibility ("hidden")))
- int
- dn_comp(const char *src, u_char *dst, unsigned dstsiz,
- 	u_char **dnptrs, u_char **lastdnptr)
-@@ -131,6 +133,7 @@
- /*
-  * Skip over a compressed domain name. Return the size or -1.
-  */
-+__attribute__((visibility ("hidden")))
- int
- dn_skipname(const u_char *ptr, const u_char *eom) {
- 	const u_char *saveptr = ptr;
---- dhcp-3.0.5/minires/res_mkupdate.c.libdhcp4client	2007-02-04 14:25:27.000000000 -0500
-+++ dhcp-3.0.5/minires/res_mkupdate.c	2007-02-04 14:25:28.000000000 -0500
-@@ -936,6 +936,7 @@
- 
- static struct valuelist *servicelist, *protolist;
- 
-+__attribute__((visibility ("hidden")))
- void
- res_buildservicelist() {
- 	struct servent *sp;
-@@ -968,6 +969,7 @@
- 	endservent();
- }
- 
-+__attribute__((visibility ("hidden")))
- void
- res_destroyservicelist() {
- 	struct valuelist *slp, *slp_next;
-@@ -981,6 +983,7 @@
- 	servicelist = (struct valuelist *)0;
- }
- 
-+__attribute__((visibility ("hidden")))
- void
- res_buildprotolist() {
- 	struct protoent *pp;
-@@ -1010,6 +1013,7 @@
- 	endprotoent();
- }
- 
-+__attribute__((visibility ("hidden")))
- void
- res_destroyprotolist() {
- 	struct valuelist *plp, *plp_next;
-@@ -1047,6 +1051,7 @@
- /*
-  * Convert service name or (ascii) number to int.
-  */
-+__attribute__((visibility ("hidden")))
- int
- res_servicenumber(const char *p) {
- 	if (servicelist == (struct valuelist *)0)
-@@ -1057,6 +1062,7 @@
- /*
-  * Convert protocol name or (ascii) number to int.
-  */
-+__attribute__((visibility ("hidden")))
- int
- res_protocolnumber(const char *p) {
- 	if (protolist == (struct valuelist *)0)
-@@ -1115,6 +1121,7 @@
- 	return (0);
- }
- 
-+__attribute__((visibility ("hidden")))
- const char *
- res_protocolname(int num) {
- 	static char number[8];
-@@ -1130,6 +1137,7 @@
- 	return (pp->p_name);
- }
- 
-+__attribute__((visibility ("hidden")))
- const char *
- res_servicename(u_int16_t port, const char *proto) {	/* Host byte order. */
- 	static char number[8];
---- dhcp-3.0.5/minires/res_findzonecut.c.libdhcp4client	2004-06-10 13:59:43.000000000 -0400
-+++ dhcp-3.0.5/minires/res_findzonecut.c	2007-02-04 14:25:28.000000000 -0500
-@@ -139,6 +139,7 @@
-  *	keep going.  for the NS and A queries this means we just give up.
-  */
- 
-+__attribute__((visibility ("hidden")))
- isc_result_t
- res_findzonecut(res_state statp, const char *dname, ns_class class, int opts,
- 		char *zname, size_t zsize, struct in_addr *addrs, int naddrs,
---- dhcp-3.0.5/minires/res_send.c.libdhcp4client	2004-06-10 13:59:44.000000000 -0400
-+++ dhcp-3.0.5/minires/res_send.c	2007-02-04 14:25:28.000000000 -0500
-@@ -128,6 +128,7 @@
-  * author:
-  *	paul vixie, 29may94
-  */
-+__attribute__((visibility ("hidden")))
- int
- res_ourserver_p(const res_state statp, const struct sockaddr_in *inp) {
- 	struct sockaddr_in ina;
-@@ -158,6 +159,7 @@
-  * author:
-  *	paul vixie, 29may94
-  */
-+__attribute__((visibility ("hidden")))
- int
- res_nameinquery(const char *name, int type, int class,
- 		const u_char *buf, const u_char *eom)
-@@ -195,6 +197,7 @@
-  * author:
-  *	paul vixie, 29may94
-  */
-+__attribute__((visibility ("hidden")))
- int
- res_queriesmatch(const u_char *buf1, const u_char *eom1,
- 		 const u_char *buf2, const u_char *eom2)
-@@ -233,6 +236,7 @@
- 	return (1);
- }
- 
-+__attribute__((visibility ("hidden")))
- isc_result_t
- res_nsend(res_state statp,
- 	  double *buf, unsigned buflen,
-@@ -832,6 +836,7 @@
-  *
-  * This routine is not expected to be user visible.
-  */
-+__attribute__((visibility ("hidden")))
- void
- res_nclose(res_state statp) {
- 	if (statp->_sock >= 0) {
---- dhcp-3.0.5/minires/res_mkquery.c.libdhcp4client	2004-06-10 13:59:43.000000000 -0400
-+++ dhcp-3.0.5/minires/res_mkquery.c	2007-02-04 14:25:28.000000000 -0500
-@@ -96,6 +96,7 @@
-  * Form all types of queries.
-  * Returns the size of the result or -1.
-  */
-+__attribute__((visibility ("hidden")))
- isc_result_t
- res_nmkquery(res_state statp,
- 	     int op,			/* opcode of query */
---- dhcp-3.0.5/minires/res_sendsigned.c.libdhcp4client	2004-06-10 13:59:44.000000000 -0400
-+++ dhcp-3.0.5/minires/res_sendsigned.c	2007-02-04 14:25:28.000000000 -0500
-@@ -41,6 +41,7 @@
- #include <isc-dhcp/dst.h>
- 
- /* res_nsendsigned */
-+__attribute__((visibility ("hidden")))
- isc_result_t
- res_nsendsigned(res_state statp,
- 		double *msg, unsigned msglen, ns_tsig_key *key,
---- dhcp-3.0.5/minires/res_init.c.libdhcp4client	2007-02-04 14:25:27.000000000 -0500
-+++ dhcp-3.0.5/minires/res_init.c	2007-02-04 14:25:28.000000000 -0500
-@@ -484,6 +484,7 @@
- }
- #endif
- 
-+__attribute__((visibility ("hidden")))
- u_int
- res_randomid(void) {
- 	struct timeval now;
---- dhcp-3.0.5/omapip/alloc.c.libdhcp4client	2007-02-04 14:25:27.000000000 -0500
-+++ dhcp-3.0.5/omapip/alloc.c	2007-02-04 14:25:28.000000000 -0500
+--- dhcp-3.0.5/omapip/alloc.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
++++ dhcp-3.0.5/omapip/alloc.c	2007-02-08 21:01:16.000000000 -0500
 @@ -40,6 +40,41 @@
  
  #include <omapip/omapip_p.h>
@@ -1039,8 +708,8 @@
  }
  
  #if defined (DEBUG_MEMORY_LEAKAGE) || defined (DEBUG_MALLOC_POOL) || \
---- dhcp-3.0.5/omapip/dispatch.c.libdhcp4client	2007-02-04 14:25:27.000000000 -0500
-+++ dhcp-3.0.5/omapip/dispatch.c	2007-02-04 14:25:28.000000000 -0500
+--- dhcp-3.0.5/omapip/dispatch.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
++++ dhcp-3.0.5/omapip/dispatch.c	2007-02-08 21:01:16.000000000 -0500
 @@ -34,7 +34,7 @@
  
  #include <omapip/omapip_p.h>
@@ -1050,8 +719,8 @@
  TIME cur_time;
  
  OMAPI_OBJECT_ALLOC (omapi_io,
---- dhcp-3.0.5/omapip/errwarn.c.libdhcp4client	2007-02-04 14:25:27.000000000 -0500
-+++ dhcp-3.0.5/omapip/errwarn.c	2007-02-04 14:25:28.000000000 -0500
+--- dhcp-3.0.5/omapip/errwarn.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
++++ dhcp-3.0.5/omapip/errwarn.c	2007-02-08 21:01:16.000000000 -0500
 @@ -39,6 +39,11 @@
  #include <omapip/omapip_p.h>
  #include <errno.h>
@@ -1174,7 +843,7 @@
  }
  
 --- dhcp-3.0.5/configure.libdhcp4client	2004-09-10 17:02:30.000000000 -0400
-+++ dhcp-3.0.5/configure	2007-02-04 14:25:28.000000000 -0500
++++ dhcp-3.0.5/configure	2007-02-08 21:01:16.000000000 -0500
 @@ -246,7 +246,7 @@
  fi
  
@@ -1184,8 +853,8 @@
  fi
  
  for foo in $dirs; do
---- /dev/null	2007-02-03 10:31:46.831575569 -0500
-+++ dhcp-3.0.5/libdhcp4client/Makefile.dist	2007-02-04 14:25:28.000000000 -0500
+--- /dev/null	2007-02-06 10:40:24.955607220 -0500
++++ dhcp-3.0.5/libdhcp4client/Makefile.dist	2007-02-08 21:12:41.000000000 -0500
 @@ -0,0 +1,127 @@
 +# Makefile.dist for libdhcp4client
 +#
@@ -1314,8 +983,8 @@
 +	$(CC) -shared -o $@ -Wl,-soname,$@ $(OBJS) `$(AR) t libres.a | grep -v res_query.o`
 +
 +# Dependencies (semi-automatically-generated)
---- /dev/null	2007-02-03 10:31:46.831575569 -0500
-+++ dhcp-3.0.5/libdhcp4client/dhcp4client.h	2007-02-04 14:25:28.000000000 -0500
+--- /dev/null	2007-02-06 10:40:24.955607220 -0500
++++ dhcp-3.0.5/libdhcp4client/dhcp4client.h	2007-02-08 21:01:16.000000000 -0500
 @@ -0,0 +1,24 @@
 +/* dhcp4client.h
 + *
@@ -1341,8 +1010,8 @@
 +extern int dhcpv4_client( struct libdhcp_control_s *dhc_ctl, int argc, char **argv, char **envp);
 +    /* The ISC IPv4 DHCP client main() function .
 +     */
---- /dev/null	2007-02-03 10:31:46.831575569 -0500
-+++ dhcp-3.0.5/libdhcp4client/libdhcp_control.h	2007-02-04 14:25:28.000000000 -0500
+--- /dev/null	2007-02-06 10:40:24.955607220 -0500
++++ dhcp-3.0.5/libdhcp4client/libdhcp_control.h	2007-02-08 21:01:16.000000000 -0500
 @@ -0,0 +1,102 @@
 +/* libdhcp_control.h
 + *
@@ -1447,7 +1116,7 @@
 +
 +#endif
 --- dhcp-3.0.5/Makefile.dist.libdhcp4client	2004-06-10 13:59:10.000000000 -0400
-+++ dhcp-3.0.5/Makefile.dist	2007-02-04 14:25:28.000000000 -0500
++++ dhcp-3.0.5/Makefile.dist	2007-02-08 21:01:16.000000000 -0500
 @@ -22,7 +22,7 @@
  #   http://www.isc.org/
  

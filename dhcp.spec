@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:    dhcp
 Version: 3.0.5
-Release: 17%{?dist}
+Release: 18%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -170,6 +170,9 @@ EOF
 
 # Enable extended option info patch
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIC -Werror -Dlint -DEXTENDED_NEW_OPTION_INFO"
+
+# Hidden visibility by default
+RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fvisibility=hidden"
 
 # DO NOT use the %%configure macro because this configure script is not autognu
 CC="%{__cc}" ./configure \
@@ -354,6 +357,9 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Thu Feb 08 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-18
+- Fix libdhcp4client visibility _again_ (#198496)
+
 * Thu Feb 08 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-17
 - Remove period from summary line (package review)
 - Use preferred BuildRoot (package review)
