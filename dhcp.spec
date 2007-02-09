@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:    dhcp
 Version: 3.0.5
-Release: 18%{?dist}
+Release: 19%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -65,7 +65,7 @@ Obsoletes: dhcpcd
 
 %package devel
 Summary: Development headers and libraries for interfacing to the DHCP server
-Requires: dhcp = %{epoch}:%{version}
+Requires: dhcp = %{epoch}:%{version}, openldap-devel
 Group: Development/Libraries
 
 %description -n dhclient
@@ -94,6 +94,7 @@ suitable for linkage with and invocation by other programs.
 %package -n libdhcp4client-devel
 Summary: Header files for development with the ISC DHCP IPv4 client library
 Group: Development/Libraries
+Requires: openldap-devel
 
 %description -n libdhcp4client-devel
 Header files for development with the Internet Software Consortium (ISC)
@@ -357,6 +358,9 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Fri Feb 09 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-19
+- Require openldap-devel on dhcp-devel and libdhcp4client-devel packages
+
 * Thu Feb 08 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-18
 - Fix libdhcp4client visibility _again_ (#198496)
 
