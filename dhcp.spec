@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:    dhcp
 Version: 3.0.5
-Release: 19%{?dist}
+Release: 20%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -358,6 +358,9 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Fri Feb 16 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-20
+- Review cleanups (#225691)
+
 * Fri Feb 09 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-19
 - Require openldap-devel on dhcp-devel and libdhcp4client-devel packages
 
@@ -737,7 +740,7 @@ exit 0
 
 * Thu Jan 06 2005 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-17
 - fix bug 144250: gcc-3.4.3-11 is broken :
-- log_error ("Lease with bogus binding state: %d size: %d",
+- log_error ("Lease with bogus binding state: %%d size: %%d",
 -			   comp -> binding_state,
 -			   sizeof(comp->binding_state));
 - prints:    'Lease with bogus binding state: 257 1'    !
@@ -1092,7 +1095,7 @@ exit 0
 - fix SIGBUS crashes on SPARC (apparently gcc is too clever).
 
 * Fri Sep 10 1999 Bill Nottingham <notting@redhat.com>
-- chkconfig --del in %preun, not %postun
+- chkconfig --del in %%preun, not %%postun
 
 * Mon Aug 16 1999 Bill Nottingham <notting@redhat.com>
 - initscript munging
@@ -1142,7 +1145,7 @@ exit 0
 
 * Mon Mar 16 1998 Mike Wangsmo <wanger@redhat.com>
 - removed the actual inet.d links (chkconfig takes care of this for us)
-  and made the %postun section handle upgrades.
+  and made the %%postun section handle upgrades.
 
 * Mon Mar 16 1998 Bryan C. Andregg <bandregg@redhat.com>
 - First package.
