@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:    dhcp
 Version: 3.0.5
-Release: 20%{?dist}
+Release: 21%{?dist}
 Epoch:   12
 License: distributable
 Group:   System Environment/Daemons
@@ -61,7 +61,7 @@ the ISC DHCP service and relay agent.
 Summary: Provides the dhclient ISC DHCP client daemon and dhclient-script .
 Requires: initscripts >= 6.75
 Group: System Environment/Base
-Obsoletes: dhcpcd
+Obsoletes: dhcpcd <= 1.3.22
 
 %package devel
 Summary: Development headers and libraries for interfacing to the DHCP server
@@ -358,6 +358,9 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Sat Feb 17 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-21
+- Obsoletes dhcpcd <= 1.3.22 (#225691)
+
 * Fri Feb 16 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-20
 - Review cleanups (#225691)
 
