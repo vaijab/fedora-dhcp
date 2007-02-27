@@ -8,9 +8,9 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:    dhcp
 Version: 3.0.5
-Release: 21%{?dist}
+Release: 22%{?dist}
 Epoch:   12
-License: distributable
+License: ISC
 Group:   System Environment/Daemons
 URL:     http://isc.org/products/DHCP/
 Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
@@ -358,6 +358,9 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Tue Feb 27 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-22
+- Change license field to say ISC
+
 * Sat Feb 17 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-21
 - Obsoletes dhcpcd <= 1.3.22 (#225691)
 
