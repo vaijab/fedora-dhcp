@@ -8,7 +8,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:    dhcp
 Version: 3.0.5
-Release: 22%{?dist}
+Release: 23%{?dist}
 Epoch:   12
 License: ISC
 Group:   System Environment/Daemons
@@ -43,7 +43,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires(post): chkconfig, coreutils
 Requires(preun): chkconfig
 Requires(postun): coreutils
-BuildRequires: groff perl openldap-devel
+BuildRequires: groff openldap-devel
 
 %description
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
@@ -65,7 +65,7 @@ Obsoletes: dhcpcd <= 1.3.22
 
 %package devel
 Summary: Development headers and libraries for interfacing to the DHCP server
-Requires: dhcp = %{epoch}:%{version}, openldap-devel
+Requires: dhcp = %{epoch}:%{version}-%{release}, openldap-devel
 Group: Development/Libraries
 
 %description -n dhclient
@@ -94,7 +94,7 @@ suitable for linkage with and invocation by other programs.
 %package -n libdhcp4client-devel
 Summary: Header files for development with the ISC DHCP IPv4 client library
 Group: Development/Libraries
-Requires: openldap-devel
+Requires: openldap-devel pkgconfig
 
 %description -n libdhcp4client-devel
 Header files for development with the Internet Software Consortium (ISC)
@@ -170,59 +170,56 @@ cat <<EOF >>includes/site.h
 EOF
 
 # Enable extended option info patch
-RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fPIC -Werror -Dlint -DEXTENDED_NEW_OPTION_INFO"
-
-# Hidden visibility by default
-RPM_OPT_FLAGS="$RPM_OPT_FLAGS -fvisibility=hidden"
+COPTS="-fPIC -Werror -Dlint -DEXTENDED_NEW_OPTION_INFO -fvisibility=hidden"
 
 # DO NOT use the %%configure macro because this configure script is not autognu
 CC="%{__cc}" ./configure \
-   --copts "${RPM_OPT_FLAGS} %{?bigptrs}" \
+   --copts "$RPM_OPT_FLAGS $COPTS %{?bigptrs}" \
    --work-dir %{workdir}
 
 sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 > libdhcp4client.pc
 %{__make} %{?_smp_mflags} CC="%{__cc}"
 
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
+rm -rf %{buildroot}
+mkdir -p %{buildroot}/etc/sysconfig
 
-make install DESTDIR=$RPM_BUILD_ROOT
+make install DESTDIR=%{buildroot}
 
-install -m 0755 contrib/dhcpd-conf-to-ldap.pl %{buildroot}/usr/bin/dhcpd-conf-to-ldap
+install -p -m 0755 contrib/dhcpd-conf-to-ldap.pl %{buildroot}/usr/bin/dhcpd-conf-to-ldap
 
-mkdir -p $RPM_BUILD_ROOT/etc/rc.d/init.d
-install -m 0755 %SOURCE2 %{buildroot}/etc/rc.d/init.d/dhcpd
+mkdir -p %{buildroot}/etc/rc.d/init.d
+install -p -m 0755 %SOURCE2 %{buildroot}/etc/rc.d/init.d/dhcpd
 
-touch $RPM_BUILD_ROOT%{_localstatedir}/lib/dhcpd/dhcpd.leases
-mkdir -p  $RPM_BUILD_ROOT%{_localstatedir}/lib/dhclient/
-cat <<EOF > $RPM_BUILD_ROOT/etc/sysconfig/dhcpd
+touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd.leases
+mkdir -p %{buildroot}%{_localstatedir}/lib/dhclient/
+cat <<EOF > %{buildroot}/etc/sysconfig/dhcpd
 # Command line options here
 DHCPDARGS=
 EOF
 
-install -m0755 %SOURCE3 $RPM_BUILD_ROOT/etc/rc.d/init.d/dhcrelay
+install -p -m 0755 %SOURCE3 %{buildroot}/etc/rc.d/init.d/dhcrelay
 
-cat <<EOF > $RPM_BUILD_ROOT/etc/sysconfig/dhcrelay
+cat <<EOF > %{buildroot}/etc/sysconfig/dhcrelay
 # Command line options here
 INTERFACES=""
 DHCPSERVERS=""
 EOF
 
 # Copy sample dhclient.conf file into position
-cp client/dhclient.conf dhclient.conf.sample
-chmod 755 $RPM_BUILD_ROOT/sbin/dhclient-script
+cp -p client/dhclient.conf dhclient.conf.sample
+chmod 755 %{buildroot}/sbin/dhclient-script
 
 # Create per-package copies of dhcp-options and dhcp-eval common man-pages:
-cp -fp $RPM_BUILD_ROOT%{_mandir}/man5/dhcp-options.5 $RPM_BUILD_ROOT%{_mandir}/man5/dhcpd-options.5
-cp -fp $RPM_BUILD_ROOT%{_mandir}/man5/dhcp-options.5 $RPM_BUILD_ROOT%{_mandir}/man5/dhclient-options.5
-cp -fp $RPM_BUILD_ROOT%{_mandir}/man5/dhcp-eval.5 $RPM_BUILD_ROOT%{_mandir}/man5/dhcpd-eval.5
-cp -fp $RPM_BUILD_ROOT%{_mandir}/man5/dhcp-eval.5 $RPM_BUILD_ROOT%{_mandir}/man5/dhclient-eval.5
+cp -fp %{buildroot}%{_mandir}/man5/dhcp-options.5 %{buildroot}%{_mandir}/man5/dhcpd-options.5
+cp -fp %{buildroot}%{_mandir}/man5/dhcp-options.5 %{buildroot}%{_mandir}/man5/dhclient-options.5
+cp -fp %{buildroot}%{_mandir}/man5/dhcp-eval.5 %{buildroot}%{_mandir}/man5/dhcpd-eval.5
+cp -fp %{buildroot}%{_mandir}/man5/dhcp-eval.5 %{buildroot}%{_mandir}/man5/dhclient-eval.5
 
 # Install default (empty) dhcpd.conf:
-cp -fp %SOURCE4 $RPM_BUILD_ROOT/etc
+cp -fp %SOURCE4 %{buildroot}/etc
 
-install -p -m 0644 -D libdhcp4client.pc $RPM_BUILD_ROOT%{_libdir}/pkgconfig/libdhcp4client.pc
+install -p -m 0644 -D libdhcp4client.pc %{buildroot}%{_libdir}/pkgconfig/libdhcp4client.pc
 
 # Sources files can't be symlinks for debuginfo package generation
 find %{workdir} -type l |
@@ -239,14 +236,6 @@ rm -rf %{buildroot}
 %post
 /sbin/chkconfig --add dhcpd
 /sbin/chkconfig --add dhcrelay
-if [ "$1" -ge 1 ]; then
-    if [ ! -e %{_mandir}/man5/dhcp-options.5.gz ]; then
-        ln -s %{_mandir}/man5/dhcpd-options.5.gz %{_mandir}/man5/dhcp-options.5.gz
-    fi
-    if [ ! -e %{_mandir}/man5/dhcp-eval.5.gz ]; then
-        ln -s %{_mandir}/man5/dhcpd-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz
-    fi
-fi
 exit 0
 
 %preun
@@ -262,35 +251,6 @@ exit 0
 if [ "$1" -ge "1" ]; then
     service dhcpd condrestart >/dev/null 2>&1
     service dhcrelay condrestart >/dev/null 2>&1
-elif [ "$1" -eq 0 ]; then
-    if [ -e %{_mandir}/man5/dhclient-options.5.gz ]; then
-        ln -sf %{_mandir}/man5/dhclient-options.5.gz %{_mandir}/man5/dhcp-options.5.gz
-    fi
-    if [ -e %{_mandir}/man5/dhclient-eval.5.gz ]; then
-        ln -sf %{_mandir}/man5/dhclient-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz
-    fi
-fi
-exit 0
-
-%post -n dhclient
-if [ "$1" -ge 1 ]; then
-    if [ ! -e %{_mandir}/man5/dhcp-options.5.gz ]; then
-        ln -s %{_mandir}/man5/dhclient-options.5.gz %{_mandir}/man5/dhcp-options.5.gz
-    fi
-    if [ ! -e %{_mandir}/man5/dhcp-eval.5.gz ]; then
-        ln -s %{_mandir}/man5/dhclient-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz
-    fi
-fi
-exit 0
-
-%postun -n dhclient
-if [ "$1" -eq 0 ]; then
-    if [ -e %{_mandir}/man5/dhcpd-options.5.gz  ]; then
-        ln -sf %{_mandir}/man5/dhcpd-options.5.gz %{_mandir}/man5/dhcp-options.5.gz
-    fi
-    if [ -e %{_mandir}/man5/dhcpd-eval.5.gz  ]; then
-        ln -sf %{_mandir}/man5/dhcpd-eval.5.gz %{_mandir}/man5/dhcp-eval.5.gz
-    fi
 fi
 exit 0
 
@@ -299,7 +259,7 @@ exit 0
 %postun -n libdhcp4client -p /sbin/ldconfig
 
 %files
-%defattr(-,root,root)
+%defattr(-,root,root,-)
 %doc README README.ldap RELNOTES dhcpd.conf.sample doc/IANA-arp-parameters
 %doc doc/IANA-arp-parameters doc/api+protocol doc/*.txt
 %dir %{_localstatedir}/lib/dhcpd
@@ -307,8 +267,8 @@ exit 0
 %config(noreplace) /etc/sysconfig/dhcpd
 %config(noreplace) /etc/sysconfig/dhcrelay
 %config(noreplace) /etc/dhcpd.conf
-%config /etc/rc.d/init.d/dhcpd
-%config /etc/rc.d/init.d/dhcrelay
+/etc/rc.d/init.d/dhcpd
+/etc/rc.d/init.d/dhcrelay
 %{_bindir}/omshell
 %{_bindir}/dhcpd-conf-to-ldap
 %{_sbindir}/dhcpd
@@ -324,7 +284,7 @@ exit 0
 %ghost %{_mandir}/man5/dhcp-eval.5.gz
 
 %files -n dhclient
-%defattr(-,root,root)
+%defattr(-,root,root,-)
 %doc dhclient.conf.sample
 %dir %{_localstatedir}/lib/dhclient
 /sbin/dhclient
@@ -339,7 +299,7 @@ exit 0
 %ghost %{_mandir}/man5/dhcp-eval.5.gz
 
 %files devel
-%defattr(-,root,root)
+%defattr(-,root,root,-)
 %exclude %{_libdir}/libdhcp4client*
 %exclude %{_includedir}/dhcp4client
 %{_includedir}/*
@@ -358,6 +318,18 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Wed Feb 28 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-23
+- Update Xen partial checksums patch
+- Remove perl Requires (#225691)
+- Make dhcp-devel depend on dhcp = e:v-r (#225691)
+- libdhcp4client-devel Requires pkgconfig (#225691)
+- Do not add to RPM_OPT_FLAGS, use COPTS variable instead (#225691)
+- Use %%{buildroot} macro instead of RPM_BUILD_ROOT variable (#225691)
+- Preserve timestamps on all installed data files (#225691)
+- Remove dhcp-options.5.gz and dhcp-eval.5.gz symlinking in post (#225691)
+- Use %%defattr(-,root,root,-) (#225691)
+- Do not flag init scripts as %%config in %%files section (#225691)
+
 * Tue Feb 27 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-22
 - Change license field to say ISC
 
