@@ -10,7 +10,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:    dhcp
 Version: 3.0.5
-Release: 24%{?dist}
+Release: 25%{?dist}
 Epoch:   12
 License: ISC
 Group:   System Environment/Daemons
@@ -294,13 +294,13 @@ exit 0
 %{_bindir}/dhcpd-conf-to-ldap
 %{_sbindir}/dhcpd
 %{_sbindir}/dhcrelay
-%{_mandir}/man1/omshell.1.gz
-%{_mandir}/man5/dhcpd.conf.5.gz
-%{_mandir}/man5/dhcpd.leases.5.gz
-%{_mandir}/man8/dhcpd.8.gz
-%{_mandir}/man8/dhcrelay.8.gz
-%{_mandir}/man5/dhcp-options.5.gz
-%{_mandir}/man5/dhcp-eval.5.gz
+%attr(0644,root,root) %{_mandir}/man1/omshell.1.gz
+%attr(0644,root,root) %{_mandir}/man5/dhcpd.conf.5.gz
+%attr(0644,root,root) %{_mandir}/man5/dhcpd.leases.5.gz
+%attr(0644,root,root) %{_mandir}/man8/dhcpd.8.gz
+%attr(0644,root,root) %{_mandir}/man8/dhcrelay.8.gz
+%attr(0644,root,root) %{_mandir}/man5/dhcp-options.5.gz
+%attr(0644,root,root) %{_mandir}/man5/dhcp-eval.5.gz
 
 %files -n dhclient
 %defattr(-,root,root,-)
@@ -308,12 +308,12 @@ exit 0
 %dir %{_localstatedir}/lib/dhclient
 /sbin/dhclient
 /sbin/dhclient-script
-%{_mandir}/man5/dhclient.conf.5.gz
-%{_mandir}/man5/dhclient.leases.5.gz
-%{_mandir}/man8/dhclient.8.gz
-%{_mandir}/man8/dhclient-script.8.gz
-%{_mandir}/man5/dhcp-options.5.gz
-%{_mandir}/man5/dhcp-eval.5.gz
+%attr(0644,root,root) %{_mandir}/man5/dhclient.conf.5.gz
+%attr(0644,root,root) %{_mandir}/man5/dhclient.leases.5.gz
+%attr(0644,root,root) %{_mandir}/man8/dhclient.8.gz
+%attr(0644,root,root) %{_mandir}/man8/dhclient-script.8.gz
+%attr(0644,root,root) %{_mandir}/man5/dhcp-options.5.gz
+%attr(0644,root,root) %{_mandir}/man5/dhcp-eval.5.gz
 
 %files devel
 %defattr(-,root,root,-)
@@ -335,6 +335,9 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Mon Mar 05 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-25
+- Man pages need 0644 permissions (#222572)
+
 * Thu Mar 01 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-24
 - Include contrib/ subdirectory in /usr/share/doc (#230476)
 - Added back Requires for perl since dhcpd-conf-to-ldap needs it (#225691)
