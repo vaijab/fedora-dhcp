@@ -3,12 +3,14 @@
 %define bigptrs -DPTRSIZE_64BIT
 %endif
 
+# The workdir is used in the build system for ISC dhcp, we set it to this
+# value to avoid any problems guessing what it might be during installation.
 %define workdir work.linux-2.2
 
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:    dhcp
 Version: 3.0.5
-Release: 23%{?dist}
+Release: 24%{?dist}
 Epoch:   12
 License: ISC
 Group:   System Environment/Daemons
@@ -19,6 +21,10 @@ Source2: dhcpd.init
 Source3: dhcrelay.init
 Source4: dhcpd.conf
 Source5: libdhcp4client.pc
+Source6: README.ldap
+Source7: draft-ietf-dhc-ldap-schema-01.txt
+Source8: dhcpd-conf-to-ldap.pl
+Source9: linux.dbus-example
 
 Patch0:  dhcp-3.0.5-extended-new-option-info.patch
 Patch1:  dhcp-3.0.5-Makefile.patch
@@ -35,11 +41,13 @@ Patch11: dhcp-3.0.5-timeouts.patch
 Patch12: dhcp-3.0.5-fix-warnings.patch
 Patch13: dhcp-3.0.5-xen-checksum.patch
 Patch14: dhcp-3.0.5-ldap-configuration.patch
+Patch15: dhcp-3.0.5-no-win32.patch
 
 # adds libdhcp4client to the ISC code base
 Patch50: dhcp-3.0.5-libdhcp4client.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Requires: perl
 Requires(post): chkconfig, coreutils
 Requires(preun): chkconfig
 Requires(postun): coreutils
@@ -150,12 +158,28 @@ client library .
 # Add support for dhcpd.conf data in LDAP
 %patch14 -p1 -b .ldapconf
 
+# The contrib/ms2isc/Registry.pm file requires Win32API::Registry, which is
+# not part of Fedora by default.  We comment out this use line in the script
+# so that RPM doesn't automatically add perl(Win32API::Registry) dependency.
+# The patch puts a comment in the script telling the user which perl module
+# should be installed to use the Registry.pm contrib file.
+%patch15 -p1 -b .no-win32
+
 # Add the libdhcp4client target (library version of dhclient)
 %patch50 -p1 -b .libdhcp4client
 
+# Copy in documentation and example scripts for LDAP patch to dhcpd
+%{__cp} -p %SOURCE6 .
+%{__cp} -p %SOURCE7 doc
+%{__cp} -p %SOURCE8 contrib
+
+# Copy in example dhclient script for use with D-BUS (requires extended
+# new option info patch too)
+%{__cp} -p %SOURCE9 client/scripts
+
 %build
-cp %SOURCE1 .
-cat <<EOF >site.conf
+%{__cp} %SOURCE1 .
+%{__cat} <<EOF > site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
 ADMMANDIR=%{_mandir}/man8
 FFMANDIR=%{_mandir}/man5
@@ -164,12 +188,15 @@ USRMANDIR=%{_mandir}/man1
 LIBDIR=%{_libdir}
 INCDIR=%{_includedir}
 EOF
-cat <<EOF >>includes/site.h
+%{__cat} <<EOF >> includes/site.h
 #define _PATH_DHCPD_DB    "%{_localstatedir}/lib/dhcpd/dhcpd.leases"
 #define _PATH_DHCLIENT_DB "%{_localstatedir}/lib/dhclient/dhclient.leases"
 EOF
 
-# Enable extended option info patch
+# Enable extended option info patch (-DEXTENDED_NEW_OPTION_INFO)
+# Use -fvisibility=hidden for libdhcp4client.  The way that library is
+# constructed, we need to follow the hide-by-default/expose-what-we-need
+# plan for the library API.
 COPTS="-fPIC -Werror -Dlint -DEXTENDED_NEW_OPTION_INFO -fvisibility=hidden"
 
 # DO NOT use the %%configure macro because this configure script is not autognu
@@ -177,61 +204,55 @@ CC="%{__cc}" ./configure \
    --copts "$RPM_OPT_FLAGS $COPTS %{?bigptrs}" \
    --work-dir %{workdir}
 
-sed 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 > libdhcp4client.pc
+%{__sed} 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 > libdhcp4client.pc
 %{__make} %{?_smp_mflags} CC="%{__cc}"
 
 %install
-rm -rf %{buildroot}
-mkdir -p %{buildroot}/etc/sysconfig
+%{__rm} -rf %{buildroot}
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/sysconfig
 
-make install DESTDIR=%{buildroot}
+%{__make} install DESTDIR=%{buildroot}
 
-install -p -m 0755 contrib/dhcpd-conf-to-ldap.pl %{buildroot}/usr/bin/dhcpd-conf-to-ldap
+%{__install} -p -m 0755 contrib/dhcpd-conf-to-ldap.pl %{buildroot}/usr/bin/dhcpd-conf-to-ldap
 
-mkdir -p %{buildroot}/etc/rc.d/init.d
-install -p -m 0755 %SOURCE2 %{buildroot}/etc/rc.d/init.d/dhcpd
+%{__mkdir} -p %{buildroot}%{_initrddir}
+%{__install} -p -m 0755 %SOURCE2 %{buildroot}%{_initrddir}/dhcpd
 
 touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd.leases
-mkdir -p %{buildroot}%{_localstatedir}/lib/dhclient/
-cat <<EOF > %{buildroot}/etc/sysconfig/dhcpd
+%{__mkdir} -p %{buildroot}%{_localstatedir}/lib/dhclient/
+%{__cat} <<EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcpd
 # Command line options here
 DHCPDARGS=
 EOF
 
-install -p -m 0755 %SOURCE3 %{buildroot}/etc/rc.d/init.d/dhcrelay
+%{__install} -p -m 0755 %SOURCE3 %{buildroot}%{_initrddir}/dhcrelay
 
-cat <<EOF > %{buildroot}/etc/sysconfig/dhcrelay
+%{__cat} <<EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcrelay
 # Command line options here
 INTERFACES=""
 DHCPSERVERS=""
 EOF
 
 # Copy sample dhclient.conf file into position
-cp -p client/dhclient.conf dhclient.conf.sample
-chmod 755 %{buildroot}/sbin/dhclient-script
-
-# Create per-package copies of dhcp-options and dhcp-eval common man-pages:
-cp -fp %{buildroot}%{_mandir}/man5/dhcp-options.5 %{buildroot}%{_mandir}/man5/dhcpd-options.5
-cp -fp %{buildroot}%{_mandir}/man5/dhcp-options.5 %{buildroot}%{_mandir}/man5/dhclient-options.5
-cp -fp %{buildroot}%{_mandir}/man5/dhcp-eval.5 %{buildroot}%{_mandir}/man5/dhcpd-eval.5
-cp -fp %{buildroot}%{_mandir}/man5/dhcp-eval.5 %{buildroot}%{_mandir}/man5/dhclient-eval.5
+%{__cp} -p client/dhclient.conf dhclient.conf.sample
+%{__chmod} 0755 %{buildroot}/sbin/dhclient-script
 
 # Install default (empty) dhcpd.conf:
-cp -fp %SOURCE4 %{buildroot}/etc
+%{__cp} -fp %SOURCE4 %{buildroot}%{_sysconfdir}
 
-install -p -m 0644 -D libdhcp4client.pc %{buildroot}%{_libdir}/pkgconfig/libdhcp4client.pc
+%{__install} -p -m 0644 -D libdhcp4client.pc %{buildroot}%{_libdir}/pkgconfig/libdhcp4client.pc
 
 # Sources files can't be symlinks for debuginfo package generation
 find %{workdir} -type l |
 while read f; do
-    rm -f linkderef
-    cp $f linkderef
-    rm -f $f
-    mv linkderef $f
+    %{__rm} -f linkderef
+    %{__cp} $f linkderef
+    %{__rm} -f $f
+    %{__mv} linkderef $f
 done
 
 %clean
-rm -rf %{buildroot}
+%{__rm} -rf %{buildroot}
 
 %post
 /sbin/chkconfig --add dhcpd
@@ -261,27 +282,25 @@ exit 0
 %files
 %defattr(-,root,root,-)
 %doc README README.ldap RELNOTES dhcpd.conf.sample doc/IANA-arp-parameters
-%doc doc/IANA-arp-parameters doc/api+protocol doc/*.txt
+%doc doc/IANA-arp-parameters doc/api+protocol doc/*.txt contrib
 %dir %{_localstatedir}/lib/dhcpd
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
-%config(noreplace) /etc/sysconfig/dhcpd
-%config(noreplace) /etc/sysconfig/dhcrelay
-%config(noreplace) /etc/dhcpd.conf
-/etc/rc.d/init.d/dhcpd
-/etc/rc.d/init.d/dhcrelay
+%config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
+%config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
+%config(noreplace) %{_sysconfdir}/dhcpd.conf
+%{_initrddir}/dhcpd
+%{_initrddir}/dhcrelay
 %{_bindir}/omshell
 %{_bindir}/dhcpd-conf-to-ldap
 %{_sbindir}/dhcpd
 %{_sbindir}/dhcrelay
-%{_mandir}/man1/omshell.1*
-%{_mandir}/man5/dhcpd.conf.5*
-%{_mandir}/man5/dhcpd.leases.5*
-%{_mandir}/man8/dhcpd.8*
-%{_mandir}/man8/dhcrelay.8*
-%{_mandir}/man5/dhcpd-options.5*
-%{_mandir}/man5/dhcpd-eval.5*
-%ghost %{_mandir}/man5/dhcp-options.5.gz
-%ghost %{_mandir}/man5/dhcp-eval.5.gz
+%{_mandir}/man1/omshell.1.gz
+%{_mandir}/man5/dhcpd.conf.5.gz
+%{_mandir}/man5/dhcpd.leases.5.gz
+%{_mandir}/man8/dhcpd.8.gz
+%{_mandir}/man8/dhcrelay.8.gz
+%{_mandir}/man5/dhcp-options.5.gz
+%{_mandir}/man5/dhcp-eval.5.gz
 
 %files -n dhclient
 %defattr(-,root,root,-)
@@ -289,14 +308,12 @@ exit 0
 %dir %{_localstatedir}/lib/dhclient
 /sbin/dhclient
 /sbin/dhclient-script
-%{_mandir}/man5/dhclient.conf.5*
-%{_mandir}/man5/dhclient.leases.5*
-%{_mandir}/man8/dhclient.8*
-%{_mandir}/man8/dhclient-script.8*
-%{_mandir}/man5/dhclient-options.5*
-%{_mandir}/man5/dhclient-eval.5*
-%ghost %{_mandir}/man5/dhcp-options.5.gz
-%ghost %{_mandir}/man5/dhcp-eval.5.gz
+%{_mandir}/man5/dhclient.conf.5.gz
+%{_mandir}/man5/dhclient.leases.5.gz
+%{_mandir}/man8/dhclient.8.gz
+%{_mandir}/man8/dhclient-script.8.gz
+%{_mandir}/man5/dhcp-options.5.gz
+%{_mandir}/man5/dhcp-eval.5.gz
 
 %files devel
 %defattr(-,root,root,-)
@@ -318,6 +335,19 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Thu Mar 01 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-24
+- Include contrib/ subdirectory in /usr/share/doc (#230476)
+- Added back Requires for perl since dhcpd-conf-to-ldap needs it (#225691)
+- Put copies of dhcp-options and dhcp-eval man pages in the dhcp and
+  dhclient packages rather than having the elaborate symlink collection
+- Explicitly name man pages in the %%files listings
+- Use the %%{_sysconfdir} and %%{_initrddir} macros (#225691)
+- Use macros for commands in %%build and %%install
+- Split README.ldap, draft-ietf-dhc-ldap-schema-01.txt, and
+  dhcpd-conf-to-ldap.pl out of the LDAP patch
+- Split linux.dbus-example script out of the extended new option info patch
+- Remove unnecessary changes from the Makefile patch
+
 * Wed Feb 28 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-23
 - Update Xen partial checksums patch
 - Remove perl Requires (#225691)
