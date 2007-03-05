@@ -10,7 +10,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:    dhcp
 Version: 3.0.5
-Release: 25%{?dist}
+Release: 26%{?dist}
 Epoch:   12
 License: ISC
 Group:   System Environment/Daemons
@@ -21,10 +21,8 @@ Source2: dhcpd.init
 Source3: dhcrelay.init
 Source4: dhcpd.conf
 Source5: libdhcp4client.pc
-Source6: README.ldap
-Source7: draft-ietf-dhc-ldap-schema-01.txt
-Source8: dhcpd-conf-to-ldap.pl
-Source9: linux.dbus-example
+Source6: linux.dbus-example
+Source7: http://home.ntelos.net/~masneyb/%{name}-%{version}-ldap-patch
 
 Patch0:  dhcp-3.0.5-extended-new-option-info.patch
 Patch1:  dhcp-3.0.5-Makefile.patch
@@ -40,8 +38,7 @@ Patch10: dhcp-3.0.5-server.patch
 Patch11: dhcp-3.0.5-timeouts.patch
 Patch12: dhcp-3.0.5-fix-warnings.patch
 Patch13: dhcp-3.0.5-xen-checksum.patch
-Patch14: dhcp-3.0.5-ldap-configuration.patch
-Patch15: dhcp-3.0.5-no-win32.patch
+Patch14: dhcp-3.0.5-no-win32.patch
 
 # adds libdhcp4client to the ISC code base
 Patch50: dhcp-3.0.5-libdhcp4client.patch
@@ -155,27 +152,25 @@ client library .
 # Fix Xen host networking problems (partial checksums)
 #%patch13 -p1 -b .xen
 
-# Add support for dhcpd.conf data in LDAP
-%patch14 -p1 -b .ldapconf
-
 # The contrib/ms2isc/Registry.pm file requires Win32API::Registry, which is
 # not part of Fedora by default.  We comment out this use line in the script
 # so that RPM doesn't automatically add perl(Win32API::Registry) dependency.
 # The patch puts a comment in the script telling the user which perl module
 # should be installed to use the Registry.pm contrib file.
-%patch15 -p1 -b .no-win32
+%patch14 -p1 -b .no-win32
 
-# Add the libdhcp4client target (library version of dhclient)
+# Add support for dhcpd.conf data in LDAP.  This patch is from an upstream
+# location, so we refer to the source file here and manually invoke the
+# patch command.
+%{__patch} -p1 -b -z .ldap < %SOURCE7
+
+# Add the libdhcp4client target (library version of dhclient).  This must be
+# the last patch applied to the source tree.
 %patch50 -p1 -b .libdhcp4client
-
-# Copy in documentation and example scripts for LDAP patch to dhcpd
-%{__cp} -p %SOURCE6 .
-%{__cp} -p %SOURCE7 doc
-%{__cp} -p %SOURCE8 contrib
 
 # Copy in example dhclient script for use with D-BUS (requires extended
 # new option info patch too)
-%{__cp} -p %SOURCE9 client/scripts
+%{__cp} -p %SOURCE6 client/scripts
 
 %build
 %{__cp} %SOURCE1 .
@@ -335,6 +330,9 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Mon Mar 05 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-26
+- Use better upstream version of the LDAP configuration patch (#225691)
+
 * Mon Mar 05 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-25
 - Man pages need 0644 permissions (#222572)
 
