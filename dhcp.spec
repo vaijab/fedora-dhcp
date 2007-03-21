@@ -10,7 +10,7 @@
 Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:    dhcp
 Version: 3.0.5
-Release: 25%{?dist}
+Release: 26%{?dist}
 Epoch:   12
 License: ISC
 Group:   System Environment/Daemons
