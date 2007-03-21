@@ -26,6 +26,7 @@ Source7: draft-ietf-dhc-ldap-schema-01.txt
 Source8: dhcpd-conf-to-ldap.pl
 Source9: linux.dbus-example
 
+# Main patches
 Patch0:  dhcp-3.0.5-extended-new-option-info.patch
 Patch1:  dhcp-3.0.5-Makefile.patch
 Patch2:  dhcp-3.0.5-version.patch
@@ -45,6 +46,9 @@ Patch15: dhcp-3.0.5-no-win32.patch
 
 # adds libdhcp4client to the ISC code base
 Patch50: dhcp-3.0.5-libdhcp4client.patch
+
+# Bug fixes
+Patch100: dhcp-3.0.5-dhclient-man-page.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: perl
@@ -167,6 +171,9 @@ client library .
 
 # Add the libdhcp4client target (library version of dhclient)
 %patch50 -p1 -b .libdhcp4client
+
+# Apply bug fixes
+%patch100 -p1 -b .dhclient-man-page
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__cp} -p %SOURCE6 .
@@ -335,6 +342,9 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Wed Mar 21 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-26
+- Fix formatting problems in dhclient man page (#233076).
+
 * Mon Mar 05 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-25
 - Man pages need 0644 permissions (#222572)
 
