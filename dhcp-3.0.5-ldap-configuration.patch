@@ -1,5 +1,5 @@
---- dhcp-3.0.5/common/conflex.c.ldapconf	2007-03-04 15:32:24.000000000 -0500
-+++ dhcp-3.0.5/common/conflex.c	2007-03-04 15:32:24.000000000 -0500
+--- dhcp-3.0.5/common/conflex.c.ldap	2006-02-22 17:43:27.000000000 -0500
++++ dhcp-3.0.5/common/conflex.c	2007-03-29 15:11:19.000000000 -0400
 @@ -47,6 +47,7 @@
  static enum dhcp_token read_number PROTO ((int, struct parse *));
  static enum dhcp_token read_num_or_name PROTO ((int, struct parse *));
@@ -46,7 +46,7 @@
  	} else {
  		c = cfile -> inbuf [cfile -> bufix];
  		cfile -> bufix++;
-@@ -1130,3 +1124,25 @@
+@@ -1128,3 +1122,25 @@
  	}
  	return dfv;
  }
@@ -72,8 +72,8 @@
 +	return c;
 +}
 +
---- dhcp-3.0.5/common/print.c.ldapconf	2007-03-04 15:32:24.000000000 -0500
-+++ dhcp-3.0.5/common/print.c	2007-03-04 15:32:24.000000000 -0500
+--- dhcp-3.0.5/common/print.c.ldap	2007-03-29 15:10:26.000000000 -0400
++++ dhcp-3.0.5/common/print.c	2007-03-29 15:11:19.000000000 -0400
 @@ -166,9 +166,9 @@
  }
  
@@ -87,8 +87,8 @@
  {
  	static char habuf [49];
  	char *s;
---- dhcp-3.0.5/includes/dhcpd.h.ldapconf	2007-03-04 15:32:24.000000000 -0500
-+++ dhcp-3.0.5/includes/dhcpd.h	2007-03-04 15:32:24.000000000 -0500
+--- dhcp-3.0.5/includes/dhcpd.h.ldap	2007-03-29 15:10:26.000000000 -0400
++++ dhcp-3.0.5/includes/dhcpd.h	2007-03-29 15:11:19.000000000 -0400
 @@ -79,6 +79,11 @@
  #include <isc-dhcp/result.h>
  #include <omapip/omapip_p.h>
@@ -154,7 +154,7 @@
  #if !defined (DEFAULT_DEFAULT_LEASE_TIME)
  # define DEFAULT_DEFAULT_LEASE_TIME 43200
  #endif
-@@ -1526,7 +1563,7 @@
+@@ -1531,7 +1568,7 @@
  char *quotify_string (const char *, const char *, int);
  char *quotify_buf (const unsigned char *, unsigned, const char *, int);
  char *print_base64 (const unsigned char *, unsigned, const char *, int);
@@ -163,7 +163,7 @@
  void print_lease PROTO ((struct lease *));
  void dump_raw PROTO ((const unsigned char *, unsigned));
  void dump_packet_option (struct option_cache *, struct packet *,
-@@ -2640,3 +2677,14 @@
+@@ -2639,3 +2676,14 @@
  #endif /* FAILOVER_PROTOCOL */
  
  const char *binding_state_print (enum failover_state);
@@ -178,8 +178,8 @@
 +			   struct data_string *);
 +#endif
 +
---- dhcp-3.0.5/includes/site.h.ldapconf	2002-03-12 13:33:39.000000000 -0500
-+++ dhcp-3.0.5/includes/site.h	2007-03-04 15:32:24.000000000 -0500
+--- dhcp-3.0.5/includes/site.h.ldap	2002-03-12 13:33:39.000000000 -0500
++++ dhcp-3.0.5/includes/site.h	2007-03-29 15:11:19.000000000 -0400
 @@ -177,3 +177,13 @@
     traces. */
  
@@ -194,8 +194,8 @@
 +#define _PATH_DHCLIENT_DB "/var/lib/dhclient/dhclient.leases"
 +#define _PATH_DHCPD_DB    "/var/lib/dhcpd/dhcpd.leases"
 +#define _PATH_DHCLIENT_DB "/var/lib/dhclient/dhclient.leases"
---- dhcp-3.0.5/server/Makefile.dist.ldapconf	2004-06-10 13:59:50.000000000 -0400
-+++ dhcp-3.0.5/server/Makefile.dist	2007-03-04 15:33:01.000000000 -0500
+--- dhcp-3.0.5/server/Makefile.dist.ldap	2004-06-10 13:59:50.000000000 -0400
++++ dhcp-3.0.5/server/Makefile.dist	2007-03-29 15:11:19.000000000 -0400
 @@ -25,9 +25,9 @@
  CATMANPAGES = dhcpd.cat8 dhcpd.conf.cat5 dhcpd.leases.cat5
  SEDMANPAGES = dhcpd.man8 dhcpd.conf.man5 dhcpd.leases.man5
@@ -216,8 +216,8 @@
 +	$(CC) $(LFLAGS) -o dhcpd $(OBJS) $(DHCPLIB) $(LIBS) -lldap
  
  # Dependencies (semi-automatically-generated)
---- dhcp-3.0.5/server/class.c.ldapconf	2004-06-10 13:59:51.000000000 -0400
-+++ dhcp-3.0.5/server/class.c	2007-03-04 15:32:24.000000000 -0500
+--- dhcp-3.0.5/server/class.c.ldap	2004-06-10 13:59:51.000000000 -0400
++++ dhcp-3.0.5/server/class.c	2007-03-29 15:11:19.000000000 -0400
 @@ -90,6 +90,7 @@
  	int matched = 0;
  	int status;
@@ -249,8 +249,8 @@
  #if defined (DEBUG_CLASS_MATCHING)
  					log_info ("matches subclass %s.",
  					      print_hex_1 (data.len,
---- dhcp-3.0.5/server/confpars.c.ldapconf	2007-03-04 15:32:24.000000000 -0500
-+++ dhcp-3.0.5/server/confpars.c	2007-03-04 15:32:24.000000000 -0500
+--- dhcp-3.0.5/server/confpars.c.ldap	2007-03-29 15:10:26.000000000 -0400
++++ dhcp-3.0.5/server/confpars.c	2007-03-29 15:11:19.000000000 -0400
 @@ -63,7 +63,17 @@
  
  isc_result_t readconf ()
@@ -270,8 +270,8 @@
  }
  
  isc_result_t read_conf_file (const char *filename, struct group *group,
---- dhcp-3.0.5/server/dhcpd.c.ldapconf	2007-03-04 15:32:24.000000000 -0500
-+++ dhcp-3.0.5/server/dhcpd.c	2007-03-04 15:32:24.000000000 -0500
+--- dhcp-3.0.5/server/dhcpd.c.ldap	2007-03-29 15:10:26.000000000 -0400
++++ dhcp-3.0.5/server/dhcpd.c	2007-03-29 15:11:19.000000000 -0400
 @@ -433,6 +433,9 @@
  	/* Add the ddns update style enumeration prior to parsing. */
  	add_enumeration (&ddns_styles);
@@ -282,8 +282,8 @@
  
  	if (!group_allocate (&root_group, MDL))
  		log_fatal ("Can't allocate root group!");
---- /dev/null	2007-03-03 18:04:36.394738328 -0500
-+++ dhcp-3.0.5/server/ldap.c	2007-03-04 15:32:24.000000000 -0500
+--- /dev/null	2007-03-29 11:34:09.579686084 -0400
++++ dhcp-3.0.5/server/ldap.c	2007-03-29 15:11:19.000000000 -0400
 @@ -0,0 +1,1142 @@
 +/* ldap.c
 +
@@ -1427,8 +1427,8 @@
 +
 +#endif
 +
---- dhcp-3.0.5/server/mdb.c.ldapconf	2007-03-04 15:32:24.000000000 -0500
-+++ dhcp-3.0.5/server/mdb.c	2007-03-04 15:32:24.000000000 -0500
+--- dhcp-3.0.5/server/mdb.c.ldap	2007-03-29 15:10:26.000000000 -0400
++++ dhcp-3.0.5/server/mdb.c	2007-03-29 15:11:19.000000000 -0400
 @@ -373,6 +373,12 @@
  			 const char *file, int line)
  {
@@ -1442,8 +1442,8 @@
  
  	h.hlen = hlen + 1;
  	h.hbuf [0] = htype;
---- dhcp-3.0.5/server/stables.c.ldapconf	2004-06-10 13:59:58.000000000 -0400
-+++ dhcp-3.0.5/server/stables.c	2007-03-04 15:32:24.000000000 -0500
+--- dhcp-3.0.5/server/stables.c.ldap	2004-06-10 13:59:58.000000000 -0400
++++ dhcp-3.0.5/server/stables.c	2007-03-29 15:11:19.000000000 -0400
 @@ -483,12 +483,21 @@
  	{ "log-facility", "Nsyslog-facilities.",	&server_universe, 44 },
  	{ "do-forward-updates", "f",			&server_universe, 45 },

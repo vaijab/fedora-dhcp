@@ -1,5 +1,5 @@
---- dhcp-3.0.5/client/dhclient.c.enoi	2006-08-22 11:13:57.000000000 -0400
-+++ dhcp-3.0.5/client/dhclient.c	2007-03-04 15:19:43.000000000 -0500
+--- dhcp-3.0.5/client/dhclient.c.enoi	2007-03-30 16:27:32.000000000 -0400
++++ dhcp-3.0.5/client/dhclient.c	2007-03-30 16:27:51.000000000 -0400
 @@ -74,6 +74,9 @@
  int onetry=0;
  int quiet=0;
@@ -10,7 +10,7 @@
  
  static void usage PROTO ((void));
  
-@@ -204,6 +207,11 @@
+@@ -203,6 +206,11 @@
  		} else if (!strcmp (argv [i], "--version")) {
  			log_info ("isc-dhclient-%s", DHCP_VERSION);
  			exit (0);
@@ -22,7 +22,7 @@
   		} else if (argv [i][0] == '-') {
   		    usage ();
  		} else {
-@@ -476,7 +484,11 @@
+@@ -475,7 +483,11 @@
  	log_info (arr);
  	log_info (url);
  
@@ -34,7 +34,7 @@
  		   "[-s server]");
  	log_error ("                [-cf config-file] [-lf lease-file]%s",
  		   "[-pf pid-file] [-e VAR=val]");
-@@ -2447,8 +2459,30 @@
+@@ -2426,8 +2438,30 @@
  struct envadd_state {
  	struct client_state *client;
  	const char *prefix;
@@ -65,7 +65,7 @@
  void client_option_envadd (struct option_cache *oc,
  			   struct packet *packet, struct lease *lease,
  			   struct client_state *client_state,
-@@ -2465,6 +2499,28 @@
+@@ -2444,6 +2478,28 @@
  				   in_options, cfg_options, scope, oc, MDL)) {
  		if (data.len) {
  			char name [256];
@@ -94,7 +94,15 @@
  			if (dhcp_option_ev_name (name, sizeof name,
  						 oc -> option)) {
  				client_envadd (es -> client, es -> prefix,
-@@ -2704,7 +2760,14 @@
+@@ -2470,6 +2526,7 @@
+ 
+ 	es.client = client;
+ 	es.prefix = prefix;
++	es.universe = NULL;
+ 
+ 	client_envadd (client,
+ 		       prefix, "ip_address", "%s", piaddr (lease -> address));
+@@ -2679,7 +2736,14 @@
  			s = option -> name;
  			if (j + 1 == buflen)
  				return 0;
@@ -110,7 +118,7 @@
  		++i;
  	} while (i != 2);
 --- dhcp-3.0.5/client/dhclient.8.enoi	2005-09-14 12:03:33.000000000 -0400
-+++ dhcp-3.0.5/client/dhclient.8	2007-03-04 15:19:43.000000000 -0500
++++ dhcp-3.0.5/client/dhclient.8	2007-03-30 16:27:32.000000000 -0400
 @@ -82,6 +82,9 @@
  .B -w
  ]
@@ -133,9 +141,9 @@
  .SH CONFIGURATION
  The syntax of the dhclient.conf(5) file is discussed separately.
  .SH OMAPI
---- dhcp-3.0.5/common/parse.c.enoi	2006-02-22 17:43:27.000000000 -0500
-+++ dhcp-3.0.5/common/parse.c	2007-03-04 15:19:43.000000000 -0500
-@@ -1271,6 +1271,10 @@
+--- dhcp-3.0.5/common/parse.c.enoi	2007-03-30 16:27:32.000000000 -0400
++++ dhcp-3.0.5/common/parse.c	2007-03-30 16:27:32.000000000 -0400
+@@ -1266,6 +1266,10 @@
  	option_hash_add (option -> universe -> hash,
  			 (const char *)option -> name,
  			 0, option, MDL);
@@ -147,7 +155,7 @@
  }
  
 --- dhcp-3.0.5/common/tables.c.enoi	2006-02-22 17:43:27.000000000 -0500
-+++ dhcp-3.0.5/common/tables.c	2007-03-04 15:19:43.000000000 -0500
++++ dhcp-3.0.5/common/tables.c	2007-03-30 16:27:32.000000000 -0400
 @@ -1250,3 +1250,35 @@
  			   fqdn_universe.name, 0,
  			   &fqdn_universe, MDL);
@@ -185,7 +193,7 @@
 +}
 +#endif
 --- dhcp-3.0.5/includes/dhcpd.h.enoi	2006-05-17 16:16:59.000000000 -0400
-+++ dhcp-3.0.5/includes/dhcpd.h	2007-03-04 15:19:43.000000000 -0500
++++ dhcp-3.0.5/includes/dhcpd.h	2007-03-30 16:27:32.000000000 -0400
 @@ -1811,6 +1811,13 @@
  void initialize_common_option_spaces PROTO ((void));
  struct universe *config_universe;

@@ -1,139 +1,114 @@
---- dhcp-3.0.5/client/dhclient.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
-+++ dhcp-3.0.5/client/dhclient.c	2007-02-08 21:22:14.000000000 -0500
-@@ -78,7 +78,9 @@
- int extended_option_environment = 0;
+--- dhcp-3.0.5/client/dhclient.c.libdhcp4client	2007-03-30 20:54:06.000000000 -0400
++++ dhcp-3.0.5/client/dhclient.c	2007-03-30 20:54:34.000000000 -0400
+@@ -85,16 +85,52 @@
  #endif
  int bootp_broadcast_always = 0;
--
+ 
 +#ifdef LIBDHCP
-+FILE *leaseFile=0;
++FILE *leaseFile = NULL;
 +#endif
++
+ extern u_int32_t default_requested_options[];
+ 
  static void usage PROTO ((void));
  
  void do_release(struct client_state *);
-@@ -89,10 +91,58 @@
  
- extern u_int32_t default_requested_options[];
- 
--int main (argc, argv, envp)
 +#ifdef LIBDHCP
 +#include "libdhcp_control.h"
 +LIBDHCP_Control *libdhcp_control;
 +static void libdhcp_dispatch(void)
 +{
-+    struct timeval tv={0,0}, *tvp;
-+    isc_result_t status;
++	struct timeval tv = { 0, 0 }, *tvp;
++	isc_result_t status;
 +
-+    /* Wait for a packet, or a timeout, or libdhcp being finished */
-+    do {
-+	tvp = process_outstanding_timeouts (&tv);	
-+	status = omapi_one_dispatch (0, tvp);
-+	if ( libdhcp_control 
-+	   &&( (status == ISC_R_TIMEDOUT)
-+	     ||(libdhcp_control->timeout
-+	       &&( time(0L) >= 
-+	           ( libdhcp_control->timeout 
-+	            +libdhcp_control->now
-+	           )
-+	         )
-+	       )
-+	     )
-+	   )
-+	{
-+	    if( libdhcp_control -> callback )
-+		libdhcp_control -> callback
-+		    ( libdhcp_control, DHC_TIMEDOUT, 0L );
-+	    break;
-+	}
-+    } while 
-+      ( (status != ISC_R_TIMEDOUT) 
-+      &&( (!libdhcp_control)
-+        ||(!(libdhcp_control->finished))
-+	)
-+      );
++	/* Wait for a packet, or a timeout, or libdhcp being finished */
++	do {
++		tvp = process_outstanding_timeouts(&tv);
++		status = omapi_one_dispatch(0, tvp);
++
++		if (libdhcp_control && ((status == ISC_R_TIMEDOUT) || (libdhcp_control->timeout && (time(NULL) >= (libdhcp_control->timeout + libdhcp_control->now))))) {
++			if (libdhcp_control->callback)
++				libdhcp_control->callback(libdhcp_control, DHC_TIMEDOUT, NULL);
++
++			break;
++		}
++	} while ((status != ISC_R_TIMEDOUT) && ((!libdhcp_control) || (!(libdhcp_control->finished))));
 +}
 +
 +extern void omapi_free_all_pointers(void);
++
 +__attribute__ ((visibility ("default")))
-+int dhcpv4_client
-+(libdhcp_ctl, argc, argv, envp)
-+LIBDHCP_Control *libdhcp_ctl;
++int dhcpv4_client (libdhcp_ctl, argc, argv, envp)
++	LIBDHCP_Control *libdhcp_ctl;
 +#else
-+int main
-+(argc, argv, envp)
+ int main (argc, argv, envp)
 +#endif
  	int argc;
  	char **argv, **envp;
  {
 +#ifdef LIBDHCP
-+        libdhcp_control = libdhcp_ctl;
++	libdhcp_control = libdhcp_ctl;
 +#endif
  	int i;
  	struct servent *ent;
  	struct interface_info *ip;
-@@ -118,7 +168,7 @@
- 	int timeout_arg = 0;
- 	char *arg_conf = 0L;
- 	int arg_conf_len=0;
--
+@@ -122,6 +158,7 @@
+ 	char *arg_conf = NULL;
+ 	int arg_conf_len = 0;
+ 
 +#ifndef LIBDHCP
  	/* Make sure we have stdin, stdout and stderr. */
  	i = open ("/dev/null", O_RDWR);
  	if (i == 0)
-@@ -139,7 +189,7 @@
+@@ -142,6 +179,7 @@
  #if !(defined (DEBUG) || defined (SYSLOG_4_2) || defined (__CYGWIN32__))
  	setlogmask (LOG_UPTO (LOG_INFO));
  #endif	
--
 +#endif
+ 
  	/* Set up the OMAPI. */
  	status = omapi_init ();
- 	if (status != ISC_R_SUCCESS)
-@@ -468,9 +518,12 @@
- 		log_fatal("dhclient(%u) is already running - exiting. ", dhcpid);
- 		return(1);
- 	    }	    
--	}	
-+	}
+@@ -439,8 +477,12 @@
+ 		}
+ 	}
+ 
 +#ifdef LIBDHCP
-+	if ( libdhcp_control && (libdhcp_control->capability & DHCP_USE_PID_FILE) )
++	if (libdhcp_control && (libdhcp_control->capability & DHCP_USE_PID_FILE))
 +#endif
  	write_client_pid_file();
--
+ 
 +#ifndef LIBDHCP
  	if (!quiet) {
  		log_info ("%s %s", message, DHCP_VERSION);
  		log_info (copyright);
-@@ -479,7 +532,7 @@
+@@ -449,6 +491,7 @@
  		log_info ("%s", "");
  	} else
  		log_perror = 0;
--
 +#endif
+ 
  	/* If we're given a relay agent address to insert, for testing
  	   purposes, figure out what it is. */
- 	if (relay) {
-@@ -766,12 +819,18 @@
- 		arg_conf_len = 0L;
+@@ -683,11 +726,17 @@
+ 		arg_conf_len = 0;
  	}
- 		
+ 
 +#ifdef LIBDHCP
-+	if ( libdhcp_control && (libdhcp_control->capability & DHCP_USE_LEASE_DATABASE))
-+	{
++	if (libdhcp_control && (libdhcp_control->capability & DHCP_USE_LEASE_DATABASE)) {
 +#endif
  	/* Parse the lease database. */
  	read_client_leases ();
  
  	/* Rewrite the lease database... */
  	rewrite_client_leases ();
--
 +#ifdef LIBDHCP
 +	}
 +#endif
+ 
  	/* XXX */
  /* 	config_counter(&snd_counter, &rcv_counter); */
- 
-@@ -789,7 +848,7 @@
+@@ -706,7 +755,7 @@
  		if (!persist) {
  			/* Nothing more to do. */
  			log_info ("No broadcast interfaces found - exiting.");
@@ -142,50 +117,53 @@
  		}
  	} else if (!release_mode) {
  		/* Call the script with the list of interfaces. */
-@@ -884,7 +943,7 @@
- 	dmalloc_longterm = dmalloc_outstanding;
+@@ -800,6 +849,7 @@
  	dmalloc_outstanding = 0;
  #endif
--
+ 
 +#ifndef LIBDHCP
  	/* If we're not supposed to wait before getting the address,
  	   don't. */
  	if (nowait)
-@@ -897,7 +956,125 @@
+@@ -812,6 +862,128 @@
  
  	/* Start dispatching packets and timeouts... */
  	dispatch ();
 +#else
-+	if (  libdhcp_control )
-+	{
-+	   if ( libdhcp_control->timeout ) 
-+	       libdhcp_control->now = time(0L);
-+	   else
-+	       libdhcp_control->now = 0;
++	if (libdhcp_control) {
++		if (libdhcp_control->timeout)
++			libdhcp_control->now = time(NULL);
++		else
++			libdhcp_control->now = 0;
 +	}
++
 +	libdhcp_dispatch();
- 
++
 +	/* libdhcp is finished with us. */
 +
 +	/* close all file descriptors:  */
-+	for (ip = interfaces; ip; ip = ip -> next) {
-+	    shutdown( ip -> wfdesc, SHUT_RDWR );
-+	    close(ip -> wfdesc);
-+	    if( ip -> rfdesc != ip -> wfdesc )
-+		close(ip -> rfdesc);
++	for (ip = interfaces; ip; ip = ip->next) {
++		shutdown(ip->wfdesc, SHUT_RDWR);
++		close(ip->wfdesc);
++
++		if (ip->rfdesc != ip->wfdesc)
++			close(ip->rfdesc);
 +	}
-+	if( fallback_interface != 0 )
-+	{
-+	    ip = fallback_interface;
-+	    shutdown( ip -> wfdesc, SHUT_RDWR );
-+	    close(ip -> wfdesc);
-+	    if( ip -> rfdesc != ip -> wfdesc )
-+		close(ip -> rfdesc);
++
++	if (fallback_interface != 0) {
++		ip = fallback_interface;
++		shutdown(ip->wfdesc, SHUT_RDWR);
++		close(ip->wfdesc);
++
++		if (ip->rfdesc != ip->wfdesc)
++			close(ip->rfdesc);
 +	}
++
 +	if (leaseFile)
-+	    fclose (leaseFile);
++		fclose (leaseFile);
++
 +	closelog();
-+	
++
 +	char *current_pid_file = _PATH_DHCLIENT_PID;
 +
 +	/* Free ALL allocated memory: */
@@ -199,143 +177,140 @@
 +	dhcp_max_agent_option_packet_length = 0;
 +	extended_option_environment = 0;
 +	iaddr_any.len = 4;
-+	memset(&(iaddr_any.iabuf[0]),'\0',4);
++	memset(&(iaddr_any.iabuf[0]), '\0', 4);
 +	iaddr_broadcast.len = 4;
-+	memset(&(iaddr_broadcast.iabuf[0]),0xff,4);
++	memset(&(iaddr_broadcast.iabuf[0]), 0xff, 4);
 +	interfaces_requested = 0;
 +	leaseFile = 0;
 +
 +	libdhcp_control = 0;
-+	
++
 +	local_port = 0;
-+	no_daemon=0;
-+	nowait=0;
-+	onetry=0;
-+	quiet=0;
++	no_daemon = 0;
++	nowait = 0;
++	onetry = 0;
++	quiet = 0;
 +	max_lease_time = 86400;
 +	path_dhclient_conf = _PATH_DHCLIENT_CONF;
-+	path_dhclient_db = _PATH_DHCLIENT_DB;	
++	path_dhclient_db = _PATH_DHCLIENT_DB;
 +	path_dhclient_pid = _PATH_DHCLIENT_PID;
 +	strcpy(&(path_dhclient_script_array[0]), _PATH_DHCLIENT_SCRIPT);
 +	path_dhclient_script = path_dhclient_script_array;
 +	remote_port = 0;
 +	resolver_inited = 0;
 +	new_option_info_tree = 0;
-+	log_isc_blurb = 0;
 +	log_perror = 1;
-+	global_scope = 0L;
-+	root_group = 0L;
-+	group_name_hash = 0L;
-+	interfaces = 0L;
-+	dummy_interfaces = 0L;
-+	fallback_interface = 0L;
-+extern int have_setup_fallback;
-+        have_setup_fallback=0;
-+	quiet_interface_discovery=1;
++	global_scope = NULL;
++	root_group = NULL;
++	group_name_hash = NULL;
++	interfaces = NULL;
++	dummy_interfaces = NULL;
++	fallback_interface = NULL;
++	extern int have_setup_fallback;
++	have_setup_fallback = 0;
++	quiet_interface_discovery = 1;
 +#ifndef LIBDHCP
-+	timeouts = 0L;
++	timeouts = NULL;
 +#endif
-+	dhcp_type_interface=0L;
-+	interface_vector = 0L;
-+	interface_count =0;
++	dhcp_type_interface = NULL;
++	interface_vector = NULL;
++	interface_count = 0;
 +	interface_max = 0;
 +	name_servers = 0;
 +	domains = 0;
-+	dhcp_type_interface=0L;
-+	dhcp_type_group=0L;
-+	dhcp_type_shared_network=0L;
-+	dhcp_type_control=0L;
++	dhcp_type_interface = NULL;
++	dhcp_type_group = NULL;
++	dhcp_type_shared_network = NULL;
++	dhcp_type_control = NULL;
 +	memset(&dhcp_universe, '\0', sizeof(struct universe));
 +	memset(&nwip_universe, '\0', sizeof(struct universe));
 +	memset(&fqdn_universe, '\0', sizeof(struct universe));
 +	universe_hash = 0;
-+	universes=0;
-+	universe_count=0;
-+	universe_max=0;
-+	config_universe = 0;	
-+extern struct hash_bucket *free_hash_buckets;
-+	free_hash_buckets=0L;
-+extern struct dhcp_packet *dhcp_free_list;
-+	dhcp_free_list = 0L;
-+extern struct packet *packet_free_list;
-+	packet_free_list = 0L;
-+extern struct binding_value *free_binding_values;
-+	free_binding_values=0L;
-+extern struct expression *free_expressions;
-+	free_expressions=0L;
-+extern struct option_cache *free_option_caches;
-+	free_option_caches=0L;
-+extern  struct packet *free_packets;
-+	free_packets=0L;
-+extern  pair free_pairs;
-+	free_pairs=0L;
-+extern omapi_io_object_t omapi_io_states;
-+        memset(&omapi_io_states, '\0', sizeof(omapi_io_states));
-+	dhcp_control_object=0L;
++	universes = 0;
++	universe_count = 0;
++	universe_max = 0;
++	config_universe = 0; 
++	extern struct hash_bucket *free_hash_buckets;
++	free_hash_buckets = NULL;
++	extern struct dhcp_packet *dhcp_free_list;
++	dhcp_free_list = NULL;
++	extern struct packet *packet_free_list;
++	packet_free_list = NULL;
++	extern struct binding_value *free_binding_values;
++	free_binding_values = NULL;
++	extern struct expression *free_expressions;
++	free_expressions = NULL;
++	extern struct option_cache *free_option_caches;
++	free_option_caches = NULL;
++	extern  struct packet *free_packets;
++	free_packets = NULL;
++	extern  pair free_pairs;
++	free_pairs = NULL;
++	extern omapi_io_object_t omapi_io_states;
++	memset(&omapi_io_states, '\0', sizeof(omapi_io_states));
++	dhcp_control_object = NULL;
 +	unlink(current_pid_file);
 +#endif
+ 
  	/*NOTREACHED*/
  	return 0;
- }
-@@ -1292,7 +1469,20 @@
+@@ -1204,7 +1376,20 @@
  	if (client -> new -> rebind < cur_time)
  		client -> new -> rebind = TIME_MAX;
  
 +#ifdef LIBDHCP
-+    /* We need the server's siaddr for the 'bootServer'
-+     * pump option 
-+     */
-+    u_int32_t set_siaddr = 0;  
-+    set_siaddr = client -> packet.siaddr.s_addr;
-+    client->packet.siaddr.s_addr = packet->raw->siaddr.s_addr;
++	/* We need the server's siaddr for the 'bootServer'
++	 * pump option
++	 */
++	u_int32_t set_siaddr = 0;
++	set_siaddr = client->packet.siaddr.s_addr;
++	client->packet.siaddr.s_addr = packet->raw->siaddr.s_addr;
 +#endif
 +
  	bind_lease (client);
 +
 +#ifdef LIBDHCP
-+    client->packet.siaddr.s_addr = set_siaddr;
++	client->packet.siaddr.s_addr = set_siaddr;
 +#endif
  }
  
  void bind_lease (client)
-@@ -1328,6 +1518,9 @@
+@@ -1240,6 +1425,9 @@
  		return;
  	}
  
 +#ifdef LIBDHCP
-+	if ( libdhcp_control && (libdhcp_control->capability & DHCP_USE_LEASE_DATABASE))
++	if (libdhcp_control && (libdhcp_control->capability & DHCP_USE_LEASE_DATABASE))
 +#endif
  	/* Write out the new lease. */
  	write_client_lease (client, client -> new, 0, 0);
  
-@@ -1427,13 +1620,13 @@
- {
+@@ -1340,11 +1528,13 @@
  	return 0;
  }
--
+ 
 +#ifndef LIBDHCP
  int write_lease (lease)
  	struct lease *lease;
  {
  	return 0;
  }
--
 +#endif
+ 
  int write_host (host)
  	struct host_decl *host;
- {
-@@ -2004,6 +2197,10 @@
+@@ -1915,6 +2105,10 @@
  	   tell the shell script that we failed to allocate an address,
  	   and try again later. */
  	if (onetry) {
 +#ifdef LIBDHCP
-+	    script_init (client, "FAIL", (struct string_list *)0);
-+	    return;
++		script_init (client, "FAIL", (struct string_list *)0);
++		return;
 +#endif
  		if (!quiet)
  			log_info ("Unable to obtain a lease on first try.%s",
  				  "  Exiting.");
-@@ -2607,7 +2804,9 @@
+@@ -2519,7 +2713,9 @@
  	free_client_lease (lease, MDL);
  }
  
@@ -345,62 +320,62 @@
  
  void rewrite_client_leases ()
  {
-@@ -3048,6 +3247,54 @@
+@@ -2960,6 +3156,54 @@
  int script_go (client)
  	struct client_state *client;
  {
 +#ifdef LIBDHCP
-+    struct string_list *sp;
++	struct string_list *sp;
 +
-+    if (libdhcp_control && libdhcp_control->callback) {
-+        int dhcmsg;
-+        char *reason="";
++	if (libdhcp_control && libdhcp_control->callback) {
++		int dhcmsg;
++		char *reason="";
 +
-+        for (sp = client->env; sp; sp = sp->next) 
-+            if (strncmp(sp->string, "reason=", 7) == 0) {
-+                reason = sp->string + 7;
-+                break;
-+            }
++		for (sp = client->env; sp; sp = sp->next)
++			if (strncmp(sp->string, "reason=", 7) == 0) {
++				reason = sp->string + 7;
++				break;
++			}
 +
-+       if (strcmp(reason,"NBI") == 0)
-+            dhcmsg = DHC4_NBI;
-+       else if (strcmp(reason,"PREINIT") == 0)
-+            dhcmsg = DHC4_PREINIT;
-+       else if (strcmp(reason,"BOUND") == 0)
-+            dhcmsg = DHC4_BOUND;
-+       else if (strcmp(reason,"RENEW") == 0)
-+            dhcmsg = DHC4_RENEW;
-+       else if (strcmp(reason,"REBOOT") == 0)
-+            dhcmsg = DHC4_REBOOT;
-+       else if (strcmp(reason,"REBIND") == 0)
-+            dhcmsg = DHC4_REBIND;
-+       else if (strcmp(reason,"STOP") == 0)
-+            dhcmsg = DHC4_STOP;
-+       else if (strcmp(reason,"MEDIUM") == 0)
-+            dhcmsg = DHC4_MEDIUM;
-+       else if (strcmp(reason,"TIMEOUT") == 0)
-+            dhcmsg = DHC4_TIMEOUT;
-+       else if (strcmp(reason,"FAIL") == 0)
-+            dhcmsg = DHC4_FAIL;
-+       else if (strcmp(reason,"EXPIRE") == 0)
-+            dhcmsg = DHC4_EXPIRE;
-+       else if (strcmp(reason,"RELEASE") == 0)
-+            dhcmsg = DHC4_RELEASE;
-+       else
-+            dhcmsg = DHC4_NBI;
++		if (strcmp(reason,"NBI") == 0)
++			dhcmsg = DHC4_NBI;
++		else if (strcmp(reason,"PREINIT") == 0)
++			dhcmsg = DHC4_PREINIT;
++		else if (strcmp(reason,"BOUND") == 0)
++			dhcmsg = DHC4_BOUND;
++		else if (strcmp(reason,"RENEW") == 0)
++			dhcmsg = DHC4_RENEW;
++		else if (strcmp(reason,"REBOOT") == 0)
++			dhcmsg = DHC4_REBOOT;
++		else if (strcmp(reason,"REBIND") == 0)
++			dhcmsg = DHC4_REBIND;
++		else if (strcmp(reason,"STOP") == 0)
++			dhcmsg = DHC4_STOP;
++		else if (strcmp(reason,"MEDIUM") == 0)
++			dhcmsg = DHC4_MEDIUM;
++		else if (strcmp(reason,"TIMEOUT") == 0)
++			dhcmsg = DHC4_TIMEOUT;
++		else if (strcmp(reason,"FAIL") == 0)
++			dhcmsg = DHC4_FAIL;
++		else if (strcmp(reason,"EXPIRE") == 0)
++			dhcmsg = DHC4_EXPIRE;
++		else if (strcmp(reason,"RELEASE") == 0)
++			dhcmsg = DHC4_RELEASE;
++		else
++			dhcmsg = DHC4_NBI;
 +
-+       (*libdhcp_control->callback) (libdhcp_control, dhcmsg, client);
++		(*libdhcp_control->callback) (libdhcp_control, dhcmsg, client);
 +
-+       if (libdhcp_control->decline)
-+           return 1;
-+    }
++		if (libdhcp_control->decline)
++			return 1;
++	}
 +
-+    return 0;
++	return 0;
 +#else
  	char *scriptName;
  	char *argv [2];
  	char **envp;
-@@ -3121,6 +3368,7 @@
+@@ -3033,6 +3277,7 @@
  	GET_TIME (&cur_time);
  	return (WIFEXITED (wstatus) ?
  		WEXITSTATUS (wstatus) : -WTERMSIG (wstatus));
@@ -408,29 +383,29 @@
  }
  
  void client_envadd (struct client_state *client,
-@@ -3211,6 +3459,9 @@
+@@ -3123,6 +3368,9 @@
  
  	/* Don't become a daemon if the user requested otherwise. */
  	if (no_daemon) {
 +#ifdef LIBDHCP
-+	    if ( libdhcp_control && (libdhcp_control->capability & DHCP_USE_PID_FILE ) )
++		if (libdhcp_control && (libdhcp_control->capability & DHCP_USE_PID_FILE ))
 +#endif
  		write_client_pid_file ();
  		return;
  	}
-@@ -3219,7 +3470,9 @@
- 	if (state)
+@@ -3132,6 +3380,10 @@
  		return;
  	state = 1;
--
+ 
 +#ifdef LIBDHCP
 +	return;
 +#endif
++
  	/* Stop logging to stderr... */
  	log_perror = 0;
  
---- dhcp-3.0.5/common/discover.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
-+++ dhcp-3.0.5/common/discover.c	2007-02-08 21:01:16.000000000 -0500
+--- dhcp-3.0.5/common/discover.c.libdhcp4client	2007-03-30 20:54:06.000000000 -0400
++++ dhcp-3.0.5/common/discover.c	2007-03-30 20:54:06.000000000 -0400
 @@ -121,6 +121,10 @@
     register that interface with the network I/O software, figure out what
     subnet it's on, and add it to the list of interfaces. */
@@ -452,11 +427,10 @@
  	int wifcount = 0;
  
  	/* Create an unbound datagram socket to do the SIOCGIFADDR ioctl on. */
-@@ -691,12 +697,17 @@
- 		log_info ("%s", "");
+@@ -692,10 +698,17 @@
  		log_fatal ("Not configured to listen on any interfaces!");
  	}
--
+ 
 +#ifdef LIBDHCP
 +	if (!have_setup_fallback) {
 +		have_setup_fallback = 1;
@@ -467,32 +441,12 @@
  		setup_fallback = 1;
  		maybe_setup_fallback ();
  	}
--
 +#endif
+ 
  #if defined (HAVE_SETFD)
  	if (fallback_interface) {
- 	    if (fcntl (fallback_interface -> rfdesc, F_SETFD, 1) < 0)
-@@ -811,7 +822,7 @@
- 					omapi_typed_data_t *value)
- {
- 	struct interface_info *interface;
--	isc_result_t status;
-+    isc_result_t status;
- 
- 	if (h -> type != dhcp_type_interface)
- 		return ISC_R_INVALIDARG;
---- dhcp-3.0.5/common/lpf.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
-+++ dhcp-3.0.5/common/lpf.c	2007-02-08 21:01:16.000000000 -0500
-@@ -246,6 +246,7 @@
- 	struct interface_info *info;
- {
- 	struct sock_fprog p;
-+	memset(&p,'\0', sizeof(struct sock_fprog));
- 
- 	/* Set up the bpf filter program structure.    This is defined in
- 	   bpf.c */
---- dhcp-3.0.5/common/alloc.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
-+++ dhcp-3.0.5/common/alloc.c	2007-02-08 21:01:16.000000000 -0500
+--- dhcp-3.0.5/common/alloc.c.libdhcp4client	2007-03-30 20:54:06.000000000 -0400
++++ dhcp-3.0.5/common/alloc.c	2007-03-30 20:54:06.000000000 -0400
 @@ -1009,7 +1009,11 @@
  	return 1;
  }
@@ -505,8 +459,8 @@
  
  #if defined (DEBUG_MEMORY_LEAKAGE) || \
  		defined (DEBUG_MEMORY_LEAKAGE_ON_EXIT)
---- dhcp-3.0.5/common/tree.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
-+++ dhcp-3.0.5/common/tree.c	2007-02-08 21:24:40.000000000 -0500
+--- dhcp-3.0.5/common/tree.c.libdhcp4client	2007-03-30 20:54:06.000000000 -0400
++++ dhcp-3.0.5/common/tree.c	2007-03-30 20:54:06.000000000 -0400
 @@ -40,7 +40,7 @@
  #include "dhcpd.h"
  #include <omapip/omapip_p.h>
@@ -524,8 +478,8 @@
  int evaluate_option_cache (result, packet, lease, client_state,
  			   in_options, cfg_options, scope, oc, file, line)
  	struct data_string *result;
---- dhcp-3.0.5/common/options.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
-+++ dhcp-3.0.5/common/options.c	2007-02-08 21:23:37.000000000 -0500
+--- dhcp-3.0.5/common/options.c.libdhcp4client	2007-03-30 20:54:06.000000000 -0400
++++ dhcp-3.0.5/common/options.c	2007-03-30 20:54:06.000000000 -0400
 @@ -2153,6 +2153,7 @@
  	return 1;
  }
@@ -534,18 +488,279 @@
  void option_space_foreach (struct packet *packet, struct lease *lease,
  			   struct client_state *client_state,
  			   struct option_state *in_options,
---- dhcp-3.0.5/common/dispatch.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
-+++ dhcp-3.0.5/common/dispatch.c	2007-02-08 21:24:08.000000000 -0500
-@@ -358,6 +358,7 @@
- #endif
+--- dhcp-3.0.5/common/dispatch.c.libdhcp4client	2007-03-30 20:54:06.000000000 -0400
++++ dhcp-3.0.5/common/dispatch.c	2007-03-30 20:54:06.000000000 -0400
+@@ -39,8 +39,24 @@
+ 
+ #include "dhcpd.h"
+ 
+-struct timeout *timeouts;
+-static struct timeout *free_timeouts;
++struct timeout {
++#ifndef LIBDHCP
++	struct timeout *next;
++#endif
++	TIME when;
++	void (*func) PROTO ((void *));
++	void *what;
++	tvref_t ref;
++	tvunref_t unref;
++};
++
++#ifdef LIBDHCP
++static struct timeout *timeouts = NULL;
++static int ntimeouts = 0;
++#else
++static struct timeout *timeouts = NULL;
++static struct timeout *free_timeouts = NULL;
++#endif
+ 
+ void set_time(TIME t)
+ {
+@@ -53,9 +69,41 @@
+ 
+ struct timeval *process_outstanding_timeouts (struct timeval *tvp)
+ {
++#ifdef LIBDHCP
++	int i;
++	struct timeout t = { 0 };
++#endif
+ 	/* Call any expired timeouts, and then if there's
+ 	   still a timeout registered, time out the select
+ 	   call then. */
++#ifdef LIBDHCP
++	if (!ntimeouts)
++		return NULL;
++
++	for (i = 0; i < ntimeouts && timeouts[i].when <= cur_time;) {
++		struct timeout *new_timeouts;
++		size_t n;
++
++		memmove(&t, &timeouts[i], sizeof (t));
++
++		n = (ntimeouts - i - 1) * sizeof (t);
++		memmove(&timeouts[i+1], &timeouts[i], n);
++
++		n = --ntimeouts * sizeof (t);
++		new_timeouts = realloc(timeouts, n);
++		/* XXX broken API, no way to return error here */
++		if (new_timeouts || !n)
++			timeouts = new_timeouts;
++
++		if (t.func)
++			t.func(t.what);
++		if (t.unref)
++			t.unref(t.what, MDL);
++	}
++	if (tvp && ntimeouts) {
++		tvp->tv_sec = timeouts[0].when;
++		tvp->tv_usec = 0;
++#else
+       another:
+ 	if (timeouts) {
+ 		struct timeout *t;
+@@ -73,9 +121,15 @@
+ 			tvp -> tv_sec = timeouts -> when;
+ 			tvp -> tv_usec = 0;
+ 		}
++#endif
+ 		return tvp;
++#ifdef LIBDHCP
++	}
++	return NULL;
++#else
+ 	} else
+ 		return (struct timeval *)0;
++#endif
+ }
+ 
+ /* Wait for packets to come in using select().   When one does, call
+@@ -104,13 +158,28 @@
+ 	tvref_t ref;
+ 	tvunref_t unref;
+ {
++#ifdef LIBDHCP
++	struct timeout t = {
++		.when = when,
++		.func = where,
++		.what = what,
++		.ref = ref,
++		.unref = unref
++	};
++	struct timeout *new_timeouts;
++	int i, pos = 0;
++#else
+ 	struct timeout *t, *q;
++#endif
+ 
+ 	/* See if this timeout supersedes an existing timeout. */
++#ifdef LIBDHCP
++	for (i = 0; i < ntimeouts; i++) {
++		struct timeout *q = &timeouts[i];
++#else
+ 	t = (struct timeout *)0;
+ 	for (q = timeouts; q; q = q -> next) {
+-		if ((where == NULL || q -> func == where) &&
+-		    q -> what == what) {
++		if ((where == NULL || q -> func == where) && q -> what == what) {
+ 			if (t)
+ 				t -> next = q -> next;
+ 			else
+@@ -119,7 +188,29 @@
+ 		}
+ 		t = q;
+ 	}
++#endif
+ 
++#ifdef LIBDHCP
++		/* If this one is already in the list with a different time,
++		 * remove it and re-add */
++		if ((where == NULL || q->func == where) &&
++				q->what == what) {
++			size_t n = (--ntimeouts - i) * sizeof (*q);
++			memmove(&t, q, sizeof (t));
++
++			if (n)
++				memmove(&timeouts[i], &timeouts[i+1], n);
++
++			if (ntimeouts) {
++				new_timeouts = realloc(timeouts, ntimeouts * sizeof (*q));
++				/* XXX broken API, no way to return error here */
++				if (new_timeouts)
++					timeouts = new_timeouts;
++			} else {
++				timeouts = NULL;
++			}
++			add_timeout(when, where, what, ref, unref);
++#else
+ 	/* If we didn't supersede a timeout, allocate a timeout
+ 	   structure now. */
+ 	if (!q) {
+@@ -128,7 +219,7 @@
+ 			free_timeouts = q -> next;
+ 		} else {
+ 			q = ((struct timeout *)
+-			     dmalloc (sizeof (struct timeout), MDL));
++				dmalloc (sizeof (struct timeout), MDL));
+ 			if (!q)
+ 				log_fatal ("add_timeout: no memory!");
+ 		}
+@@ -158,22 +249,76 @@
+ 		if (t -> next -> when > q -> when) {
+ 			q -> next = t -> next;
+ 			t -> next = q;
++#endif
+ 			return;
++#ifdef LIBDHCP
++		} else if (timeouts[i].when > when) {
++			pos = i;
++#endif
+ 		}
+ 	}
+ 
++#ifdef LIBDHCP
++	/* If we didn't supersede an existing timeout, then pos is set
++	 * to the timeout which will post after this one.  Insert this
++	 * one before it. */
++
++	new_timeouts = realloc(timeouts, sizeof (t) * (ntimeouts+1));
++	/* XXX broken API, no way to return error here */
++	if (new_timeouts) {
++		/* ntimeouts = 10
++		 * pos = 3;
++		 * n = 10-3 * sizeof (t) = 7 * sizeof (t) 
++		 */
++		size_t n = (ntimeouts - pos) * sizeof (t);
++
++		timeouts = new_timeouts;
++		memmove(&timeouts[pos+1], &timeouts[pos], n);
++		memmove(&timeouts[pos], &t, sizeof (t));
++		ntimeouts++;
++	}
++#else
+ 	/* End of list. */
+ 	t -> next = q;
+ 	q -> next = (struct timeout *)0;
++#endif
+ }
+ 
+ void cancel_timeout (where, what)
+ 	void (*where) PROTO ((void *));
+ 	void *what;
+ {
++#ifdef LIBDHCP
++	struct timeout t;
++	int i = 0;
++#else
+ 	struct timeout *t, *q;
++#endif
+ 
+ 	/* Look for this timeout on the list, and unlink it if we find it. */
++#ifdef LIBDHCP
++	for (i = 0; i < ntimeouts; i++) {
++		struct timeout *new_timeouts, *q = &timeouts[i];
++
++		if (q->func == where && q->what == what) {
++			size_t n;
++
++			memmove(&t, q, sizeof (t));
++
++			n = (ntimeouts - i - 1) * sizeof (t);
++			memmove(&timeouts[i+1], &timeouts[i], n);
++
++			n = --ntimeouts * sizeof (t);
++			new_timeouts = realloc(timeouts, n);
++			/* XXX broken API, no way to return error here */
++			if (new_timeouts || !n)
++				timeouts = new_timeouts;
++
++			if (t.unref)
++				t.unref(t.what, MDL);
++		}
++	}
++#else
+ 	t = (struct timeout *)0;
+ 	for (q = timeouts; q; q = q -> next) {
+ 		if (q -> func == where && q -> what == what) {
+@@ -193,10 +338,15 @@
+ 		q -> next = free_timeouts;
+ 		free_timeouts = q;
+ 	}
++#endif
+ }
+ 
+ void cancel_all_timeouts ()
+ {
++#ifdef LIBDHCP
++	cur_time = TIME_MAX;
++	process_outstanding_timeouts(NULL);
++#else
+ 	struct timeout *t, *n;
+ 	for (t = timeouts; t; t = n) {
+ 		n = t -> next;
+@@ -205,13 +355,20 @@
+ 		t -> next = free_timeouts;
+ 		free_timeouts = t;
+ 	}
++#endif
  }
  
 +__attribute__ ((visibility ("default")))
  void relinquish_timeouts ()
  {
- #ifdef LIBDHCP
---- dhcp-3.0.5/dst/hmac_link.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
-+++ dhcp-3.0.5/dst/hmac_link.c	2007-02-08 21:01:16.000000000 -0500
++#ifdef LIBDHCP
++	while (ntimeouts)
++		cancel_timeout(timeouts[0].func, timeouts[0].what);
++#else
+ 	struct timeout *t, *n;
+ 	for (t = free_timeouts; t; t = n) {
+ 		n = t -> next;
+ 		dfree (t, MDL);
+ 	}
++#endif
+ }
+--- dhcp-3.0.5/dst/hmac_link.c.libdhcp4client	2001-02-22 02:22:08.000000000 -0500
++++ dhcp-3.0.5/dst/hmac_link.c	2007-03-30 20:54:06.000000000 -0400
 @@ -38,6 +38,10 @@
  
  #include "dst_internal.h"
@@ -573,11 +788,10 @@
  	MD5_CTX *ctx = NULL;
  
  	if (mode & SIG_MODE_INIT) 
--		ctx = (MD5_CTX *) malloc(sizeof(*ctx));
 +#ifdef LIBDHCP
 +		ctx = (MD5_CTX *) dmalloc(sizeof(*ctx),__FILE__,__LINE__);
 +#else
-+	        ctx = (MD5_CTX *) malloc(sizeof(*ctx));
+ 		ctx = (MD5_CTX *) malloc(sizeof(*ctx));
 +#endif
  	else if (context)
  		ctx = (MD5_CTX *) *context;
@@ -632,20 +846,34 @@
  	if (dst_t_func[KEY_HMAC_MD5] == NULL)
  		return (0);
  	memset(dst_t_func[KEY_HMAC_MD5], 0, sizeof(struct dst_func));
---- dhcp-3.0.5/dst/md5_dgst.c.libdhcp4client	2004-06-14 14:50:06.000000000 -0400
-+++ dhcp-3.0.5/dst/md5_dgst.c	2007-02-08 21:05:27.000000000 -0500
-@@ -65,7 +65,7 @@
+--- dhcp-3.0.5/includes/dhcpd.h.libdhcp4client	2007-03-30 20:54:06.000000000 -0400
++++ dhcp-3.0.5/includes/dhcpd.h	2007-03-30 20:54:06.000000000 -0400
+@@ -855,14 +855,6 @@
  
- #ifdef USE_MD5 /* Added by ogud@tis.com 1998/1/26 */
+ typedef void (*tvref_t)(void *, void *, const char *, int);
+ typedef void (*tvunref_t)(void *, const char *, int);
+-struct timeout {
+-	struct timeout *next;
+-	TIME when;
+-	void (*func) PROTO ((void *));
+-	void *what;
+-	tvref_t ref;
+-	tvunref_t unref;
+-};
  
--const char *MD5_version="MD5 part of SSLeay 0.8.1 19-Jul-1997";
-+const char *MD5_version ="MD5 part of SSLeay 0.8.1 19-Jul-1997";
- 
- /* Implemented from RFC1321 The MD5 Message-Digest Algorithm
-  */
---- dhcp-3.0.5/omapip/alloc.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
-+++ dhcp-3.0.5/omapip/alloc.c	2007-02-08 21:01:16.000000000 -0500
-@@ -40,6 +40,41 @@
+ struct protocol {
+ 	struct protocol *next;
+@@ -1789,7 +1781,6 @@
+ 					    struct dhcp_packet *, unsigned,
+ 					    unsigned int,
+ 					    struct iaddr, struct hardware *));
+-extern struct timeout *timeouts;
+ extern omapi_object_type_t *dhcp_type_interface;
+ #if defined (TRACING)
+ trace_type_t *interface_trace;
+--- dhcp-3.0.5/omapip/alloc.c.libdhcp4client	2007-03-30 20:54:06.000000000 -0400
++++ dhcp-3.0.5/omapip/alloc.c	2007-03-30 20:54:06.000000000 -0400
+@@ -40,6 +40,33 @@
  
  #include <omapip/omapip_p.h>
  
@@ -657,37 +885,29 @@
 +#include <search.h>  
 +extern void tdestroy (void *root, void (*free_node)(void *nodep));
 +static void *all_pointers=0L;
-+static int ptr_comparator( const void *p1, const void *p2 )
-+{
-+    return
-+	(  (p1 == p2) 
-+	   ? 0
-+	   :( (p1 > p2)
-+	      ? 1
-+	      : -1
-+	    )
-+	);
++static int ptr_comparator(const void *p1, const void *p2) {
++    return ((p1 == p2) ? 0 : ((p1 > p2) ? 1 : -1));
 +}
-+static void record_pointer( void *ptr )
-+{
++
++static void record_pointer(void *ptr) {
 +    tsearch(ptr, &(all_pointers), ptr_comparator);
 +}
-+static void forget_pointer( void *ptr )
-+{
++
++static void forget_pointer(void *ptr) {
 +    tdelete(ptr, &(all_pointers), ptr_comparator);
 +}
-+void omapi_free_all_pointers(void)
-+{
-+    if( all_pointers != 0L )
-+	tdestroy(all_pointers, free);
-+    all_pointers = 0L;
++
++void omapi_free_all_pointers(void) {
++    if (all_pointers != NULL)
++		tdestroy(all_pointers, free);
++    all_pointers = NULL;
 +}
 +#endif
 +
  #if defined (DEBUG_MEMORY_LEAKAGE) || defined (DEBUG_MALLOC_POOL) || \
  		defined (DEBUG_MEMORY_LEAKAGE_ON_EXIT)
  struct dmalloc_preamble *dmalloc_list;
-@@ -77,7 +112,9 @@
+@@ -77,7 +104,9 @@
  		return (VOIDPTR)0;
  
  	foo = malloc(len);
@@ -698,7 +918,7 @@
  	if (!foo)
  		return (VOIDPTR)0;
  	bar = (VOIDPTR)(foo + DMDOFFSET);
-@@ -199,6 +236,9 @@
+@@ -199,6 +228,9 @@
  		     0, (unsigned char *)ptr + DMDOFFSET, 0, 1, RC_MALLOC);
  #endif
  	free (ptr);
@@ -708,8 +928,8 @@
  }
  
  #if defined (DEBUG_MEMORY_LEAKAGE) || defined (DEBUG_MALLOC_POOL) || \
---- dhcp-3.0.5/omapip/dispatch.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
-+++ dhcp-3.0.5/omapip/dispatch.c	2007-02-08 21:01:16.000000000 -0500
+--- dhcp-3.0.5/omapip/dispatch.c.libdhcp4client	2004-11-24 12:39:17.000000000 -0500
++++ dhcp-3.0.5/omapip/dispatch.c	2007-03-30 20:54:06.000000000 -0400
 @@ -34,7 +34,7 @@
  
  #include <omapip/omapip_p.h>
@@ -719,8 +939,8 @@
  TIME cur_time;
  
  OMAPI_OBJECT_ALLOC (omapi_io,
---- dhcp-3.0.5/omapip/errwarn.c.libdhcp4client	2007-02-08 21:01:16.000000000 -0500
-+++ dhcp-3.0.5/omapip/errwarn.c	2007-02-08 21:01:16.000000000 -0500
+--- dhcp-3.0.5/omapip/errwarn.c.libdhcp4client	2007-03-30 20:54:06.000000000 -0400
++++ dhcp-3.0.5/omapip/errwarn.c	2007-03-30 20:54:06.000000000 -0400
 @@ -39,6 +39,11 @@
  #include <omapip/omapip_p.h>
  #include <errno.h>
@@ -733,7 +953,7 @@
  #ifdef DEBUG
  int log_perror = -1;
  #else
-@@ -50,7 +55,9 @@
+@@ -48,7 +53,9 @@
  void (*log_cleanup) (void);
  
  #define CVT_BUF_MAX 1023
@@ -743,14 +963,13 @@
  static char fbuf [CVT_BUF_MAX + 1];
  
  /* Log an error message, then exit... */
-@@ -60,6 +67,17 @@
+@@ -58,6 +65,16 @@
    va_list list;
  
    do_percentm (fbuf, fmt);
 +  
 +#ifdef LIBDHCP
-+  if ( libdhcp_control && (libdhcp_control->eh) )
-+  {
++  if (libdhcp_control && (libdhcp_control->eh)) {
 +      va_start (list, fmt);
 +      libdhcp_control->eh(libdhcp_control, LOG_FATAL, fbuf, list);
 +      va_end(list);
@@ -761,7 +980,7 @@
  
    /* %Audit% This is log output. %2004.06.17,Safe%
     * If we truncate we hope the user can get a hint from the log.
-@@ -108,6 +126,7 @@
+@@ -93,6 +110,7 @@
    if (log_cleanup)
  	  (*log_cleanup) ();
    exit (1);
@@ -769,13 +988,12 @@
  }
  
  /* Log an error message... */
-@@ -118,6 +137,14 @@
+@@ -103,6 +121,13 @@
  
    do_percentm (fbuf, fmt);
  
 +#ifdef LIBDHCP
-+  if ( libdhcp_control && libdhcp_control->eh )
-+  {
++  if (libdhcp_control && libdhcp_control->eh) {
 +      va_start (list, fmt);
 +      libdhcp_control->eh(libdhcp_control, LOG_ERR, fbuf, list);
 +      va_end(list);
@@ -784,22 +1002,21 @@
    /* %Audit% This is log output. %2004.06.17,Safe%
     * If we truncate we hope the user can get a hint from the log.
     */
-@@ -134,7 +161,7 @@
- 	  r=write (STDERR_FILENO, mbuf, strlen (mbuf));
- 	  r=write (STDERR_FILENO, "\n", 1);
+@@ -120,7 +145,7 @@
+ 	  if (write (STDERR_FILENO, "\n", 1) <= 0)
+ 	    return 0;
    }
 -
 +#endif
    return 0;
  }
  
-@@ -146,6 +173,14 @@
+@@ -132,6 +157,13 @@
  
    do_percentm (fbuf, fmt);
  
 +#ifdef LIBDHCP
-+  if ( libdhcp_control && libdhcp_control->eh )
-+  {
++  if (libdhcp_control && libdhcp_control->eh) {
 +      va_start (list, fmt);
 +      libdhcp_control->eh(libdhcp_control, LOG_INFO, fbuf, list);
 +      va_end(list);
@@ -808,23 +1025,22 @@
    /* %Audit% This is log output. %2004.06.17,Safe%
     * If we truncate we hope the user can get a hint from the log.
     */
-@@ -162,7 +197,7 @@
- 	  r=write (STDERR_FILENO, mbuf, strlen (mbuf));
- 	  r=write (STDERR_FILENO, "\n", 1);
+@@ -149,7 +181,7 @@
+ 	  if (write (STDERR_FILENO, "\n", 1) <= 0)
+ 	    return 0;
    }
 -
 +#endif
    return 0;
  }
  
-@@ -173,7 +208,14 @@
+@@ -160,7 +192,13 @@
    va_list list;
  
    do_percentm (fbuf, fmt);
 -
 +#ifdef LIBDHCP
-+  if ( libdhcp_control && libdhcp_control->eh )
-+  {
++  if (libdhcp_control && libdhcp_control->eh) {
 +      va_start (list, fmt);
 +      libdhcp_control->eh(libdhcp_control, LOG_DEBUG, fbuf, list);
 +      va_end(list);
@@ -833,290 +1049,17 @@
    /* %Audit% This is log output. %2004.06.17,Safe%
     * If we truncate we hope the user can get a hint from the log.
     */
-@@ -190,7 +232,7 @@
- 	  r=write (STDERR_FILENO, mbuf, strlen (mbuf));
- 	  r=write (STDERR_FILENO, "\n", 1);
+@@ -178,7 +216,7 @@
+ 	  if (write (STDERR_FILENO, "\n", 1) <= 0)
+ 	    return 0;
    }
 -
 +#endif
    return 0;
  }
  
---- dhcp-3.0.5/configure.libdhcp4client	2004-09-10 17:02:30.000000000 -0400
-+++ dhcp-3.0.5/configure	2007-02-08 21:01:16.000000000 -0500
-@@ -246,7 +246,7 @@
- fi
- 
- if [ x"$dirs" = x ]; then
--  dirs=". client server relay common omapip dhcpctl minires dst"
-+  dirs=". client server relay common omapip dhcpctl minires dst libdhcp4client"
- fi
- 
- for foo in $dirs; do
---- /dev/null	2007-02-06 10:40:24.955607220 -0500
-+++ dhcp-3.0.5/libdhcp4client/Makefile.dist	2007-02-08 21:12:41.000000000 -0500
-@@ -0,0 +1,127 @@
-+# Makefile.dist for libdhcp4client
-+#
-+# We get the libdhcp4client library from the patched ISC source code.  We
-+# rebuild key C files with -DLIBDHCP to turn on the library features we
-+# need.  Normal build results in standard ISC code (i.e., not LIBDHCP
-+# stuff enabled).  We then link together a static library and a shared
-+# library with the new resulting objects.
-+#
-+# David Cantrell <dcantrell@redhat.com>
-+
-+# What version of ISC DHCP is this?
-+VER   = $(shell grep DHCP_VERSION ../../includes/version.h | head -1 | cut -d '"' -f 2 | cut -d 'V' -f 2 | cut -d '-' -f 1)
-+
-+PROGS = libdhcp4client.a libdhcp4client-$(VER).so.0
-+
-+# NOTE: The ordering of these file lists is important!  We are using the
-+# whole program optimization features of gcc, so the order matters here.
-+
-+# Source files shared by all objects
-+COMMON_SRCS = client_clparse.c client_dhclient.c common_alloc.c common_bpf.c \
-+              common_comapi.c common_conflex.c common_discover.c \
-+              common_dispatch.c common_dns.c common_ethernet.c \
-+              common_execute.c common_inet.c common_lpf.c common_memory.c \
-+              common_options.c common_packet.c common_parse.c common_print.c \
-+              common_socket.c common_tables.c common_tr.c common_tree.c \
-+              dst_dst_api.c dst_base64.c dst_hmac_link.c dst_md5_dgst.c \
-+              omapip_alloc.c omapip_array.c omapip_auth.c omapip_buffer.c \
-+              omapip_connection.c omapip_convert.c omapip_dispatch.c \
-+              omapip_errwarn.c omapip_handle.c omapip_hash.c \
-+              omapip_listener.c omapip_mrtrace.c omapip_result.c \
-+              omapip_support.c omapip_toisc.c omapip_trace.c
-+
-+# Source files for libdhcp4client.o
-+CLIENT_SRCS = common_ctrace.c common_dlpi.c common_nit.c common_upf.c \
-+              dst_dst_support.c dst_prandom.c omapip_generic.c \
-+              omapip_message.c omapip_protocol.c
-+
-+# Source files for libres.o (minires)
-+MINIRES_SRCS = minires_ns_date.c minires_ns_name.c minires_ns_parse.c \
-+               minires_ns_samedomain.c minires_ns_sign.c minires_ns_verify.c \
-+               minires_res_comp.c minires_res_findzonecut.c \
-+               minires_res_init.c minires_res_mkquery.c \
-+               minires_res_mkupdate.c minires_res_query.c minires_res_send.c \
-+               minires_res_sendsigned.c minires_res_update.c
-+
-+HDRS = dhcp4client.h libdhcp_control.h
-+SRCS = $(COMMON_SRCS) $(CLIENT_SRCS)
-+OBJS = $(SRCS:.c=.o)
-+
-+INCLUDES = -I$(TOP) -I$(TOP)/includes -I$(TOP)/dst -I.
-+CFLAGS   = $(DEBUG) $(PREDEFINES) $(INCLUDES) $(COPTS) \
-+           -DCLIENT_PATH=${CLIENT_PATH} -DLIBDHCP -DUSE_MD5
-+
-+all: $(PROGS)
-+
-+install: all
-+	install -p -m 0755 -D libdhcp4client-$(VER).so.0 $(DESTDIR)$(LIBDIR)/libdhcp4client-$(VER).so.0
-+	ln -sf libdhcp4client-$(VER).so.0 $(DESTDIR)/$(LIBDIR)/libdhcp4client.so
-+	install -p -m 0644 -D libdhcp4client.a $(DESTDIR)$(LIBDIR)/libdhcp4client.a
-+	install -p -m 0644 -D dhcp4client.h $(DESTDIR)$(INCDIR)/dhcp4client/dhcp4client.h
-+	install -p -m 0644 -D libdhcp_control.h $(DESTDIR)$(INCDIR)/dhcp4client/libdhcp_control.h
-+	( cd $(TOP)/includes ; \
-+	  find . -name "*.h" -type f | while read h ; do \
-+	      install -p -m 0644 -D $$h $(DESTDIR)$(INCDIR)/dhcp4client/isc_dhcp/$$h ; \
-+	  done ; \
-+	)
-+
-+depend:
-+	$(MKDEP) $(INCLUDES) $(PREDEFINES) $(SRCS)
-+
-+clean:
-+	-rm -f $(OBJS)
-+
-+realclean: clean
-+	-rm -f $(PROG) *~ #*
-+
-+distclean: realclean
-+	-rm -f Makefile
-+
-+# This isn't the cleanest way to set up links, but I prefer this so I don't
-+# need object targets for each subdirectory.  The idea is simple.  Since
-+# libdhcp4client is a linked together wad of objects from across the source
-+# tree, we change / to _ when linking source files here.  Follow this example:
-+#
-+# We need to use client/dhclient.c, so we make this link:
-+#     rm -f client_dhclient.c
-+#     ln -s $(TOP)/client/dhclient.c client_dhclient.c
-+#
-+# Simple.  Given the way the ISC build system works, this is the easiest to
-+# maintain and least invasive.
-+#
-+# David Cantrell <dcantrell@redhat.com>
-+links:
-+	@for target in $(SRCS); do \
-+		source="`echo $$target | sed -e 's|_|/|'`"; \
-+		if [ ! -b $$target ]; then \
-+			rm -f $$target; \
-+		fi; \
-+		ln -s $(TOP)/$$source $$target; \
-+	done; \
-+	for hdr in $(HDRS); do \
-+		if [ ! -b $$hdr ]; then \
-+			rm -f $$hdr; \
-+		fi; \
-+		ln -s $(TOP)/libdhcp4client/$$hdr $$hdr; \
-+	done
-+
-+# minires is difficult to build because it overrides things in common and dst,
-+# so we just link with the already built libres.a since we need it all anyway
-+libres.a:
-+	if [ ! -f ../minires/$@ ]; then \
-+		$(MAKE) -C ../minires; \
-+	fi; \
-+	ln ../minires/libres.a .; \
-+	$(AR) x libres.a
-+
-+# Create the libraries
-+# minires/res_query.o contains an undefined symbol __h_errno_set, is not
-+# used by any dhcp code, and is optimized out by the linker when producing
-+# the dhclient executable or a shared library
-+libdhcp4client.a: $(OBJS) libres.a
-+	$(AR) crus $@ $(OBJS) `$(AR) t libres.a | grep -v res_query.o`
-+
-+libdhcp4client-$(VER).so.0: $(OBJS) libres.a
-+	$(CC) -shared -o $@ -Wl,-soname,$@ $(OBJS) `$(AR) t libres.a | grep -v res_query.o`
-+
-+# Dependencies (semi-automatically-generated)
---- /dev/null	2007-02-06 10:40:24.955607220 -0500
-+++ dhcp-3.0.5/libdhcp4client/dhcp4client.h	2007-02-08 21:01:16.000000000 -0500
-@@ -0,0 +1,24 @@
-+/* dhcp4client.h
-+ *
-+ *  Interface to the ISC dhcp IPv4 client libdhcp4client library.
-+ *
-+ *
-+ *  Copyright(C) Jason Vas Dias <jvdias@redhat.com> Red Hat Inc. May 2006
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation at 
-+ *           http://www.fsf.org/licensing/licenses/gpl.txt
-+ *  and included in this software distribution as the "LICENSE" file.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ */
-+
-+struct libdhcp_control_s;  /* include libdhcp_control.h or libdhcp.h for this */
-+
-+extern int dhcpv4_client( struct libdhcp_control_s *dhc_ctl, int argc, char **argv, char **envp);
-+    /* The ISC IPv4 DHCP client main() function .
-+     */
---- /dev/null	2007-02-06 10:40:24.955607220 -0500
-+++ dhcp-3.0.5/libdhcp4client/libdhcp_control.h	2007-02-08 21:01:16.000000000 -0500
-@@ -0,0 +1,102 @@
-+/* libdhcp_control.h
-+ *
-+ *  DHCP client control API for libdhcp, a minimal interface to the
-+ *  ISC dhcp IPv4 client libdhcp4client library,
-+ *  and to the dhcpv6 DHCPv6 client libdhcp6client library.
-+ *
-+ *  Each DHCP client library must include this file to be controlled
-+ *  by libdhcp.
-+ *
-+ *  Copyright(C) Jason Vas Dias <jvdias@redhat.com> Red Hat Inc. May 2006
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation at 
-+ *           http://www.fsf.org/licensing/licenses/gpl.txt
-+ *  and included in this software distribution as the "LICENSE" file.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ */
-+#ifndef LIBDHCP_CONTROL_H
-+#define LIBDHCP_CONTROL_H
-+
-+#include <stdint.h>
-+
-+#define  LOG_FATAL 8
-+
-+typedef enum dhcp_state_e
-+{
-+
-+    /* DHCPv4 client states - third callback arg will be a 'struct client_state *'    */
-+    DHC4_NBI,         		/* failed: no broadcast interfaces found              */
-+    DHC4_PREINIT, 		/* configuration started - bring the interface "UP"   */
-+    DHC4_BOUND, 		/* lease obtained                                     */
-+    DHC4_RENEW, 		/* lease renewed                                      */
-+    DHC4_REBOOT,	        /* have valid lease, but now obtained a different one */
-+    DHC4_REBIND, 		/* new, different lease                               */
-+    DHC4_STOP,  		/* remove old lease                                   */
-+    DHC4_MEDIUM, 		/* media selection begun                              */
-+    DHC4_TIMEOUT, 		/* timed out contacting DHCP server                   */
-+    DHC4_FAIL, 			/* all attempts to contact server timed out, sleeping */
-+    DHC4_EXPIRE, 		/* lease has expired, renewing                        */
-+    DHC4_RELEASE, 		/* releasing lease                                    */
-+    /* This state raised by both clients: */
-+    DHC_TIMEDOUT,               /* libdhcp_control timeout has been exceeded          */
-+    /* DHCPv6 client states:    */
-+    DHC6_BOUND,                 /* new lease obtained             - arg is optinfo *  */
-+    DHC6_REBIND,                /* existing expired lease rebound - arg is optinfo *  */
-+    DHC6_RELEASE                /* existing lease expired         - arg is dhcp6_iaidaddr*/
-+} DHCP_State;
-+
-+struct libdhcp_control_s;
-+
-+typedef
-+int ( *LIBDHCP_Error_Handler )
-+    ( struct libdhcp_control_s *ctl,
-+      int priority,  /* ala syslog(3): LOG_EMERG=0 - LOG_DEBUG=7 (+ LOG_FATAL=8 : finished -> 1)   */
-+      const char *fmt,
-+      va_list ap
-+    );
-+
-+typedef 
-+int ( *LIBDHCP_Callback ) ( struct libdhcp_control_s *control, enum dhcp_state_e, void* );
-+    /* The DHCP clients will call the users' callback on important state change events,
-+     * with the second arg set to the client DHCP_State, and the third arg set to
-+     * a client specific pointer as described below.
-+     */
-+
-+typedef 
-+struct libdhcp_control_s
-+{
-+    LIBDHCP_Callback    callback;    	/* the DHCP clients' main loop calls this on state changes */
-+    uint16_t            capability;     /* LIBDHCP_Capability bits to enable                       */
-+    uint8_t             finished;       /* set to one to make clients exit their main loop         */
-+    uint8_t             decline;        /* set to one to decline the lease (DHCPv4 only)           */
-+    time_t              timeout;        /* (timeout+now) == time after which clients MUST return   */
-+    time_t              now;            /* clients set this to time(0) on entering main loop       */
-+    void               *arg;            /* user data pointer                                       */
-+    LIBDHCP_Error_Handler eh;
-+} LIBDHCP_Control;
-+
-+typedef enum libdhcp_capability_e
-+{/* DHCP client "capabilities" */ 
-+    DHCP_USE_LEASE_DATABASE   = 1,  	/* use / do not use persistent lease database files */
-+    DHCP_USE_PID_FILE         = 2,  	/* use / do not use pid file                        */
-+ /*
-+  * DHCPv6 supports these capabilities in process, 
-+  * while the DHCPv4 client will fork and exec the dhclient-script to implement them if these
-+  * bits are set - otherwise, if no bits are set, the callback is called and the script is 
-+  * not run.
-+  */
-+    DHCP_CONFIGURE_INTERFACES = 4,  	/* configure interfaces UP/DOWN as required         */
-+    DHCP_CONFIGURE_ADDRESSES  = 8,  	/* configure interface addresses as required        */
-+    DHCP_CONFIGURE_ROUTES     =16,  	/* configure routes as required                     */
-+    DHCP_CONFIGURE_RESOLVER   =32,  	/* configure resolv.conf as required                */
-+    /* DHCPv6 only: */
-+    DHCP_CONFIGURE_RADVD      =64,  	/* configure radvd.conf & restart radvd as required */
-+} LIBDHCP_Capability;
-+
-+#endif
 --- dhcp-3.0.5/Makefile.dist.libdhcp4client	2004-06-10 13:59:10.000000000 -0400
-+++ dhcp-3.0.5/Makefile.dist	2007-02-08 21:01:16.000000000 -0500
++++ dhcp-3.0.5/Makefile.dist	2007-03-30 20:54:06.000000000 -0400
 @@ -22,7 +22,7 @@
  #   http://www.isc.org/
  
@@ -1126,3 +1069,14 @@
  
  all:
  	@for dir in ${SUBDIRS}; do \
+--- dhcp-3.0.5/configure.libdhcp4client	2004-09-10 17:02:30.000000000 -0400
++++ dhcp-3.0.5/configure	2007-03-30 20:54:06.000000000 -0400
+@@ -246,7 +246,7 @@
+ fi
+ 
+ if [ x"$dirs" = x ]; then
+-  dirs=". client server relay common omapip dhcpctl minires dst"
++  dirs=". client server relay common omapip dhcpctl minires dst libdhcp4client"
+ fi
+ 
+ for foo in $dirs; do

@@ -7,51 +7,53 @@
 # value to avoid any problems guessing what it might be during installation.
 %define workdir work.linux-2.2
 
-Summary: DHCP (Dynamic Host Configuration Protocol) server and relay agent
-Name:    dhcp
-Version: 3.0.5
-Release: 26%{?dist}
-Epoch:   12
-License: ISC
-Group:   System Environment/Daemons
-URL:     http://isc.org/products/DHCP/
-Source0: ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
-Source1: dhcpd.conf.sample
-Source2: dhcpd.init
-Source3: dhcrelay.init
-Source4: dhcpd.conf
-Source5: libdhcp4client.pc
-Source6: README.ldap
-Source7: draft-ietf-dhc-ldap-schema-01.txt
-Source8: dhcpd-conf-to-ldap.pl
-Source9: linux.dbus-example
+Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
+Name:     dhcp
+Version:  3.0.5
+Release:  27%{?dist}
+Epoch:    12
+License:  ISC
+Group:    System Environment/Daemons
+URL:      http://isc.org/products/DHCP/
+Source0:  ftp://ftp.isc.org/isc/%{name}/%{name}-%{version}.tar.gz
+Source1:  dhcpd.conf.sample
+Source2:  dhcpd.init
+Source3:  dhcrelay.init
+Source4:  dhcpd.conf
+Source5:  libdhcp4client.pc
+Source6:  README.ldap
+Source7:  draft-ietf-dhc-ldap-schema-01.txt
+Source8:  dhcpd-conf-to-ldap
+Source9:  linux.dbus-example
+Source10: linux
+Source11: Makefile.dist
+Source12: dhcp4client.h
+Source13: libdhcp_control.h
 
-# Main patches
-Patch0:  dhcp-3.0.5-extended-new-option-info.patch
-Patch1:  dhcp-3.0.5-Makefile.patch
-Patch2:  dhcp-3.0.5-version.patch
-Patch3:  dhcp-3.0.5-client.patch
-Patch4:  dhcp-3.0.5-common.patch
-Patch5:  dhcp-3.0.5-dhcpctl.patch
-Patch6:  dhcp-3.0.5-dst.patch
-Patch7:  dhcp-3.0.5-includes.patch
-Patch8:  dhcp-3.0.5-omapip.patch
-Patch9:  dhcp-3.0.5-minires.patch
-Patch10: dhcp-3.0.5-server.patch
-Patch11: dhcp-3.0.5-timeouts.patch
-Patch12: dhcp-3.0.5-fix-warnings.patch
-Patch13: dhcp-3.0.5-xen-checksum.patch
-Patch14: dhcp-3.0.5-ldap-configuration.patch
-Patch15: dhcp-3.0.5-no-win32.patch
-
-# adds libdhcp4client to the ISC code base
-Patch50: dhcp-3.0.5-libdhcp4client.patch
-
-# Bug fixes
-Patch100: dhcp-3.0.5-dhclient-man-page.patch
+Patch0:   %{name}-%{version}-version.patch
+Patch1:   %{name}-%{version}-Makefile.patch
+Patch2:   %{name}-%{version}-warnings.patch
+Patch3:   %{name}-%{version}-extended-new-option-info.patch
+Patch4:   %{name}-%{version}-errwarn-message.patch
+Patch5:   %{name}-%{version}-ldap-configuration.patch
+Patch6:   %{name}-%{version}-memory.patch
+Patch7:   %{name}-%{version}-options.patch
+Patch8:   %{name}-%{version}-release-by-ifup.patch
+Patch9:   %{name}-%{version}-dhclient-decline-backoff.patch
+Patch10:  %{name}-%{version}-enable-timeout-functions.patch
+Patch11:  %{name}-%{version}-inherit-leases.patch
+Patch12:  %{name}-%{version}-selinux.patch
+Patch13:  %{name}-%{version}-unicast-bootp.patch
+Patch14:  %{name}-%{version}-fast-timeout.patch
+Patch15:  %{name}-%{version}-failover-ports.patch
+Patch16:  %{name}-%{version}-xen-checksum.patch
+Patch17:  %{name}-%{version}-dhclient-usage.patch
+Patch18:  %{name}-%{version}-default-requested-options.patch
+Patch19:  %{name}-%{version}-prototypes.patch
+Patch20:  %{name}-%{version}-manpages.patch
+Patch21:  %{name}-%{version}-libdhcp4client.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Requires: perl
 Requires(post): chkconfig, coreutils
 Requires(preun): chkconfig
 Requires(postun): coreutils
@@ -116,64 +118,99 @@ client library .
 %prep
 %setup -q
 
-# Extended new option info patch.  Adds the -x option to dhclient, which is
-# needed for dhcdbd and NetworkManager
-%patch0 -p1 -b .enoi
+# Add -RedHat to the version number
+%patch0 -p1 -b .version
 
-# Build fixes
+# Use $(MAKE) and $(CC) in the Makefiles
 %patch1 -p1 -b .Makefile
 
-# Add -RedHat to the version number
-%patch2 -p1 -b .version
-
-# Patches for the client/ subdirectory
-%patch3 -p1 -b .client
-
-# Patches for the common/ subdirectory
-%patch4 -p1 -b .common
-
-# Patches for the dhcpctl/ subdirectory
-%patch5 -p1 -b .dhcpctl
-
-# Patches for the dst/ subdirectory
-%patch6 -p1 -b .dst
-
-# Patches for the includes/ subdirectory
-%patch7 -p1 -b .includes
-
-# Patches for the omapip/ subdirectory
-%patch8 -p1 -b .omapip
-
-# Patches for the minires/ subdirectory
-%patch9 -p1 -b .minires
-
-# Patches for the server/ subdirectory
-%patch10 -p1 -b .server
-
-# Fix up timeout handling in dhclient and libdhcp4client
-%patch11 -p1 -b .timeouts
-
 # Fix up anything that fails -Wall -Werror
-%patch12 -p1 -b .warnings
+%patch2 -p1 -b .warnings
 
-# Fix Xen host networking problems (partial checksums)
-#%patch13 -p1 -b .xen
+# Extended new option info patch.  Adds the -x option to dhclient, which is
+# needed for dhcdbd and NetworkManager
+%patch3 -p1 -b .enoi
+
+# Replace the standard ISC warning message about requesting help with an
+# explanation that this is a patched build of ISC DHCP and bugs should be
+# reported through bugzilla.redhat.com
+%patch4 -p1 -b .message
 
 # Add support for dhcpd.conf data in LDAP
-%patch14 -p1 -b .ldap
+%patch5 -p1 -b .ldap
 
-# The contrib/ms2isc/Registry.pm file requires Win32API::Registry, which is
-# not part of Fedora by default.  We comment out this use line in the script
-# so that RPM doesn't automatically add perl(Win32API::Registry) dependency.
-# The patch puts a comment in the script telling the user which perl module
-# should be installed to use the Registry.pm contrib file.
-%patch15 -p1 -b .no-win32
+# Fix memory alignment and initialization problems in common/packet.c
+# Fix buffer overflow in minires library
+# Init struct sock_prog in common/lpf.c to NULL
+%patch6 -p1 -b .memory
+
+# Add more dhclient options (-I, -B, -H, -F, -T, -V, and -R)
+%patch7 -p1 -b .options
+
+# Handle releasing interfaces requested by /sbin/ifup
+# pid file is assumed to be /var/run/dhclient-$interface.pid
+%patch8 -p1 -b .release
+
+# If we receive a DHCP offer in dhclient and it's DECLINEd in dhclient-script,
+# backoff for an amount of time before trying again
+%patch9 -p1 -b .decline
+
+# Enable cancel_all_timeouts() and relinquish_timeouts() regardless of
+# the DEBUG_MEMORY_LEAKAGE_ON_EXIT macro
+%patch10 -p1 -b .etf
+
+# Inherit active leases
+%patch11 -p1 -b .inherit
+
+# Close lease file before exec to fix SELinux error message
+%patch12 -p1 -b .selinux
+
+# Support unicast BOOTP for IBM pSeries systems (and maybe others)
+%patch13 -p1 -b .unicast
+
+# Fast timeout for dhclient
+%patch14 -p1 -b .fast
+
+# Use the following IANA-registered failover ports:
+# dhcp-failover 647/tcp
+# dhcp-failover 647/udp
+# dhcp-failover 847/tcp
+# dhcp-failover 847/udp
+%patch15 -p1 -b .failover
+
+# Fix Xen host networking problems (partial checksums)
+%patch16 -p1 -b .xen
+
+# Update the usage screen for dhclient(8) indicating new options
+# Use printf() rather than log_info() to display the information
+# Also, return EXIT_FAILURE when the usage() screen is displayed (stop parsing)
+%patch17 -p1 -b .usage
+
+# Add NIS domain, NIS servers, and NTP servers to the list of default
+# requested DHCP options
+%patch18 -p1 -b .dho
+
+# Add missing prototypes to take care of gcc warnings
+# in dst/dst_api.c: add b64_pton() and b64_ntop()
+# in includes/minires/minires.h: remove macro for b64_pton
+# in minires/res_mkupdate.c: add b64_pton() and dn_comp()
+# in minires/res_comp.c: add ns_name_uncompress(), ns_name_compress(), and
+#                        ns_name_skip()
+# in minires/res_init.c: add res_randomid()
+%patch19 -p1 -b .prototypes
+
+# Man page updates explaining new features added from the above patches.
+# Normally these man page changes would be included in the feature patch,
+# however, man page changes generate more hunk failures when applying only
+# a select set of patches.  Instead, the man page changes are grouped
+# together in one patch so changes can be made to just those more easily
+# and not affect the code changes in the other patches.  It's actually
+# pretty common to update or alter these man pages independent of the code
+# changes.
+%patch20 -p1 -b .manpages
 
 # Add the libdhcp4client target (library version of dhclient)
-%patch50 -p1 -b .libdhcp4client
-
-# Apply bug fixes
-%patch100 -p1 -b .dhclient-man-page
+%patch21 -p1 -b .libdhcp4client
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__cp} -p %SOURCE6 .
@@ -183,6 +220,23 @@ client library .
 # Copy in example dhclient script for use with D-BUS (requires extended
 # new option info patch too)
 %{__cp} -p %SOURCE9 client/scripts
+
+# Copy in the Fedora/RHEL dhclient script
+%{__cp} -p %SOURCE10 client/scripts
+
+# Copy in the libdhcp4client headers and Makefile.dist
+%{__mkdir} -p libdhcp4client
+%{__cp} -p %SOURCE11 libdhcp4client
+%{__cp} -p %SOURCE12 libdhcp4client
+%{__cp} -p %SOURCE13 libdhcp4client
+
+# Ensure we don't pick up Perl as a dependency from the scripts and modules
+# in the contrib directory (we copy this to /usr/share/doc in the final
+# package).
+%{__chmod} -x contrib/3.0b1-lease-convert
+%{__chmod} -x contrib/dhcpd-conf-to-ldap
+%{__cp} -p contrib/ms2isc/Registry.pm contrib/ms2isc/Registry.perlmodule
+%{__rm} -f contrib/ms2isc/Registry.pm
 
 %build
 %{__cp} %SOURCE1 .
@@ -200,15 +254,17 @@ EOF
 #define _PATH_DHCLIENT_DB "%{_localstatedir}/lib/dhclient/dhclient.leases"
 EOF
 
-# Enable extended option info patch (-DEXTENDED_NEW_OPTION_INFO)
+# Disable gcc's strict aliasing since ISC code tends to cast a lot.
+#
 # Use -fvisibility=hidden for libdhcp4client.  The way that library is
 # constructed, we need to follow the hide-by-default/expose-what-we-need
 # plan for the library API.
-COPTS="-fPIC -Werror -Dlint -DEXTENDED_NEW_OPTION_INFO -fvisibility=hidden"
+COPTS="-fPIC -Werror -Dlint -fno-strict-aliasing -fvisibility=hidden"
 
 # DO NOT use the %%configure macro because this configure script is not autognu
+# Enable extended option info patch (-DEXTENDED_NEW_OPTION_INFO)
 CC="%{__cc}" ./configure \
-   --copts "$RPM_OPT_FLAGS $COPTS %{?bigptrs}" \
+   --copts "$RPM_OPT_FLAGS $COPTS %{?bigptrs} -DEXTENDED_NEW_OPTION_INFO" \
    --work-dir %{workdir}
 
 %{__sed} 's/@DHCP_VERSION@/'%{version}'/' < %SOURCE5 > libdhcp4client.pc
@@ -219,8 +275,6 @@ CC="%{__cc}" ./configure \
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/sysconfig
 
 %{__make} install DESTDIR=%{buildroot}
-
-%{__install} -p -m 0755 contrib/dhcpd-conf-to-ldap.pl %{buildroot}/usr/bin/dhcpd-conf-to-ldap
 
 %{__mkdir} -p %{buildroot}%{_initrddir}
 %{__install} -p -m 0755 %SOURCE2 %{buildroot}%{_initrddir}/dhcpd
@@ -298,7 +352,6 @@ exit 0
 %{_initrddir}/dhcpd
 %{_initrddir}/dhcrelay
 %{_bindir}/omshell
-%{_bindir}/dhcpd-conf-to-ldap
 %{_sbindir}/dhcpd
 %{_sbindir}/dhcrelay
 %attr(0644,root,root) %{_mandir}/man1/omshell.1.gz
@@ -342,6 +395,14 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Sun Apr 01 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-27
+- Ensure that Perl and Perl modules are not added as dependencies (#234688)
+- Reorganize patches by feature/bug per packaging guidelines (#225691)
+- Move the following files from patches to source files:
+     linux.dbus-example, linux, Makefile.dist, dhcp4client.h, libdhcp_control.h
+- Compile with -fno-strict-aliasing as ISC coding standards generally don't
+  agree well with gcc 4.x.x
+
 * Wed Mar 21 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-26
 - Fix formatting problems in dhclient man page (#233076).
 
