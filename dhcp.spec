@@ -10,7 +10,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.5
-Release:  27%{?dist}
+Release:  28%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -46,12 +46,11 @@ Patch12:  %{name}-%{version}-selinux.patch
 Patch13:  %{name}-%{version}-unicast-bootp.patch
 Patch14:  %{name}-%{version}-fast-timeout.patch
 Patch15:  %{name}-%{version}-failover-ports.patch
-Patch16:  %{name}-%{version}-xen-checksum.patch
-Patch17:  %{name}-%{version}-dhclient-usage.patch
-Patch18:  %{name}-%{version}-default-requested-options.patch
-Patch19:  %{name}-%{version}-prototypes.patch
-Patch20:  %{name}-%{version}-manpages.patch
-Patch21:  %{name}-%{version}-libdhcp4client.patch
+Patch16:  %{name}-%{version}-dhclient-usage.patch
+Patch17:  %{name}-%{version}-default-requested-options.patch
+Patch18:  %{name}-%{version}-prototypes.patch
+Patch19:  %{name}-%{version}-manpages.patch
+Patch20:  %{name}-%{version}-libdhcp4client.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires(post): chkconfig, coreutils
@@ -178,17 +177,14 @@ client library .
 # dhcp-failover 847/udp
 %patch15 -p1 -b .failover
 
-# Fix Xen host networking problems (partial checksums)
-%patch16 -p1 -b .xen
-
 # Update the usage screen for dhclient(8) indicating new options
 # Use printf() rather than log_info() to display the information
 # Also, return EXIT_FAILURE when the usage() screen is displayed (stop parsing)
-%patch17 -p1 -b .usage
+%patch16 -p1 -b .usage
 
 # Add NIS domain, NIS servers, and NTP servers to the list of default
 # requested DHCP options
-%patch18 -p1 -b .dho
+%patch17 -p1 -b .dho
 
 # Add missing prototypes to take care of gcc warnings
 # in dst/dst_api.c: add b64_pton() and b64_ntop()
@@ -197,7 +193,7 @@ client library .
 # in minires/res_comp.c: add ns_name_uncompress(), ns_name_compress(), and
 #                        ns_name_skip()
 # in minires/res_init.c: add res_randomid()
-%patch19 -p1 -b .prototypes
+%patch18 -p1 -b .prototypes
 
 # Man page updates explaining new features added from the above patches.
 # Normally these man page changes would be included in the feature patch,
@@ -207,10 +203,10 @@ client library .
 # and not affect the code changes in the other patches.  It's actually
 # pretty common to update or alter these man pages independent of the code
 # changes.
-%patch20 -p1 -b .manpages
+%patch19 -p1 -b .manpages
 
 # Add the libdhcp4client target (library version of dhclient)
-%patch21 -p1 -b .libdhcp4client
+%patch20 -p1 -b .libdhcp4client
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__cp} -p %SOURCE6 .
@@ -395,6 +391,9 @@ exit 0
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Mon Apr 09 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-28
+- Remove Xen patch (#235649, from RHEL-5, doesn't work correctly for Fedora)
+
 * Sun Apr 01 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-27
 - Ensure that Perl and Perl modules are not added as dependencies (#234688)
 - Reorganize patches by feature/bug per packaging guidelines (#225691)
