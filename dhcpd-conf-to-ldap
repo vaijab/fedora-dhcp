@@ -1,0 +1,517 @@
+#!/usr/bin/perl -w
+
+# Brian Masney <masneyb@ntelos.net>
+# To use this script, set your base DN below. Then run 
+# ./dhcpd-conf-to-ldap.pl < /path-to-dhcpd-conf/dhcpd.conf > output-file
+# The output of this script will generate entries in LDIF format. You can use
+# the slapadd command to add these entries into your LDAP server. You will
+# definately want to double check that your LDAP entries are correct before
+# you load them into LDAP.
+
+# This script does not do much error checking. Make sure before you run this
+# that the DHCP server doesn't give any errors about your config file
+
+use Sys::Hostname;
+
+my $basedn = "dc=ntelos, dc=net";
+
+sub next_token
+{
+  local ($lowercase) = @_;
+  local ($token, $newline);
+
+  do 
+    {
+      if (!defined ($line) || length ($line) == 0)
+        {
+          $line = <>;
+          return undef if !defined ($line);
+          chop $line;
+          $line_number++;
+          $token_number = 0;
+        }
+
+      $line =~ s/#.*//;
+      $line =~ s/^\s+//;
+      $line =~ s/\s+$//;
+    }
+  while (length ($line) == 0);
+
+  if (($token, $newline) = $line =~ /^(.*?)\s+(.*)/)
+    {
+      $line = $newline;
+    }
+  else
+    {
+      $token = $line;
+      $line = '';
+    }
+  $token_number++;
+
+  $token =~ y/[A-Z]/[a-z]/ if $lowercase;
+
+  return ($token);
+}
+
+
+sub remaining_line
+{
+  local ($tmp, $str);
+
+  $str = "";
+  while (($tmp = next_token (0)))
+    {
+      $str .= ' ' if !($str eq "");
+      $str .= $tmp;
+      last if $tmp =~ /;\s*$/;
+    }
+
+  $str =~ s/;$//;
+  return ($str);
+}
+
+
+sub
+add_dn_to_stack
+{
+  local ($dn) = @_;
+
+  $current_dn = "$dn, $current_dn";
+}
+
+
+sub
+remove_dn_from_stack
+{
+  $current_dn =~ s/^.*?,\s*//;
+}
+
+
+sub
+parse_error
+{
+  print "Parse error on line number $line_number at token number $token_number\n";
+  exit (1);
+}
+
+
+sub
+print_entry
+{
+  return if (scalar keys %curentry == 0);
+
+  if (!defined ($curentry{'type'}))
+    {
+      $host = hostname ();
+      $hostdn = "cn=$host, $basedn";
+      print "dn: $hostdn\n";
+      print "objectClass: top\n";
+      print "objectClass: dhcpServer\n";
+      print "cn: $host\n";
+      print "dhcpServiceDN: $current_dn\n\n";
+
+      print "dn: $current_dn\n";
+      print "cn: DHCP Config\n";
+      print "objectClass: top\n";
+      print "objectClass: dhcpService\n";
+      if (defined ($curentry{'options'}))
+        {
+          print "objectClass: dhcpOptions\n";
+        }
+      print "dhcpPrimaryDN: $hostdn\n";
+    }
+  elsif ($curentry{'type'} eq 'subnet')
+    {
+      print "dn: $current_dn\n";
+      print "cn: " . $curentry{'ip'} . "\n";
+      print "objectClass: top\n";
+      print "objectClass: dhcpSubnet\n";
+      if (defined ($curentry{'options'}))
+        {
+          print "objectClass: dhcpOptions\n";
+        }
+      
+      print "dhcpNetMask: " . $curentry{'netmask'} . "\n";
+      if (defined ($curentry{'range'}))
+        {
+          print "dhcpRange: " . $curentry{'range'} . "\n";
+        }
+    }
+  elsif ($curentry{'type'} eq 'shared-network')
+    {
+      print "dn: $current_dn\n";
+      print "cn: " . $curentry{'descr'} . "\n";
+      print "objectClass: top\n";
+      print "objectClass: dhcpSharedNetwork\n";
+      if (defined ($curentry{'options'}))
+        {
+          print "objectClass: dhcpOptions\n";
+        }
+    }
+  elsif ($curentry{'type'} eq 'group')
+    {
+      print "dn: $current_dn\n";
+      print "cn: group\n";
+      print "objectClass: top\n";
+      print "objectClass: dhcpGroup\n";
+      if (defined ($curentry{'options'}))
+        {
+          print "objectClass: dhcpOptions\n";
+        }
+    }
+  elsif ($curentry{'type'} eq 'host')
+    {
+      print "dn: $current_dn\n";
+      print "cn: " . $curentry{'host'} . "\n";
+      print "objectClass: top\n";
+      print "objectClass: dhcpHost\n";
+      if (defined ($curentry{'options'}))
+        {
+          print "objectClass: dhcpOptions\n";
+        }
+
+      if (defined ($curentry{'hwaddress'}))
+        {
+          print "dhcpHWAddress: " . $curentry{'hwaddress'} . "\n";
+        }
+    }
+  elsif ($curentry{'type'} eq 'pool')
+    {
+      print "dn: $current_dn\n";
+      print "cn: pool\n";
+      print "objectClass: top\n";
+      print "objectClass: dhcpPool\n";
+      if (defined ($curentry{'options'}))
+        {
+          print "objectClass: dhcpOptions\n";
+        }
+
+      if (defined ($curentry{'range'}))
+        {
+          print "dhcpRange: " . $curentry{'range'} . "\n";
+        }
+    }
+  elsif ($curentry{'type'} eq 'class')
+    {
+      print "dn: $current_dn\n";
+      print "cn: " . $curentry{'class'} . "\n";
+      print "objectClass: top\n";
+      print "objectClass: dhcpClass\n";
+      if (defined ($curentry{'options'}))
+        {
+          print "objectClass: dhcpOptions\n";
+        }
+    }
+  elsif ($curentry{'type'} eq 'subclass')
+    {
+      print "dn: $current_dn\n";
+      print "cn: " . $curentry{'subclass'} . "\n";
+      print "objectClass: top\n";
+      print "objectClass: dhcpSubClass\n";
+      if (defined ($curentry{'options'}))
+        {
+          print "objectClass: dhcpOptions\n";
+        }
+      print "dhcpClassData: " . $curentry{'class'} . "\n";
+    }
+
+  if (defined ($curentry{'statements'}))
+    {
+      foreach $statement (@{$curentry{'statements'}})
+        {
+          print "dhcpStatements: $statement\n";
+        }
+    }
+
+  if (defined ($curentry{'options'}))
+    {
+      foreach $statement (@{$curentry{'options'}})
+        {
+          print "dhcpOption: $statement\n";
+        }
+    }
+
+  print "\n";
+  undef (%curentry);
+}
+
+
+sub parse_netmask
+{
+  local ($netmask) = @_;
+  local ($i);
+
+  if ((($a, $b, $c, $d) = $netmask =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/) != 4)
+    {
+      parse_error ();
+    }
+
+  $num = (($a & 0xff) << 24) |
+         (($b & 0xff) << 16) |
+         (($c & 0xff) << 8) |
+          ($d & 0xff);
+
+  for ($i=1; $i<=32 && $num & (1 << (32 - $i)); $i++)
+    {
+    }
+  $i--;
+
+  return ($i);
+}
+
+
+sub parse_subnet
+{
+  local ($ip, $tmp, $netmask);
+
+  print_entry () if %curentry;
+    
+  $ip = next_token (0);
+  parse_error () if !defined ($ip);
+
+  $tmp = next_token (1);
+  parse_error () if !defined ($tmp);
+  parse_error () if !($tmp eq 'netmask');
+
+  $tmp = next_token (0);
+  parse_error () if !defined ($tmp);
+  $netmask = parse_netmask ($tmp);
+
+  $tmp = next_token (0);
+  parse_error () if !defined ($tmp);
+  parse_error () if !($tmp eq '{');
+
+  add_dn_to_stack ("cn=$ip");
+  $curentry{'type'} = 'subnet';
+  $curentry{'ip'} = $ip;
+  $curentry{'netmask'} = $netmask;
+}
+
+
+sub parse_shared_network
+{
+  local ($descr, $tmp);
+
+  print_entry () if %curentry;
+
+  $descr = next_token (0);
+  parse_error () if !defined ($descr);
+
+  $tmp = next_token (0);
+  parse_error () if !defined ($tmp);
+  parse_error () if !($tmp eq '{');
+
+  add_dn_to_stack ("cn=$descr");
+  $curentry{'type'} = 'shared-network';
+  $curentry{'descr'} = $descr;
+}
+
+
+sub parse_host
+{
+  local ($descr, $tmp);
+
+  print_entry () if %curentry;
+
+  $host = next_token (0);
+  parse_error () if !defined ($host);
+
+  $tmp = next_token (0);
+  parse_error () if !defined ($tmp);
+  parse_error () if !($tmp eq '{');
+
+  add_dn_to_stack ("cn=$host");
+  $curentry{'type'} = 'host';
+  $curentry{'host'} = $host;
+}
+
+
+sub parse_group
+{
+  local ($descr, $tmp);
+
+  print_entry () if %curentry;
+
+  $tmp = next_token (0);
+  parse_error () if !defined ($tmp);
+  parse_error () if !($tmp eq '{');
+
+  add_dn_to_stack ("cn=group");
+  $curentry{'type'} = 'group';
+}
+
+
+sub parse_pool
+{
+  local ($descr, $tmp);
+
+  print_entry () if %curentry;
+
+  $tmp = next_token (0);
+  parse_error () if !defined ($tmp);
+  parse_error () if !($tmp eq '{');
+
+  add_dn_to_stack ("cn=pool");
+  $curentry{'type'} = 'pool';
+}
+
+
+sub parse_class
+{
+  local ($descr, $tmp);
+
+  print_entry () if %curentry;
+
+  $class = next_token (0);
+  parse_error () if !defined ($class);
+
+  $tmp = next_token (0);
+  parse_error () if !defined ($tmp);
+  parse_error () if !($tmp eq '{');
+
+  $class =~ s/\"//g;
+  add_dn_to_stack ("cn=$class");
+  $curentry{'type'} = 'class';
+  $curentry{'class'} = $class;
+}
+
+
+sub parse_subclass
+{
+  local ($descr, $tmp);
+
+  print_entry () if %curentry;
+
+  $class = next_token (0);
+  parse_error () if !defined ($class);
+
+  $subclass = next_token (0);
+  parse_error () if !defined ($subclass);
+
+  $tmp = next_token (0);
+  parse_error () if !defined ($tmp);
+  parse_error () if !($tmp eq '{');
+
+  add_dn_to_stack ("cn=$subclass");
+  $curentry{'type'} = 'subclass';
+  $curentry{'class'} = $class;
+  $curentry{'subclass'} = $subclass;
+}
+
+
+sub parse_hwaddress
+{
+  local ($type, $hw, $tmp);
+
+  $type = next_token (0);
+  parse_error () if !defined ($type);
+
+  $hw = next_token (0);
+  parse_error () if !defined ($hw);
+  $hw =~ s/;$//;
+
+  $curentry{'hwaddress'} = "$type $hw";
+}
+
+    
+sub parse_range
+{
+  local ($tmp, $str);
+
+  $str = remaining_line ();
+
+  if (!($str eq ''))
+    {
+      $str =~ s/;$//;
+      $curentry{'range'} = $str;
+    }
+}
+
+
+sub parse_statement
+{
+  local ($token) = shift;
+  local ($str);
+
+  if ($token eq 'option')
+    {
+      $str = remaining_line ();
+      push (@{$curentry{'options'}}, $str);
+    }
+  else
+    {
+      $str = $token . " " . remaining_line ();
+      push (@{$curentry{'statements'}}, $str);
+    }
+}
+
+
+my $token;
+my $token_number = 0;
+my $line_number = 0;
+my %curentry;
+
+$current_dn = "cn=DHCP Config, $basedn";
+$curentry{'descr'} = 'DHCP Config';
+$line = '';
+
+while (($token = next_token (1)))
+  {
+    if ($token eq '}')
+      {
+        print_entry () if %curentry;
+        remove_dn_from_stack ();
+      }
+    elsif ($token eq 'subnet')
+      {
+        parse_subnet ();
+        next;
+      }
+    elsif ($token eq 'shared-network')
+      {
+        parse_shared_network ();
+        next;
+      }
+    elsif ($token eq 'class')
+      {
+        parse_class ();
+        next;
+      }
+    elsif ($token eq 'subclass')
+      {
+        parse_subclass ();
+        next;
+      }
+    elsif ($token eq 'pool')
+      {
+        parse_pool ();
+        next;
+      }
+    elsif ($token eq 'group')
+      {
+        parse_group ();
+        next;
+      }
+    elsif ($token eq 'host')
+      {
+        parse_host ();
+        next;
+      }
+    elsif ($token eq 'hardware')
+      {
+        parse_hwaddress ();
+        next;
+      }
+    elsif ($token eq 'range')
+      {
+        parse_range ();
+        next;
+      }
+    else
+      {
+        parse_statement ($token);
+        next;
+      }
+  }
+
+
