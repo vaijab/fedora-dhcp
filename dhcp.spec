@@ -10,7 +10,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.5
-Release:  30%{?dist}
+Release:  31%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -77,11 +77,7 @@ the ISC DHCP service and relay agent.
 Summary: Provides the dhclient ISC DHCP client daemon and dhclient-script
 Group: System Environment/Base
 Requires: initscripts >= 6.75
-
-%package devel
-Summary: Development headers and libraries for interfacing to the DHCP server
-Group: Development/Libraries
-Requires: dhcp = %{epoch}:%{version}-%{release}, openldap-devel
+Obsoletes: dhcpcd <= 1.3.22
 
 %description -n dhclient
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
@@ -94,8 +90,22 @@ To use DHCP on your network, install a DHCP service (or relay agent),
 and on clients run a DHCP client daemon.  The dhclient package
 provides the ISC DHCP client daemon.
 
+%package devel
+Summary: Development headers and libraries for interfacing to the DHCP server
+Group: Development/Libraries
+Requires: dhcp = %{epoch}:%{version}-%{release}
+
 %description devel
-Libraries for interfacing with the ISC DHCP server.
+Header files and API documentation for using the ISC DHCP libraries.
+
+%package devel-static
+Summary: Static archives of libdhcpctl and libomapi
+Group: Development/Libraries
+Requires: dhcp-devel = %{epoch}:%{version}-%{release}, openldap-devel
+
+%description devel-static
+The dhcp-devel-static package contains the static archive for
+libdhcpctl and libomapi.
 
 %package -n libdhcp4client
 Summary: ISC DHCP IPv4 client in a library for invocation from other programs
@@ -115,7 +125,16 @@ Requires: openldap-devel pkgconfig
 %description -n libdhcp4client-devel
 Header files for development with the Internet Software Consortium (ISC)
 Dynamic Host Configuration Protocol (DHCP) Internet Protocol version 4 (IPv4)
-client library .
+client library.
+
+%package -n libdhcp4client-devel-static
+Summary: Static archive for libdhcp4client
+Group: Development/Libraries
+Requires: libdhcp4client-devel = %{epoch}:%{version}-%{release}
+
+%description -n libdhcp4client-devel-static
+The libdhcp4client-devel-static package contains the static archive for
+libdhcp4client.
 
 %prep
 %setup -q
@@ -382,13 +401,17 @@ fi
 
 %files devel
 %defattr(-,root,root,-)
-%exclude %{_libdir}/libdhcp4client*
-%exclude %{_includedir}/dhcp4client
-%{_includedir}/*
-%{_libdir}/*.a
+%{_includedir}/dhcpctl.h
+%{_includedir}/isc-dhcp
+%{_includedir}/omapi
 %attr(0644,root,root) %{_mandir}/man3/omshell.3.gz
 %attr(0644,root,root) %{_mandir}/man3/dhcpctl.3.gz
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
+
+%files devel-static
+%defattr(-,root,root,-)
+%{_libdir}/libdhcpctl.a
+%{_libdir}/libomapi
 
 %files -n libdhcp4client
 %defattr(0755,root,root,0755)
@@ -396,12 +419,20 @@ fi
 
 %files -n libdhcp4client-devel
 %defattr(0644,root,root,0755)
-%{_includedir}/dhcp4client*
+%{_includedir}/dhcp4client
 %{_libdir}/pkgconfig/libdhcp4client.pc
-%{_libdir}/libdhcp4client.a
 %{_libdir}/libdhcp4client.so
 
+%files -n libdhcp4client-devel-static
+%defattr(0644,root,root,0755)
+%{_libdir}/libdhcp4client.a
+
 %changelog
+* Thu Apr 12 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-31
+- Spec file cleanups (#225691)
+- Put libdhcpctl.a and libomapi.a in dhcp-devel-static package
+- Put libdhcp4client.a in libdhcp4client-devel-static package
+
 * Wed Apr 11 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-30
 - Enable Xen patch again, kernel bits present (#231444)
 
@@ -646,12 +677,12 @@ fi
 
 * Sun Jan 22 2006 Dan Williams <dcbw@redhat.com> - 11:3.0.3-21
 - Fix dhclient-script to use /bin/dbus-send now that all dbus related
-    binaries are in /bin rather than /usr/bin
+  binaries are in /bin rather than /usr/bin
 
 * Mon Jan 16 2006 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-20
 - fix bug 177845: allow client ip-address as default router 
 - fix bug 176615: fix DDNS update when Windows-NT client sends 
-	          host-name with trailing nul
+                  host-name with trailing nul
 
 * Tue Dec 20 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-18
 - fix bug 176270: allow routers with an octet of 255 in their IP address
@@ -665,9 +696,9 @@ fi
 * Fri Nov 19 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-12
 - fix bug 173619: dhclient-script should reconfig on RENEW if 
                   subnet-mask, broadcast-address, mtu, routers, etc.
-		  have changed
+                  have changed
 - apply upstream improvements to trailing nul options fix of bug 160655
-  
+
 * Tue Nov 15 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-11
 - Rebuild for FC-5
 - fix bug 167028 - test IBM's unicast bootp patch (from xma@us.ibm.com)
@@ -738,18 +769,19 @@ fi
 - fix bug 163203: silence ISC blurb on configtest 
 - fix default 'boot file server' value (packet->siaddr):
   In dhcp-3.0.2(-), this was defaulted to the server address;
-  now it defaults to 0.0.0.0 (a rather silly default!) and 
-  must be specified with the 'next-server' option ( not the tftp-boot-server option ?!?)
-  which causes PXE boot clients to fail to load anything after the boot file.
+  now it defaults to 0.0.0.0 (a rather silly default!) and
+  must be specified with the 'next-server' option (not the tftp-boot-server
+  option ?!?) which causes PXE boot clients to fail to load anything after
+  the boot file.
 
 * Fri Jul 08 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-14.FC5
 - Allow package to compile with glibc-headers-2.3.5-11 (tr.c's use of __u16)
 
 * Fri May 10 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-14
 - Fix bug 159929: prevent dhclient flooding network on repeated DHCPDECLINE
-- dhclient fast startup: 
+- dhclient fast startup:
    remove dhclient's  random 1-5 second delay on startup if only
-   configuring one interface 
+   configuring one interface
    remove dhclient_script's "sleep 1" on PREINIT
 - fix new gcc-4.0.0-11 compiler warnings for binding_state_t
 
@@ -765,20 +797,20 @@ fi
 * Mon Apr 25 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-10
 - dhclient-script dhcdbd extensions. 
 - Tested to have no effect unless dhcdbd invokes dhclient.
- 
+
 * Thu Apr 21 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-9
 - bugs 153244 & 155143 are now fixed with SELinux policy; 
   autotrans now works for dhcpc_t, so restorecons are not required,
   and dhclient runs OK under dhcpc_t with SELinux enforcing.
 - fix bug 155506: 'predhclien' typo (emacs!).
- 
+
 * Mon Apr 18 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-8
 - Fix bugs 153244 & 155143: 
       o restore dhclient-script 'restorecon's
-      o give dhclient and dhclient-script an exec context of 
+      o give dhclient and dhclient-script an exec context of
         'system_u:object_r:sbin_t' that allows them to run
         domainname / hostname and to update configuration files
-        in dhclient post script.       
+        in dhclient post script.
 - Prevent dhclient emitting verbose ISC 'blurb' on error exit in -q mode
 
 * Mon Apr 04 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-7
@@ -818,7 +850,7 @@ fi
 
 * Thu Feb 10 2005 Jason Vas Dias <jvdias@redhat.com> 8.3.0.4rc3-3
 - fix bug 147375: dhcpd heap corruption on 32-bit 'subnet' masks
-- fix bug 147502: dhclient should honor GATEWAYDEV and GATEWAY settings            
+- fix bug 147502: dhclient should honor GATEWAYDEV and GATEWAY settings
 - fix bug 146600: dhclient's timeout mode ping should use -I
 - fix bug 146524: dhcpd.init should discard dhcpd's initial output message
 - fix bug 147739: dhcpd.init configtest should honor -cf in DHCPDARGS
@@ -827,10 +859,10 @@ fi
 - fix bug 145997: allow hex 32-bit integers in user specified options
 
 * Thu Jan 06 2005 Jason Vas Dias <jvdias@redhat.com> 8:3.0.2rc3-1
-- still need an epoch to get past nvre test 
+- still need an epoch to get past nvre test
 
 * Thu Jan 06 2005 Jason Vas Dias <jvdias@redhat.com> 3.0.2rc3-1
-- fix bug 144417: much improved dhclient-script 
+- fix bug 144417: much improved dhclient-script
 
 * Thu Jan 06 2005 Jason Vas Dias <jvdias@redhat.com> 3.0.2rc3-1
 - Upgrade to latest release from ISC, which includes most of our
@@ -839,15 +871,15 @@ fi
 * Thu Jan 06 2005 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-17
 - fix bug 144250: gcc-3.4.3-11 is broken :
 - log_error ("Lease with bogus binding state: %%d size: %%d",
--			   comp -> binding_state,
--			   sizeof(comp->binding_state));
+-   comp -> binding_state,
+-   sizeof(comp->binding_state));
 - prints:    'Lease with bogus binding state: 257 1'    !
 - compiling with gcc33 (compat-gcc-8-3.3.4.2 fixes for now).
 
 * Mon Jan 03 2005 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-16
 - fix bug 143704: dhclient -r does not work if lease held by
 - dhclient run from ifup . dhclient will now look for the pid
-- files created by ifup .
+- files created by ifup.
 
 * Wed Nov 17 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-14
 - NTP: fix bug 139715: merge in new ntp servers only rather than replace
@@ -855,7 +887,7 @@ fi
 
 * Tue Nov 16 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-12
 - fix bug 138181 & bug 139468: do not attempt to listen/send on
--     unconfigured  loopback, point-to-point or non-broadcast 
+-     unconfigured  loopback, point-to-point or non-broadcast
 -     interfaces (don't generate annoying log messages)
 - fix bug 138869: dhclient-script: check if '$new_routers' is
 -     empty before doing 'set $new_routers;...;ping ... $1'
@@ -863,7 +895,7 @@ fi
 * Wed Oct 06 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-11
 - dhcp-3.0.2b1 came out today. A diff of the 'ack_lease' function
 - Dave Hankins and I patched exposed a missing '!' on an if clause
-- that got dropped with the 'new-host' patch. Replacing the '!' .
+- that got dropped with the 'new-host' patch. Replacing the '!'.
 - Also found one missing host_dereference.
 
 * Wed Oct 06 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-10
@@ -875,19 +907,19 @@ fi
 - Fix bug 133522:
 - PXE Boot clients with static leases not given 'file' option
 - 104 by server - PXE booting was disabled for 'fixed-address'
-- clients. 
+- clients.
 
 * Fri Sep 10 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-8
-- Fix bug 131212: 
+- Fix bug 131212:
 - If "deny booting" is defined for some group of hosts,
 - then after one of those hosts is denied booting, all
 - hosts are denied booting, because of a pointer not being
 - cleared in the lease record. 
-- An upstream patch was obtained which will be in dhcp-3.0.2 .
+- An upstream patch was obtained which will be in dhcp-3.0.2.
 
 * Mon Aug 16 2004 Jason Vas Dias <jvdias@redhat.com> 7:3.0.1-7
 - Forward DNS update by client was disabled by a bug that I
-- found in code where 'client->sent_options' was being 
+- found in code where 'client->sent_options' was being
 - freed too early.
 - Re-enabled it after contacting upstream maintainer
 - who confirmed that this was a bug (bug #130069) -
@@ -895,7 +927,7 @@ fi
 - Upstream maintainer informs me this patch will be in dhcp-3.0.2 .
 
 * Tue Aug 3  2004 Jason Vas Dias <jvdias@redhat.com> 6:3.0.1-6
-- Allow 2.0 kernels to obtain default gateway via dhcp 
+- Allow 2.0 kernels to obtain default gateway via dhcp
 
 * Mon Aug 2  2004 Jason Vas Dias <jvdias@redhat.com> 5:3.0.1-5
 - Invoke 'change_resolv_conf' function to change resolv.conf
@@ -904,7 +936,7 @@ fi
 - Upgraded to new ISC 3.0.1 version
 
 * Thu Jun 24 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc14-5
-- Allow dhclient-script to continue without a config file.  
+- Allow dhclient-script to continue without a config file.
 - It will use default values.
 
 * Wed Jun 23 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc14-4
@@ -940,7 +972,7 @@ fi
 - Add static routes patch to dhclient-script
 
 * Wed Mar 25 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc12-4
-- Fix init to check config during restart 
+- Fix init to check config during restart
 
 * Wed Mar 24 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc12-3
 - Fix init script to create leases file if missing
@@ -983,25 +1015,25 @@ fi
 - Add configtest
 
 * Fri Aug 1 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.10
-- increment for base 
+- increment for base
 
 * Fri Aug 1 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.9
 - Don't update resolv.conf on renewals
 
 * Tue Jul  29 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.8
-- increment for base 
+- increment for base
 
 * Tue Jul  29 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.7
 - Fix name of driftfile
 
 * Tue Jul  29 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.6
-- increment for base 
+- increment for base
 
 * Tue Jul  29 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.5
 - Change dhcrelay script to check DHCPSERVERS
 
 * Mon Jul  7 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.4
-- increment for base 
+- increment for base
 
 * Mon Jul  7 2003 Dan Walsh <dwalsh@redhat.com> 1:3.0pl2-6.3
 - Fix dhclient-script to support PEERNTP and PEERNIS flags.
@@ -1058,7 +1090,7 @@ fi
 - require kernel version
 
 * Fri Jan 24 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-16
-- move dhcp-options to separate package 
+- move dhcp-options to separate package
 
 * Wed Jan 22 2003 Tim Powers <timp@redhat.com>
 - rebuilt
@@ -1073,7 +1105,7 @@ fi
 - Fix when ntp is not installed.
 
 * Mon Jan 6 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-12
-- Fix #73079 (dhcpctl man page) 
+- Fix #73079 (dhcpctl man page)
 
 * Thu Nov 14 2002 Elliot Lee <sopwith@redhat.com> 3.0pl1-11
 - Use generic PTRSIZE_64BIT detection instead of ifarch.
@@ -1133,7 +1165,8 @@ fi
 - Include dhcrelay scripts from #49186
 
 * Thu Dec 20 2001 Elliot Lee <sopwith@redhat.com> 3.0-2
-- Update to 3.0, include devel files installed by it (as part of the main package).
+- Update to 3.0, include devel files installed by it (as part of the main
+  package).
 
 * Sun Aug 26 2001 Elliot Lee <sopwith@redhat.com> 2.0pl5-8
 - Fix #26446
