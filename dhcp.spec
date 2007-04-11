@@ -10,7 +10,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.5
-Release:  29%{?dist}
+Release:  30%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -51,6 +51,7 @@ Patch17:  %{name}-3.0.5-default-requested-options.patch
 Patch18:  %{name}-3.0.5-prototypes.patch
 Patch19:  %{name}-3.0.5-manpages.patch
 Patch20:  %{name}-3.0.5-libdhcp4client.patch
+Patch21:  %{name}-3.0.5-xen-checksum.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: groff openldap-devel
@@ -209,6 +210,9 @@ client library .
 
 # Add the libdhcp4client target (library version of dhclient)
 %patch20 -p1 -b .libdhcp4client
+
+# Handle Xen partial UDP checksums
+%patch21 -p1 -b .xen
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %SOURCE6 .
@@ -398,6 +402,9 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Wed Apr 11 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-30
+- Enable Xen patch again, kernel bits present (#231444)
+
 * Tue Apr 10 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-29
 - Spec file cleanups (#225691)
 
