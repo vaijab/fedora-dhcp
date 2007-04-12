@@ -404,7 +404,7 @@ fi
 %defattr(-,root,root,-)
 %{_includedir}/dhcpctl.h
 %{_includedir}/isc-dhcp
-%{_includedir}/omapi
+%{_includedir}/omapip
 %attr(0644,root,root) %{_mandir}/man3/omshell.3.gz
 %attr(0644,root,root) %{_mandir}/man3/dhcpctl.3.gz
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
@@ -412,7 +412,7 @@ fi
 %files devel-static
 %defattr(-,root,root,-)
 %{_libdir}/libdhcpctl.a
-%{_libdir}/libomapi
+%{_libdir}/libomapi.a
 
 %files -n libdhcp4client
 %defattr(0755,root,root,0755)
