@@ -77,7 +77,8 @@ the ISC DHCP service and relay agent.
 Summary: Provides the dhclient ISC DHCP client daemon and dhclient-script
 Group: System Environment/Base
 Requires: initscripts >= 6.75
-Obsoletes: dhcpcd <= 1.3.22
+Obsoletes: dhcpcd <= 1.3.22pl1-7
+Provides: dhcpcd = 1.3.22pl1-8
 
 %description -n dhclient
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
