@@ -10,7 +10,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.5
-Release:  31%{?dist}
+Release:  32%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -429,6 +429,9 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Tue Apr 17 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-32
+- Added missing newline on usage() screen in dhclient
+
 * Thu Apr 12 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-31
 - Spec file cleanups (#225691)
 - Put libdhcpctl.a and libomapi.a in dhcp-devel-static package

@@ -1,5 +1,5 @@
---- dhcp-3.0.5/client/dhclient.c.usage	2007-04-01 13:49:43.000000000 -0400
-+++ dhcp-3.0.5/client/dhclient.c	2007-04-01 13:51:25.000000000 -0400
+--- dhcp-3.0.5/client/dhclient.c.usage	2007-04-17 10:43:00.000000000 -0400
++++ dhcp-3.0.5/client/dhclient.c	2007-04-17 10:43:30.000000000 -0400
 @@ -819,20 +819,29 @@
  
  static void usage ()
@@ -34,7 +34,7 @@
 +	printf ("                [ -H <host-name> | -F <fqdn.fqdn> ] [ -T <timeout> ]\n");
 +	printf ("                [ -V <vendor-class-identifier> ]\n");
 +	printf ("                [ -R <request option list> ]\n");
-+	printf ("                [-sf script-file] [interface]");
++	printf ("                [-sf script-file] [interface]\n");
 +
 +	exit (EXIT_FAILURE);
  }
