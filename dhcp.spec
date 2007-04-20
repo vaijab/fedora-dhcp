@@ -10,7 +10,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.5
-Release:  32%{?dist}
+Release:  33%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -99,13 +99,13 @@ Requires: dhcp = %{epoch}:%{version}-%{release}
 %description devel
 Header files and API documentation for using the ISC DHCP libraries.
 
-%package devel-static
+%package static
 Summary: Static archives of libdhcpctl and libomapi
 Group: Development/Libraries
 Requires: dhcp-devel = %{epoch}:%{version}-%{release}, openldap-devel
 
-%description devel-static
-The dhcp-devel-static package contains the static archive for
+%description static
+The dhcp-static package contains the static archive for
 libdhcpctl and libomapi.
 
 %package -n libdhcp4client
@@ -128,13 +128,13 @@ Header files for development with the Internet Software Consortium (ISC)
 Dynamic Host Configuration Protocol (DHCP) Internet Protocol version 4 (IPv4)
 client library.
 
-%package -n libdhcp4client-devel-static
+%package -n libdhcp4client-static
 Summary: Static archive for libdhcp4client
 Group: Development/Libraries
 Requires: libdhcp4client-devel = %{epoch}:%{version}-%{release}
 
-%description -n libdhcp4client-devel-static
-The libdhcp4client-devel-static package contains the static archive for
+%description -n libdhcp4client-static
+The libdhcp4client-static package contains the static archive for
 libdhcp4client.
 
 %prep
@@ -409,7 +409,7 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/dhcpctl.3.gz
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
-%files devel-static
+%files static
 %defattr(-,root,root,-)
 %{_libdir}/libdhcpctl.a
 %{_libdir}/libomapi.a
@@ -424,11 +424,14 @@ fi
 %{_libdir}/pkgconfig/libdhcp4client.pc
 %{_libdir}/libdhcp4client.so
 
-%files -n libdhcp4client-devel-static
+%files -n libdhcp4client-static
 %defattr(0644,root,root,0755)
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Fri Apr 20 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-33
+- Rename -devel-static packages to -static (#225691)
+
 * Tue Apr 17 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-32
 - Added missing newline on usage() screen in dhclient
 
