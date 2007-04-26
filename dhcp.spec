@@ -10,7 +10,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.5
-Release:  33%{?dist}
+Release:  34%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -429,6 +429,10 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Thu Apr 26 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-34
+- Init script fixes (#237985, #237983)
+- Reference correct scripts in dhclient-script.8 man page (#238036)
+
 * Fri Apr 20 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-33
 - Rename -devel-static packages to -static (#225691)
 

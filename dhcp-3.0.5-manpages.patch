@@ -1,5 +1,5 @@
 --- dhcp-3.0.5/client/dhclient-script.8.manpages	2005-09-28 15:17:08.000000000 -0400
-+++ dhcp-3.0.5/client/dhclient-script.8	2007-03-29 14:55:09.000000000 -0400
++++ dhcp-3.0.5/client/dhclient-script.8	2007-04-26 14:52:13.000000000 -0400
 @@ -47,7 +47,7 @@
  exit hooks provided (see HOOKS for details).   These hooks will allow the
  user to override the default behaviour of the client in creating a
@@ -20,7 +20,7 @@
 +.B ETCDIR/dhclient-up-hooks
 +script, and source it if found. This script can handle DHCP options in
 +the environment that are not handled by default. A per-interface 
-+.B ETCDIR/dhclient-up-${IF}-hooks
++.B ETCDIR/dhclient-${IF}-up-hooks
 +script will override the generic script and be sourced when interface
 +$IF has been brought up.
 +.PP
@@ -30,7 +30,7 @@
 +.B ETCDIR/dhclient-down-hooks
 +script, and source it if found. This script can handle DHCP options in
 +the environment that are not handled by default. A per-interface 
-+.B ETCDIR/dhclient-down-${IF}-hooks
++.B ETCDIR/dhclient-${IF}-down-hooks
 +script will override the generic script and be sourced when interface
 +$IF is about to be brought down.
 +
@@ -38,7 +38,7 @@
  When dhclient needs to invoke the client configuration script, it
  defines a set of variables in the environment, and then invokes
 --- dhcp-3.0.5/client/dhclient.conf.5.manpages	2005-06-16 15:40:13.000000000 -0400
-+++ dhcp-3.0.5/client/dhclient.conf.5	2007-03-29 14:55:21.000000000 -0400
++++ dhcp-3.0.5/client/dhclient.conf.5	2007-04-26 14:51:02.000000000 -0400
 @@ -185,7 +185,8 @@
  options.   Only the option names should be specified in the request
  statement - not option parameters.   By default, the DHCP server
@@ -68,8 +68,8 @@
  .SH SAMPLE
  The following configuration file is used on a laptop running NetBSD
  1.3.   The laptop has an IP alias of 192.5.5.213, and has one
---- dhcp-3.0.5/client/dhclient.8.manpages	2007-03-29 14:54:16.000000000 -0400
-+++ dhcp-3.0.5/client/dhclient.8	2007-03-29 14:58:16.000000000 -0400
+--- dhcp-3.0.5/client/dhclient.8.manpages	2007-04-26 14:51:02.000000000 -0400
++++ dhcp-3.0.5/client/dhclient.8	2007-04-26 14:51:02.000000000 -0400
 @@ -85,6 +85,28 @@
  .B -x
  ]
@@ -208,7 +208,7 @@
  The syntax of the dhclient.conf(5) file is discussed separately.
  .SH OMAPI
 --- dhcp-3.0.5/common/dhcp-options.5.manpages	2006-04-26 11:12:43.000000000 -0400
-+++ dhcp-3.0.5/common/dhcp-options.5	2007-03-29 14:58:42.000000000 -0400
++++ dhcp-3.0.5/common/dhcp-options.5	2007-04-26 14:51:02.000000000 -0400
 @@ -834,6 +834,24 @@
  classless IP routing is now the most widely deployed routing standard,
  this option is virtually useless, and is not implemented by any of the
@@ -235,7 +235,7 @@
  .PP
  .nf
 --- dhcp-3.0.5/dhcpctl/dhcpctl.3.manpages	2004-09-24 17:08:38.000000000 -0400
-+++ dhcp-3.0.5/dhcpctl/dhcpctl.3	2007-03-29 14:59:16.000000000 -0400
++++ dhcp-3.0.5/dhcpctl/dhcpctl.3	2007-04-26 14:51:02.000000000 -0400
 @@ -43,7 +43,8 @@
  .\"
  .\"
@@ -256,7 +256,7 @@
  int main (int argc, char **argv) {
  	dhcpctl_data_string ipaddrstring = NULL;
 --- dhcp-3.0.5/server/dhcpd.conf.5.manpages	2006-07-09 11:02:24.000000000 -0400
-+++ dhcp-3.0.5/server/dhcpd.conf.5	2007-03-29 14:58:59.000000000 -0400
++++ dhcp-3.0.5/server/dhcpd.conf.5	2007-04-26 14:51:02.000000000 -0400
 @@ -531,9 +531,9 @@
  failover peer "foo" {
    primary;
