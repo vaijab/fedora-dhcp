@@ -10,7 +10,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.5
-Release:  34%{?dist}
+Release:  35%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -282,11 +282,12 @@ EOF
 EOF
 
 # Disable gcc's strict aliasing since ISC code tends to cast a lot.
-#
-# Use -fvisibility=hidden for libdhcp4client.  The way that library is
-# constructed, we need to follow the hide-by-default/expose-what-we-need
-# plan for the library API.
-COPTS="-fPIC -Werror -Dlint -fno-strict-aliasing -fvisibility=hidden"
+##
+## Use -fvisibility=hidden for libdhcp4client.  The way that library is
+## constructed, we need to follow the hide-by-default/expose-what-we-need
+## plan for the library API.
+#COPTS="-fPIC -Werror -Dlint -fno-strict-aliasing -fvisibility=hidden"
+COPTS="-fPIC -Werror -Dlint -fno-strict-aliasing"
 
 # DO NOT use the %%configure macro because this configure script is not autognu
 # Enable extended option info patch (-DEXTENDED_NEW_OPTION_INFO)
@@ -429,6 +430,10 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Tue May 22 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-35
+- Disable -fvisibility=hidden for now as it breaks dhcpv4_client() from
+  the shared library (#240804)
+
 * Thu Apr 26 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-34
 - Init script fixes (#237985, #237983)
 - Reference correct scripts in dhclient-script.8 man page (#238036)
