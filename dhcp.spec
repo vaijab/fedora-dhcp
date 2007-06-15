@@ -10,7 +10,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.5
-Release:  35%{?dist}
+Release:  36%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -52,6 +52,7 @@ Patch18:  %{name}-3.0.5-prototypes.patch
 Patch19:  %{name}-3.0.5-manpages.patch
 Patch20:  %{name}-3.0.5-libdhcp4client.patch
 Patch21:  %{name}-3.0.5-xen-checksum.patch
+Patch22:  %{name}-3.0.5-dhclient-anycast.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: groff openldap-devel
@@ -233,6 +234,9 @@ libdhcp4client.
 
 # Handle Xen partial UDP checksums
 %patch21 -p1 -b .xen
+
+# Add anycast support to dhclient (for OLPC)
+%patch22 -p1 -b .anycast
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %SOURCE6 .
@@ -430,6 +434,10 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Fri Jun 15 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-36
+- BOOTP_BROADCAST_ALWAYS is not the same as ATSFP, fixed
+- Added anycast mac support to dhclient for OLPC
+
 * Tue May 22 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-35
 - Disable -fvisibility=hidden for now as it breaks dhcpv4_client() from
   the shared library (#240804)
