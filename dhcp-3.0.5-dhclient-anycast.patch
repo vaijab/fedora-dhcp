@@ -1,5 +1,5 @@
---- dhcp-3.0.5/client/clparse.c.anycast	2007-06-15 18:59:48.000000000 -0400
-+++ dhcp-3.0.5/client/clparse.c	2007-06-15 18:59:57.000000000 -0400
+--- dhcp-3.0.5/client/clparse.c.anycast	2007-06-18 10:53:24.000000000 -0400
++++ dhcp-3.0.5/client/clparse.c	2007-06-18 10:53:24.000000000 -0400
 @@ -402,6 +402,17 @@ void parse_client_statement (cfile, ip, 
  		}
  		return;
@@ -18,8 +18,8 @@
  	      case REQUEST:
  		token = next_token (&val, (unsigned *)0, cfile);
  		if (config -> requested_options == default_requested_options)
---- dhcp-3.0.5/common/conflex.c.anycast	2007-06-15 18:59:48.000000000 -0400
-+++ dhcp-3.0.5/common/conflex.c	2007-06-15 18:59:58.000000000 -0400
+--- dhcp-3.0.5/common/conflex.c.anycast	2007-06-18 10:53:24.000000000 -0400
++++ dhcp-3.0.5/common/conflex.c	2007-06-18 10:53:24.000000000 -0400
 @@ -549,6 +549,8 @@ static enum dhcp_token intern (atom, dfv
  		}
  		if (!strcasecmp (atom + 1, "nd"))
@@ -29,20 +29,20 @@
  		if (!strcasecmp (atom + 1, "ppend"))
  			return APPEND;
  		if (!strcasecmp (atom + 1, "llow"))
---- dhcp-3.0.5/common/lpf.c.anycast	2007-06-15 18:59:48.000000000 -0400
-+++ dhcp-3.0.5/common/lpf.c	2007-06-15 18:59:58.000000000 -0400
+--- dhcp-3.0.5/common/lpf.c.anycast	2007-06-18 10:53:24.000000000 -0400
++++ dhcp-3.0.5/common/lpf.c	2007-06-18 10:53:48.000000000 -0400
 @@ -332,6 +332,9 @@ ssize_t send_packet (interface, packet, 
  		return send_fallback (interface, packet, raw,
  				      len, from, to, hto);
  
-+	if (hto == NULL && interface->anycast_mac_addr.len)
++	if (hto == NULL && interface->anycast_mac_addr.hlen)
 +		hto = &interface->anycast_mac_addr;
 +
  	/* Assemble the headers... */
  	assemble_hw_header (interface, (unsigned char *)hh, &hbufp, hto);
  	fudge = hbufp % 4;	/* IP header must be word-aligned. */
---- dhcp-3.0.5/includes/dhctoken.h.anycast	2007-06-15 18:59:48.000000000 -0400
-+++ dhcp-3.0.5/includes/dhctoken.h	2007-06-15 19:00:32.000000000 -0400
+--- dhcp-3.0.5/includes/dhctoken.h.anycast	2007-06-18 10:53:24.000000000 -0400
++++ dhcp-3.0.5/includes/dhctoken.h	2007-06-18 10:53:24.000000000 -0400
 @@ -310,7 +310,8 @@ enum dhcp_token {
  	DO_FORWARD_UPDATE = 614,
  	KNOWN_CLIENTS = 615,
@@ -53,8 +53,8 @@
  };
  
  #define is_identifier(x)	((x) >= FIRST_TOKEN &&	\
---- dhcp-3.0.5/includes/site.h.anycast	2007-06-15 18:59:47.000000000 -0400
-+++ dhcp-3.0.5/includes/site.h	2007-06-15 18:59:58.000000000 -0400
+--- dhcp-3.0.5/includes/site.h.anycast	2007-06-18 10:53:24.000000000 -0400
++++ dhcp-3.0.5/includes/site.h	2007-06-18 10:53:24.000000000 -0400
 @@ -178,6 +178,8 @@
  
  #define TRACING
@@ -64,8 +64,8 @@
  /* Define this if you want to read your config from LDAP. Read README.ldap
     about how to set this up */
  
---- dhcp-3.0.5/includes/dhcpd.h.anycast	2007-06-15 18:59:48.000000000 -0400
-+++ dhcp-3.0.5/includes/dhcpd.h	2007-06-15 18:59:58.000000000 -0400
+--- dhcp-3.0.5/includes/dhcpd.h.anycast	2007-06-18 10:53:24.000000000 -0400
++++ dhcp-3.0.5/includes/dhcpd.h	2007-06-18 10:53:24.000000000 -0400
 @@ -845,6 +845,7 @@ struct interface_info {
  	int dlpi_sap_length;
  	struct hardware dlpi_broadcast_addr;
