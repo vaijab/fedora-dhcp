@@ -53,6 +53,7 @@ start() {
     echo -n $"Starting $prog: "
     daemon $dhcpd $DHCPDARGS 2>/dev/null
     RETVAL=$?
+    echo
     [ $RETVAL = 0 ] && touch $lockfile
     return $RETVAL
 }
@@ -61,6 +62,7 @@ stop() {
     echo -n $"Shutting down $prog: "
     killproc $prog -TERM
     RETVAL=$?
+    echo
     [ $RETVAL = 0 ] && rm -f $lockfile
     return $RETVAL
 }
