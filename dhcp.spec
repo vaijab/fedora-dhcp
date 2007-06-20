@@ -10,7 +10,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.5
-Release:  36%{?dist}
+Release:  37%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -434,6 +434,9 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Wed Jun 20 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-37
+- For init script functions, echo new line after OK or FAIL msg (#244956)
+
 * Fri Jun 15 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-36
 - BOOTP_BROADCAST_ALWAYS is not the same as ATSFP, fixed
 - Added anycast mac support to dhclient for OLPC
