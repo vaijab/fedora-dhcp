@@ -10,7 +10,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.5
-Release:  37%{?dist}
+Release:  38%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -434,6 +434,9 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Mon Jul 09 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-38
+- Remove -TERM option from killproc command (#245317)
+
 * Wed Jun 20 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-37
 - For init script functions, echo new line after OK or FAIL msg (#244956)
 
