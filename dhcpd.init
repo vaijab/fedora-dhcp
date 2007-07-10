@@ -60,7 +60,7 @@ start() {
 
 stop() {
     echo -n $"Shutting down $prog: "
-    killproc $prog -TERM
+    killproc $prog
     RETVAL=$?
     echo
     [ $RETVAL = 0 ] && rm -f $lockfile

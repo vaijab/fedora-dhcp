@@ -1,29 +1,43 @@
---- dhcp-3.0.5/common/bpf.c.xen	2004-11-24 12:39:15.000000000 -0500
-+++ dhcp-3.0.5/common/bpf.c	2007-03-30 16:34:45.000000000 -0400
-@@ -478,7 +478,8 @@
+diff -up dhcp-3.0.6/includes/dhcpd.h.xen dhcp-3.0.6/includes/dhcpd.h
+--- dhcp-3.0.6/includes/dhcpd.h.xen	2007-07-10 11:50:22.000000000 -0400
++++ dhcp-3.0.6/includes/dhcpd.h	2007-07-10 14:03:52.000000000 -0400
+@@ -1985,7 +1985,7 @@ ssize_t decode_hw_header PROTO ((struct 
+ 				 unsigned, struct hardware *));
+ ssize_t decode_udp_ip_header PROTO ((struct interface_info *, unsigned char *,
+ 				     unsigned, struct sockaddr_in *,
+-				     unsigned, unsigned *));
++				     unsigned, unsigned *, int));
+ 
+ /* ethernet.c */
+ void assemble_ethernet_header PROTO ((struct interface_info *, unsigned char *,
+diff -up dhcp-3.0.6/common/bpf.c.xen dhcp-3.0.6/common/bpf.c
+--- dhcp-3.0.6/common/bpf.c.xen	2007-05-01 16:42:55.000000000 -0400
++++ dhcp-3.0.6/common/bpf.c	2007-07-10 14:04:24.000000000 -0400
+@@ -478,7 +478,7 @@ ssize_t receive_packet (interface, buf, 
+ 		offset = decode_udp_ip_header (interface,
  					       interface -> rbuf,
  					       interface -> rbuf_offset,
- 					       from,
--					       hdr.bh_caplen);
-+					       hdr.bh_caplen,
-+					       0);
+-  					       from, hdr.bh_caplen, &paylen);
++  					       from, hdr.bh_caplen, &paylen, 0);
  
  		/* If the IP or UDP checksum was bad, skip the packet... */
  		if (offset < 0) {
---- dhcp-3.0.5/common/dlpi.c.xen	2004-11-24 12:39:15.000000000 -0500
-+++ dhcp-3.0.5/common/dlpi.c	2007-03-30 16:34:45.000000000 -0400
-@@ -679,7 +679,7 @@
+diff -up dhcp-3.0.6/common/dlpi.c.xen dhcp-3.0.6/common/dlpi.c
+--- dhcp-3.0.6/common/dlpi.c.xen	2007-05-01 16:42:55.000000000 -0400
++++ dhcp-3.0.6/common/dlpi.c	2007-07-10 14:04:36.000000000 -0400
+@@ -680,7 +680,7 @@ ssize_t receive_packet (interface, buf, 
  	length -= offset;
  #endif
  	offset = decode_udp_ip_header (interface, dbuf, bufix,
--				       from, length);
-+				       from, length, 0);
+-				       from, length, &paylen);
++				       from, length, &paylen, 0);
  
  	/* If the IP or UDP checksum was bad, skip the packet... */
  	if (offset < 0) {
---- dhcp-3.0.5/common/lpf.c.xen	2007-03-30 16:34:26.000000000 -0400
-+++ dhcp-3.0.5/common/lpf.c	2007-03-30 16:34:45.000000000 -0400
-@@ -34,16 +34,31 @@
+diff -up dhcp-3.0.6/common/lpf.c.xen dhcp-3.0.6/common/lpf.c
+--- dhcp-3.0.6/common/lpf.c.xen	2007-07-10 11:50:22.000000000 -0400
++++ dhcp-3.0.6/common/lpf.c	2007-07-10 14:09:29.000000000 -0400
+@@ -34,16 +34,31 @@ static char copyright[] =
  #include "dhcpd.h"
  #if defined (USE_LPF_SEND) || defined (USE_LPF_RECEIVE)
  #include <sys/ioctl.h>
@@ -55,7 +69,7 @@
  /* Reinitializes the specified interface after an address change.   This
     is not required for packet-filter APIs. */
  
-@@ -69,10 +84,14 @@
+@@ -69,10 +84,14 @@ int if_register_lpf (info)
  	struct interface_info *info;
  {
  	int sock;
@@ -72,7 +86,7 @@
  			   htons((short)ETH_P_ALL))) < 0) {
  		if (errno == ENOPROTOOPT || errno == EPROTONOSUPPORT ||
  		    errno == ESOCKTNOSUPPORT || errno == EPFNOSUPPORT ||
-@@ -87,11 +106,16 @@
+@@ -87,11 +106,16 @@ int if_register_lpf (info)
  		log_fatal ("Open a socket for LPF: %m");
  	}
  
@@ -92,7 +106,7 @@
  		if (errno == ENOPROTOOPT || errno == EPROTONOSUPPORT ||
  		    errno == ESOCKTNOSUPPORT || errno == EPFNOSUPPORT ||
  		    errno == EAFNOSUPPORT || errno == EINVAL) {
-@@ -171,9 +195,18 @@
+@@ -171,9 +195,18 @@ static void lpf_gen_filter_setup (struct
  void if_register_receive (info)
  	struct interface_info *info;
  {
@@ -111,7 +125,7 @@
  #if defined (HAVE_TR_SUPPORT)
  	if (info -> hw_address.hbuf [0] == HTYPE_IEEE802)
  		lpf_tr_filter_setup (info);
-@@ -291,7 +324,6 @@
+@@ -292,7 +325,6 @@ ssize_t send_packet (interface, packet, 
  	double hh [16];
  	double ih [1536 / sizeof (double)];
  	unsigned char *buf = (unsigned char *)ih;
@@ -119,7 +133,7 @@
  	int result;
  	int fudge;
  
-@@ -309,15 +341,7 @@
+@@ -310,15 +342,7 @@ ssize_t send_packet (interface, packet, 
  				(unsigned char *)raw, len);
  	memcpy (buf + ibufp, raw, len);
  
@@ -136,13 +150,14 @@
  	if (result < 0)
  		log_error ("send_packet: %m");
  	return result;
-@@ -334,13 +358,34 @@
+@@ -335,14 +359,35 @@ ssize_t receive_packet (interface, buf, 
  {
  	int length = 0;
  	int offset = 0;
 +	int nocsum = 0;
  	unsigned char ibuf [1536];
  	unsigned bufix = 0;
+ 	unsigned paylen;
 +	unsigned char cmsgbuf[CMSG_LEN(sizeof(struct tpacket_auxdata))];
 +	struct iovec iov = {
 +		.iov_base = ibuf,
@@ -172,45 +187,41 @@
  	bufix = 0;
  	/* Decode the physical header... */
  	offset = decode_hw_header (interface, ibuf, bufix, hfrom);
-@@ -357,7 +402,7 @@
+@@ -359,7 +404,7 @@ ssize_t receive_packet (interface, buf, 
  
  	/* Decode the IP and UDP headers... */
  	offset = decode_udp_ip_header (interface, ibuf, bufix, from,
--				       (unsigned)length);
-+				       (unsigned)length, nocsum);
+-				       (unsigned)length, &paylen);
++				       (unsigned)length, &paylen, nocsum);
  
  	/* If the IP or UDP checksum was bad, skip the packet... */
  	if (offset < 0)
---- dhcp-3.0.5/common/nit.c.xen	2004-11-24 12:39:15.000000000 -0500
-+++ dhcp-3.0.5/common/nit.c	2007-03-30 16:34:45.000000000 -0400
-@@ -370,7 +370,7 @@
+diff -up dhcp-3.0.6/common/nit.c.xen dhcp-3.0.6/common/nit.c
+--- dhcp-3.0.6/common/nit.c.xen	2007-05-01 16:42:55.000000000 -0400
++++ dhcp-3.0.6/common/nit.c	2007-07-10 14:05:16.000000000 -0400
+@@ -371,7 +371,7 @@ ssize_t receive_packet (interface, buf, 
  
  	/* Decode the IP and UDP headers... */
  	offset = decode_udp_ip_header (interface, ibuf, bufix,
--				       from, length);
-+				       from, length, 0);
+-				       from, length, &paylen);
++				       from, length, &paylen, 0);
  
  	/* If the IP or UDP checksum was bad, skip the packet... */
  	if (offset < 0)
---- dhcp-3.0.5/common/packet.c.xen	2007-03-30 16:34:26.000000000 -0400
-+++ dhcp-3.0.5/common/packet.c	2007-03-30 16:34:45.000000000 -0400
-@@ -211,12 +211,13 @@
- 
- /* UDP header and IP header decoded together for convenience. */
- 
--ssize_t decode_udp_ip_header (interface, buf, bufix, from, buflen)
-+ssize_t decode_udp_ip_header (interface, buf, bufix, from, buflen, nocsum)
- 	struct interface_info *interface;
- 	unsigned char *buf;
- 	unsigned bufix;
- 	struct sockaddr_in *from;
- 	unsigned buflen;
-+	int nocsum;
+diff -up dhcp-3.0.6/common/packet.c.xen dhcp-3.0.6/common/packet.c
+--- dhcp-3.0.6/common/packet.c.xen	2007-07-10 11:50:22.000000000 -0400
++++ dhcp-3.0.6/common/packet.c	2007-07-10 14:06:24.000000000 -0400
+@@ -215,7 +215,7 @@ ssize_t
+ decode_udp_ip_header(struct interface_info *interface,
+ 		     unsigned char *buf, unsigned bufix,
+ 		     struct sockaddr_in *from, unsigned buflen,
+-		     unsigned *rbuflen)
++		     unsigned *rbuflen, int nocsum)
  {
    unsigned char *data;
    struct ip ip;
-@@ -319,7 +320,7 @@
- 					       (u_int32_t)ulen))));
+@@ -326,7 +326,7 @@ decode_udp_ip_header(struct interface_in
+ 					   8, IPPROTO_UDP + ulen))));
  
    udp_packets_seen++;
 -  if (usum && usum != sum) {
@@ -218,25 +229,15 @@
  	  udp_packets_bad_checksum++;
  	  if (udp_packets_seen > 4 &&
  	      (udp_packets_seen / udp_packets_bad_checksum) < 2) {
---- dhcp-3.0.5/common/upf.c.xen	2004-11-24 12:39:16.000000000 -0500
-+++ dhcp-3.0.5/common/upf.c	2007-03-30 16:34:45.000000000 -0400
-@@ -321,7 +321,7 @@
+diff -up dhcp-3.0.6/common/upf.c.xen dhcp-3.0.6/common/upf.c
+--- dhcp-3.0.6/common/upf.c.xen	2007-05-01 16:42:56.000000000 -0400
++++ dhcp-3.0.6/common/upf.c	2007-07-10 14:06:37.000000000 -0400
+@@ -322,7 +322,7 @@ ssize_t receive_packet (interface, buf, 
  
  	/* Decode the IP and UDP headers... */
  	offset = decode_udp_ip_header (interface, ibuf, bufix,
--				       from, length);
-+				       from, length, 0);
+-				       from, length, &paylen);
++				       from, length, &paylen, 0);
  
  	/* If the IP or UDP checksum was bad, skip the packet... */
  	if (offset < 0)
---- dhcp-3.0.5/includes/dhcpd.h.xen	2007-03-30 16:34:26.000000000 -0400
-+++ dhcp-3.0.5/includes/dhcpd.h	2007-03-30 16:34:45.000000000 -0400
-@@ -1988,7 +1988,7 @@
- 				 unsigned, struct hardware *));
- ssize_t decode_udp_ip_header PROTO ((struct interface_info *, unsigned char *,
- 				     unsigned, struct sockaddr_in *,
--				     unsigned));
-+				     unsigned, int));
- 
- /* ethernet.c */
- void assemble_ethernet_header PROTO ((struct interface_info *, unsigned char *,
