@@ -2,7 +2,7 @@
 %ifarch ppc64 s390x
 %define bigptrs -DPTRSIZE_64BIT
 %endif
- 
+
 # The workdir is used in the build system for ISC dhcp, we set it to this
 # value to avoid any problems guessing what it might be during installation.
 %define workdir work.linux-2.2
