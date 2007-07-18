@@ -8,12 +8,12 @@
 %define workdir work.linux-2.2
 
 # The vendor name to append to the version number
-%define vendor Fedora
+%define vvendor Fedora
 
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.6
-Release:  1%{?dist}
+Release:  2%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -143,7 +143,7 @@ libdhcp4client.
 %setup -q
 
 # Add vendor to the version number
-%{__sed} -e 's|V%{version}|V%{version}-%{vendor}|g' includes/version.h > includes/version.h.new
+%{__sed} -e 's|V%{version}|V%{version}-%{vvendor}|g' includes/version.h > includes/version.h.new
 %{__mv} includes/version.h.new includes/version.h
 
 # Use $(MAKE) and $(CC) in the Makefiles
@@ -433,6 +433,10 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Wed Jul 18 2007 Florian La Roche <laroche@redhat.com> - 12:3.0.6-2
+- use a new macro name vendor -> vvendor to not overwrite the
+  RPMTAG_VENDOR setting
+
 * Tue Jul 10 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.6-1
 - Upgrade to ISC dhcp-3.0.6
 - Remove the -TERM option from killproc command (#245317)
