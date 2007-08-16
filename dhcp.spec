@@ -13,7 +13,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.6
-Release:  2%{?dist}
+Release:  3%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -34,26 +34,26 @@ Source12: dhcp4client.h
 Source13: libdhcp_control.h
 
 Patch0:   %{name}-3.0.5-Makefile.patch
-Patch5:   %{name}-3.0.5-warnings.patch
-Patch10:  %{name}-3.0.5-extended-new-option-info.patch
-Patch15:  %{name}-3.0.5-errwarn-message.patch
-Patch20:  %{name}-3.0.5-ldap-configuration.patch
-Patch25:  %{name}-3.0.6-memory.patch
-Patch30:  %{name}-3.0.5-options.patch
-Patch35:  %{name}-3.0.5-release-by-ifup.patch
-Patch40:  %{name}-3.0.5-dhclient-decline-backoff.patch
-Patch45:  %{name}-3.0.5-enable-timeout-functions.patch
-Patch50:  %{name}-3.0.5-inherit-leases.patch
-Patch55:  %{name}-3.0.5-unicast-bootp.patch
-Patch60:  %{name}-3.0.5-fast-timeout.patch
-Patch65:  %{name}-3.0.5-failover-ports.patch
-Patch70:  %{name}-3.0.5-dhclient-usage.patch
-Patch75:  %{name}-3.0.5-default-requested-options.patch
-Patch80:  %{name}-3.0.5-prototypes.patch
-Patch85:  %{name}-3.0.5-manpages.patch
-Patch90:  %{name}-3.0.5-libdhcp4client.patch
-Patch95:  %{name}-3.0.6-xen-checksum.patch
-Patch100: %{name}-3.0.5-dhclient-anycast.patch
+Patch1:   %{name}-3.0.5-warnings.patch
+Patch2:   %{name}-3.0.5-errwarn-message.patch
+Patch3:   %{name}-3.0.5-ldap-configuration.patch
+Patch4:   %{name}-3.0.6-memory.patch
+Patch5:   %{name}-3.0.6-options.patch
+Patch6:   %{name}-3.0.5-release-by-ifup.patch
+Patch7:   %{name}-3.0.5-dhclient-decline-backoff.patch
+Patch8:   %{name}-3.0.5-enable-timeout-functions.patch
+Patch9:   %{name}-3.0.5-inherit-leases.patch
+Patch10:  %{name}-3.0.5-unicast-bootp.patch
+Patch11:  %{name}-3.0.5-fast-timeout.patch
+Patch12:  %{name}-3.0.5-failover-ports.patch
+Patch13:  %{name}-3.0.6-dhclient-usage.patch
+Patch14:  %{name}-3.0.5-default-requested-options.patch
+Patch15:  %{name}-3.0.5-prototypes.patch
+Patch16:  %{name}-3.0.6-manpages.patch
+Patch17:  %{name}-3.0.6-libdhcp4client.patch
+Patch18:  %{name}-3.0.6-xen-checksum.patch
+Patch19:  %{name}-3.0.5-dhclient-anycast.patch
+Patch20:  %{name}-3.0.6-ignore-hyphen-x.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: groff openldap-devel
@@ -150,64 +150,60 @@ libdhcp4client.
 %patch0 -p1 -b .Makefile
 
 # Fix up anything that fails -Wall -Werror
-%patch5 -p1 -b .warnings
-
-# Extended new option info patch.  Adds the -x option to dhclient, which is
-# needed for dhcdbd and NetworkManager
-%patch10 -p1 -b .enoi
+%patch1 -p1 -b .warnings
 
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
 # reported through bugzilla.redhat.com
-%patch15 -p1 -b .message
+%patch2 -p1 -b .message
 
 # Add support for dhcpd.conf data in LDAP
-%patch20 -p1 -b .ldap
+%patch3 -p1 -b .ldap
 
 # Fix memory alignment and initialization problems in common/packet.c
 # Fix buffer overflow in minires library
 # Init struct sock_prog in common/lpf.c to NULL
-%patch25 -p1 -b .memory
+%patch4 -p1 -b .memory
 
 # Add more dhclient options (-I, -B, -H, -F, -T, -V, and -R)
-%patch30 -p1 -b .options
+%patch5 -p1 -b .options
 
 # Handle releasing interfaces requested by /sbin/ifup
 # pid file is assumed to be /var/run/dhclient-$interface.pid
-%patch35 -p1 -b .release
+%patch6 -p1 -b .release
 
 # If we receive a DHCP offer in dhclient and it's DECLINEd in dhclient-script,
 # backoff for an amount of time before trying again
-%patch40 -p1 -b .decline
+%patch7 -p1 -b .decline
 
 # Enable cancel_all_timeouts() and relinquish_timeouts() regardless of
 # the DEBUG_MEMORY_LEAKAGE_ON_EXIT macro
-%patch45 -p1 -b .etf
+%patch8 -p1 -b .etf
 
 # Inherit active leases
-%patch50 -p1 -b .inherit
+%patch9 -p1 -b .inherit
 
 # Support unicast BOOTP for IBM pSeries systems (and maybe others)
-%patch55 -p1 -b .unicast
+%patch10 -p1 -b .unicast
 
 # Fast timeout for dhclient
-%patch60 -p1 -b .fast
+%patch11 -p1 -b .fast
 
 # Use the following IANA-registered failover ports:
 # dhcp-failover 647/tcp
 # dhcp-failover 647/udp
 # dhcp-failover 847/tcp
 # dhcp-failover 847/udp
-%patch65 -p1 -b .failover
+%patch12 -p1 -b .failover
 
 # Update the usage screen for dhclient(8) indicating new options
 # Use printf() rather than log_info() to display the information
 # Also, return EXIT_FAILURE when the usage() screen is displayed (stop parsing)
-%patch70 -p1 -b .usage
+%patch13 -p1 -b .usage
 
 # Add NIS domain, NIS servers, and NTP servers to the list of default
 # requested DHCP options
-%patch75 -p1 -b .dho
+%patch14 -p1 -b .dho
 
 # Add missing prototypes to take care of gcc warnings
 # in dst/dst_api.c: add b64_pton() and b64_ntop()
@@ -216,7 +212,7 @@ libdhcp4client.
 # in minires/res_comp.c: add ns_name_uncompress(), ns_name_compress(), and
 #                        ns_name_skip()
 # in minires/res_init.c: add res_randomid()
-%patch80 -p1 -b .prototypes
+%patch15 -p1 -b .prototypes
 
 # Man page updates explaining new features added from the above patches.
 # Normally these man page changes would be included in the feature patch,
@@ -226,16 +222,19 @@ libdhcp4client.
 # and not affect the code changes in the other patches.  It's actually
 # pretty common to update or alter these man pages independent of the code
 # changes.
-%patch85 -p1 -b .manpages
+%patch16 -p1 -b .manpages
 
 # Add the libdhcp4client target (library version of dhclient)
-%patch90 -p1 -b .libdhcp4client
+%patch17 -p1 -b .libdhcp4client
 
 # Handle Xen partial UDP checksums
-%patch95 -p1 -b .xen
+%patch18 -p1 -b .xen
 
 # Add anycast support to dhclient (for OLPC)
-%patch100 -p1 -b .anycast
+%patch19 -p1 -b .anycast
+
+# Ignore the old extended new option info command line switch (-x)
+%patch20 -p1 -b .enoi
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %SOURCE6 .
@@ -293,9 +292,8 @@ EOF
 COPTS="-fPIC -Werror -Dlint -fno-strict-aliasing"
 
 # DO NOT use the %%configure macro because this configure script is not autognu
-# Enable extended option info patch (-DEXTENDED_NEW_OPTION_INFO)
 CC="%{__cc}" ./configure \
-   --copts "$RPM_OPT_FLAGS $COPTS %{?bigptrs} -DEXTENDED_NEW_OPTION_INFO" \
+   --copts "$RPM_OPT_FLAGS $COPTS %{?bigptrs}" \
    --work-dir %{workdir}
 
 %{__sed} 's/@DHCP_VERSION@/%{version}/' < %SOURCE5 > libdhcp4client.pc
@@ -433,6 +431,10 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Wed Aug 15 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.6-3
+- Remove the -x switch enabling extended new option info.  If given to
+  dhclient now, it's ignored.
+
 * Wed Jul 18 2007 Florian La Roche <laroche@redhat.com> - 12:3.0.6-2
 - use a new macro name vendor -> vvendor to not overwrite the
   RPMTAG_VENDOR setting

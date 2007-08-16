@@ -1,6 +1,7 @@
---- dhcp-3.0.5/client/dhclient.c.usage	2007-04-17 10:43:00.000000000 -0400
-+++ dhcp-3.0.5/client/dhclient.c	2007-04-17 10:43:30.000000000 -0400
-@@ -819,20 +819,29 @@
+diff -up dhcp-3.0.6/client/dhclient.c.usage dhcp-3.0.6/client/dhclient.c
+--- dhcp-3.0.6/client/dhclient.c.usage	2007-08-15 11:48:12.000000000 -0400
++++ dhcp-3.0.6/client/dhclient.c	2007-08-15 11:50:22.000000000 -0400
+@@ -808,16 +808,25 @@ int main (argc, argv, envp)
  
  static void usage ()
  {
@@ -8,6 +9,12 @@
 -	log_info (copyright);
 -	log_info (arr);
 -	log_info (url);
+-
+-	log_error ("Usage: dhclient [-1dqr] [-nw] [-p <port>] %s",
+-		   "[-s server]");
+-	log_error ("                [-cf config-file] [-lf lease-file]%s",
+-		   "[-pf pid-file] [-e VAR=val]");
+-	log_fatal ("                [-sf script-file] [interface]");
 +	printf ("%s %s\n", message, DHCP_VERSION);
 +	printf (copyright);
 +	printf ("\n");
@@ -15,18 +22,8 @@
 +	printf ("\n");
 +	printf (url);
 +	printf ("\n");
- 
- #ifdef EXTENDED_NEW_OPTION_INFO
--	log_error ("Usage: dhclient [-1dqr] [-nwx] [-p <port>] %s",
-+	printf ("Usage: dhclient [-1dqr] [-nwx] [-p <port>] %s",
- #else
--	log_error ("Usage: dhclient [-1dqr] [-nw] [-p <port>] %s",
++
 +	printf ("Usage: dhclient [-1dqr] [-nw] [-p <port>] %s",
- #endif
--		   "[-s server]");
--	log_error ("                [-cf config-file] [-lf lease-file]%s",
--		   "[-pf pid-file] [-e VAR=val]");
--	log_fatal ("                [-sf script-file] [interface]");
 +	   "[-s server]");
 +	printf ("                [-cf config-file] [-lf lease-file]%s",
 +	   "[-pf pid-file] [-e VAR=val]");
