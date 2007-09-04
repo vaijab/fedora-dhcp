@@ -10,7 +10,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.5
-Release:  38%{?dist}
+Release:  39%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -434,6 +434,9 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Tue Sep 04 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-39
+- Do not override manually configured NTP servers in /etc/ntp.conf (#274761)
+
 * Mon Jul 09 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-38
 - Remove -TERM option from killproc command (#245317)
 
