@@ -13,7 +13,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.6
-Release:  3%{?dist}
+Release:  4%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -431,6 +431,9 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Tue Sep 04 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.6-4
+- Do not override manually configured NTP servers in /etc/ntp.conf (#274761)
+
 * Wed Aug 15 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.6-3
 - Remove the -x switch enabling extended new option info.  If given to
   dhclient now, it's ignored.
