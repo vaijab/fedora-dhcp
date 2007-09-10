@@ -143,12 +143,12 @@
  #endif
  
 +#if defined(LDAP_CONFIGURATION)
-+# define SV_LDAP_SERVER  		46
-+# define SV_LDAP_PORT  			47
-+# define SV_LDAP_USERNAME  		48
-+# define SV_LDAP_PASSWORD  		49
-+# define SV_LDAP_BASE_DN 		50
-+# define SV_LDAP_METHOD			51
++# define SV_LDAP_SERVER  		47
++# define SV_LDAP_PORT  			48
++# define SV_LDAP_USERNAME  		49
++# define SV_LDAP_PASSWORD  		50
++# define SV_LDAP_BASE_DN 		51
++# define SV_LDAP_METHOD			52
 +#endif
 +
  #if !defined (DEFAULT_DEFAULT_LEASE_TIME)
@@ -521,7 +521,7 @@
 +  if ((temp = ldap_get_values_len (ld, item->ldent, "dhcpRange")) != NULL)
 +    {
 +      strncat (cfile->inbuf, "range", LDAP_BUFFER_SIZE);
-+      for (i=0; temp[i]->bv_val != NULL; i++)
++      for (i=0; temp[i] != NULL && temp[i]->bv_val != NULL; i++)
 +        {
 +          strncat (cfile->inbuf, " ", LDAP_BUFFER_SIZE);
 +          strncat (cfile->inbuf, temp[i]->bv_val, LDAP_BUFFER_SIZE);
@@ -545,7 +545,7 @@
 +  if ((temp = ldap_get_values_len (ld, item->ldent, "dhcpRange")) != NULL)
 +    {
 +      strncat (cfile->inbuf, "range", LDAP_BUFFER_SIZE);
-+      for (i=0; temp[i]->bv_val != NULL; i++)
++      for (i=0; temp[i] != NULL && temp[i]->bv_val != NULL; i++)
 +        {
 +          strncat (cfile->inbuf, " ", LDAP_BUFFER_SIZE);
 +          strncat (cfile->inbuf, temp[i]->bv_val, LDAP_BUFFER_SIZE);
@@ -556,7 +556,7 @@
 +
 +  if ((temp = ldap_get_values_len (ld, item->ldent, "dhcpPermitList")) != NULL)
 +    {
-+      for (i=0; temp[i]->bv_val != NULL; i++)
++      for (i=0; temp[i] != NULL && temp[i]->bv_val != NULL; i++)
 +        {
 +          strncat (cfile->inbuf, temp[i]->bv_val, LDAP_BUFFER_SIZE);
 +          strncat (cfile->inbuf, ";\n", LDAP_BUFFER_SIZE);
@@ -589,7 +589,7 @@
 +
 +  for (i=0; search[i] != NULL; i++)
 +    {
-+      if ((ldap_method = LDAP_METHOD_DYNAMIC) &&
++      if ((ldap_method == LDAP_METHOD_DYNAMIC) &&
 +          (strcmp (search[i], "dhcpHostDN") == 0))
 +        continue;
 +
@@ -644,7 +644,7 @@
 +    
 +  ignore = 0;
 +  found = 1;
-+  for (i=0; objectClass[i]->bv_val != NULL; i++)
++  for (i=0; objectClass[i] != NULL && objectClass[i]->bv_val != NULL; i++)
 +    {
 +      if (strcmp (objectClass[i]->bv_val, "dhcpSharedNetwork") == 0)
 +        ldap_parse_shared_network (item, cfile);
@@ -693,7 +693,7 @@
 +
 +  if ((temp = ldap_get_values_len (ld, item->ldent, "dhcpOption")) != NULL)
 +    {
-+      for (j=0; temp[j]->bv_val != NULL; j++)
++      for (j=0; temp[j] != NULL && temp[j]->bv_val != NULL; j++)
 +        {
 +          strncat (cfile->inbuf, "option ", LDAP_BUFFER_SIZE);
 +          strncat (cfile->inbuf, temp[j]->bv_val, LDAP_BUFFER_SIZE);
@@ -704,7 +704,7 @@
 +
 +  if ((temp = ldap_get_values_len (ld, item->ldent, "dhcpStatements")) != NULL)
 +    {
-+      for (j=0; temp[j]->bv_val != NULL; j++)
++      for (j=0; temp[j] != NULL && temp[j]->bv_val != NULL; j++)
 +        {
 +          strncat (cfile->inbuf, temp[j]->bv_val, LDAP_BUFFER_SIZE);
 +          strncat (cfile->inbuf, ";\n", LDAP_BUFFER_SIZE);
@@ -885,7 +885,7 @@
 +  if (ldap_server == NULL || ldap_username == NULL || ldap_password == NULL ||
 +      ldap_base_dn == NULL)
 +    {
-+      log_info ("Not searching LDAP since ldap-server, ldap-port, ldap-username, ldap-password and ldap-baes-dn were not specified in the config file");
++      log_info ("Not searching LDAP since ldap-server, ldap-username, ldap-password and ldap-base-dn were not specified in the config file");
 +      disable_ldap = 1;
 +      return;
 +    }
@@ -1180,7 +1180,7 @@
 +  *option_buffer = '\0';
 +  if ((temp = ldap_get_values_len (ld, ent, "dhcpStatements")) != NULL)
 +    {
-+      for (i=0; temp[i]->bv_val != NULL; i++)
++      for (i=0; temp[i] != NULL && temp[i]->bv_val != NULL; i++)
 +        {
 +          if (strncasecmp ("lease limit ", temp[i]->bv_val, 12) == 0)
 +            {
@@ -1196,7 +1196,7 @@
 +
 +  if ((temp = ldap_get_values_len (ld, ent, "dhcpOption")) != NULL)
 +    {
-+      for (i=0; temp[i]->bv_val != NULL; i++)
++      for (i=0; temp[i] != NULL && temp[i]->bv_val != NULL; i++)
 +        {
 +          strncat (option_buffer, "option ", sizeof (option_buffer) - strlen (option_buffer) - 1);
 +          strncat (option_buffer, temp[i]->bv_val, sizeof (option_buffer) - strlen (option_buffer) - 1);
