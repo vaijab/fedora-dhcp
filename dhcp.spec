@@ -13,7 +13,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.6
-Release:  4%{?dist}
+Release:  5%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -431,6 +431,9 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Mon Sep 10 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.6-5
+- Fix typos in ldap.c and correct LDAP macros (#283391)
+
 * Tue Sep 04 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.6-4
 - Do not override manually configured NTP servers in /etc/ntp.conf (#274761)
 
