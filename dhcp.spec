@@ -13,7 +13,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.6
-Release:  6%{?dist}
+Release:  7%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -431,6 +431,10 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Wed Sep 26 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.6-7
+- In dhcp.conf.5, explain that if no next-server statement applies to the
+  requesting client, the address 0.0.0.0 is used (#184484).
+
 * Wed Sep 26 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.6-6
 - Init script fixes for dhcpd and dhcrelay (#278601)
 
