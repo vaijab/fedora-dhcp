@@ -1,23 +1,58 @@
-#!/bin/bash
+#!/bin/sh
+#
+### BEGIN INIT INFO
+# Provides: dhcrelay
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Should-Start:
+# Required-Start: $network
+# Required-Stop:
+# Short-Description: Start and stop the DHCP relay server
+# Description: dhcrelay provides the Dynamic Host Configuration Protocol (DHCP)
+#              relay server.  This is required when your DHCP server is on
+#              another network segment from the clients.
+### END INIT INFO
+#
+# The fields below are left around for legacy tools (will remove later).
 #
 # chkconfig: - 66 34
 # description: dhcrelay provides a relay for Dynamic Host Control Protocol.
+# processname: dhcrelay
+# # pidfile: /var/run/dhcrelay.pid
 
-# Source function library
 . /etc/init.d/functions
 
 RETVAL=0
+
 prog=dhcrelay
 dhcrelay=/usr/sbin/dhcrelay
 lockfile=/var/lock/subsys/dhcrelay
+pidfile=/var/run/dhcrelay.pid
+conf=/etc/sysconfig/dhcrelay
+
+# The dhcrelay daemon uses the sysconfig file for configuration information.
+# There is no native configuration file for this program and you must specify
+# its settings on the command line.
+[ -f /etc/sysconfig/dhcrelay ] && . /etc/sysconfig/dhcrelay
+
+configtest() {
+    [ -x $dhcrelay ] || exit 5
+    [ -f $conf ] || exit 6
+    [ -z "$DHCPSERVERS" ] && exit 6
+    RETVAL=0
+    return $RETVAL
+}
 
 start() {
     [ -x $dhcrelay ] || exit 5
-    [ -f /etc/sysconfig/dhcrelay ] || exit 6
-    . /etc/sysconfig/dhcrelay
-    [ -z "$DHCPSERVERS" ] && exit 6
+    [ -f $conf ] || exit 6
+
+    pidofproc $prog >/dev/null 2>&1
+    RETVAL=$?
+    [ $RETVAL -eq 0 ] && return $RETVAL
+
     echo -n $"Starting $prog: "
-    daemon $dhcrelay $([ -n "$INTERFACES" ] && for int in $INTERFACES ; do echo -n " -i $int" ; done) $DHCPSERVERS
+    daemon $dhcrelay $([ -n "$INTERFACES" ] && for int in $INTERFACES ; do echo -n " -i $int" ; done) $DHCPSERVERS 2>/dev/null
     RETVAL=$?
     echo
     [ $RETVAL -eq 0 ] && touch $lockfile
@@ -25,41 +60,64 @@ start() {
 }
 
 stop() {
+    pidofproc $prog >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        RETVAL=7
+        return $RETVAL
+    fi
+
     echo -n $"Shutting down $prog: "
     killproc $prog -TERM
     RETVAL=$?
+
+    [ $RETVAL = 0 ] && success || failure
     echo
-    [ $RETVAL -eq 0 ] && rm -f $lockfile
+    [ $RETVAL = 0 ] && rm -f $lockfile
     return $RETVAL
 }
 
-# See how we were called.
+if [ ! -x $dhcrelay ]; then
+    RETVAL=5
+    exit $RETVAL
+fi
+
+if [ $# -gt 1 ]; then
+    RETVAL=2
+    exit $RETVAL
+fi
+
 case "$1" in
     start)
         start
+        RETVAL=$?
         ;;
     stop)
         stop
+        RETVAL=$?
         ;;
-    reload)
+    restart|force-reload)
+        stop && start
+        RETVAL=$?
+        ;;
+    try-restart|reload)
         RETVAL=3
-        ;;
-    restart)
-        stop
-        start
         ;;
     condrestart)
         if [ -f $lockfile ]; then
-            stop
-            start
+            stop && start
+            RETVAL=$?
         fi
+        ;;
+    configtest)
+        configtest
+        RETVAL=$?
         ;;
     status)
         status $prog
         RETVAL=$?
         ;;
     *)
-        echo $"Usage: $0 {start|stop|restart|condrestart|status}"
+        echo $"Usage: $0 {start|stop|restart|condrestart|configtest|status}"
         RETVAL=3
         ;;
 esac
