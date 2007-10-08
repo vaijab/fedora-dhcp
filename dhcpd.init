@@ -36,7 +36,7 @@ pidfile=/var/run/dhcpd.pid
 # if the user specified a different config file, make sure we reference it
 findConfig() {
     for arg in $DHCPDARGS ; do
-        if [ $found = 1 ]; then
+        if [ "$found" = 1 ]; then
             [ -f "$arg" ] && echo "$arg"
             return
         fi
@@ -82,7 +82,7 @@ start() {
 
 stop() {
     pidofproc $prog >/dev/null 2>&1
-    if [ $? -eq 0 ]; then
+    if [ $? -ne 0 ]; then
         RETVAL=7
         return $RETVAL
     fi

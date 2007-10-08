@@ -13,7 +13,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.6
-Release:  7%{?dist}
+Release:  8%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -27,11 +27,10 @@ Source5:  libdhcp4client.pc
 Source6:  README.ldap
 Source7:  draft-ietf-dhc-ldap-schema-01.txt
 Source8:  dhcpd-conf-to-ldap
-Source9:  linux.dbus-example
-Source10: linux
-Source11: Makefile.dist
-Source12: dhcp4client.h
-Source13: libdhcp_control.h
+Source9:  linux
+Source10: Makefile.dist
+Source11: dhcp4client.h
+Source12: libdhcp_control.h
 
 Patch0:   %{name}-3.0.5-Makefile.patch
 Patch1:   %{name}-3.0.5-warnings.patch
@@ -241,18 +240,14 @@ libdhcp4client.
 %{__install} -p -m 0644 %SOURCE7 doc
 %{__install} -p -m 0755 %SOURCE8 contrib
 
-# Copy in example dhclient script for use with D-BUS (requires extended
-# new option info patch too)
-%{__install} -p -m 0755 %SOURCE9 client/scripts
-
 # Copy in the Fedora/RHEL dhclient script
-%{__install} -p -m 0755 %SOURCE10 client/scripts
+%{__install} -p -m 0755 %SOURCE9 client/scripts
 
 # Copy in the libdhcp4client headers and Makefile.dist
 %{__mkdir} -p libdhcp4client
+%{__install} -p -m 0644 %SOURCE10 libdhcp4client
 %{__install} -p -m 0644 %SOURCE11 libdhcp4client
 %{__install} -p -m 0644 %SOURCE12 libdhcp4client
-%{__install} -p -m 0644 %SOURCE13 libdhcp4client
 
 # Ensure we don't pick up Perl as a dependency from the scripts and modules
 # in the contrib directory (we copy this to /usr/share/doc in the final
@@ -431,6 +426,11 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Mon Oct 08 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.6-8
+- Init script fixes (#320761)
+- Removed linux.dbus-example script since we aren't using dhcdbd now
+- Remove dhcdbd leftovers from dhclient-script (#306381)
+
 * Wed Sep 26 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.6-7
 - In dhcp.conf.5, explain that if no next-server statement applies to the
   requesting client, the address 0.0.0.0 is used (#184484).

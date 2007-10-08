@@ -61,7 +61,7 @@ start() {
 
 stop() {
     pidofproc $prog >/dev/null 2>&1
-    if [ $? -eq 0 ]; then
+    if [ $? -ne 0 ]; then
         RETVAL=7
         return $RETVAL
     fi
