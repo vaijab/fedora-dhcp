@@ -43,6 +43,13 @@ MINIRES_SRCS = minires_ns_date.c minires_ns_name.c minires_ns_parse.c \
                minires_res_mkupdate.c minires_res_query.c minires_res_send.c \
                minires_res_sendsigned.c minires_res_update.c
 
+# ISC dhcp headers we need to copy to /usr/include/dhcp4client
+DHCP_HEADERS = dhcpd.h cdefs.h osdep.h arpa/nameser.h minires/minires.h \
+               site.h cf/linux.h dhcp.h statement.h tree.h inet.h dhctoken.h \
+               omapip/omapip_p.h failover.h ctrace.h minires/resolv.h \
+               minires/res_update.h omapip/convert.h omapip/hash.h \
+               omapip/trace.h
+
 HDRS = dhcp4client.h libdhcp_control.h
 SRCS = $(COMMON_SRCS) $(CLIENT_SRCS)
 OBJS = $(SRCS:.c=.o)
@@ -59,11 +66,9 @@ install: all
 	install -p -m 0644 -D libdhcp4client.a $(DESTDIR)$(LIBDIR)/libdhcp4client.a
 	install -p -m 0644 -D dhcp4client.h $(DESTDIR)$(INCDIR)/dhcp4client/dhcp4client.h
 	install -p -m 0644 -D libdhcp_control.h $(DESTDIR)$(INCDIR)/dhcp4client/libdhcp_control.h
-	( cd $(TOP)/includes ; \
-	  find . -name "*.h" -type f | while read h ; do \
-	      install -p -m 0644 -D $$h $(DESTDIR)$(INCDIR)/dhcp4client/isc_dhcp/$$h ; \
-	  done ; \
-	)
+	for hdr in $(DHCP_HEADERS) ; do \
+		install -p -m 0644 -D $(TOP)/includes/$${hdr} $(DESTDIR)$(INCDIR)/dhcp4client/$${hdr} ; \
+	done
 
 depend:
 	$(MKDEP) $(INCLUDES) $(PREDEFINES) $(SRCS)

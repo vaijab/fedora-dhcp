@@ -1,214 +1,35 @@
---- dhcp-3.0.5/common/conflex.c.ldap	2006-02-22 17:43:27.000000000 -0500
-+++ dhcp-3.0.5/common/conflex.c	2007-03-29 15:11:19.000000000 -0400
-@@ -47,6 +47,7 @@
- static enum dhcp_token read_number PROTO ((int, struct parse *));
- static enum dhcp_token read_num_or_name PROTO ((int, struct parse *));
- static enum dhcp_token intern PROTO ((char *, enum dhcp_token));
-+static int read_function PROTO ((struct parse *));
- 
- isc_result_t new_parse (cfile, file, inbuf, buflen, name, eolp)
- 	struct parse **cfile;
-@@ -74,6 +75,10 @@
- 	tmp -> file = file;
- 	tmp -> eol_token = eolp;
- 
-+	if (file != -1) {
-+		tmp -> read_function = read_function;;
-+	}
-+
- 	tmp -> bufix = 0;
- 	tmp -> buflen = buflen;
- 	if (inbuf) {
-@@ -113,22 +118,11 @@
- 	int c;
- 
- 	if (cfile -> bufix == cfile -> buflen) {
--		if (cfile -> file != -1) {
--			cfile -> buflen =
--				read (cfile -> file,
--				      cfile -> inbuf, cfile -> bufsiz);
--			if (cfile -> buflen == 0) {
--				c = EOF;
--				cfile -> bufix = 0;
--			} else if (cfile -> buflen < 0) {
--				c = EOF;
--				cfile -> bufix = cfile -> buflen = 0;
--			} else {
--				c = cfile -> inbuf [0];
--				cfile -> bufix = 1;
--			}
--		} else
-+		if (cfile -> read_function) {
-+			c = cfile -> read_function (cfile);
-+		} else {
- 			c = EOF;
-+		}
- 	} else {
- 		c = cfile -> inbuf [cfile -> bufix];
- 		cfile -> bufix++;
-@@ -1128,3 +1122,25 @@
- 	}
- 	return dfv;
- }
-+
-+
-+static int
-+read_function (struct parse * cfile)
-+{
-+	int c;
-+
-+	cfile -> buflen = read (cfile -> file, cfile -> inbuf, cfile -> bufsiz);
-+	if (cfile -> buflen == 0) {
-+		c = EOF;
-+		cfile -> bufix = 0;
-+	} else if (cfile -> buflen < 0) {
-+		c = EOF;
-+		cfile -> bufix = cfile -> buflen = 0;
-+	} else {
-+		c = cfile -> inbuf [0];
-+		cfile -> bufix = 1;
-+	}
-+
-+	return c;
-+}
-+
---- dhcp-3.0.5/common/print.c.ldap	2007-03-29 15:10:26.000000000 -0400
-+++ dhcp-3.0.5/common/print.c	2007-03-29 15:11:19.000000000 -0400
-@@ -166,9 +166,9 @@
- }
- 
- char *print_hw_addr (htype, hlen, data)
--	int htype;
--	int hlen;
--	unsigned char *data;
-+	const int htype;
-+	const int hlen;
-+	const unsigned char *data;
+diff -up dhcp-3.1.0/server/mdb.c.ldap dhcp-3.1.0/server/mdb.c
+--- dhcp-3.1.0/server/mdb.c.ldap	2007-06-08 14:57:02.000000000 -0400
++++ dhcp-3.1.0/server/mdb.c	2007-10-22 16:29:48.000000000 -0400
+@@ -454,6 +454,12 @@ int find_hosts_by_haddr (struct host_dec
  {
- 	static char habuf [49];
- 	char *s;
---- dhcp-3.0.5/includes/dhcpd.h.ldap	2007-03-29 15:10:26.000000000 -0400
-+++ dhcp-3.0.5/includes/dhcpd.h	2007-03-29 15:11:19.000000000 -0400
-@@ -79,6 +79,11 @@
- #include <isc-dhcp/result.h>
- #include <omapip/omapip_p.h>
- 
+ 	struct host_decl *foo;
+ 	struct hardware h;
++	int ret;
++
 +#if defined(LDAP_CONFIGURATION)
-+# include <ldap.h>
-+# include <sys/utsname.h> /* for uname() */
++	if ((ret = find_haddr_in_ldap (hp, htype, hlen, haddr, file, line)))
++		return ret;
 +#endif
-+
- #if !defined (OPTION_HASH_SIZE)
- # define OPTION_HASH_SIZE 17
- # define OPTION_HASH_PTWO 32	/* Next power of two above option hash. */
-@@ -139,6 +144,8 @@
- 	char *inbuf;
- 	unsigned bufix, buflen;
- 	unsigned bufsiz;
-+
-+	int (*read_function) (struct parse *);
- };
  
- /* Variable-length array of data. */
-@@ -244,6 +251,27 @@
- 	u_int8_t hbuf [17];
- };
- 
-+#if defined(LDAP_CONFIGURATION)
-+# define LDAP_BUFFER_SIZE		8192
-+# define LDAP_METHOD_STATIC		0
-+# define LDAP_METHOD_DYNAMIC		1
-+
-+/* This is a tree of the current configuration we are building from LDAP */
-+
-+struct ldap_config_stack {
-+	LDAPMessage * res; 	/* Pointer returned from ldap_search */
-+	LDAPMessage * ldent; 	/* Current item in LDAP that we're processing 
-+				   in res */
-+	int close_brace;	/* Put a closing } after we're through with
-+				   this item */
-+	int processed; 		/* We set this flag if this base item has been
-+				   processed. After this base item is processed,
-+				   we can start processing the children */
-+	struct ldap_config_stack *children;
-+	struct ldap_config_stack *next;
-+};
-+#endif
-+
- typedef enum {
- 	server_startup = 0,
- 	server_running = 1,
-@@ -426,6 +454,15 @@
- # define DEFAULT_PING_TIMEOUT 1
- #endif
- 
-+#if defined(LDAP_CONFIGURATION)
-+# define SV_LDAP_SERVER  		47
-+# define SV_LDAP_PORT  			48
-+# define SV_LDAP_USERNAME  		49
-+# define SV_LDAP_PASSWORD  		50
-+# define SV_LDAP_BASE_DN 		51
-+# define SV_LDAP_METHOD			52
-+#endif
-+
- #if !defined (DEFAULT_DEFAULT_LEASE_TIME)
- # define DEFAULT_DEFAULT_LEASE_TIME 43200
- #endif
-@@ -1531,7 +1568,7 @@
- char *quotify_string (const char *, const char *, int);
- char *quotify_buf (const unsigned char *, unsigned, const char *, int);
- char *print_base64 (const unsigned char *, unsigned, const char *, int);
--char *print_hw_addr PROTO ((int, int, unsigned char *));
-+char *print_hw_addr PROTO ((const int, const int, const unsigned char *));
- void print_lease PROTO ((struct lease *));
- void dump_raw PROTO ((const unsigned char *, unsigned));
- void dump_packet_option (struct option_cache *, struct packet *,
-@@ -2639,3 +2676,14 @@
- #endif /* FAILOVER_PROTOCOL */
- 
- const char *binding_state_print (enum failover_state);
-+
-+/* ldap.c */
-+#if defined(LDAP_CONFIGURATION)
-+extern struct enumeration ldap_methods;
-+isc_result_t ldap_read_config (void);
-+int find_haddr_in_ldap (struct host_decl **, int, unsigned,
-+                        const unsigned char *, const char *, int);
-+int find_subclass_in_ldap (struct class *, struct class **, 
-+			   struct data_string *);
-+#endif
-+
---- dhcp-3.0.5/includes/site.h.ldap	2002-03-12 13:33:39.000000000 -0500
-+++ dhcp-3.0.5/includes/site.h	2007-03-29 15:11:19.000000000 -0400
-@@ -177,3 +177,13 @@
-    traces. */
- 
- #define TRACING
-+
-+/* Define this if you want to read your config from LDAP. Read README.ldap
-+   about how to set this up */
-+
-+#define LDAP_CONFIGURATION
-+
-+#define _PATH_DHCPD_DB    "/var/lib/dhcpd/dhcpd.leases"
-+#define _PATH_DHCLIENT_DB "/var/lib/dhclient/dhclient.leases"
-+#define _PATH_DHCPD_DB    "/var/lib/dhcpd/dhcpd.leases"
-+#define _PATH_DHCLIENT_DB "/var/lib/dhclient/dhclient.leases"
---- dhcp-3.0.5/server/Makefile.dist.ldap	2004-06-10 13:59:50.000000000 -0400
-+++ dhcp-3.0.5/server/Makefile.dist	2007-03-29 15:11:19.000000000 -0400
+ 	h.hlen = hlen + 1;
+ 	h.hbuf [0] = htype;
+diff -up dhcp-3.1.0/server/Makefile.dist.ldap dhcp-3.1.0/server/Makefile.dist
+--- dhcp-3.1.0/server/Makefile.dist.ldap	2006-07-25 09:26:00.000000000 -0400
++++ dhcp-3.1.0/server/Makefile.dist	2007-10-22 16:29:48.000000000 -0400
 @@ -25,9 +25,9 @@
  CATMANPAGES = dhcpd.cat8 dhcpd.conf.cat5 dhcpd.leases.cat5
  SEDMANPAGES = dhcpd.man8 dhcpd.conf.man5 dhcpd.leases.man5
  SRCS   = dhcpd.c dhcp.c bootp.c confpars.c db.c class.c failover.c \
--	 omapi.c mdb.c stables.c salloc.c ddns.c
-+	 omapi.c mdb.c stables.c salloc.c ddns.c ldap.c
+-	 omapi.c mdb.c stables.c salloc.c ddns.c dhcpleasequery.c
++	 omapi.c mdb.c stables.c salloc.c ddns.c dhcpleasequery.c ldap.c
  OBJS   = dhcpd.o dhcp.o bootp.o confpars.o db.o class.o failover.o \
--	 omapi.o mdb.o stables.o salloc.o ddns.o
-+	 omapi.o mdb.o stables.o salloc.o ddns.o ldap.o
+-	 omapi.o mdb.o stables.o salloc.o ddns.o dhcpleasequery.o
++	 omapi.o mdb.o stables.o salloc.o ddns.o dhcpleasequery.o ldap.o
  PROG   = dhcpd
  MAN    = dhcpd.8 dhcpd.conf.5 dhcpd.leases.5
  
-@@ -103,6 +103,6 @@
+@@ -106,6 +106,6 @@ dhcpd.leases.man5:	dhcpd.leases.5
  		-e "s#RUNDIR#$(VARRUN)#g" < dhcpd.leases.5 >dhcpd.leases.man5
  
  dhcpd:	$(OBJS) $(COBJ) $(DHCPLIB)
@@ -216,63 +37,10 @@
 +	$(CC) $(LFLAGS) -o dhcpd $(OBJS) $(DHCPLIB) $(LIBS) -lldap
  
  # Dependencies (semi-automatically-generated)
---- dhcp-3.0.5/server/class.c.ldap	2004-06-10 13:59:51.000000000 -0400
-+++ dhcp-3.0.5/server/class.c	2007-03-29 15:11:19.000000000 -0400
-@@ -90,6 +90,7 @@
- 	int matched = 0;
- 	int status;
- 	int ignorep;
-+	int classfound;
- 
- 	for (class = collection -> classes; class; class = class -> nic) {
- #if defined (DEBUG_CLASS_MATCHING)
-@@ -135,9 +136,19 @@
- 				   class -> submatch, MDL));
- 			if (status && data.len) {
- 				nc = (struct class *)0;
--				if (class_hash_lookup (&nc, class -> hash,
--						       (const char *)data.data,
--						       data.len, MDL)) {
-+                                classfound = class_hash_lookup (&nc, 
-+						class -> hash, 
-+						(const char *)data.data,
-+						data.len, MDL);
-+
-+#ifdef LDAP_CONFIGURATION
-+                                if (!classfound && 
-+						find_subclass_in_ldap (class, 
-+								&nc, &data)) 
-+					classfound = 1;
-+#endif
-+
-+				if (classfound) {
- #if defined (DEBUG_CLASS_MATCHING)
- 					log_info ("matches subclass %s.",
- 					      print_hex_1 (data.len,
---- dhcp-3.0.5/server/confpars.c.ldap	2007-03-29 15:10:26.000000000 -0400
-+++ dhcp-3.0.5/server/confpars.c	2007-03-29 15:11:19.000000000 -0400
-@@ -63,7 +63,17 @@
- 
- isc_result_t readconf ()
- {
--	return read_conf_file (path_dhcpd_conf, root_group, ROOT_GROUP, 0);
-+	isc_result_t res;
-+
-+	res = read_conf_file (path_dhcpd_conf, root_group, ROOT_GROUP, 0);
-+#if defined(LDAP_CONFIGURATION)
-+	if (res != ISC_R_SUCCESS)
-+		return (res);
-+
-+	return ldap_read_config ();
-+#else
-+	return (res);
-+#endif
- }
- 
- isc_result_t read_conf_file (const char *filename, struct group *group,
---- dhcp-3.0.5/server/dhcpd.c.ldap	2007-03-29 15:10:26.000000000 -0400
-+++ dhcp-3.0.5/server/dhcpd.c	2007-03-29 15:11:19.000000000 -0400
-@@ -433,6 +433,9 @@
+diff -up dhcp-3.1.0/server/dhcpd.c.ldap dhcp-3.1.0/server/dhcpd.c
+--- dhcp-3.1.0/server/dhcpd.c.ldap	2007-05-29 13:49:44.000000000 -0400
++++ dhcp-3.1.0/server/dhcpd.c	2007-10-22 16:29:48.000000000 -0400
+@@ -440,6 +440,9 @@ int main (argc, argv, envp)
  	/* Add the ddns update style enumeration prior to parsing. */
  	add_enumeration (&ddns_styles);
  	add_enumeration (&syslog_enum);
@@ -282,8 +50,9 @@
  
  	if (!group_allocate (&root_group, MDL))
  		log_fatal ("Can't allocate root group!");
---- /dev/null	2007-03-29 11:34:09.579686084 -0400
-+++ dhcp-3.0.5/server/ldap.c	2007-03-29 15:11:19.000000000 -0400
+diff -up /dev/null dhcp-3.1.0/server/ldap.c
+--- /dev/null	2007-10-22 10:27:59.854008585 -0400
++++ dhcp-3.1.0/server/ldap.c	2007-10-22 16:29:48.000000000 -0400
 @@ -0,0 +1,1142 @@
 +/* ldap.c
 +
@@ -1427,47 +1196,81 @@
 +
 +#endif
 +
---- dhcp-3.0.5/server/mdb.c.ldap	2007-03-29 15:10:26.000000000 -0400
-+++ dhcp-3.0.5/server/mdb.c	2007-03-29 15:11:19.000000000 -0400
-@@ -373,6 +373,12 @@
- 			 const char *file, int line)
- {
- 	struct hardware h;
-+	int ret;
-+
-+#if defined(LDAP_CONFIGURATION)
-+	if ((ret = find_haddr_in_ldap (hp, htype, hlen, haddr, file, line)))
-+		return ret;
-+#endif
+diff -up dhcp-3.1.0/server/confpars.c.ldap dhcp-3.1.0/server/confpars.c
+--- dhcp-3.1.0/server/confpars.c.ldap	2007-06-28 13:20:40.000000000 -0400
++++ dhcp-3.1.0/server/confpars.c	2007-10-22 16:29:48.000000000 -0400
+@@ -63,7 +63,17 @@ void parse_trace_setup ()
  
- 	h.hlen = hlen + 1;
- 	h.hbuf [0] = htype;
---- dhcp-3.0.5/server/stables.c.ldap	2004-06-10 13:59:58.000000000 -0400
-+++ dhcp-3.0.5/server/stables.c	2007-03-29 15:11:19.000000000 -0400
-@@ -483,12 +483,21 @@
- 	{ "log-facility", "Nsyslog-facilities.",	&server_universe, 44 },
- 	{ "do-forward-updates", "f",			&server_universe, 45 },
- 	{ "ping-timeout", "T",				&server_universe, 46 },
+ isc_result_t readconf ()
+ {
+-	return read_conf_file (path_dhcpd_conf, root_group, ROOT_GROUP, 0);
++	isc_result_t res;
++
++	res = read_conf_file (path_dhcpd_conf, root_group, ROOT_GROUP, 0);
 +#if defined(LDAP_CONFIGURATION)
-+	{ "ldap-server", "t",				&server_universe, 47 },
-+	{ "ldap-port", "d",					&server_universe, 48 },
-+	{ "ldap-username", "t",				&server_universe, 49 },
-+	{ "ldap-password", "t",				&server_universe, 50 },
-+	{ "ldap-base-dn", "t",				&server_universe, 51 },
-+	{ "ldap-method", "Nldap-methods.",	&server_universe, 52 },
++	if (res != ISC_R_SUCCESS)
++		return (res);
++
++	return ldap_read_config ();
 +#else
- 	{ "unknown-47", "X",				&server_universe, 47 },
- 	{ "unknown-48", "X",				&server_universe, 48 },
- 	{ "unknown-49", "X",				&server_universe, 49 },
- 	{ "unknown-50", "X",				&server_universe, 50 },
- 	{ "unknown-51", "X",				&server_universe, 51 },
- 	{ "unknown-52", "X",				&server_universe, 52 },
++	return (res);
 +#endif
- 	{ "unknown-53", "X",				&server_universe, 53 },
- 	{ "unknown-54", "X",				&server_universe, 54 },
- 	{ "unknown-55", "X",				&server_universe, 55 },
-@@ -694,6 +703,20 @@
- 	{ "option-end", "e",				&server_universe, 255 },
+ }
+ 
+ isc_result_t read_conf_file (const char *filename, struct group *group,
+diff -up dhcp-3.1.0/server/class.c.ldap dhcp-3.1.0/server/class.c
+--- dhcp-3.1.0/server/class.c.ldap	2006-06-01 16:23:17.000000000 -0400
++++ dhcp-3.1.0/server/class.c	2007-10-22 16:29:48.000000000 -0400
+@@ -90,6 +90,7 @@ int check_collection (packet, lease, col
+ 	int matched = 0;
+ 	int status;
+ 	int ignorep;
++	int classfound;
+ 
+ 	for (class = collection -> classes; class; class = class -> nic) {
+ #if defined (DEBUG_CLASS_MATCHING)
+@@ -135,9 +136,15 @@ int check_collection (packet, lease, col
+ 				   class -> submatch, MDL));
+ 			if (status && data.len) {
+ 				nc = (struct class *)0;
+-				if (class_hash_lookup (&nc, class -> hash,
+-						       (const char *)data.data,
+-						       data.len, MDL)) {
++				classfound = class_hash_lookup (&nc, class -> hash,
++					(const char *)data.data, data.len, MDL);
++
++#ifdef LDAP_CONFIGURATION
++				if (!classfound && find_subclass_in_ldap (class, &nc, &data))
++					classfound = 1;
++#endif
++
++				if (classfound) {
+ #if defined (DEBUG_CLASS_MATCHING)
+ 					log_info ("matches subclass %s.",
+ 					      print_hex_1 (data.len,
+diff -up dhcp-3.1.0/server/stables.c.ldap dhcp-3.1.0/server/stables.c
+--- dhcp-3.1.0/server/stables.c.ldap	2007-04-27 18:48:10.000000000 -0400
++++ dhcp-3.1.0/server/stables.c	2007-10-22 16:29:48.000000000 -0400
+@@ -238,9 +238,38 @@ static struct option server_options[] = 
+ 	{ "adaptive-lease-time-threshold", "B",	&server_universe,  50, 1 },
+ 	{ "do-reverse-updates", "f",		&server_universe,  51, 1 },
+ 	{ "fqdn-reply", "f",			&server_universe,  52, 1 },
++#if defined(LDAP_CONFIGURATION)
++	{ "ldap-server", "t",				&server_universe, 53 },
++	{ "ldap-port", "d",					&server_universe, 54 },
++	{ "ldap-username", "t",				&server_universe, 55 },
++	{ "ldap-password", "t",				&server_universe, 56 },
++	{ "ldap-base-dn", "t",				&server_universe, 57 },
++	{ "ldap-method", "Nldap-methods.",	&server_universe, 58 },
++#else
++	{ "unknown-53", "X",				&server_universe, 53 },
++	{ "unknown-54", "X",				&server_universe, 54 },
++	{ "unknown-55", "X",				&server_universe, 55 },
++	{ "unknown-56", "X",				&server_universe, 56 },
++	{ "unknown-57", "X",				&server_universe, 57 },
++	{ "unknown-58", "X",				&server_universe, 58 },
++#endif
+ 	{ NULL, NULL, NULL, 0, 0 }
  };
  
 +#if defined(LDAP_CONFIGURATION)
@@ -1487,3 +1290,199 @@
  struct enumeration_value ddns_styles_values [] = {
  	{ "none", 0 },
  	{ "ad-hoc", 1 },
+diff -up dhcp-3.1.0/common/print.c.ldap dhcp-3.1.0/common/print.c
+--- dhcp-3.1.0/common/print.c.ldap	2007-05-29 13:49:44.000000000 -0400
++++ dhcp-3.1.0/common/print.c	2007-10-22 16:29:48.000000000 -0400
+@@ -168,9 +168,9 @@ char *print_base64 (const unsigned char 
+ }
+ 
+ char *print_hw_addr (htype, hlen, data)
+-	int htype;
+-	int hlen;
+-	unsigned char *data;
++	const int htype;
++	const int hlen;
++	const unsigned char *data;
+ {
+ 	static char habuf [49];
+ 	char *s;
+diff -up dhcp-3.1.0/common/conflex.c.ldap dhcp-3.1.0/common/conflex.c
+--- dhcp-3.1.0/common/conflex.c.ldap	2007-05-29 13:49:44.000000000 -0400
++++ dhcp-3.1.0/common/conflex.c	2007-10-22 16:29:48.000000000 -0400
+@@ -47,6 +47,7 @@ static enum dhcp_token read_string PROTO
+ static enum dhcp_token read_number PROTO ((int, struct parse *));
+ static enum dhcp_token read_num_or_name PROTO ((int, struct parse *));
+ static enum dhcp_token intern PROTO ((unsigned char *, enum dhcp_token));
++static int read_function PROTO ((struct parse *));
+ 
+ isc_result_t new_parse (cfile, file, inbuf, buflen, name, eolp)
+ 	struct parse **cfile;
+@@ -74,6 +75,10 @@ isc_result_t new_parse (cfile, file, inb
+ 	tmp -> file = file;
+ 	tmp -> eol_token = eolp;
+ 
++	if (file != -1) {
++		tmp -> read_function = read_function;;
++	}
++
+ 	tmp -> bufix = 0;
+ 	tmp -> buflen = buflen;
+ 	if (inbuf) {
+@@ -113,22 +118,11 @@ static int get_char (cfile)
+ 	int c;
+ 
+ 	if (cfile -> bufix == cfile -> buflen) {
+-		if (cfile -> file != -1) {
+-			cfile -> buflen =
+-				read (cfile -> file,
+-				      cfile -> inbuf, cfile -> bufsiz);
+-			if (cfile -> buflen == 0) {
+-				c = EOF;
+-				cfile -> bufix = 0;
+-			} else if (cfile -> buflen < 0) {
+-				c = EOF;
+-				cfile -> bufix = cfile -> buflen = 0;
+-			} else {
+-				c = cfile -> inbuf [0];
+-				cfile -> bufix = 1;
+-			}
+-		} else
++		if (cfile -> read_function) {
++			c = cfile -> read_function (cfile);
++		} else {
+ 			c = EOF;
++		}
+ 	} else {
+ 		c = cfile -> inbuf [cfile -> bufix];
+ 		cfile -> bufix++;
+@@ -1213,3 +1207,23 @@ static enum dhcp_token intern (atom, dfv
+ 	}
+ 	return dfv;
+ }
++
++static int
++read_function (struct parse * cfile)
++{
++	int c;
++
++	cfile -> buflen = read (cfile -> file, cfile -> inbuf, cfile -> bufsiz);
++	if (cfile -> buflen == 0) {
++		c = EOF;
++		cfile -> bufix = 0;
++	} else if (cfile -> buflen < 0) {
++		c = EOF;
++		cfile -> bufix = cfile -> buflen = 0;
++	} else {
++		c = cfile -> inbuf [0];
++		cfile -> bufix = 1;
++	}
++
++	return c;
++}
+diff -up dhcp-3.1.0/includes/dhcpd.h.ldap dhcp-3.1.0/includes/dhcpd.h
+--- dhcp-3.1.0/includes/dhcpd.h.ldap	2007-05-29 13:49:44.000000000 -0400
++++ dhcp-3.1.0/includes/dhcpd.h	2007-10-22 16:29:56.000000000 -0400
+@@ -81,6 +81,11 @@ typedef struct hash_table class_hash_t;
+ #include <isc-dhcp/result.h>
+ #include <omapip/omapip_p.h>
+ 
++#if defined(LDAP_CONFIGURATION)
++# include <ldap.h>
++# include <sys/utsname.h> /* for uname() */
++#endif
++
+ #if !defined (BYTE_NAME_HASH_SIZE)
+ # define BYTE_NAME_HASH_SIZE	401	/* Default would be rediculous. */
+ #endif
+@@ -251,6 +256,8 @@ struct parse {
+ 	char *inbuf;
+ 	unsigned bufix, buflen;
+ 	unsigned bufsiz;
++
++	int (*read_function) (struct parse *);
+ };
+ 
+ /* Variable-length array of data. */
+@@ -362,6 +369,26 @@ struct hardware {
+ 	u_int8_t hbuf [17];
+ };
+ 
++#if defined(LDAP_CONFIGURATION)
++# define LDAP_BUFFER_SIZE		8192
++# define LDAP_METHOD_STATIC		0
++# define LDAP_METHOD_DYNAMIC	1
++
++/* This is a tree of the current configuration we are building from LDAP */
++struct ldap_config_stack {
++	LDAPMessage * res;	/* Pointer returned from ldap_search */
++	LDAPMessage * ldent;	/* Current item in LDAP that we're processing.
++							in res */
++	int close_brace;	/* Put a closing } after we're through with
++						this item */
++	int processed;	/* We set this flag if this base item has been
++					processed. After this base item is processed,
++					we can start processing the children */
++	struct ldap_config_stack *children;
++	struct ldap_config_stack *next;
++};
++#endif
++
+ typedef enum {
+ 	server_startup = 0,
+ 	server_running = 1,
+@@ -558,6 +585,15 @@ struct lease_state {
+ # define DEFAULT_PING_TIMEOUT 1
+ #endif
+ 
++#if defined(LDAP_CONFIGURATION)
++# define SV_LDAP_SERVER		47
++# define SV_LDAP_PORT		48
++# define SV_LDAP_USERNAME	49
++# define SV_LDAP_PASSWORD	50
++# define SV_LDAP_BASE_DN	51
++# define SV_LDAP_METHOD		52
++#endif
++
+ #if !defined (DEFAULT_DEFAULT_LEASE_TIME)
+ # define DEFAULT_DEFAULT_LEASE_TIME 43200
+ #endif
+@@ -1702,7 +1738,7 @@ extern int db_time_format;
+ char *quotify_string (const char *, const char *, int);
+ char *quotify_buf (const unsigned char *, unsigned, const char *, int);
+ char *print_base64 (const unsigned char *, unsigned, const char *, int);
+-char *print_hw_addr PROTO ((int, int, unsigned char *));
++char *print_hw_addr PROTO ((const int, const int, const unsigned char *));
+ void print_lease PROTO ((struct lease *));
+ void dump_raw PROTO ((const unsigned char *, unsigned));
+ void dump_packet_option (struct option_cache *, struct packet *,
+@@ -2812,3 +2848,13 @@ OMAPI_OBJECT_ALLOC_DECL (dhcp_failover_l
+ #endif /* FAILOVER_PROTOCOL */
+ 
+ const char *binding_state_print (enum failover_state);
++
++/* ldap.c */
++#if defined(LDAP_CONFIGURATION)
++extern struct enumeration ldap_methods;
++isc_result_t ldap_read_config (void);
++int find_haddr_in_ldap (struct host_decl **, int, unsigned,
++                        const unsigned char *, const char *, int);
++int find_subclass_in_ldap (struct class *, struct class **,
++                           struct data_string *);
++#endif
+diff -up dhcp-3.1.0/includes/site.h.ldap dhcp-3.1.0/includes/site.h
+--- dhcp-3.1.0/includes/site.h.ldap	2006-07-31 18:19:51.000000000 -0400
++++ dhcp-3.1.0/includes/site.h	2007-10-22 16:29:48.000000000 -0400
+@@ -183,3 +183,13 @@
+    traces. */
+ 
+ #define TRACING
++
++/* Define this if you want to read your config from LDAP. Read README.ldap
++   about how to set this up */
++
++#define LDAP_CONFIGURATION
++
++#define _PATH_DHCPD_DB    "/var/lib/dhcpd/dhcpd.leases"
++#define _PATH_DHCLIENT_DB "/var/lib/dhclient/dhclient.leases"
++#define _PATH_DHCPD_DB    "/var/lib/dhcpd/dhcpd.leases"
++#define _PATH_DHCLIENT_DB "/var/lib/dhclient/dhclient.leases"

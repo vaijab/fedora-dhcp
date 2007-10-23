@@ -1,6 +1,6 @@
 diff -up dhcp-3.1.0/relay/dhcrelay.c.warnings dhcp-3.1.0/relay/dhcrelay.c
 --- dhcp-3.1.0/relay/dhcrelay.c.warnings	2007-02-14 17:41:23.000000000 -0500
-+++ dhcp-3.1.0/relay/dhcrelay.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/relay/dhcrelay.c	2007-10-23 14:33:17.000000000 -0400
 @@ -739,7 +739,7 @@ int add_relay_agent_options (ip, packet,
  	unsigned length;
  	struct in_addr giaddr;
@@ -12,7 +12,7 @@ diff -up dhcp-3.1.0/relay/dhcrelay.c.warnings dhcp-3.1.0/relay/dhcrelay.c
  
 diff -up dhcp-3.1.0/dhcpctl/dhcpctl.c.warnings dhcp-3.1.0/dhcpctl/dhcpctl.c
 --- dhcp-3.1.0/dhcpctl/dhcpctl.c.warnings	2005-03-17 15:15:03.000000000 -0500
-+++ dhcp-3.1.0/dhcpctl/dhcpctl.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/dhcpctl/dhcpctl.c	2007-10-23 14:33:17.000000000 -0400
 @@ -101,7 +101,6 @@ dhcpctl_status dhcpctl_connect (dhcpctl_
  				dhcpctl_handle authinfo)
  {
@@ -63,7 +63,7 @@ diff -up dhcp-3.1.0/dhcpctl/dhcpctl.c.warnings dhcp-3.1.0/dhcpctl/dhcpctl.c
  	if (status != ISC_R_SUCCESS)
 diff -up dhcp-3.1.0/dhcpctl/cltest.c.warnings dhcp-3.1.0/dhcpctl/cltest.c
 --- dhcp-3.1.0/dhcpctl/cltest.c.warnings	2005-03-17 15:15:03.000000000 -0500
-+++ dhcp-3.1.0/dhcpctl/cltest.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/dhcpctl/cltest.c	2007-10-23 14:33:17.000000000 -0400
 @@ -60,9 +60,8 @@ int main (argc, argv)
  	isc_result_t status, waitstatus;
  	dhcpctl_handle authenticator;
@@ -78,7 +78,7 @@ diff -up dhcp-3.1.0/dhcpctl/cltest.c.warnings dhcp-3.1.0/dhcpctl/cltest.c
  	const char *interface = 0;
 diff -up dhcp-3.1.0/dhcpctl/remote.c.warnings dhcp-3.1.0/dhcpctl/remote.c
 --- dhcp-3.1.0/dhcpctl/remote.c.warnings	2005-03-17 15:15:04.000000000 -0500
-+++ dhcp-3.1.0/dhcpctl/remote.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/dhcpctl/remote.c	2007-10-23 14:33:17.000000000 -0400
 @@ -354,8 +354,6 @@ isc_result_t dhcpctl_remote_stuff_values
  					  omapi_object_t *id,
  					  omapi_object_t *p)
@@ -90,7 +90,7 @@ diff -up dhcp-3.1.0/dhcpctl/remote.c.warnings dhcp-3.1.0/dhcpctl/remote.c
  
 diff -up dhcp-3.1.0/dhcpctl/callback.c.warnings dhcp-3.1.0/dhcpctl/callback.c
 --- dhcp-3.1.0/dhcpctl/callback.c.warnings	2005-03-17 15:15:02.000000000 -0500
-+++ dhcp-3.1.0/dhcpctl/callback.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/dhcpctl/callback.c	2007-10-23 14:33:17.000000000 -0400
 @@ -59,7 +59,6 @@ dhcpctl_status dhcpctl_set_callback (dhc
  {
  	dhcpctl_callback_object_t *callback;
@@ -110,7 +110,7 @@ diff -up dhcp-3.1.0/dhcpctl/callback.c.warnings dhcp-3.1.0/dhcpctl/callback.c
  
 diff -up dhcp-3.1.0/dhcpctl/omshell.c.warnings dhcp-3.1.0/dhcpctl/omshell.c
 --- dhcp-3.1.0/dhcpctl/omshell.c.warnings	2007-02-14 17:41:22.000000000 -0500
-+++ dhcp-3.1.0/dhcpctl/omshell.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/dhcpctl/omshell.c	2007-10-23 14:33:17.000000000 -0400
 @@ -82,11 +82,9 @@ int main (int argc, char **argv, char **
  	dhcpctl_handle connection;
  	dhcpctl_handle authenticator;
@@ -134,7 +134,7 @@ diff -up dhcp-3.1.0/dhcpctl/omshell.c.warnings dhcp-3.1.0/dhcpctl/omshell.c
  						    "dotted octet > 255: %s",
 diff -up dhcp-3.1.0/omapip/message.c.warnings dhcp-3.1.0/omapip/message.c
 --- dhcp-3.1.0/omapip/message.c.warnings	2005-03-17 15:15:22.000000000 -0500
-+++ dhcp-3.1.0/omapip/message.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/omapip/message.c	2007-10-23 14:33:17.000000000 -0400
 @@ -209,8 +209,6 @@ isc_result_t omapi_message_get_value (om
  isc_result_t omapi_message_destroy (omapi_object_t *h,
  				    const char *file, int line)
@@ -154,8 +154,8 @@ diff -up dhcp-3.1.0/omapip/message.c.warnings dhcp-3.1.0/omapip/message.c
  		return ISC_R_INVALIDARG;
  
 diff -up dhcp-3.1.0/omapip/alloc.c.warnings dhcp-3.1.0/omapip/alloc.c
---- dhcp-3.1.0/omapip/alloc.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/omapip/alloc.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/omapip/alloc.c.warnings	2007-10-23 14:33:17.000000000 -0400
++++ dhcp-3.1.0/omapip/alloc.c	2007-10-23 14:33:17.000000000 -0400
 @@ -93,7 +93,6 @@ VOIDPTR dmalloc (size, file, line)
  {
  	unsigned char *foo;
@@ -166,7 +166,7 @@ diff -up dhcp-3.1.0/omapip/alloc.c.warnings dhcp-3.1.0/omapip/alloc.c
  		defined (DEBUG_MEMORY_LEAKAGE_ON_EXIT)
 diff -up dhcp-3.1.0/omapip/connection.c.warnings dhcp-3.1.0/omapip/connection.c
 --- dhcp-3.1.0/omapip/connection.c.warnings	2005-03-17 15:15:21.000000000 -0500
-+++ dhcp-3.1.0/omapip/connection.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/omapip/connection.c	2007-10-23 14:33:17.000000000 -0400
 @@ -111,10 +111,6 @@ isc_result_t omapi_connect_list (omapi_o
  	omapi_connection_object_t *obj;
  	int flag;
@@ -189,7 +189,7 @@ diff -up dhcp-3.1.0/omapip/connection.c.warnings dhcp-3.1.0/omapip/connection.c
  
 diff -up dhcp-3.1.0/omapip/protocol.c.warnings dhcp-3.1.0/omapip/protocol.c
 --- dhcp-3.1.0/omapip/protocol.c.warnings	2007-05-23 19:30:33.000000000 -0400
-+++ dhcp-3.1.0/omapip/protocol.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/omapip/protocol.c	2007-10-23 14:33:17.000000000 -0400
 @@ -165,7 +165,6 @@ isc_result_t omapi_protocol_send_message
  	omapi_remote_auth_t *ra;
  	omapi_value_t *signature;
@@ -218,7 +218,7 @@ diff -up dhcp-3.1.0/omapip/protocol.c.warnings dhcp-3.1.0/omapip/protocol.c
  
 diff -up dhcp-3.1.0/omapip/listener.c.warnings dhcp-3.1.0/omapip/listener.c
 --- dhcp-3.1.0/omapip/listener.c.warnings	2005-03-17 15:15:22.000000000 -0500
-+++ dhcp-3.1.0/omapip/listener.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/omapip/listener.c	2007-10-23 14:33:17.000000000 -0400
 @@ -68,12 +68,9 @@ isc_result_t omapi_listen_addr (omapi_ob
  				omapi_addr_t *addr,
  				int max)
@@ -260,7 +260,7 @@ diff -up dhcp-3.1.0/omapip/listener.c.warnings dhcp-3.1.0/omapip/listener.c
  
 diff -up dhcp-3.1.0/omapip/handle.c.warnings dhcp-3.1.0/omapip/handle.c
 --- dhcp-3.1.0/omapip/handle.c.warnings	2006-02-24 18:16:30.000000000 -0500
-+++ dhcp-3.1.0/omapip/handle.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/omapip/handle.c	2007-10-23 14:33:17.000000000 -0400
 @@ -76,7 +76,6 @@ static isc_result_t omapi_handle_table_e
  
  isc_result_t omapi_object_handle (omapi_handle_t *h, omapi_object_t *o)
@@ -279,7 +279,7 @@ diff -up dhcp-3.1.0/omapip/handle.c.warnings dhcp-3.1.0/omapip/handle.c
  	if (handle -> type == omapi_datatype_int)
 diff -up dhcp-3.1.0/omapip/trace.c.warnings dhcp-3.1.0/omapip/trace.c
 --- dhcp-3.1.0/omapip/trace.c.warnings	2007-05-23 19:30:33.000000000 -0400
-+++ dhcp-3.1.0/omapip/trace.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/omapip/trace.c	2007-10-23 14:33:17.000000000 -0400
 @@ -319,7 +319,7 @@ trace_type_t *trace_type_register (const
  				   void (*stop_tracing) (trace_type_t *),
  				   const char *file, int line)
@@ -307,7 +307,7 @@ diff -up dhcp-3.1.0/omapip/trace.c.warnings dhcp-3.1.0/omapip/trace.c
  	
 diff -up dhcp-3.1.0/omapip/buffer.c.warnings dhcp-3.1.0/omapip/buffer.c
 --- dhcp-3.1.0/omapip/buffer.c.warnings	2006-02-24 18:16:30.000000000 -0500
-+++ dhcp-3.1.0/omapip/buffer.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/omapip/buffer.c	2007-10-23 14:33:17.000000000 -0400
 @@ -438,7 +438,6 @@ isc_result_t omapi_connection_writer (om
  	int bytes_written;
  	unsigned first_byte;
@@ -334,7 +334,7 @@ diff -up dhcp-3.1.0/omapip/buffer.c.warnings dhcp-3.1.0/omapip/buffer.c
  	
 diff -up dhcp-3.1.0/omapip/support.c.warnings dhcp-3.1.0/omapip/support.c
 --- dhcp-3.1.0/omapip/support.c.warnings	2006-02-24 18:16:30.000000000 -0500
-+++ dhcp-3.1.0/omapip/support.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/omapip/support.c	2007-10-23 14:33:17.000000000 -0400
 @@ -53,7 +53,6 @@ omapi_object_type_t *omapi_type_auth_key
  
  omapi_object_type_t *omapi_object_types;
@@ -397,7 +397,7 @@ diff -up dhcp-3.1.0/omapip/support.c.warnings dhcp-3.1.0/omapip/support.c
  	if (status != ISC_R_SUCCESS)
 diff -up dhcp-3.1.0/omapip/hash.c.warnings dhcp-3.1.0/omapip/hash.c
 --- dhcp-3.1.0/omapip/hash.c.warnings	2007-05-29 13:49:44.000000000 -0400
-+++ dhcp-3.1.0/omapip/hash.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/omapip/hash.c	2007-10-23 14:33:17.000000000 -0400
 @@ -103,8 +103,6 @@ void free_hash_table (tp, file, line)
  	const char *file;
  	int line;
@@ -438,7 +438,7 @@ diff -up dhcp-3.1.0/omapip/hash.c.warnings dhcp-3.1.0/omapip/hash.c
  	return retbuf;
 diff -up dhcp-3.1.0/omapip/mrtrace.c.warnings dhcp-3.1.0/omapip/mrtrace.c
 --- dhcp-3.1.0/omapip/mrtrace.c.warnings	2005-03-17 15:15:22.000000000 -0500
-+++ dhcp-3.1.0/omapip/mrtrace.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/omapip/mrtrace.c	2007-10-23 14:33:17.000000000 -0400
 @@ -85,7 +85,6 @@ void trace_mr_statp_setup (res_state sta
  	unsigned buflen = 0;
  	char *buf = (char *)0;
@@ -456,8 +456,8 @@ diff -up dhcp-3.1.0/omapip/mrtrace.c.warnings dhcp-3.1.0/omapip/mrtrace.c
  		if (status != ISC_R_SUCCESS) {
  			log_error ("trace_mr_statp: no statp packet found.");
 diff -up dhcp-3.1.0/omapip/errwarn.c.warnings dhcp-3.1.0/omapip/errwarn.c
---- dhcp-3.1.0/omapip/errwarn.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/omapip/errwarn.c	2007-10-23 10:10:23.000000000 -0400
+--- dhcp-3.1.0/omapip/errwarn.c.warnings	2007-10-23 14:33:17.000000000 -0400
++++ dhcp-3.1.0/omapip/errwarn.c	2007-10-23 14:33:17.000000000 -0400
 @@ -65,7 +65,7 @@ void log_fatal (const char * fmt, ... )
    va_list list;
  
@@ -548,7 +548,7 @@ diff -up dhcp-3.1.0/omapip/errwarn.c.warnings dhcp-3.1.0/omapip/errwarn.c
    return 0;
 diff -up dhcp-3.1.0/omapip/array.c.warnings dhcp-3.1.0/omapip/array.c
 --- dhcp-3.1.0/omapip/array.c.warnings	2006-02-24 18:16:30.000000000 -0500
-+++ dhcp-3.1.0/omapip/array.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/omapip/array.c	2007-10-23 14:33:17.000000000 -0400
 @@ -46,7 +46,6 @@ isc_result_t omapi_array_allocate (omapi
  				   omapi_array_deref_t deref,
  				   const char *file, int line)
@@ -567,7 +567,7 @@ diff -up dhcp-3.1.0/omapip/array.c.warnings dhcp-3.1.0/omapip/array.c
  
 diff -up dhcp-3.1.0/omapip/generic.c.warnings dhcp-3.1.0/omapip/generic.c
 --- dhcp-3.1.0/omapip/generic.c.warnings	2006-02-24 18:16:30.000000000 -0500
-+++ dhcp-3.1.0/omapip/generic.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/omapip/generic.c	2007-10-23 14:33:17.000000000 -0400
 @@ -292,7 +292,6 @@ isc_result_t omapi_generic_stuff_values 
  isc_result_t omapi_generic_clear_flags (omapi_object_t *o)
  {
@@ -578,7 +578,7 @@ diff -up dhcp-3.1.0/omapip/generic.c.warnings dhcp-3.1.0/omapip/generic.c
  	if (o -> type != omapi_type_generic)
 diff -up dhcp-3.1.0/omapip/convert.c.warnings dhcp-3.1.0/omapip/convert.c
 --- dhcp-3.1.0/omapip/convert.c.warnings	2005-03-17 15:15:21.000000000 -0500
-+++ dhcp-3.1.0/omapip/convert.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/omapip/convert.c	2007-10-23 14:33:17.000000000 -0400
 @@ -165,7 +165,7 @@ int binary_to_ascii (outbuf, inbuf, base
  	u_int32_t number;
  	static char h2a [] = "0123456789abcdef";
@@ -589,8 +589,8 @@ diff -up dhcp-3.1.0/omapip/convert.c.warnings dhcp-3.1.0/omapip/convert.c
  	if (base > 16)
  		return 0;
 diff -up dhcp-3.1.0/server/dhcp.c.warnings dhcp-3.1.0/server/dhcp.c
---- dhcp-3.1.0/server/dhcp.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/server/dhcp.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/server/dhcp.c.warnings	2007-10-23 14:33:17.000000000 -0400
++++ dhcp-3.1.0/server/dhcp.c	2007-10-23 14:33:17.000000000 -0400
 @@ -265,7 +265,7 @@ void dhcpdiscover (packet, ms_nulltp)
  
  	if (lease && lease -> client_hostname) {
@@ -720,8 +720,8 @@ diff -up dhcp-3.1.0/server/dhcp.c.warnings dhcp-3.1.0/server/dhcp.c
  			option_code_hash_lookup(&oc->option, 
  						dhcp_universe.code_hash,
 diff -up dhcp-3.1.0/server/dhcpd.c.warnings dhcp-3.1.0/server/dhcpd.c
---- dhcp-3.1.0/server/dhcpd.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/server/dhcpd.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/server/dhcpd.c.warnings	2007-10-23 14:33:16.000000000 -0400
++++ dhcp-3.1.0/server/dhcpd.c	2007-10-23 14:33:17.000000000 -0400
 @@ -200,7 +200,7 @@ int main (argc, argv, envp)
  	int fd;
  	int i, status;
@@ -771,7 +771,7 @@ diff -up dhcp-3.1.0/server/dhcpd.c.warnings dhcp-3.1.0/server/dhcpd.c
  			log_fatal ("No memory for shared subnet: %s",
 diff -up dhcp-3.1.0/server/omapi.c.warnings dhcp-3.1.0/server/omapi.c
 --- dhcp-3.1.0/server/omapi.c.warnings	2007-05-23 19:30:33.000000000 -0400
-+++ dhcp-3.1.0/server/omapi.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/server/omapi.c	2007-10-23 14:33:17.000000000 -0400
 @@ -212,7 +212,6 @@ isc_result_t dhcp_lease_set_value  (omap
  {
  	struct lease *lease;
@@ -879,7 +879,7 @@ diff -up dhcp-3.1.0/server/omapi.c.warnings dhcp-3.1.0/server/omapi.c
  
 diff -up dhcp-3.1.0/server/ddns.c.warnings dhcp-3.1.0/server/ddns.c
 --- dhcp-3.1.0/server/ddns.c.warnings	2007-04-27 18:48:10.000000000 -0400
-+++ dhcp-3.1.0/server/ddns.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/server/ddns.c	2007-10-23 14:33:17.000000000 -0400
 @@ -224,7 +224,6 @@ int ddns_updates (struct packet *packet,
  	struct data_string ddns_fwd_name;
  	struct data_string ddns_rev_name;
@@ -898,7 +898,7 @@ diff -up dhcp-3.1.0/server/ddns.c.warnings dhcp-3.1.0/server/ddns.c
  
 diff -up dhcp-3.1.0/server/db.c.warnings dhcp-3.1.0/server/db.c
 --- dhcp-3.1.0/server/db.c.warnings	2007-06-06 19:17:51.000000000 -0400
-+++ dhcp-3.1.0/server/db.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/server/db.c	2007-10-23 14:33:17.000000000 -0400
 @@ -54,7 +54,6 @@ int write_lease (lease)
  	struct lease *lease;
  {
@@ -976,8 +976,8 @@ diff -up dhcp-3.1.0/server/db.c.warnings dhcp-3.1.0/server/db.c
  	if (lease_file_is_corrupt)
  		if (!new_lease_file ())
 diff -up dhcp-3.1.0/server/confpars.c.warnings dhcp-3.1.0/server/confpars.c
---- dhcp-3.1.0/server/confpars.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/server/confpars.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/server/confpars.c.warnings	2007-10-23 14:33:17.000000000 -0400
++++ dhcp-3.1.0/server/confpars.c	2007-10-23 14:33:17.000000000 -0400
 @@ -39,7 +39,6 @@ static char copyright[] =
  
  #include "dhcpd.h"
@@ -1063,7 +1063,7 @@ diff -up dhcp-3.1.0/server/confpars.c.warnings dhcp-3.1.0/server/confpars.c
  
 diff -up dhcp-3.1.0/server/failover.c.warnings dhcp-3.1.0/server/failover.c
 --- dhcp-3.1.0/server/failover.c.warnings	2007-06-01 18:26:58.000000000 -0400
-+++ dhcp-3.1.0/server/failover.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/server/failover.c	2007-10-23 14:33:17.000000000 -0400
 @@ -64,7 +64,6 @@ void dhcp_failover_startup ()
  {
  	dhcp_failover_state_t *state;
@@ -1209,8 +1209,8 @@ diff -up dhcp-3.1.0/server/failover.c.warnings dhcp-3.1.0/server/failover.c
  #define FREE_LEASES 0
  #define ACTIVE_LEASES 1
 diff -up dhcp-3.1.0/server/mdb.c.warnings dhcp-3.1.0/server/mdb.c
---- dhcp-3.1.0/server/mdb.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/server/mdb.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/server/mdb.c.warnings	2007-10-23 14:33:16.000000000 -0400
++++ dhcp-3.1.0/server/mdb.c	2007-10-23 14:33:17.000000000 -0400
 @@ -317,7 +317,6 @@ isc_result_t delete_host (hd, commit)
  	struct host_decl *hp = (struct host_decl *)0;
  	struct host_decl *np = (struct host_decl *)0;
@@ -1282,8 +1282,8 @@ diff -up dhcp-3.1.0/server/mdb.c.warnings dhcp-3.1.0/server/mdb.c
  	struct lease *l;
  	struct lease **lptr[RESERVED_LEASES+1];
 diff -up dhcp-3.1.0/dst/dst_api.c.warnings dhcp-3.1.0/dst/dst_api.c
---- dhcp-3.1.0/dst/dst_api.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/dst/dst_api.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/dst/dst_api.c.warnings	2007-10-23 14:33:17.000000000 -0400
++++ dhcp-3.1.0/dst/dst_api.c	2007-10-23 14:33:17.000000000 -0400
 @@ -475,7 +475,7 @@ dst_s_read_public_key(const char *in_nam
  	int proto, alg, dlen;
  	int c;
@@ -1305,7 +1305,7 @@ diff -up dhcp-3.1.0/dst/dst_api.c.warnings dhcp-3.1.0/dst/dst_api.c
  	while ((c = getc(fp)) != EOF)
 diff -up dhcp-3.1.0/dst/prandom.c.warnings dhcp-3.1.0/dst/prandom.c
 --- dhcp-3.1.0/dst/prandom.c.warnings	2001-02-22 02:22:09.000000000 -0500
-+++ dhcp-3.1.0/dst/prandom.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/dst/prandom.c	2007-10-23 14:33:17.000000000 -0400
 @@ -335,7 +335,7 @@ unix_cmd(dst_work *work)
  		cnt += do_time(work);
  	}
@@ -1316,8 +1316,8 @@ diff -up dhcp-3.1.0/dst/prandom.c.warnings dhcp-3.1.0/dst/prandom.c
  	return (cnt);		/* read how many bytes where read in */
  }
 diff -up dhcp-3.1.0/common/conflex.c.warnings dhcp-3.1.0/common/conflex.c
---- dhcp-3.1.0/common/conflex.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/common/conflex.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/common/conflex.c.warnings	2007-10-23 14:33:17.000000000 -0400
++++ dhcp-3.1.0/common/conflex.c	2007-10-23 14:33:17.000000000 -0400
 @@ -518,13 +518,15 @@ static enum dhcp_token read_num_or_name 
  	cfile -> tokbuf [i] = 0;
  	cfile -> tlen = i;
@@ -1339,7 +1339,7 @@ diff -up dhcp-3.1.0/common/conflex.c.warnings dhcp-3.1.0/common/conflex.c
  
 diff -up dhcp-3.1.0/common/socket.c.warnings dhcp-3.1.0/common/socket.c
 --- dhcp-3.1.0/common/socket.c.warnings	2006-07-25 13:41:18.000000000 -0400
-+++ dhcp-3.1.0/common/socket.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/common/socket.c	2007-10-23 14:33:17.000000000 -0400
 @@ -55,8 +55,6 @@ static char copyright[] =
  # endif
  #endif
@@ -1351,7 +1351,7 @@ diff -up dhcp-3.1.0/common/socket.c.warnings dhcp-3.1.0/common/socket.c
  
 diff -up dhcp-3.1.0/common/parse.c.warnings dhcp-3.1.0/common/parse.c
 --- dhcp-3.1.0/common/parse.c.warnings	2007-05-29 13:49:44.000000000 -0400
-+++ dhcp-3.1.0/common/parse.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/common/parse.c	2007-10-23 14:33:17.000000000 -0400
 @@ -311,9 +311,6 @@ int parse_ip_addr (cfile, addr)
  	struct parse *cfile;
  	struct iaddr *addr;
@@ -1508,8 +1508,8 @@ diff -up dhcp-3.1.0/common/parse.c.warnings dhcp-3.1.0/common/parse.c
  
  	cfile -> warnings_occurred = 1;
 diff -up dhcp-3.1.0/common/alloc.c.warnings dhcp-3.1.0/common/alloc.c
---- dhcp-3.1.0/common/alloc.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/common/alloc.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/common/alloc.c.warnings	2007-10-23 14:33:17.000000000 -0400
++++ dhcp-3.1.0/common/alloc.c	2007-10-23 14:33:17.000000000 -0400
 @@ -48,7 +48,6 @@ int option_chain_head_allocate (ptr, fil
  	const char *file;
  	int line;
@@ -1577,8 +1577,8 @@ diff -up dhcp-3.1.0/common/alloc.c.warnings dhcp-3.1.0/common/alloc.c
  
  	if (!ptr) {
 diff -up dhcp-3.1.0/common/lpf.c.warnings dhcp-3.1.0/common/lpf.c
---- dhcp-3.1.0/common/lpf.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/common/lpf.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/common/lpf.c.warnings	2007-10-23 14:33:17.000000000 -0400
++++ dhcp-3.1.0/common/lpf.c	2007-10-23 14:33:17.000000000 -0400
 @@ -84,8 +84,6 @@ int if_register_lpf (info)
  	struct interface_info *info;
  {
@@ -1598,7 +1598,7 @@ diff -up dhcp-3.1.0/common/lpf.c.warnings dhcp-3.1.0/common/lpf.c
  	int nocsum = 0;
 diff -up dhcp-3.1.0/common/memory.c.warnings dhcp-3.1.0/common/memory.c
 --- dhcp-3.1.0/common/memory.c.warnings	2006-06-01 16:23:17.000000000 -0400
-+++ dhcp-3.1.0/common/memory.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/common/memory.c	2007-10-23 14:33:17.000000000 -0400
 @@ -84,8 +84,7 @@ isc_result_t delete_group (struct group_
  
  isc_result_t supersede_group (struct group_object *group, int writep)
@@ -1619,7 +1619,7 @@ diff -up dhcp-3.1.0/common/memory.c.warnings dhcp-3.1.0/common/memory.c
  	/* Normally gp should contain the null pointer, but for convenience
 diff -up dhcp-3.1.0/common/comapi.c.warnings dhcp-3.1.0/common/comapi.c
 --- dhcp-3.1.0/common/comapi.c.warnings	2006-02-24 18:16:28.000000000 -0500
-+++ dhcp-3.1.0/common/comapi.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/common/comapi.c	2007-10-23 14:33:17.000000000 -0400
 @@ -143,7 +143,6 @@ isc_result_t dhcp_group_set_value  (omap
  {
  	struct group_object *group;
@@ -1754,7 +1754,7 @@ diff -up dhcp-3.1.0/common/comapi.c.warnings dhcp-3.1.0/common/comapi.c
  	/* If we get to here without finding a shared_network, no valid key was
 diff -up dhcp-3.1.0/common/icmp.c.warnings dhcp-3.1.0/common/icmp.c
 --- dhcp-3.1.0/common/icmp.c.warnings	2005-03-17 15:14:58.000000000 -0500
-+++ dhcp-3.1.0/common/icmp.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/common/icmp.c	2007-10-23 14:33:17.000000000 -0400
 @@ -61,11 +61,7 @@ void icmp_startup (routep, handler)
  {
  	struct protoent *proto;
@@ -1777,7 +1777,7 @@ diff -up dhcp-3.1.0/common/icmp.c.warnings dhcp-3.1.0/common/icmp.c
  	ia->len = ntohl(ia->len);
 diff -up dhcp-3.1.0/common/inet.c.warnings dhcp-3.1.0/common/inet.c
 --- dhcp-3.1.0/common/inet.c.warnings	2006-05-15 11:07:49.000000000 -0400
-+++ dhcp-3.1.0/common/inet.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/common/inet.c	2007-10-23 14:33:17.000000000 -0400
 @@ -124,7 +124,7 @@ struct iaddr broadcast_addr (subnet, mas
  	struct iaddr subnet;
  	struct iaddr mask;
@@ -1789,7 +1789,7 @@ diff -up dhcp-3.1.0/common/inet.c.warnings dhcp-3.1.0/common/inet.c
  	if (subnet.len > sizeof(subnet.iabuf))
 diff -up dhcp-3.1.0/common/dns.c.warnings dhcp-3.1.0/common/dns.c
 --- dhcp-3.1.0/common/dns.c.warnings	2006-07-19 13:14:55.000000000 -0400
-+++ dhcp-3.1.0/common/dns.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/common/dns.c	2007-10-23 14:33:17.000000000 -0400
 @@ -127,7 +127,6 @@ dns_zone_hash_t *dns_zone_hash;
  isc_result_t find_tsig_key (ns_tsig_key **key, const char *zname,
  			    struct dns_zone *zone)
@@ -1834,8 +1834,8 @@ diff -up dhcp-3.1.0/common/dns.c.warnings dhcp-3.1.0/common/dns.c
  
  		if (!updrec) {
 diff -up dhcp-3.1.0/common/tree.c.warnings dhcp-3.1.0/common/tree.c
---- dhcp-3.1.0/common/tree.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/common/tree.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/common/tree.c.warnings	2007-10-23 14:33:17.000000000 -0400
++++ dhcp-3.1.0/common/tree.c	2007-10-23 14:33:17.000000000 -0400
 @@ -51,61 +51,6 @@ struct __res_state resolver_state;
  int resolver_inited = 0;
  #endif
@@ -1966,8 +1966,8 @@ diff -up dhcp-3.1.0/common/tree.c.warnings dhcp-3.1.0/common/tree.c
  
  	if (!ptr || !*ptr) {
 diff -up dhcp-3.1.0/common/print.c.warnings dhcp-3.1.0/common/print.c
---- dhcp-3.1.0/common/print.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/common/print.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/common/print.c.warnings	2007-10-23 14:33:17.000000000 -0400
++++ dhcp-3.1.0/common/print.c	2007-10-23 14:33:17.000000000 -0400
 @@ -47,7 +47,7 @@ char *quotify_string (const char *s, con
  	const unsigned char *sp;
  	char *buf, *nsp;
@@ -2011,8 +2011,8 @@ diff -up dhcp-3.1.0/common/print.c.warnings dhcp-3.1.0/common/print.c
  
  	/* See if this is just ASCII. */
 diff -up dhcp-3.1.0/common/discover.c.warnings dhcp-3.1.0/common/discover.c
---- dhcp-3.1.0/common/discover.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/common/discover.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/common/discover.c.warnings	2007-10-23 14:33:17.000000000 -0400
++++ dhcp-3.1.0/common/discover.c	2007-10-23 14:33:17.000000000 -0400
 @@ -128,16 +128,14 @@ int have_setup_fallback = 0;
  void discover_interfaces (state)
  	int state;
@@ -2065,8 +2065,8 @@ diff -up dhcp-3.1.0/common/discover.c.warnings dhcp-3.1.0/common/discover.c
  
  	if (h -> type != dhcp_type_interface)
 diff -up dhcp-3.1.0/common/options.c.warnings dhcp-3.1.0/common/options.c
---- dhcp-3.1.0/common/options.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/common/options.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/common/options.c.warnings	2007-10-23 14:33:17.000000000 -0400
++++ dhcp-3.1.0/common/options.c	2007-10-23 14:50:34.000000000 -0400
 @@ -43,9 +43,6 @@ static char copyright[] =
  
  struct option *vendor_cfg_option;
@@ -2145,6 +2145,15 @@ diff -up dhcp-3.1.0/common/options.c.warnings dhcp-3.1.0/common/options.c
  
  	p = format;
  	while (*p != '\0') {
+@@ -2161,7 +2148,7 @@ store_option(struct data_string *result,
+ 						  "refers to unknown "
+ 						  "option space '%.*s'.",
+ 						  oc->option->code,
+-						  end - start, start);
++						  (int) (end - start), start);
+ 					break;
+ 				}
+ 
 @@ -2198,12 +2185,10 @@ int option_space_encapsulate (result, pa
  	struct binding_scope **scope;
  	struct data_string *name;
@@ -2232,7 +2241,7 @@ diff -up dhcp-3.1.0/common/options.c.warnings dhcp-3.1.0/common/options.c
  }
 diff -up dhcp-3.1.0/common/execute.c.warnings dhcp-3.1.0/common/execute.c
 --- dhcp-3.1.0/common/execute.c.warnings	2007-05-11 11:51:07.000000000 -0400
-+++ dhcp-3.1.0/common/execute.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/common/execute.c	2007-10-23 14:33:17.000000000 -0400
 @@ -54,8 +54,6 @@ int execute_statements (result, packet, 
  	struct executable_statement *r, *e, *next;
  	int rc;
@@ -2289,7 +2298,7 @@ diff -up dhcp-3.1.0/common/execute.c.warnings dhcp-3.1.0/common/execute.c
  	    if ((*callback) (foo, vp, condp) != 0)
 diff -up dhcp-3.1.0/common/resolv.c.warnings dhcp-3.1.0/common/resolv.c
 --- dhcp-3.1.0/common/resolv.c.warnings	2006-02-24 18:16:28.000000000 -0500
-+++ dhcp-3.1.0/common/resolv.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/common/resolv.c	2007-10-23 14:33:17.000000000 -0400
 @@ -50,10 +50,8 @@ void read_resolv_conf (parse_time)
  	struct parse *cfile;
  	const char *val;
@@ -2319,8 +2328,8 @@ diff -up dhcp-3.1.0/common/resolv.c.warnings dhcp-3.1.0/common/resolv.c
  			
  			read_resolv_conf (rcdate);
 diff -up dhcp-3.1.0/minires/res_init.c.warnings dhcp-3.1.0/minires/res_init.c
---- dhcp-3.1.0/minires/res_init.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/minires/res_init.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/minires/res_init.c.warnings	2007-10-23 14:33:17.000000000 -0400
++++ dhcp-3.1.0/minires/res_init.c	2007-10-23 14:33:17.000000000 -0400
 @@ -155,7 +155,7 @@ res_ninit(res_state statp) {
  int
  minires_vinit(res_state statp, int preinit) {
@@ -2332,7 +2341,7 @@ diff -up dhcp-3.1.0/minires/res_init.c.warnings dhcp-3.1.0/minires/res_init.c
  	char buf[BUFSIZ];
 diff -up dhcp-3.1.0/minires/res_query.c.warnings dhcp-3.1.0/minires/res_query.c
 --- dhcp-3.1.0/minires/res_query.c.warnings	2007-05-29 13:49:44.000000000 -0400
-+++ dhcp-3.1.0/minires/res_query.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/minires/res_query.c	2007-10-23 14:33:17.000000000 -0400
 @@ -384,7 +384,7 @@ res_nquerydomain(res_state statp,
  const char *
  res_hostalias(const res_state statp, const char *name, char *dst, size_t siz) {
@@ -2344,7 +2353,7 @@ diff -up dhcp-3.1.0/minires/res_query.c.warnings dhcp-3.1.0/minires/res_query.c
  
 diff -up dhcp-3.1.0/minires/res_update.c.warnings dhcp-3.1.0/minires/res_update.c
 --- dhcp-3.1.0/minires/res_update.c.warnings	2005-03-17 15:15:20.000000000 -0500
-+++ dhcp-3.1.0/minires/res_update.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/minires/res_update.c	2007-10-23 14:33:17.000000000 -0400
 @@ -88,7 +88,7 @@ res_nupdate(res_state statp, ns_updrec *
  	double answer[PACKETSZ / sizeof (double)];
  	double packet[2*PACKETSZ / sizeof (double)];
@@ -2356,7 +2365,7 @@ diff -up dhcp-3.1.0/minires/res_update.c.warnings dhcp-3.1.0/minires/res_update.
  	struct sockaddr_in nsaddrs[MAXNS];
 diff -up dhcp-3.1.0/minires/ns_date.c.warnings dhcp-3.1.0/minires/ns_date.c
 --- dhcp-3.1.0/minires/ns_date.c.warnings	2007-05-29 13:49:44.000000000 -0400
-+++ dhcp-3.1.0/minires/ns_date.c	2007-10-23 10:09:16.000000000 -0400
++++ dhcp-3.1.0/minires/ns_date.c	2007-10-23 14:33:17.000000000 -0400
 @@ -48,7 +48,7 @@ static const char rcsid[] = "$Id: ns_dat
  
  /* Forward. */
@@ -2376,8 +2385,8 @@ diff -up dhcp-3.1.0/minires/ns_date.c.warnings dhcp-3.1.0/minires/ns_date.c
  	int i;
  
 diff -up dhcp-3.1.0/minires/res_mkupdate.c.warnings dhcp-3.1.0/minires/res_mkupdate.c
---- dhcp-3.1.0/minires/res_mkupdate.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/minires/res_mkupdate.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/minires/res_mkupdate.c.warnings	2007-10-23 14:33:17.000000000 -0400
++++ dhcp-3.1.0/minires/res_mkupdate.c	2007-10-23 14:33:17.000000000 -0400
 @@ -112,7 +112,7 @@ res_nmkupdate(res_state statp,
  	u_int16_t rtype, rclass;
  	u_int32_t n1, rttl;
@@ -2388,8 +2397,8 @@ diff -up dhcp-3.1.0/minires/res_mkupdate.c.warnings dhcp-3.1.0/minires/res_mkupd
  	unsigned buflen = *blp;
  	u_char *buf = (unsigned char *)bp;
 diff -up dhcp-3.1.0/client/clparse.c.warnings dhcp-3.1.0/client/clparse.c
---- dhcp-3.1.0/client/clparse.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/client/clparse.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/client/clparse.c.warnings	2007-10-23 14:33:17.000000000 -0400
++++ dhcp-3.1.0/client/clparse.c	2007-10-23 14:33:17.000000000 -0400
 @@ -39,8 +39,6 @@ static char copyright[] =
  
  #include "dhcpd.h"
@@ -2446,8 +2455,8 @@ diff -up dhcp-3.1.0/client/clparse.c.warnings dhcp-3.1.0/client/clparse.c
  	skip_to_semi (cfile);
  	return 0;
 diff -up dhcp-3.1.0/client/dhclient.c.warnings dhcp-3.1.0/client/dhclient.c
---- dhcp-3.1.0/client/dhclient.c.warnings	2007-10-23 10:09:16.000000000 -0400
-+++ dhcp-3.1.0/client/dhclient.c	2007-10-23 10:09:16.000000000 -0400
+--- dhcp-3.1.0/client/dhclient.c.warnings	2007-10-23 14:33:17.000000000 -0400
++++ dhcp-3.1.0/client/dhclient.c	2007-10-23 14:33:17.000000000 -0400
 @@ -126,7 +126,9 @@ int main (argc, argv, envp)
  #ifdef LIBDHCP
  	libdhcp_control = libdhcp_ctl;
