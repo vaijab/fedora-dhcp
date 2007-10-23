@@ -53,7 +53,7 @@ conf="$(findConfig "$DHCPDARGS")"
 if [ ! -f /var/lib/dhcpd/dhcpd.leases ] ; then
     mkdir -p /var/lib/dhcpd
     touch /var/lib/dhcpd/dhcpd.leases
-    [ -x /sbin/restorecon ] && [ -d /selinux ] && /sbin/restorecon /var/lib/dhcp/dhcpd.leases >/dev/null 2>&1
+    [ -x /sbin/restorecon ] && [ -d /selinux ] && /sbin/restorecon /var/lib/dhcpd/dhcpd.leases >/dev/null 2>&1
 fi
 
 configtest() {

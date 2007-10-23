@@ -12,8 +12,11 @@
 
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
-Version:  3.0.6
-Release:  8%{?dist}
+Version:  3.1.0
+Release:  1%{?dist}
+# NEVER CHANGE THE EPOCH on this package.  The previous maintainer made
+# incorrect use of the epoch and that's why it is at 12 now.  It should have
+# never been used, but it was.  So we are stuck with it.
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -31,28 +34,29 @@ Source9:  linux
 Source10: Makefile.dist
 Source11: dhcp4client.h
 Source12: libdhcp_control.h
+Source13: dhcp.schema
 
 Patch0:   %{name}-3.0.5-Makefile.patch
-Patch1:   %{name}-3.0.5-warnings.patch
-Patch2:   %{name}-3.0.5-errwarn-message.patch
-Patch3:   %{name}-3.0.5-ldap-configuration.patch
-Patch4:   %{name}-3.0.6-memory.patch
-Patch5:   %{name}-3.0.6-options.patch
-Patch6:   %{name}-3.0.5-release-by-ifup.patch
-Patch7:   %{name}-3.0.5-dhclient-decline-backoff.patch
-Patch8:   %{name}-3.0.5-enable-timeout-functions.patch
-Patch9:   %{name}-3.0.5-inherit-leases.patch
-Patch10:  %{name}-3.0.5-unicast-bootp.patch
-Patch11:  %{name}-3.0.5-fast-timeout.patch
-Patch12:  %{name}-3.0.5-failover-ports.patch
-Patch13:  %{name}-3.0.6-dhclient-usage.patch
-Patch14:  %{name}-3.0.5-default-requested-options.patch
-Patch15:  %{name}-3.0.5-prototypes.patch
-Patch16:  %{name}-3.0.6-manpages.patch
-Patch17:  %{name}-3.0.6-libdhcp4client.patch
-Patch18:  %{name}-3.0.6-xen-checksum.patch
-Patch19:  %{name}-3.0.5-dhclient-anycast.patch
-Patch20:  %{name}-3.0.6-ignore-hyphen-x.patch
+Patch1:   %{name}-3.0.5-errwarn-message.patch
+Patch2:   %{name}-3.1.0-ldap-configuration.patch
+Patch3:   %{name}-3.0.6-memory.patch
+Patch4:   %{name}-3.1.0-options.patch
+Patch5:   %{name}-3.0.5-release-by-ifup.patch
+Patch6:   %{name}-3.0.5-dhclient-decline-backoff.patch
+Patch7:   %{name}-3.0.5-enable-timeout-functions.patch
+Patch8:   %{name}-3.0.5-inherit-leases.patch
+Patch9:   %{name}-3.0.5-unicast-bootp.patch
+Patch10:  %{name}-3.0.5-fast-timeout.patch
+Patch11:  %{name}-3.0.5-failover-ports.patch
+Patch12:  %{name}-3.1.0-dhclient-usage.patch
+Patch13:  %{name}-3.0.5-default-requested-options.patch
+Patch14:  %{name}-3.0.5-prototypes.patch
+Patch15:  %{name}-3.0.6-manpages.patch
+Patch16:  %{name}-3.1.0-libdhcp4client.patch
+Patch17:  %{name}-3.1.0-xen-checksum.patch
+Patch18:  %{name}-3.1.0-dhclient-anycast.patch
+Patch19:  %{name}-3.0.6-ignore-hyphen-x.patch
+Patch20:  %{name}-3.1.0-warnings.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: groff openldap-devel
@@ -148,61 +152,58 @@ libdhcp4client.
 # Use $(MAKE) and $(CC) in the Makefiles
 %patch0 -p1 -b .Makefile
 
-# Fix up anything that fails -Wall -Werror
-%patch1 -p1 -b .warnings
-
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
 # reported through bugzilla.redhat.com
-%patch2 -p1 -b .message
+%patch1 -p1 -b .message
 
 # Add support for dhcpd.conf data in LDAP
-%patch3 -p1 -b .ldap
+%patch2 -p1 -b .ldap
 
 # Fix memory alignment and initialization problems in common/packet.c
 # Fix buffer overflow in minires library
 # Init struct sock_prog in common/lpf.c to NULL
-%patch4 -p1 -b .memory
+%patch3 -p1 -b .memory
 
 # Add more dhclient options (-I, -B, -H, -F, -T, -V, and -R)
-%patch5 -p1 -b .options
+%patch4 -p1 -b .options
 
 # Handle releasing interfaces requested by /sbin/ifup
 # pid file is assumed to be /var/run/dhclient-$interface.pid
-%patch6 -p1 -b .release
+%patch5 -p1 -b .release
 
 # If we receive a DHCP offer in dhclient and it's DECLINEd in dhclient-script,
 # backoff for an amount of time before trying again
-%patch7 -p1 -b .decline
+%patch6 -p1 -b .decline
 
 # Enable cancel_all_timeouts() and relinquish_timeouts() regardless of
 # the DEBUG_MEMORY_LEAKAGE_ON_EXIT macro
-%patch8 -p1 -b .etf
+%patch7 -p1 -b .etf
 
 # Inherit active leases
-%patch9 -p1 -b .inherit
+%patch8 -p1 -b .inherit
 
 # Support unicast BOOTP for IBM pSeries systems (and maybe others)
-%patch10 -p1 -b .unicast
+%patch9 -p1 -b .unicast
 
 # Fast timeout for dhclient
-%patch11 -p1 -b .fast
+%patch10 -p1 -b .fast
 
 # Use the following IANA-registered failover ports:
 # dhcp-failover 647/tcp
 # dhcp-failover 647/udp
 # dhcp-failover 847/tcp
 # dhcp-failover 847/udp
-%patch12 -p1 -b .failover
+%patch11 -p1 -b .failover
 
 # Update the usage screen for dhclient(8) indicating new options
 # Use printf() rather than log_info() to display the information
 # Also, return EXIT_FAILURE when the usage() screen is displayed (stop parsing)
-%patch13 -p1 -b .usage
+%patch12 -p1 -b .usage
 
 # Add NIS domain, NIS servers, and NTP servers to the list of default
 # requested DHCP options
-%patch14 -p1 -b .dho
+%patch13 -p1 -b .dho
 
 # Add missing prototypes to take care of gcc warnings
 # in dst/dst_api.c: add b64_pton() and b64_ntop()
@@ -211,7 +212,7 @@ libdhcp4client.
 # in minires/res_comp.c: add ns_name_uncompress(), ns_name_compress(), and
 #                        ns_name_skip()
 # in minires/res_init.c: add res_randomid()
-%patch15 -p1 -b .prototypes
+%patch14 -p1 -b .prototypes
 
 # Man page updates explaining new features added from the above patches.
 # Normally these man page changes would be included in the feature patch,
@@ -221,19 +222,22 @@ libdhcp4client.
 # and not affect the code changes in the other patches.  It's actually
 # pretty common to update or alter these man pages independent of the code
 # changes.
-%patch16 -p1 -b .manpages
+%patch15 -p1 -b .manpages
 
 # Add the libdhcp4client target (library version of dhclient)
-%patch17 -p1 -b .libdhcp4client
+%patch16 -p1 -b .libdhcp4client
 
 # Handle Xen partial UDP checksums
-%patch18 -p1 -b .xen
+%patch17 -p1 -b .xen
 
 # Add anycast support to dhclient (for OLPC)
-%patch19 -p1 -b .anycast
+%patch18 -p1 -b .anycast
 
 # Ignore the old extended new option info command line switch (-x)
-%patch20 -p1 -b .enoi
+%patch19 -p1 -b .enoi
+
+# Fix up anything that fails -Wall -Werror
+%patch20 -p1 -b .warnings
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %SOURCE6 .
@@ -325,6 +329,10 @@ EOF
 # Install default (empty) dhcpd.conf:
 %{__cp} -fp %SOURCE4 %{buildroot}%{_sysconfdir}
 
+# Install dhcp.schema for LDAP configuration
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/openldap
+%{__install} -p -m 0644 -D %SOURCE13 %{buildroot}%{_sysconfdir}/openldap
+
 %{__install} -p -m 0644 -D libdhcp4client.pc %{buildroot}%{_libdir}/pkgconfig/libdhcp4client.pc
 
 # Sources files can't be symlinks for debuginfo package generation
@@ -371,6 +379,7 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
 %config(noreplace) %{_sysconfdir}/dhcpd.conf
+%config(noreplace) %{_sysconfdir}/openldap/dhcp.schema
 %{_initrddir}/dhcpd
 %{_initrddir}/dhcrelay
 %{_bindir}/omshell
@@ -426,6 +435,12 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Tue Oct 23 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-1
+- Upgrade to ISC dhcp-3.1.0
+- Remove unnecessary /usr/include/dhcp4client/isc_dhcp headers
+- Make sure restorecon is run on /var/lib/dhcpd/dhcpd.leases (#251688)
+- Install dhcp.schema to /etc/openldap/dhcp.schema (#330471)
+
 * Mon Oct 08 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.6-8
 - Init script fixes (#320761)
 - Removed linux.dbus-example script since we aren't using dhcdbd now
