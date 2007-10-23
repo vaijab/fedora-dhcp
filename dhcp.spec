@@ -10,7 +10,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.5
-Release:  40%{?dist}
+Release:  41%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -29,6 +29,7 @@ Source10: linux
 Source11: Makefile.dist
 Source12: dhcp4client.h
 Source13: libdhcp_control.h
+Source14: dhcp.schema
 
 Patch0:   %{name}-3.0.5-version.patch
 Patch1:   %{name}-3.0.5-Makefile.patch
@@ -333,6 +334,10 @@ EOF
 # Install default (empty) dhcpd.conf:
 %{__cp} -fp %SOURCE4 %{buildroot}%{_sysconfdir}
 
+# Install dhcp.schema for LDAP configuration
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/openldap
+%{__install} -p -m 0644 -D %SOURCE14 %{buildroot}%{_sysconfdir}/openldap
+
 %{__install} -p -m 0644 -D libdhcp4client.pc %{buildroot}%{_libdir}/pkgconfig/libdhcp4client.pc
 
 # Sources files can't be symlinks for debuginfo package generation
@@ -379,6 +384,7 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
 %config(noreplace) %{_sysconfdir}/dhcpd.conf
+%config(noreplace) %{_sysconfdir}/openldap/dhcp.schema
 %{_initrddir}/dhcpd
 %{_initrddir}/dhcrelay
 %{_bindir}/omshell
@@ -434,6 +440,9 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Tue Oct 23 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-41
+- Add missing /etc/openldap/dhcp.schema file (#330471)
+
 * Mon Sep 10 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-40
 - Fix typos in ldap.c and correct LDAP macros (#283391)
 
