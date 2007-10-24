@@ -50,7 +50,7 @@ DHCP_HEADERS = dhcpd.h cdefs.h osdep.h arpa/nameser.h minires/minires.h \
                minires/res_update.h omapip/convert.h omapip/hash.h \
                omapip/trace.h
 
-HDRS = dhcp4client.h libdhcp_control.h
+HDRS = dhcp4client.h
 SRCS = $(COMMON_SRCS) $(CLIENT_SRCS)
 OBJS = $(SRCS:.c=.o)
 
@@ -65,7 +65,6 @@ install: all
 	ln -sf libdhcp4client-$(VER).so.0 $(DESTDIR)/$(LIBDIR)/libdhcp4client.so
 	install -p -m 0644 -D libdhcp4client.a $(DESTDIR)$(LIBDIR)/libdhcp4client.a
 	install -p -m 0644 -D dhcp4client.h $(DESTDIR)$(INCDIR)/dhcp4client/dhcp4client.h
-	install -p -m 0644 -D libdhcp_control.h $(DESTDIR)$(INCDIR)/dhcp4client/libdhcp_control.h
 	for hdr in $(DHCP_HEADERS) ; do \
 		install -p -m 0644 -D $(TOP)/includes/$${hdr} $(DESTDIR)$(INCDIR)/dhcp4client/$${hdr} ; \
 	done
