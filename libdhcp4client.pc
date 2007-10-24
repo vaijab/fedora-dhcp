@@ -1,5 +1,3 @@
-ISC.Cflags=-I/usr/include/dhcp4client/isc_dhcp
-
 Name: libdhcp4client
 Description: ISC DHCP IPv4 client library
 Version: @DHCP_VERSION@
