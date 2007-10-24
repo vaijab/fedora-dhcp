@@ -435,7 +435,7 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
-* Wed Oct 23 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-2
+* Wed Oct 24 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-2
 - Fix 'restart' mode in init script (#349341)
 
 * Tue Oct 23 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-1
