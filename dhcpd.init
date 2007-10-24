@@ -117,7 +117,7 @@ case "$1" in
         RETVAL=$?
         ;;
     restart|force-reload)
-        stop && start
+        stop ; start
         RETVAL=$?
         ;;
     try-restart|reload)
@@ -125,7 +125,7 @@ case "$1" in
         ;;
     condrestart)
         if [ -f $lockfile ]; then
-            stop && start
+            stop ; start
             RETVAL=$?
         fi
         ;;
