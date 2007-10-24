@@ -13,7 +13,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.1.0
-Release:  3%{?dist}
+Release:  4%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer made
 # incorrect use of the epoch and that's why it is at 12 now.  It should have
 # never been used, but it was.  So we are stuck with it.
@@ -251,7 +251,9 @@ libdhcp4client.
 %{__mkdir} -p libdhcp4client
 %{__install} -p -m 0644 %SOURCE10 libdhcp4client
 %{__install} -p -m 0644 %SOURCE11 libdhcp4client
-%{__install} -p -m 0644 %SOURCE12 libdhcp4client
+
+# Copy in libdhcp_control.h to the isc-dhcp includes directory
+%{__install} -p -m 0644 %SOURCE12 includes/isc-dhcp
 
 # Ensure we don't pick up Perl as a dependency from the scripts and modules
 # in the contrib directory (we copy this to /usr/share/doc in the final
@@ -260,6 +262,7 @@ libdhcp4client.
 %{__chmod} -x __fedora_contrib/3.0b1-lease-convert
 %{__chmod} -x __fedora_contrib/dhcpd-conf-to-ldap
 %{__mv} __fedora_contrib/ms2isc/Registry.pm __fedora_contrib/ms2isc/Registry.perlmodule
+%{__rm} -f __fedora_contrib/dhcp.spec
 
 # We want UNIX-style line endings
 %{__sed} -i -e 's/\r//' __fedora_contrib/ms2isc/readme.txt
@@ -303,6 +306,7 @@ CC="%{__cc}" ./configure \
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/sysconfig
 
 %{__make} install DESTDIR=%{buildroot}
+%{__install} -p -m 0644 %SOURCE12 %{buildroot}%{_includedir}/isc-dhcp
 
 %{__mkdir} -p %{buildroot}%{_initrddir}
 %{__install} -p -m 0755 %SOURCE2 %{buildroot}%{_initrddir}/dhcpd
@@ -373,7 +377,7 @@ fi
 %files
 %defattr(-,root,root,-)
 %doc README README.ldap RELNOTES dhcpd.conf.sample doc/IANA-arp-parameters
-%doc doc/IANA-arp-parameters doc/api+protocol doc/*.txt __fedora_contrib
+%doc doc/IANA-arp-parameters doc/api+protocol doc/*.txt __fedora_contrib/*
 %dir %{_localstatedir}/lib/dhcpd
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
@@ -435,6 +439,12 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Wed Oct 24 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-4
+- Install libdhcp_control.h to /usr/include/isc-dhcp/libdhcp_control.h
+- Update libdhcp4client patch to use new libdhcp_control.h location
+- Remove __fedora_contrib/ subdirectory in /usr/share/doc/dhcp-3.1.0,
+  install those docs to /usr/share/doc/dhcp-3.1.0
+
 * Wed Oct 24 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-3
 - Remove ISC.Cflags variable from libdhcp4client.pc
 

@@ -1,6 +1,6 @@
 diff -up dhcp-3.1.0/omapip/dispatch.c.libdhcp4client dhcp-3.1.0/omapip/dispatch.c
 --- dhcp-3.1.0/omapip/dispatch.c.libdhcp4client	2005-03-17 15:15:21.000000000 -0500
-+++ dhcp-3.1.0/omapip/dispatch.c	2007-10-22 16:00:15.000000000 -0400
++++ dhcp-3.1.0/omapip/dispatch.c	2007-10-24 14:55:56.000000000 -0400
 @@ -34,7 +34,7 @@
  
  #include <omapip/omapip_p.h>
@@ -11,14 +11,14 @@ diff -up dhcp-3.1.0/omapip/dispatch.c.libdhcp4client dhcp-3.1.0/omapip/dispatch.
  
  OMAPI_OBJECT_ALLOC (omapi_io,
 diff -up dhcp-3.1.0/omapip/errwarn.c.libdhcp4client dhcp-3.1.0/omapip/errwarn.c
---- dhcp-3.1.0/omapip/errwarn.c.libdhcp4client	2007-10-22 15:55:40.000000000 -0400
-+++ dhcp-3.1.0/omapip/errwarn.c	2007-10-22 16:00:30.000000000 -0400
+--- dhcp-3.1.0/omapip/errwarn.c.libdhcp4client	2007-10-24 14:55:56.000000000 -0400
++++ dhcp-3.1.0/omapip/errwarn.c	2007-10-24 14:57:16.000000000 -0400
 @@ -39,6 +39,11 @@ static char copyright[] =
  #include <omapip/omapip_p.h>
  #include <errno.h>
  
 +#ifdef LIBDHCP
-+#include <libdhcp_control.h>
++#include <isc-dhcp/libdhcp_control.h>
 +extern LIBDHCP_Control *libdhcp_control;
 +#endif
 +
@@ -132,7 +132,7 @@ diff -up dhcp-3.1.0/omapip/errwarn.c.libdhcp4client dhcp-3.1.0/omapip/errwarn.c
  
 diff -up dhcp-3.1.0/omapip/alloc.c.libdhcp4client dhcp-3.1.0/omapip/alloc.c
 --- dhcp-3.1.0/omapip/alloc.c.libdhcp4client	2006-02-24 18:16:30.000000000 -0500
-+++ dhcp-3.1.0/omapip/alloc.c	2007-10-22 16:00:03.000000000 -0400
++++ dhcp-3.1.0/omapip/alloc.c	2007-10-24 14:55:56.000000000 -0400
 @@ -40,6 +40,33 @@ static char copyright[] =
  
  #include <omapip/omapip_p.h>
@@ -190,7 +190,7 @@ diff -up dhcp-3.1.0/omapip/alloc.c.libdhcp4client dhcp-3.1.0/omapip/alloc.c
  #if defined (DEBUG_MEMORY_LEAKAGE) || defined (DEBUG_MALLOC_POOL) || \
 diff -up dhcp-3.1.0/configure.libdhcp4client dhcp-3.1.0/configure
 --- dhcp-3.1.0/configure.libdhcp4client	2005-03-17 15:14:55.000000000 -0500
-+++ dhcp-3.1.0/configure	2007-10-22 15:59:07.000000000 -0400
++++ dhcp-3.1.0/configure	2007-10-24 14:55:56.000000000 -0400
 @@ -246,7 +246,7 @@ if [ ! -d $workname ]; then
  fi
  
@@ -202,7 +202,7 @@ diff -up dhcp-3.1.0/configure.libdhcp4client dhcp-3.1.0/configure
  for foo in $dirs; do
 diff -up dhcp-3.1.0/dst/hmac_link.c.libdhcp4client dhcp-3.1.0/dst/hmac_link.c
 --- dhcp-3.1.0/dst/hmac_link.c.libdhcp4client	2001-02-22 02:22:08.000000000 -0500
-+++ dhcp-3.1.0/dst/hmac_link.c	2007-10-22 15:59:24.000000000 -0400
++++ dhcp-3.1.0/dst/hmac_link.c	2007-10-24 14:55:56.000000000 -0400
 @@ -38,6 +38,10 @@ static const char rcsid[] = "$Header: /p
  
  #include "dst_internal.h"
@@ -290,7 +290,7 @@ diff -up dhcp-3.1.0/dst/hmac_link.c.libdhcp4client dhcp-3.1.0/dst/hmac_link.c
  	memset(dst_t_func[KEY_HMAC_MD5], 0, sizeof(struct dst_func));
 diff -up dhcp-3.1.0/common/discover.c.libdhcp4client dhcp-3.1.0/common/discover.c
 --- dhcp-3.1.0/common/discover.c.libdhcp4client	2006-11-07 18:41:39.000000000 -0500
-+++ dhcp-3.1.0/common/discover.c	2007-10-22 15:58:09.000000000 -0400
++++ dhcp-3.1.0/common/discover.c	2007-10-24 14:55:56.000000000 -0400
 @@ -121,6 +121,10 @@ isc_result_t interface_initialize (omapi
     register that interface with the network I/O software, figure out what
     subnet it's on, and add it to the list of interfaces. */
@@ -332,7 +332,7 @@ diff -up dhcp-3.1.0/common/discover.c.libdhcp4client dhcp-3.1.0/common/discover.
  	if (fallback_interface) {
 diff -up dhcp-3.1.0/common/tree.c.libdhcp4client dhcp-3.1.0/common/tree.c
 --- dhcp-3.1.0/common/tree.c.libdhcp4client	2007-02-14 17:41:22.000000000 -0500
-+++ dhcp-3.1.0/common/tree.c	2007-10-22 15:58:54.000000000 -0400
++++ dhcp-3.1.0/common/tree.c	2007-10-24 14:55:56.000000000 -0400
 @@ -41,7 +41,7 @@ static char copyright[] =
  #include <omapip/omapip_p.h>
  #include <ctype.h>
@@ -352,7 +352,7 @@ diff -up dhcp-3.1.0/common/tree.c.libdhcp4client dhcp-3.1.0/common/tree.c
  	struct data_string *result;
 diff -up dhcp-3.1.0/common/options.c.libdhcp4client dhcp-3.1.0/common/options.c
 --- dhcp-3.1.0/common/options.c.libdhcp4client	2007-05-23 15:26:22.000000000 -0400
-+++ dhcp-3.1.0/common/options.c	2007-10-22 15:58:39.000000000 -0400
++++ dhcp-3.1.0/common/options.c	2007-10-24 14:55:56.000000000 -0400
 @@ -2501,6 +2501,7 @@ int fqdn_option_space_encapsulate (resul
  	return 1;
  }
@@ -362,8 +362,8 @@ diff -up dhcp-3.1.0/common/options.c.libdhcp4client dhcp-3.1.0/common/options.c
  			   struct client_state *client_state,
  			   struct option_state *in_options,
 diff -up dhcp-3.1.0/common/dispatch.c.libdhcp4client dhcp-3.1.0/common/dispatch.c
---- dhcp-3.1.0/common/dispatch.c.libdhcp4client	2007-10-22 15:55:40.000000000 -0400
-+++ dhcp-3.1.0/common/dispatch.c	2007-10-22 15:58:24.000000000 -0400
+--- dhcp-3.1.0/common/dispatch.c.libdhcp4client	2007-10-24 14:55:56.000000000 -0400
++++ dhcp-3.1.0/common/dispatch.c	2007-10-24 14:55:56.000000000 -0400
 @@ -39,8 +39,24 @@ static char copyright[] =
  
  #include "dhcpd.h"
@@ -635,7 +635,7 @@ diff -up dhcp-3.1.0/common/dispatch.c.libdhcp4client dhcp-3.1.0/common/dispatch.
  }
 diff -up dhcp-3.1.0/common/alloc.c.libdhcp4client dhcp-3.1.0/common/alloc.c
 --- dhcp-3.1.0/common/alloc.c.libdhcp4client	2006-06-01 16:23:17.000000000 -0400
-+++ dhcp-3.1.0/common/alloc.c	2007-10-22 15:57:53.000000000 -0400
++++ dhcp-3.1.0/common/alloc.c	2007-10-24 14:55:56.000000000 -0400
 @@ -1013,7 +1013,11 @@ int executable_statement_reference (ptr,
  	return 1;
  }
@@ -649,8 +649,8 @@ diff -up dhcp-3.1.0/common/alloc.c.libdhcp4client dhcp-3.1.0/common/alloc.c
  #if defined (DEBUG_MEMORY_LEAKAGE) || \
  		defined (DEBUG_MEMORY_LEAKAGE_ON_EXIT)
 diff -up dhcp-3.1.0/includes/dhcpd.h.libdhcp4client dhcp-3.1.0/includes/dhcpd.h
---- dhcp-3.1.0/includes/dhcpd.h.libdhcp4client	2007-10-22 15:55:40.000000000 -0400
-+++ dhcp-3.1.0/includes/dhcpd.h	2007-10-22 15:59:51.000000000 -0400
+--- dhcp-3.1.0/includes/dhcpd.h.libdhcp4client	2007-10-24 14:55:56.000000000 -0400
++++ dhcp-3.1.0/includes/dhcpd.h	2007-10-24 14:55:56.000000000 -0400
 @@ -1000,14 +1000,6 @@ struct hardware_link {
  
  typedef void (*tvref_t)(void *, void *, const char *, int);
@@ -675,8 +675,8 @@ diff -up dhcp-3.1.0/includes/dhcpd.h.libdhcp4client dhcp-3.1.0/includes/dhcpd.h
  #if defined (TRACING)
  trace_type_t *interface_trace;
 diff -up dhcp-3.1.0/client/dhclient.c.libdhcp4client dhcp-3.1.0/client/dhclient.c
---- dhcp-3.1.0/client/dhclient.c.libdhcp4client	2007-10-22 15:55:40.000000000 -0400
-+++ dhcp-3.1.0/client/dhclient.c	2007-10-22 16:08:09.000000000 -0400
+--- dhcp-3.1.0/client/dhclient.c.libdhcp4client	2007-10-24 14:55:56.000000000 -0400
++++ dhcp-3.1.0/client/dhclient.c	2007-10-24 14:56:20.000000000 -0400
 @@ -82,14 +82,50 @@ int quiet=0;
  int nowait=0;
  int bootp_broadcast_always = 0;
@@ -690,7 +690,7 @@ diff -up dhcp-3.1.0/client/dhclient.c.libdhcp4client dhcp-3.1.0/client/dhclient.
  static void usage PROTO ((void));
  
 +#ifdef LIBDHCP
-+#include "libdhcp_control.h"
++#include "isc-dhcp/libdhcp_control.h"
 +LIBDHCP_Control *libdhcp_control;
 +static void libdhcp_dispatch(void)
 +{
@@ -1079,7 +1079,7 @@ diff -up dhcp-3.1.0/client/dhclient.c.libdhcp4client dhcp-3.1.0/client/dhclient.
  
 diff -up dhcp-3.1.0/Makefile.dist.libdhcp4client dhcp-3.1.0/Makefile.dist
 --- dhcp-3.1.0/Makefile.dist.libdhcp4client	2005-03-17 15:14:54.000000000 -0500
-+++ dhcp-3.1.0/Makefile.dist	2007-10-22 15:57:26.000000000 -0400
++++ dhcp-3.1.0/Makefile.dist	2007-10-24 14:55:56.000000000 -0400
 @@ -22,7 +22,7 @@
  #   http://www.isc.org/
  
