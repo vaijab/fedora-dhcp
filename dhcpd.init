@@ -53,7 +53,7 @@ conf="$(findConfig "$DHCPDARGS")"
 if [ ! -f /var/lib/dhcpd/dhcpd.leases ] ; then
     mkdir -p /var/lib/dhcpd
     touch /var/lib/dhcpd/dhcpd.leases
-    [ -x /sbin/restorecon ] && [ -d /selinux ] && /sbin/restorecon /var/lib/dhcp/dhcpd.leases >/dev/null 2>&1
+    [ -x /sbin/restorecon ] && [ -d /selinux ] && /sbin/restorecon /var/lib/dhcpd/dhcpd.leases >/dev/null 2>&1
 fi
 
 configtest() {
@@ -117,7 +117,7 @@ case "$1" in
         RETVAL=$?
         ;;
     restart|force-reload)
-        stop && start
+        stop ; start
         RETVAL=$?
         ;;
     try-restart|reload)
@@ -125,7 +125,7 @@ case "$1" in
         ;;
     condrestart)
         if [ -f $lockfile ]; then
-            stop && start
+            stop ; start
             RETVAL=$?
         fi
         ;;
