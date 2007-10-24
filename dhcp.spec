@@ -13,7 +13,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.1.0
-Release:  2%{?dist}
+Release:  3%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer made
 # incorrect use of the epoch and that's why it is at 12 now.  It should have
 # never been used, but it was.  So we are stuck with it.
@@ -435,6 +435,9 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Wed Oct 24 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-3
+- Remove ISC.Cflags variable from libdhcp4client.pc
+
 * Wed Oct 24 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-2
 - Fix 'restart' mode in init script (#349341)
 
