@@ -429,6 +429,7 @@ fi
 
 %changelog
 * Thu Oct 25 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-5
+- Remove chkconfig usage for ypbind in dhclient-script (#351211)
 - Combine dhcp-static and dhcp-devel packages since there are no shared
   libraries offered
 - Remove Requires: openldap-devel on dhcp-devel and libdhcp4client-devel
