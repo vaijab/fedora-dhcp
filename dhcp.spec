@@ -13,7 +13,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.1.0
-Release:  5%{?dist}
+Release:  6%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer made
 # incorrect use of the epoch and that's why it is at 12 now.  It should have
 # never been used, but it was.  So we are stuck with it.
@@ -31,7 +31,7 @@ Source6:  README.ldap
 Source7:  draft-ietf-dhc-ldap-schema-01.txt
 Source8:  dhcpd-conf-to-ldap
 Source9:  linux
-Source10: Makefile.dist
+Source10: Makefile.libdhcp4client
 Source11: dhcp4client.h
 Source12: libdhcp_control.h
 Source13: dhcp.schema
@@ -59,7 +59,8 @@ Patch19:  %{name}-3.0.6-ignore-hyphen-x.patch
 Patch20:  %{name}-3.1.0-warnings.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: groff openldap-devel
+BuildRequires: groff
+BuildRequires: openldap-devel
 
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
@@ -232,20 +233,20 @@ libdhcp4client.
 %patch20 -p1 -b .warnings
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
-%{__install} -p -m 0644 %SOURCE6 .
-%{__install} -p -m 0644 %SOURCE7 doc
-%{__install} -p -m 0755 %SOURCE8 contrib
+%{__install} -p -m 0644 %{SOURCE6} .
+%{__install} -p -m 0644 %{SOURCE7} doc/
+%{__install} -p -m 0755 %{SOURCE8} contrib/
 
 # Copy in the Fedora/RHEL dhclient script
-%{__install} -p -m 0755 %SOURCE9 client/scripts
+%{__install} -p -m 0755 %{SOURCE9} client/scripts/
 
 # Copy in the libdhcp4client headers and Makefile.dist
 %{__mkdir} -p libdhcp4client
-%{__install} -p -m 0644 %SOURCE10 libdhcp4client
-%{__install} -p -m 0644 %SOURCE11 libdhcp4client
+%{__install} -p -m 0644 %{SOURCE10} libdhcp4client/Makefile.dist
+%{__install} -p -m 0644 %{SOURCE11} libdhcp4client/
 
 # Copy in libdhcp_control.h to the isc-dhcp includes directory
-%{__install} -p -m 0644 %SOURCE12 includes/isc-dhcp
+%{__install} -p -m 0644 %{SOURCE12} includes/isc-dhcp/
 
 # Ensure we don't pick up Perl as a dependency from the scripts and modules
 # in the contrib directory (we copy this to /usr/share/doc in the final
@@ -262,7 +263,7 @@ libdhcp4client.
 %{__sed} -i -e 's/\r//' __fedora_contrib/ms2isc/ms2isc.pl
 
 %build
-%{__cp} %SOURCE1 .
+%{__cp} %{SOURCE1} .
 %{__cat} <<EOF > site.conf
 VARDB=%{_localstatedir}/lib/dhcpd
 ADMMANDIR=%{_mandir}/man8
@@ -290,7 +291,7 @@ CC="%{__cc}" ./configure \
    --copts "$RPM_OPT_FLAGS $COPTS %{?bigptrs}" \
    --work-dir %{workdir}
 
-%{__sed} 's/@DHCP_VERSION@/%{version}/' < %SOURCE5 > libdhcp4client.pc
+%{__sed} 's/@DHCP_VERSION@/%{version}/' < %{SOURCE5} > libdhcp4client.pc
 %{__make} %{?_smp_mflags} CC="%{__cc}"
 
 %install
@@ -298,10 +299,10 @@ CC="%{__cc}" ./configure \
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/sysconfig
 
 %{__make} install DESTDIR=%{buildroot}
-%{__install} -p -m 0644 %SOURCE12 %{buildroot}%{_includedir}/isc-dhcp
+%{__install} -p -m 0644 %{SOURCE12} %{buildroot}%{_includedir}/isc-dhcp/
 
 %{__mkdir} -p %{buildroot}%{_initrddir}
-%{__install} -p -m 0755 %SOURCE2 %{buildroot}%{_initrddir}/dhcpd
+%{__install} -p -m 0755 %{SOURCE2} %{buildroot}%{_initrddir}/dhcpd
 
 touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd.leases
 %{__mkdir} -p %{buildroot}%{_localstatedir}/lib/dhclient/
@@ -310,7 +311,7 @@ touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd.leases
 DHCPDARGS=
 EOF
 
-%{__install} -p -m 0755 %SOURCE3 %{buildroot}%{_initrddir}/dhcrelay
+%{__install} -p -m 0755 %{SOURCE3} %{buildroot}%{_initrddir}/dhcrelay
 
 %{__cat} <<EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcrelay
 # Command line options here
@@ -323,11 +324,11 @@ EOF
 %{__chmod} 0755 %{buildroot}/sbin/dhclient-script
 
 # Install default (empty) dhcpd.conf:
-%{__cp} -fp %SOURCE4 %{buildroot}%{_sysconfdir}
+%{__cp} -fp %{SOURCE4} %{buildroot}%{_sysconfdir}
 
 # Install dhcp.schema for LDAP configuration
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/openldap
-%{__install} -p -m 0644 -D %SOURCE13 %{buildroot}%{_sysconfdir}/openldap
+%{__install} -p -m 0644 -D %{SOURCE13} %{buildroot}%{_sysconfdir}/openldap/
 
 %{__install} -p -m 0644 -D libdhcp4client.pc %{buildroot}%{_libdir}/pkgconfig/libdhcp4client.pc
 
@@ -428,6 +429,11 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Thu Oct 25 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-6
+- Rename Makefile.dist to Makefile.libdhcp4client
+- Spec file cleanups
+- Include stdarg.h in libdhcp_control.h
+
 * Thu Oct 25 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-5
 - Remove chkconfig usage for ypbind in dhclient-script (#351211)
 - Combine dhcp-static and dhcp-devel packages since there are no shared
