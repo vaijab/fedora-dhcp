@@ -13,7 +13,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.6
-Release:  10%{?dist}
+Release:  11%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -432,6 +432,9 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Thu Oct 25 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.6-11
+- Remove chkconfig usage for ypbind in dhclient-script (#351211)
+
 * Wed Oct 24 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.6-10
 - Fix 'restart' mode in init script (#349341)
 - Make sure restorecon is run on /var/lib/dhcpd/dhcpd.leases (#251688)

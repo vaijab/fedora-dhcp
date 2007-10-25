@@ -351,14 +351,7 @@ function dhconfig() {
             let contents=contents+1
         fi
 
-        level=$(/sbin/runlevel)
-        level=${level##*\ }
-
-        if [ "$level" = "unknown" ]; then
-            level=1
-        fi
-
-        if [ $contents -gt 0 ] && [[ "$level" = [0-6] ]] && /sbin/chkconfig --level=$level ypbind >/dev/null 2>&1 && [ -r /var/run/ypbind.pid ] && yppid=$(cat /var/run/ypbind.pid) && [ -d /proc/${yppid} ] && [ "$(if [ -x /sbin/busybox ]; then /sbin/busybox readlink /proc/${yppid}/exe; else echo /sbin/ypbind; fi)" = "/sbin/ypbind" ]; then
+        if [ $contents -gt 0 ] && [ -r /var/run/ypbind.pid ] && yppid=$(cat /var/run/ypbind.pid) && [ -d /proc/${yppid} ] && [ "$(if [ -x /usr/bin/readlink ]; then readlink /proc/${yppid}/exe; else echo /sbin/ypbind; fi)" = "/sbin/ypbind" ]; then
             kill -HUP $yppid
         fi
     elif [ -n "$new_nis_servers" ]; then
@@ -371,14 +364,7 @@ function dhconfig() {
             let contents=contents+1
         done
 
-        level=$(/sbin/runlevel)
-        level=${level##*\ }
-
-        if [ "$level" = "unknown" ]; then
-            level=1
-        fi
-
-        if [ $contents -gt 0 ] && [[ "$level" = [0-6] ]] && /sbin/chkconfig --level=$level ypbind >/dev/null 2>&1 && [ -r /var/run/ypbind.pid ] && yppid=$(cat /var/run/ypbind.pid) && [ -d /proc/${yppid} ] && [ "$(if [ -x /sbin/busybox ]; then /sbin/busybox readlink /proc/${yppid}/exe; else echo /sbin/ypbind; fi)" = "/sbin/ypbind" ] ; then
+        if [ $contents -gt 0 ] && [ -r /var/run/ypbind.pid ] && yppid=$(cat /var/run/ypbind.pid) && [ -d /proc/${yppid} ] && [ "$(if [ -x /usr/bin/readlink ]; then readlink /proc/${yppid}/exe; else echo /sbin/ypbind; fi)" = "/sbin/ypbind" ]; then
             kill -HUP $yppid
         fi
     fi
@@ -516,16 +502,10 @@ if [ x$reason = xEXPIRE ] || [ x$reason = xFAIL ] || [ x$reason = xRELEASE ] \
     if [ -f /etc/yp.conf.predhclient ]; then
         /bin/rm -f /etc/yp.conf
         /bin/mv -f /etc/yp.conf.predhclient /etc/yp.conf
-        level=$(/sbin/runlevel)
-        level=${level##*\ }
 
-       if [ "$level" = "unknown" ]; then
-           level=1
-       fi
-
-       if [[ "$level" = [0-6] ]] && /sbin/chkconfig --level=$level ypbind >/dev/null 2>&1 && [ -r /var/run/ypbind.pid ] && yppid=$(cat /var/run/ypbind.pid) && [ -d /proc/${yppid} ] && [ "$(if [ -x /sbin/busybox ]; then /sbin/busybox readlink /proc/${yppid}/exe; else echo /sbin/ypbind; fi)" = "/sbin/ypbind" ] ; then
+        if [ -r /var/run/ypbind.pid ] && yppid=$(cat /var/run/ypbind.pid) && [ -d /proc/${yppid} ] && [ "$(if [ -x /usr/bin/readlink ]; then readlink /proc/${yppid}/exe; else echo /sbin/ypbind; fi)" = "/sbin/ypbind" ]; then
            kill -HUP $yppid
-       fi
+        fi
     fi
 
     if [ -x /etc/dhclient-${interface}-down-hooks ]; then
