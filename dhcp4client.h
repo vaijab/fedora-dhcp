@@ -19,7 +19,7 @@
  * Red Hat, Inc.
  *
  * Red Hat Author(s): Jason Vas Dias
- *                    David Cantrell
+ *                    David Cantrell <dcantrell@redhat.com>
  */
 
 /* include libdhcp_control.h or libdhcp.h for this */

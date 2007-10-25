@@ -24,8 +24,9 @@
  * Red Hat, Inc.
  *
  * Red Hat Author(s): Jason Vas Dias
- *                    David Cantrell
+ *                    David Cantrell <dcantrell@redhat.com>
  */
+
 #ifndef LIBDHCP_CONTROL_H
 #define LIBDHCP_CONTROL_H
 
