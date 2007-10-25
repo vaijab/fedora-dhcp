@@ -13,7 +13,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.1.0
-Release:  4%{?dist}
+Release:  5%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer made
 # incorrect use of the epoch and that's why it is at 12 now.  It should have
 # never been used, but it was.  So we are stuck with it.
@@ -99,19 +99,10 @@ provides the ISC DHCP client daemon.
 %package devel
 Summary: Development headers and libraries for interfacing to the DHCP server
 Group: Development/Libraries
-Requires: dhcp = %{epoch}:%{version}-%{release}
 
 %description devel
-Header files and API documentation for using the ISC DHCP libraries.
-
-%package static
-Summary: Static archives of libdhcpctl and libomapi
-Group: Development/Libraries
-Requires: dhcp-devel = %{epoch}:%{version}-%{release}, openldap-devel
-
-%description static
-The dhcp-static package contains the static archive for
-libdhcpctl and libomapi.
+Header files and API documentation for using the ISC DHCP libraries.  The
+libdhcpctl and libomapi static libraries are also included in this package.
 
 %package -n libdhcp4client
 Summary: ISC DHCP IPv4 client in a library for invocation from other programs
@@ -125,8 +116,9 @@ suitable for linkage with and invocation by other programs.
 %package -n libdhcp4client-devel
 Summary: Header files for development with the ISC DHCP IPv4 client library
 Group: Development/Libraries
+Requires: dhcp-devel = %{epoch}:%{version}-%{release}
 Requires: libdhcp4client = %{epoch}:%{version}-%{release}
-Requires: openldap-devel pkgconfig
+Requires: pkgconfig
 
 %description -n libdhcp4client-devel
 Header files for development with the Internet Software Consortium (ISC)
@@ -415,14 +407,11 @@ fi
 %{_includedir}/dhcpctl.h
 %{_includedir}/isc-dhcp
 %{_includedir}/omapip
+%{_libdir}/libdhcpctl.a
+%{_libdir}/libomapi.a
 %attr(0644,root,root) %{_mandir}/man3/omshell.3.gz
 %attr(0644,root,root) %{_mandir}/man3/dhcpctl.3.gz
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
-
-%files static
-%defattr(-,root,root,-)
-%{_libdir}/libdhcpctl.a
-%{_libdir}/libomapi.a
 
 %files -n libdhcp4client
 %defattr(0755,root,root,0755)
@@ -439,6 +428,13 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Thu Oct 25 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-5
+- Combine dhcp-static and dhcp-devel packages since there are no shared
+  libraries offered
+- Remove Requires: openldap-devel on dhcp-devel and libdhcp4client-devel
+- Make libdhcp4client-devel require dhcp-devel (for libdhcp_control.h)
+- Do not make dhcp-devel require the dhcp package, those are independent
+
 * Wed Oct 24 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-4
 - Install libdhcp_control.h to /usr/include/isc-dhcp/libdhcp_control.h
 - Update libdhcp4client patch to use new libdhcp_control.h location
