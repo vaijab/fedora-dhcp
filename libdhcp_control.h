@@ -29,6 +29,7 @@
 #ifndef LIBDHCP_CONTROL_H
 #define LIBDHCP_CONTROL_H
 
+#include <stdarg.h>
 #include <stdint.h>
 
 #define  LOG_FATAL 8
