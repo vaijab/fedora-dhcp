@@ -10,7 +10,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.0.5
-Release:  41%{?dist}
+Release:  42%{?dist}
 Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
@@ -57,6 +57,8 @@ Patch22:  %{name}-3.0.5-dhclient-anycast.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: groff openldap-devel
+
+Requires: openldap-servers
 
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
@@ -335,8 +337,8 @@ EOF
 %{__cp} -fp %SOURCE4 %{buildroot}%{_sysconfdir}
 
 # Install dhcp.schema for LDAP configuration
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/openldap
-%{__install} -p -m 0644 -D %SOURCE14 %{buildroot}%{_sysconfdir}/openldap
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/openldap/schema
+%{__install} -p -m 0644 -D %SOURCE14 %{buildroot}%{_sysconfdir}/openldap/schema
 
 %{__install} -p -m 0644 -D libdhcp4client.pc %{buildroot}%{_libdir}/pkgconfig/libdhcp4client.pc
 
@@ -384,7 +386,7 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
 %config(noreplace) %{_sysconfdir}/dhcpd.conf
-%config(noreplace) %{_sysconfdir}/openldap/dhcp.schema
+%config(noreplace) %{_sysconfdir}/openldap/schema/dhcp.schema
 %{_initrddir}/dhcpd
 %{_initrddir}/dhcrelay
 %{_bindir}/omshell
@@ -440,6 +442,9 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Mon Nov 12 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-42
+- Put dhcp.schema in /etc/openldap/schema (#330471)
+
 * Tue Oct 23 2007 David Cantrell <dcantrell@redhat.com> - 12:3.0.5-41
 - Add missing /etc/openldap/dhcp.schema file (#330471)
 
