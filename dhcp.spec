@@ -13,7 +13,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.1.0
-Release:  7%{?dist}
+Release:  8%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer made
 # incorrect use of the epoch and that's why it is at 12 now.  It should have
 # never been used, but it was.  So we are stuck with it.
@@ -35,6 +35,13 @@ Source10: Makefile.libdhcp4client
 Source11: dhcp4client.h
 Source12: libdhcp_control.h
 Source13: dhcp.schema
+Source14: dhclient-script.8
+Source15: dhclient.8
+Source16: dhclient.conf.5
+Source17: dhcp-options.5
+Source18: dhcpctl.3
+Source19: dhcpd.conf.5
+Source20: get-ldap-patch.sh
 
 Patch0:   %{name}-3.0.5-Makefile.patch
 Patch1:   %{name}-3.0.5-errwarn-message.patch
@@ -51,16 +58,18 @@ Patch11:  %{name}-3.0.5-failover-ports.patch
 Patch12:  %{name}-3.1.0-dhclient-usage.patch
 Patch13:  %{name}-3.0.5-default-requested-options.patch
 Patch14:  %{name}-3.0.5-prototypes.patch
-Patch15:  %{name}-3.0.6-manpages.patch
-Patch16:  %{name}-3.1.0-libdhcp4client.patch
-Patch17:  %{name}-3.1.0-xen-checksum.patch
-Patch18:  %{name}-3.1.0-dhclient-anycast.patch
-Patch19:  %{name}-3.0.6-ignore-hyphen-x.patch
-Patch20:  %{name}-3.1.0-warnings.patch
+Patch15:  %{name}-3.1.0-libdhcp4client.patch
+Patch16:  %{name}-3.1.0-xen-checksum.patch
+Patch17:  %{name}-3.1.0-dhclient-anycast.patch
+Patch18:  %{name}-3.0.6-ignore-hyphen-x.patch
+Patch19:  %{name}-3.1.0-warnings.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: groff
 BuildRequires: openldap-devel
+
+# For /etc/openldap/schema (and slapd, if you're using that with dhcpd)
+Requires: openldap-servers
 
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
@@ -208,30 +217,20 @@ libdhcp4client.
 # in minires/res_init.c: add res_randomid()
 %patch14 -p1 -b .prototypes
 
-# Man page updates explaining new features added from the above patches.
-# Normally these man page changes would be included in the feature patch,
-# however, man page changes generate more hunk failures when applying only
-# a select set of patches.  Instead, the man page changes are grouped
-# together in one patch so changes can be made to just those more easily
-# and not affect the code changes in the other patches.  It's actually
-# pretty common to update or alter these man pages independent of the code
-# changes.
-%patch15 -p1 -b .manpages
-
 # Add the libdhcp4client target (library version of dhclient)
-%patch16 -p1 -b .libdhcp4client
+%patch15 -p1 -b .libdhcp4client
 
 # Handle Xen partial UDP checksums
-%patch17 -p1 -b .xen
+%patch16 -p1 -b .xen
 
 # Add anycast support to dhclient (for OLPC)
-%patch18 -p1 -b .anycast
+%patch17 -p1 -b .anycast
 
 # Ignore the old extended new option info command line switch (-x)
-%patch19 -p1 -b .enoi
+%patch18 -p1 -b .enoi
 
 # Fix up anything that fails -Wall -Werror
-%patch20 -p1 -b .warnings
+%patch19 -p1 -b .warnings
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %{SOURCE6} .
@@ -262,6 +261,17 @@ libdhcp4client.
 %{__sed} -i -e 's/\r//' __fedora_contrib/ms2isc/readme.txt
 %{__sed} -i -e 's/\r//' __fedora_contrib/ms2isc/Registry.perlmodule
 %{__sed} -i -e 's/\r//' __fedora_contrib/ms2isc/ms2isc.pl
+
+# Copy in our modified man pages
+%{__install} -p -m 0644 %{SOURCE14} client/dhclient-script.8
+%{__install} -p -m 0644 %{SOURCE15} client/dhclient.8
+%{__install} -p -m 0644 %{SOURCE16} client/dhclient.conf.5
+%{__install} -p -m 0644 %{SOURCE17} common/dhcp-options.5
+%{__install} -p -m 0644 %{SOURCE18} dhcpctl/dhcpctl.3
+%{__install} -p -m 0644 %{SOURCE19} server/dhcpd.conf.5
+
+# Replace @PRODUCTNAME@ in dhcp-options.5
+%{__sed} -i -e 's|@PRODUCTNAME@|%{vvendor}|g' common/dhcp-options.5
 
 %build
 %{__cp} %{SOURCE1} .
@@ -328,8 +338,8 @@ EOF
 %{__cp} -fp %{SOURCE4} %{buildroot}%{_sysconfdir}
 
 # Install dhcp.schema for LDAP configuration
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/openldap
-%{__install} -p -m 0644 -D %{SOURCE13} %{buildroot}%{_sysconfdir}/openldap/
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/openldap/schema
+%{__install} -p -m 0644 -D %{SOURCE13} %{buildroot}%{_sysconfdir}/openldap/schema
 
 %{__install} -p -m 0644 -D libdhcp4client.pc %{buildroot}%{_libdir}/pkgconfig/libdhcp4client.pc
 
@@ -377,7 +387,7 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
 %config(noreplace) %{_sysconfdir}/dhcpd.conf
-%config(noreplace) %{_sysconfdir}/openldap/dhcp.schema
+%config(noreplace) %{_sysconfdir}/openldap/schema/dhcp.schema
 %{_initrddir}/dhcpd
 %{_initrddir}/dhcrelay
 %{_bindir}/omshell
@@ -430,6 +440,16 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Mon Nov 12 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-8
+- Put dhcp.schema in /etc/openldap/schema (#330471)
+- Remove manpages patch and keep modified man pages as Source files
+- Improve dhclient.8 man page to list options in a style consistent
+  with most other man pages on the planet
+- Upgrade to latest dhcp LDAP patch, which brings in a new dhcpd-conf-to-ldap
+  script, updated schema file, and other bug fixes including SSL support for
+  LDAP authentication (#375711)
+- Do not run dhcpd and dhcrelay services by default (#362321)
+
 * Fri Oct 26 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-7
 - libdhcp4client-devel requires openldap-devel
 

@@ -2,8 +2,8 @@
 #
 ### BEGIN INIT INFO
 # Provides: dhcpd
-# Default-Start: 2 3 4 5
-# Default-Stop: 0 1 6
+# Default-Start:
+# Default-Stop:
 # Should-Start:
 # Required-Start: $network
 # Required-Stop:
@@ -14,7 +14,7 @@
 #
 # The fields below are left around for legacy tools (will remove later).
 #
-# chkconfig: - 65 35
+# chkconfig: -
 # description: dhcpd provides the Dynamic Host Configuration Protocol (DHCP) \
 #              server
 # processname: dhcpd
@@ -30,6 +30,7 @@ prog=dhcpd
 dhcpd=/usr/sbin/dhcpd
 lockfile=/var/lock/subsys/dhcpd
 pidfile=/var/run/dhcpd.pid
+statedir=/var/lib/dhcpd
 
 [ -f /etc/sysconfig/dhcpd ] && . /etc/sysconfig/dhcpd
 
@@ -50,10 +51,10 @@ findConfig() {
 
 conf="$(findConfig "$DHCPDARGS")"
 
-if [ ! -f /var/lib/dhcpd/dhcpd.leases ] ; then
-    mkdir -p /var/lib/dhcpd
-    touch /var/lib/dhcpd/dhcpd.leases
-    [ -x /sbin/restorecon ] && [ -d /selinux ] && /sbin/restorecon /var/lib/dhcpd/dhcpd.leases >/dev/null 2>&1
+if [ ! -f $statedir/dhcpd.leases ] ; then
+    mkdir -p $statedir
+    touch $statedir/dhcpd.leases
+    [ -x /sbin/restorecon ] && [ -d /selinux ] && /sbin/restorecon $statedir/dhcpd.leases >/dev/null 2>&1
 fi
 
 configtest() {

@@ -2,8 +2,8 @@
 #
 ### BEGIN INIT INFO
 # Provides: dhcrelay
-# Default-Start: 2 3 4 5
-# Default-Stop: 0 1 6
+# Default-Start:
+# Default-Stop:
 # Should-Start:
 # Required-Start: $network
 # Required-Stop:
@@ -15,7 +15,7 @@
 #
 # The fields below are left around for legacy tools (will remove later).
 #
-# chkconfig: - 66 34
+# chkconfig: -
 # description: dhcrelay provides a relay for Dynamic Host Control Protocol.
 # processname: dhcrelay
 # # pidfile: /var/run/dhcrelay.pid
