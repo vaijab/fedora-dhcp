@@ -449,7 +449,7 @@ fi
 %changelog
 * Thu Nov 15 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-9
 - Fix chkconfig lines in dhcpd and dhcrelay init scripts (#384431)
-- Improve postun scriptlet
+- Improve preun scriptlet
 
 * Mon Nov 12 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-8
 - Put dhcp.schema in /etc/openldap/schema (#330471)
