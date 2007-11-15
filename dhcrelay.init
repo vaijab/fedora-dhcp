@@ -15,7 +15,7 @@
 #
 # The fields below are left around for legacy tools (will remove later).
 #
-# chkconfig: -
+# chkconfig: - 65 35
 # description: dhcrelay provides a relay for Dynamic Host Control Protocol.
 # processname: dhcrelay
 # # pidfile: /var/run/dhcrelay.pid
