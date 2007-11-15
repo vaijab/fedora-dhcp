@@ -13,7 +13,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.1.0
-Release:  8%{?dist}
+Release:  9%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer made
 # incorrect use of the epoch and that's why it is at 12 now.  It should have
 # never been used, but it was.  So we are stuck with it.
@@ -355,15 +355,18 @@ done
 %clean
 %{__rm} -rf %{buildroot}
 
-%post
-# This adds the proper /etc/rc*.d links for the script
-/sbin/chkconfig --add dhcpd
-/sbin/chkconfig --add dhcrelay
-
 %preun
 if [ $1 = 0 ]; then
-    /sbin/service dhcpd stop >/dev/null 2>&1 || :
-    /sbin/service dhcrelay stop >/dev/null 2>&1 || :
+    /sbin/service dhcpd status >/dev/null 2>&1
+    if [ $? = 3 ]; then
+        /sbin/service dhcpd stop >/dev/null 2>&1 || :
+    fi
+
+    /sbin/service dhcrelay status >/dev/null 2>&1
+    if [ $? = 3 ]; then
+        /sbin/service dhcrelay stop >/dev/null 2>&1 || :
+    fi
+
     /sbin/chkconfig --del dhcpd
     /sbin/chkconfig --del dhcrelay
 fi
@@ -440,6 +443,10 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Thu Nov 15 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-9
+- Fix chkconfig lines in dhcpd and dhcrelay init scripts (#384431)
+- Improve postun scriptlet
+
 * Mon Nov 12 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-8
 - Put dhcp.schema in /etc/openldap/schema (#330471)
 - Remove manpages patch and keep modified man pages as Source files
