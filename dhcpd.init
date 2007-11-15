@@ -14,7 +14,7 @@
 #
 # The fields below are left around for legacy tools (will remove later).
 #
-# chkconfig: -
+# chkconfig: - 65 35
 # description: dhcpd provides the Dynamic Host Configuration Protocol (DHCP) \
 #              server
 # processname: dhcpd

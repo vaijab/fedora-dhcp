@@ -355,6 +355,10 @@ done
 %clean
 %{__rm} -rf %{buildroot}
 
+%post
+/sbin/chkconfig --add dhcpd
+/sbin/chkconfig --add dhcrelay
+
 %preun
 if [ $1 = 0 ]; then
     /sbin/service dhcpd status >/dev/null 2>&1
