@@ -98,11 +98,6 @@ stop() {
     return $RETVAL
 }
 
-if [ ! -x $dhcdbd ]; then
-    RETVAL=5
-    exit $RETVAL
-fi
-
 if [ $# -gt 1 ]; then
     RETVAL=2
     exit $RETVAL

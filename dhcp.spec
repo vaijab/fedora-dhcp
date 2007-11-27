@@ -13,7 +13,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.1.0
-Release:  9%{?dist}
+Release:  10%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer made
 # incorrect use of the epoch and that's why it is at 12 now.  It should have
 # never been used, but it was.  So we are stuck with it.
@@ -447,6 +447,9 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Mon Nov 19 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-10
+- Remove dhcdbd check from dhcpd init script
+
 * Thu Nov 15 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-9
 - Fix chkconfig lines in dhcpd and dhcrelay init scripts (#384431)
 - Improve preun scriptlet
