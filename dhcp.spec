@@ -13,7 +13,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.1.0
-Release:  10%{?dist}
+Release:  11%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer made
 # incorrect use of the epoch and that's why it is at 12 now.  It should have
 # never been used, but it was.  So we are stuck with it.
@@ -357,27 +357,27 @@ done
 
 %post
 /sbin/chkconfig --add dhcpd
-/sbin/chkconfig --add dhcrelay
+/sbin/chkconfig --add dhcrelay || :
 
 %preun
 if [ $1 = 0 ]; then
     /sbin/service dhcpd status >/dev/null 2>&1
     if [ $? = 3 ]; then
-        /sbin/service dhcpd stop >/dev/null 2>&1 || :
+        /sbin/service dhcpd stop >/dev/null 2>&1
     fi
 
     /sbin/service dhcrelay status >/dev/null 2>&1
     if [ $? = 3 ]; then
-        /sbin/service dhcrelay stop >/dev/null 2>&1 || :
+        /sbin/service dhcrelay stop >/dev/null 2>&1
     fi
 
     /sbin/chkconfig --del dhcpd
-    /sbin/chkconfig --del dhcrelay
+    /sbin/chkconfig --del dhcrelay || :
 fi
 
 %postun
-if [ "$1" -ge "1" ]; then
-    /sbin/service dhcpd condrestart >/dev/null 2>&1 || :
+if [ $1 -ge 1 ]; then
+    /sbin/service dhcpd condrestart >/dev/null 2>&1
     /sbin/service dhcrelay condrestart >/dev/null 2>&1 || :
 fi
 
@@ -447,6 +447,9 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Tue Dec 04 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-11
+- Postinstall script fixes
+
 * Mon Nov 19 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-10
 - Remove dhcdbd check from dhcpd init script
 
