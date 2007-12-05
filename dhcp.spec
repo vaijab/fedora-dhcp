@@ -13,7 +13,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  3.1.0
-Release:  11%{?dist}
+Release:  12%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer made
 # incorrect use of the epoch and that's why it is at 12 now.  It should have
 # never been used, but it was.  So we are stuck with it.
@@ -71,10 +71,10 @@ BuildRequires: openldap-devel
 # For /etc/openldap/schema (and slapd, if you're using that with dhcpd)
 Requires: openldap-servers
 
-Requires(post): /sbin/chkconfig
-Requires(preun): /sbin/chkconfig
-Requires(preun): /sbin/service
-Requires(postun): /sbin/service
+Requires(post): chkconfig
+Requires(preun): chkconfig
+Requires(preun): initscripts
+Requires(postun): initscripts
 
 %description
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
@@ -447,6 +447,9 @@ fi
 %{_libdir}/libdhcp4client.a
 
 %changelog
+* Tue Dec 04 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-12
+- Requires line fixes
+
 * Tue Dec 04 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-11
 - Postinstall script fixes
 
