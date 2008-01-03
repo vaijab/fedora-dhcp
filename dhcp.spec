@@ -1,19 +1,10 @@
-# Use 64-bit pointers on POWER and z/Series
-%ifarch ppc64 s390x
-%define bigptrs -DPTRSIZE_64BIT
-%endif
-
-# The workdir is used in the build system for ISC dhcp, we set it to this
-# value to avoid any problems guessing what it might be during installation.
-%define workdir work.linux-2.2
-
-# The vendor name to append to the version number
+# vendor string (e.g., Fedora, EL)
 %define vvendor Fedora
 
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
-Version:  3.1.0
-Release:  12%{?dist}
+Version:  4.0.0
+Release:  1%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer made
 # incorrect use of the epoch and that's why it is at 12 now.  It should have
 # never been used, but it was.  So we are stuck with it.
@@ -22,49 +13,39 @@ License:  ISC
 Group:    System Environment/Daemons
 URL:      http://isc.org/products/DHCP/
 Source0:  ftp://ftp.isc.org/isc/%{name}/%{name}-%{version}.tar.gz
-Source1:  dhcpd.conf.sample
-Source2:  dhcpd.init
-Source3:  dhcrelay.init
-Source4:  dhcpd.conf
-Source5:  libdhcp4client.pc
-Source6:  README.ldap
-Source7:  draft-ietf-dhc-ldap-schema-01.txt
-Source8:  dhcpd-conf-to-ldap
-Source9:  linux
-Source10: Makefile.libdhcp4client
-Source11: dhcp4client.h
-Source12: libdhcp_control.h
-Source13: dhcp.schema
-Source14: dhclient-script.8
-Source15: dhclient.8
-Source16: dhclient.conf.5
-Source17: dhcp-options.5
-Source18: dhcpctl.3
-Source19: dhcpd.conf.5
-Source20: get-ldap-patch.sh
+Source1:  dhcpd.init
+Source2:  dhcrelay.init
+Source3:  libdhcp4client.pc
+Source5:  README.ldap
+Source6:  draft-ietf-dhc-ldap-schema-01.txt
+Source7:  dhcpd-conf-to-ldap
+Source8:  linux
+Source9:  dhcp4client.h
+Source10: libdhcp_control.h
+Source11: dhcp.schema
+Source12: get-ldap-patch.sh
 
-Patch0:   %{name}-3.0.5-Makefile.patch
-Patch1:   %{name}-3.0.5-errwarn-message.patch
-Patch2:   %{name}-3.1.0-ldap-configuration.patch
-Patch3:   %{name}-3.0.6-memory.patch
-Patch4:   %{name}-3.1.0-options.patch
-Patch5:   %{name}-3.0.5-release-by-ifup.patch
-Patch6:   %{name}-3.0.5-dhclient-decline-backoff.patch
-Patch7:   %{name}-3.0.5-enable-timeout-functions.patch
-Patch8:   %{name}-3.0.5-inherit-leases.patch
-Patch9:   %{name}-3.0.5-unicast-bootp.patch
-Patch10:  %{name}-3.0.5-fast-timeout.patch
-Patch11:  %{name}-3.0.5-failover-ports.patch
-Patch12:  %{name}-3.1.0-dhclient-usage.patch
-Patch13:  %{name}-3.0.5-default-requested-options.patch
-Patch14:  %{name}-3.0.5-prototypes.patch
-Patch15:  %{name}-3.1.0-libdhcp4client.patch
-Patch16:  %{name}-3.1.0-xen-checksum.patch
-Patch17:  %{name}-3.1.0-dhclient-anycast.patch
-Patch18:  %{name}-3.0.6-ignore-hyphen-x.patch
-Patch19:  %{name}-3.1.0-warnings.patch
+Patch0:   %{name}-3.0.5-errwarn-message.patch
+Patch1:   %{name}-4.0.0-ldap-configuration.patch
+Patch2:   %{name}-3.0.6-memory.patch
+Patch3:   %{name}-4.0.0-options.patch
+Patch4:   %{name}-3.0.5-release-by-ifup.patch
+Patch5:   %{name}-3.0.5-dhclient-decline-backoff.patch
+Patch6:   %{name}-3.0.5-enable-timeout-functions.patch
+Patch7:   %{name}-3.0.5-unicast-bootp.patch
+Patch8:   %{name}-4.0.0-fast-timeout.patch
+Patch9:   %{name}-3.0.5-failover-ports.patch
+Patch10:  %{name}-4.0.0-dhclient-usage.patch
+Patch11:  %{name}-4.0.0-default-requested-options.patch
+Patch12:  %{name}-4.0.0-xen-checksum.patch
+Patch13:  %{name}-4.0.0-dhclient-anycast.patch
+Patch14:  %{name}-4.0.0-manpages.patch
+Patch15:  %{name}-4.0.0-paths.patch
+Patch16:  %{name}-4.0.0-libdhcp4client.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRequires: autoconf
+BuildRequires: automake
 BuildRequires: groff
 BuildRequires: openldap-devel
 
@@ -136,221 +117,181 @@ Header files for development with the Internet Software Consortium (ISC)
 Dynamic Host Configuration Protocol (DHCP) Internet Protocol version 4 (IPv4)
 client library.
 
-%package -n libdhcp4client-static
-Summary: Static archive for libdhcp4client
-Group: Development/Libraries
-Requires: libdhcp4client-devel = %{epoch}:%{version}-%{release}
-
-%description -n libdhcp4client-static
-The libdhcp4client-static package contains the static archive for
-libdhcp4client.
-
 %prep
 %setup -q
-
-# Add vendor to the version number
-%{__sed} -e 's|V%{version}|V%{version}-%{vvendor}|g' includes/version.h > includes/version.h.new
-%{__mv} includes/version.h.new includes/version.h
-
-# Use $(MAKE) and $(CC) in the Makefiles
-%patch0 -p1 -b .Makefile
 
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
 # reported through bugzilla.redhat.com
-%patch1 -p1 -b .message
+%patch0 -p1
 
 # Add support for dhcpd.conf data in LDAP
-%patch2 -p1 -b .ldap
+# NOTE: Use get-ldap-patch.sh to pull down latest LDAP patch and then modify
+# it for this package.
+%patch1 -p1
 
 # Fix memory alignment and initialization problems in common/packet.c
 # Fix buffer overflow in minires library
 # Init struct sock_prog in common/lpf.c to NULL
-%patch3 -p1 -b .memory
+%patch2 -p1
 
 # Add more dhclient options (-I, -B, -H, -F, -T, -V, and -R)
-%patch4 -p1 -b .options
+%patch3 -p1
 
 # Handle releasing interfaces requested by /sbin/ifup
 # pid file is assumed to be /var/run/dhclient-$interface.pid
-%patch5 -p1 -b .release
+%patch4 -p1
 
 # If we receive a DHCP offer in dhclient and it's DECLINEd in dhclient-script,
 # backoff for an amount of time before trying again
-%patch6 -p1 -b .decline
+%patch5 -p1
 
 # Enable cancel_all_timeouts() and relinquish_timeouts() regardless of
 # the DEBUG_MEMORY_LEAKAGE_ON_EXIT macro
-%patch7 -p1 -b .etf
-
-# Inherit active leases
-%patch8 -p1 -b .inherit
+%patch6 -p1
 
 # Support unicast BOOTP for IBM pSeries systems (and maybe others)
-%patch9 -p1 -b .unicast
+%patch7 -p1
 
 # Fast timeout for dhclient
-%patch10 -p1 -b .fast
+%patch8 -p1
 
 # Use the following IANA-registered failover ports:
 # dhcp-failover 647/tcp
 # dhcp-failover 647/udp
 # dhcp-failover 847/tcp
 # dhcp-failover 847/udp
-%patch11 -p1 -b .failover
+%patch9 -p1
 
 # Update the usage screen for dhclient(8) indicating new options
 # Use printf() rather than log_info() to display the information
 # Also, return EXIT_FAILURE when the usage() screen is displayed (stop parsing)
-%patch12 -p1 -b .usage
+%patch10 -p1
 
 # Add NIS domain, NIS servers, and NTP servers to the list of default
 # requested DHCP options
-%patch13 -p1 -b .dho
-
-# Add missing prototypes to take care of gcc warnings
-# in dst/dst_api.c: add b64_pton() and b64_ntop()
-# in includes/minires/minires.h: remove macro for b64_pton
-# in minires/res_mkupdate.c: add b64_pton() and dn_comp()
-# in minires/res_comp.c: add ns_name_uncompress(), ns_name_compress(), and
-#                        ns_name_skip()
-# in minires/res_init.c: add res_randomid()
-%patch14 -p1 -b .prototypes
-
-# Add the libdhcp4client target (library version of dhclient)
-%patch15 -p1 -b .libdhcp4client
+%patch11 -p1
 
 # Handle Xen partial UDP checksums
-%patch16 -p1 -b .xen
+%patch12 -p1
 
 # Add anycast support to dhclient (for OLPC)
-%patch17 -p1 -b .anycast
+%patch13 -p1
 
-# Ignore the old extended new option info command line switch (-x)
-%patch18 -p1 -b .enoi
+# Patch man page contents
+%patch14 -p1
 
-# Fix up anything that fails -Wall -Werror
-%patch19 -p1 -b .warnings
+# Change paths to conform to our standards
+%patch15 -p1
+
+# Add the libdhcp4client target (library version of dhclient)
+%patch16 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
-%{__install} -p -m 0644 %{SOURCE6} .
-%{__install} -p -m 0644 %{SOURCE7} doc/
-%{__install} -p -m 0755 %{SOURCE8} contrib/
+%{__install} -p -m 0644 %{SOURCE5} .
+%{__install} -p -m 0644 %{SOURCE6} doc/
+%{__install} -p -m 0755 %{SOURCE7} contrib/
 
 # Copy in the Fedora/RHEL dhclient script
-%{__install} -p -m 0755 %{SOURCE9} client/scripts/
+%{__install} -p -m 0755 %{SOURCE8} client/scripts/
 
 # Copy in the libdhcp4client headers and Makefile.dist
-%{__mkdir} -p libdhcp4client
-%{__install} -p -m 0644 %{SOURCE10} libdhcp4client/Makefile.dist
-%{__install} -p -m 0644 %{SOURCE11} libdhcp4client/
+%{__install} -p -m 0644 %{SOURCE9} includes/
 
 # Copy in libdhcp_control.h to the isc-dhcp includes directory
-%{__install} -p -m 0644 %{SOURCE12} includes/isc-dhcp/
+%{__install} -p -m 0644 %{SOURCE10} includes/isc-dhcp/
 
 # Ensure we don't pick up Perl as a dependency from the scripts and modules
 # in the contrib directory (we copy this to /usr/share/doc in the final
 # package).
 %{__cp} -a contrib __fedora_contrib
-%{__chmod} -x __fedora_contrib/3.0b1-lease-convert
-%{__chmod} -x __fedora_contrib/dhcpd-conf-to-ldap
-%{__mv} __fedora_contrib/ms2isc/Registry.pm __fedora_contrib/ms2isc/Registry.perlmodule
-%{__rm} -f __fedora_contrib/dhcp.spec
+pushd __fedora_contrib
+%{__chmod} -x 3.0b1-lease-convert dhclient-tz-exithook.sh dhcpd-conf-to-ldap
+%{__chmod} -x sethostname.sh solaris.init
+%{__mv} ms2isc/Registry.pm ms2isc/Registry.perlmodule
+%{__rm} -f dhcp.spec
 
 # We want UNIX-style line endings
-%{__sed} -i -e 's/\r//' __fedora_contrib/ms2isc/readme.txt
-%{__sed} -i -e 's/\r//' __fedora_contrib/ms2isc/Registry.perlmodule
-%{__sed} -i -e 's/\r//' __fedora_contrib/ms2isc/ms2isc.pl
+%{__sed} -i -e 's/\r//' ms2isc/readme.txt
+%{__sed} -i -e 's/\r//' ms2isc/Registry.perlmodule
+%{__sed} -i -e 's/\r//' ms2isc/ms2isc.pl
+popd
 
-# Copy in our modified man pages
-%{__install} -p -m 0644 %{SOURCE14} client/dhclient-script.8
-%{__install} -p -m 0644 %{SOURCE15} client/dhclient.8
-%{__install} -p -m 0644 %{SOURCE16} client/dhclient.conf.5
-%{__install} -p -m 0644 %{SOURCE17} common/dhcp-options.5
-%{__install} -p -m 0644 %{SOURCE18} dhcpctl/dhcpctl.3
-%{__install} -p -m 0644 %{SOURCE19} server/dhcpd.conf.5
-
-# Replace @PRODUCTNAME@ in dhcp-options.5
+# Replace @PRODUCTNAME@
 %{__sed} -i -e 's|@PRODUCTNAME@|%{vvendor}|g' common/dhcp-options.5
+%{__sed} -i -e 's|@PRODUCTNAME@|%{vvendor}|g' configure.ac
+
+aclocal
+libtoolize --copy --force
+autoconf
+autoheader
+automake --foreign --add-missing --copy
 
 %build
-%{__cp} %{SOURCE1} .
-%{__cat} <<EOF > site.conf
-VARDB=%{_localstatedir}/lib/dhcpd
-ADMMANDIR=%{_mandir}/man8
-FFMANDIR=%{_mandir}/man5
-LIBMANDIR=%{_mandir}/man3
-USRMANDIR=%{_mandir}/man1
-LIBDIR=%{_libdir}
-INCDIR=%{_includedir}
-EOF
-%{__cat} <<EOF >> includes/site.h
-#define _PATH_DHCPD_DB    "%{_localstatedir}/lib/dhcpd/dhcpd.leases"
-#define _PATH_DHCLIENT_DB "%{_localstatedir}/lib/dhclient/dhclient.leases"
-EOF
+%configure \
+    --enable-dhcpv6 \
+    --with-srv-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd.leases \
+    --with-cli-lease-file=%{_localstatedir}/lib/dhclient/dhclient.leases \
+    --with-srv-pid-file=%{_localstatedir}/run/dhcpd.pid \
+    --with-cli-pid-file=%{_localstatedir}/run/dhclient.pid \
+    --with-relay-pid-file=%{_localstatedir}/run/dhcrelay.pid
+%{__make} %{?_smp_mflags}
 
-# Disable gcc's strict aliasing since ISC code tends to cast a lot.
-##
-## Use -fvisibility=hidden for libdhcp4client.  The way that library is
-## constructed, we need to follow the hide-by-default/expose-what-we-need
-## plan for the library API.
-#COPTS="-fPIC -Werror -Dlint -fno-strict-aliasing -fvisibility=hidden"
-COPTS="-fPIC -Werror -Dlint -fno-strict-aliasing"
-
-# DO NOT use the %%configure macro because this configure script is not autognu
-CC="%{__cc}" ./configure \
-   --copts "$RPM_OPT_FLAGS $COPTS %{?bigptrs}" \
-   --work-dir %{workdir}
-
-%{__sed} 's/@DHCP_VERSION@/%{version}/' < %{SOURCE5} > libdhcp4client.pc
-%{__make} %{?_smp_mflags} CC="%{__cc}"
+%{__sed} 's/@DHCP_VERSION@/%{version}/' < %{SOURCE3} > libdhcp4client.pc
 
 %install
 %{__rm} -rf %{buildroot}
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/sysconfig
-
 %{__make} install DESTDIR=%{buildroot}
-%{__install} -p -m 0644 %{SOURCE12} %{buildroot}%{_includedir}/isc-dhcp/
 
+%{__rm} %{buildroot}%{_sysconfdir}/dhclient.conf
+
+%{__mkdir} -p %{buildroot}/sbin
+%{__mv} %{buildroot}%{_sbindir}/dhclient %{buildroot}/sbin/dhclient
+%{__install} -p -m 0755 client/scripts/linux %{buildroot}/sbin/dhclient-script
+
+%{__install} -p -m 0644 %{SOURCE10} %{buildroot}%{_includedir}/isc-dhcp/
+%{__install} -p -m 0644 -D libdhcp4client.pc %{buildroot}%{_libdir}/pkgconfig/libdhcp4client.pc
+
+# Install init scripts
 %{__mkdir} -p %{buildroot}%{_initrddir}
-%{__install} -p -m 0755 %{SOURCE2} %{buildroot}%{_initrddir}/dhcpd
+%{__install} -p -m 0755 %{SOURCE1} %{buildroot}%{_initrddir}/dhcpd
+%{__install} -p -m 0755 %{SOURCE2} %{buildroot}%{_initrddir}/dhcrelay
 
+# Start empty lease databases
+%{__mkdir} -p %{buildroot}%{_localstatedir}/lib/dhcpd/
 touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd.leases
 %{__mkdir} -p %{buildroot}%{_localstatedir}/lib/dhclient/
-%{__cat} <<EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcpd
-# Command line options here
-DHCPDARGS=
-EOF
 
-%{__install} -p -m 0755 %{SOURCE3} %{buildroot}%{_initrddir}/dhcrelay
+# Create default sysconfig files for dhcpd and dhcrelay
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/sysconfig
 
-%{__cat} <<EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcrelay
+%{__cat} << EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcrelay
 # Command line options here
 INTERFACES=""
 DHCPSERVERS=""
 EOF
 
-# Copy sample dhclient.conf file into position
+%{__cat} <<EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcpd
+# Command line options here
+DHCPDARGS=
+EOF
+
+# Copy sample conf files into position (called by doc macro)
 %{__cp} -p client/dhclient.conf dhclient.conf.sample
-%{__chmod} 0755 %{buildroot}/sbin/dhclient-script
+%{__cp} -p server/dhcpd.conf dhcpd.conf.sample
 
 # Install default (empty) dhcpd.conf:
-%{__cp} -fp %{SOURCE4} %{buildroot}%{_sysconfdir}
+%{__cat} << EOF > %{buildroot}%{_sysconfdir}/dhcpd.conf
+#
+# DHCP Server Configuration file.
+#   see /usr/share/doc/dhcp*/dhcpd.conf.sample
+#   see 'man 5 dhcpd.conf'
+#
+EOF
 
 # Install dhcp.schema for LDAP configuration
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/openldap/schema
-%{__install} -p -m 0644 -D %{SOURCE13} %{buildroot}%{_sysconfdir}/openldap/schema
-
-%{__install} -p -m 0644 -D libdhcp4client.pc %{buildroot}%{_libdir}/pkgconfig/libdhcp4client.pc
-
-# Sources files can't be symlinks for debuginfo package generation
-find %{workdir} -type l |
-while read f; do
-    %{__rm} -f linkderef
-    %{__cp} $f linkderef
-    %{__rm} -f $f
-    %{__mv} linkderef $f
-done
+%{__install} -p -m 0644 -D %{SOURCE11} %{buildroot}%{_sysconfdir}/openldap/schema
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -387,7 +328,7 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%doc README README.ldap RELNOTES dhcpd.conf.sample doc/IANA-arp-parameters
+%doc LICENSE README README.ldap RELNOTES dhcpd.conf.sample
 %doc doc/IANA-arp-parameters doc/api+protocol doc/*.txt __fedora_contrib/*
 %dir %{_localstatedir}/lib/dhcpd
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
@@ -423,30 +364,31 @@ fi
 
 %files devel
 %defattr(-,root,root,-)
-%{_includedir}/dhcpctl.h
+%{_includedir}/dhcpctl
 %{_includedir}/isc-dhcp
 %{_includedir}/omapip
 %{_libdir}/libdhcpctl.a
 %{_libdir}/libomapi.a
-%attr(0644,root,root) %{_mandir}/man3/omshell.3.gz
+%{_libdir}/libdst.a
 %attr(0644,root,root) %{_mandir}/man3/dhcpctl.3.gz
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %files -n libdhcp4client
 %defattr(0755,root,root,0755)
-%{_libdir}/libdhcp4client-%{version}.so.*
+#%{_libdir}/libdhcp4client-%{version}.so.*
 
 %files -n libdhcp4client-devel
 %defattr(0644,root,root,0755)
-%{_includedir}/dhcp4client
+#%{_includedir}/dhcp4client
 %{_libdir}/pkgconfig/libdhcp4client.pc
-%{_libdir}/libdhcp4client.so
-
-%files -n libdhcp4client-static
-%defattr(0644,root,root,0755)
-%{_libdir}/libdhcp4client.a
+#%{_libdir}/libdhcp4client.so
 
 %changelog
+* Wed Jan 02 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-1
+- Upgrade to ISC dhcp-4.0.0 (first ISC release to incorporate DHCPv6
+  protocol support, source tree uses GNU autoconf/automake)
+- Removed the libdhcp4client-static package
+
 * Tue Dec 04 2007 David Cantrell <dcantrell@redhat.com> - 12:3.1.0-12
 - Requires line fixes
 
