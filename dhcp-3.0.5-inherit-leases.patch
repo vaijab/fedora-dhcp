@@ -1,0 +1,17 @@
+--- dhcp-3.0.5/client/dhclient.c.inherit	2007-03-30 16:06:30.000000000 -0400
++++ dhcp-3.0.5/client/dhclient.c	2007-03-30 16:09:06.000000000 -0400
+@@ -720,6 +720,14 @@
+ 				continue;
+ 			script_init (ip -> client,
+ 				     "PREINIT", (struct string_list *)0);
++			/* Has an active lease */
++			if (ip->client->active &&
++			    !ip->client->active->is_bootp &&
++			    ip->client->active->expiry > cur_time &&
++			    ip->primary_address.s_addr != 0 &&
++			    ip->client->active->address.len == 4 &&
++			    memcmp(ip->client->active->address.iabuf, &ip->primary_address, 4) == 0)
++				client_envadd(ip->client, "", "keep_old_ip", "%s", "yes");
+ 			if (ip -> client -> alias)
+ 				script_write_params (ip -> client, "alias_",
+ 						     ip -> client -> alias);
