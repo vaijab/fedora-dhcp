@@ -1,0 +1,16 @@
+diff -up dhcp-4.0.0/server/Makefile.am.mf dhcp-4.0.0/server/Makefile.am
+--- dhcp-4.0.0/server/Makefile.am.mf	2008-01-12 12:40:59.000000000 -1000
++++ dhcp-4.0.0/server/Makefile.am	2008-01-12 12:41:55.000000000 -1000
+@@ -6,10 +6,8 @@ dhcpd_SOURCES = dhcpd.c dhcp.c bootp.c c
+ 		omapi.c mdb.c stables.c salloc.c ddns.c dhcpleasequery.c \
+ 		dhcpv6.c mdb6.c ldap.c ldap_casa.c
+ 
+-# libomapi.a this is here twice to handle circular library dependencies :(
+-dhcpd_LDADD = ../common/libdhcp.a ../omapip/libomapi.a ../dst/libdst.a \
+-	      ../dhcpctl/libdhcpctl.a ../minires/libres.a \
+-	      ../omapip/libomapi.a -lldap
++dhcpd_LDADD = ../common/libdhcp.a ../omapip/libomapi.a ../minires/libres.a \
++	      ../dhcpctl/libdhcpctl.a ../dst/libdst.a -lldap
+ 
+ man_MANS = dhcpd.8 dhcpd.conf.5 dhcpd.leases.5
+ EXTRA_DIST = $(man_MANS)
