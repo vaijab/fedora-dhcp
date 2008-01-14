@@ -42,13 +42,14 @@ Patch13:  %{name}-4.0.0-dhclient-anycast.patch
 Patch14:  %{name}-4.0.0-manpages.patch
 Patch15:  %{name}-4.0.0-paths.patch
 Patch16:  %{name}-4.0.0-libdhcp4client.patch
-Patch17:  %{name}-4.0.0-server-Makefile.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: groff
+BuildRequires: libtool
 BuildRequires: openldap-devel
+BuildRequires: openssl-devel
 
 # For /etc/openldap/schema (and slapd, if you're using that with dhcpd)
 Requires: openldap-servers
@@ -188,9 +189,6 @@ client library.
 # Add the libdhcp4client target (library version of dhclient)
 %patch16 -p1
 
-# Modify LDADD in server/Makefile.am
-%patch17 -p1
-
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %{SOURCE5} .
 %{__install} -p -m 0644 %{SOURCE6} doc/
@@ -232,6 +230,7 @@ autoheader
 automake --foreign --add-missing --copy
 
 %build
+CFLAGS="%{optflags} -fPIC" \
 %configure \
     --enable-dhcpv6 \
     --with-srv-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd.leases \
