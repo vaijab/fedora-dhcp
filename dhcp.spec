@@ -49,7 +49,6 @@ BuildRequires: automake
 BuildRequires: groff
 BuildRequires: libtool
 BuildRequires: openldap-devel
-BuildRequires: openssl-devel
 
 # For /etc/openldap/schema (and slapd, if you're using that with dhcpd)
 Requires: openldap-servers
@@ -401,7 +400,7 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
-* Sun Jan 13 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-1
+* Mon Jan 14 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-1
 - Upgrade to ISC dhcp-4.0.0 (#426634)
      - first ISC release to incorporate DHCPv6 protocol support
      - source tree now uses GNU autoconf/automake
