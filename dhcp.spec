@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  1%{?dist}
+Release:  2%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer made
 # incorrect use of the epoch and that's why it is at 12 now.  It should have
 # never been used, but it was.  So we are stuck with it.
@@ -400,6 +400,9 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Mon Jan 14 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-2
+- -fvisibility fails me again
+
 * Mon Jan 14 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-1
 - Upgrade to ISC dhcp-4.0.0 (#426634)
      - first ISC release to incorporate DHCPv6 protocol support
