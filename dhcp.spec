@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  2%{?dist}
+Release:  3%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer made
 # incorrect use of the epoch and that's why it is at 12 now.  It should have
 # never been used, but it was.  So we are stuck with it.
@@ -42,6 +42,7 @@ Patch13:  %{name}-4.0.0-dhclient-anycast.patch
 Patch14:  %{name}-4.0.0-manpages.patch
 Patch15:  %{name}-4.0.0-paths.patch
 Patch16:  %{name}-4.0.0-libdhcp4client.patch
+Patch17:  %{name}-4.0.0-discover-file-handle.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -187,6 +188,9 @@ client library.
 
 # Add the libdhcp4client target (library version of dhclient)
 %patch16 -p1
+
+# Check file handle passed to fgets() in common/discover.c
+%patch17 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %{SOURCE5} .
@@ -400,6 +404,9 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Tue Jan 15 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-3
+- Fix segfault in next_iface4() and next_iface6() (#428870)
+
 * Mon Jan 14 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-2
 - -fvisibility fails me again
 
