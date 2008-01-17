@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  3%{?dist}
+Release:  4%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer made
 # incorrect use of the epoch and that's why it is at 12 now.  It should have
 # never been used, but it was.  So we are stuck with it.
@@ -42,7 +42,7 @@ Patch13:  %{name}-4.0.0-dhclient-anycast.patch
 Patch14:  %{name}-4.0.0-manpages.patch
 Patch15:  %{name}-4.0.0-paths.patch
 Patch16:  %{name}-4.0.0-libdhcp4client.patch
-Patch17:  %{name}-4.0.0-discover-file-handle.patch
+Patch17:  %{name}-4.0.0-parser.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -189,7 +189,7 @@ client library.
 # Add the libdhcp4client target (library version of dhclient)
 %patch16 -p1
 
-# Check file handle passed to fgets() in common/discover.c
+# Fix parsing errors
 %patch17 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
@@ -235,7 +235,7 @@ automake --foreign --add-missing --copy
 %build
 CFLAGS="%{optflags} -fPIC" \
 %configure \
-    --enable-dhcpv6 \
+    --disable-dhcpv6 \
     --with-srv-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd.leases \
     --with-cli-lease-file=%{_localstatedir}/lib/dhclient/dhclient.leases \
     --with-srv-pid-file=%{_localstatedir}/run/dhcpd.pid \
@@ -404,6 +404,10 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Wed Jan 16 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-4
+- Fix dhclient.lease file parsing problems (#428785)
+- Disable IPv6 support for now as we already ship dhcpv6 (#428987)
+
 * Tue Jan 15 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-3
 - Fix segfault in next_iface4() and next_iface6() (#428870)
 
