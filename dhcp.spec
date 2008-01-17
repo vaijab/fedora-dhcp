@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  4%{?dist}
+Release:  5%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer made
 # incorrect use of the epoch and that's why it is at 12 now.  It should have
 # never been used, but it was.  So we are stuck with it.
@@ -404,6 +404,9 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Thu Jan 17 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-5
+- Patch read_function() to handle size_t from read() correctly (#429207)
+
 * Wed Jan 16 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-4
 - Fix dhclient.lease file parsing problems (#428785)
 - Disable IPv6 support for now as we already ship dhcpv6 (#428987)
