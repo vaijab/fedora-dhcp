@@ -1,0 +1,18 @@
+diff -up dhcp-4.0.0/common/conflex.c.parse dhcp-4.0.0/common/conflex.c
+--- dhcp-4.0.0/common/conflex.c.parse	2008-01-16 15:26:09.000000000 -1000
++++ dhcp-4.0.0/common/conflex.c	2008-01-16 16:02:48.000000000 -1000
+@@ -182,8 +182,12 @@ static int get_char (cfile)
+ 			c = EOF;
+ 		}
+ 	} else {
+-		c = cfile->inbuf [cfile->bufix];
+-		cfile->bufix++;
++		if (strlen(cfile->inbuf) >= (cfile->bufix + 1)) {
++			c = EOF;
++		} else {
++			c = cfile->inbuf [cfile->bufix];
++			cfile->bufix++;
++		}
+ 	}
+ 
+ 	if (!cfile->ugflag) {
