@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  7%{?dist}
+Release:  8%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -43,7 +43,6 @@ Patch13:  %{name}-4.0.0-dhclient-anycast.patch
 Patch14:  %{name}-4.0.0-manpages.patch
 Patch15:  %{name}-4.0.0-paths.patch
 Patch16:  %{name}-4.0.0-libdhcp4client.patch
-Patch17:  %{name}-4.0.0-close-leaseFile.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -189,9 +188,6 @@ client library.
 
 # Add the libdhcp4client target (library version of dhclient)
 %patch16 -p1
-
-# Close _PATH_DHCLIENT_DB so we don't leak file descriptors
-%patch17 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %{SOURCE5} .
@@ -405,6 +401,9 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Wed Feb 06 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-8
+- Remove invalid fclose() patch
+
 * Tue Feb 05 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-7
 - Don't leak /var/lib/dhclient/dhclient.leases file descriptors (#429890)
 
