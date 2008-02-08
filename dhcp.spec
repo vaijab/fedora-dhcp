@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  9%{?dist}
+Release:  10%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -401,6 +401,11 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Thu Feb 07 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-10
+- Save conf files adding '.predhclient.$interface' to the name (#306381)
+- Only restore conf files on EXPIRE/FAIL/RELEASE/STOP if there are no other
+  dhclient processes running (#306381)
+
 * Wed Feb 06 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-9
 - Match LDAP server option values in stables.c and dhcpd.h (#431003)
 - Fix invalid sprintf() statement in server/ldap.c (#431003)
