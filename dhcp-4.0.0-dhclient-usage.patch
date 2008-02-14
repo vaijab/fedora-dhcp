@@ -1,7 +1,7 @@
 diff -up dhcp-4.0.0/client/dhclient.c.usage dhcp-4.0.0/client/dhclient.c
---- dhcp-4.0.0/client/dhclient.c.usage	2007-12-31 18:05:29.000000000 -1000
-+++ dhcp-4.0.0/client/dhclient.c	2007-12-31 18:05:43.000000000 -1000
-@@ -893,21 +893,30 @@ main(int argc, char **argv) {
+--- dhcp-4.0.0/client/dhclient.c.usage	2008-02-13 16:20:30.000000000 -1000
++++ dhcp-4.0.0/client/dhclient.c	2008-02-13 16:21:05.000000000 -1000
+@@ -882,21 +882,30 @@ main(int argc, char **argv) {
  
  static void usage ()
  {
@@ -9,7 +9,7 @@ diff -up dhcp-4.0.0/client/dhclient.c.usage dhcp-4.0.0/client/dhclient.c
 -	log_info (copyright);
 -	log_info (arr);
 -	log_info (url);
-+	printf ("%s %s", message, PACKAGE_VERSION);
++	printf ("%s %s\n", message, PACKAGE_VERSION);
 +	printf (copyright);
 +	printf ("\n");
 +	printf (arr);
