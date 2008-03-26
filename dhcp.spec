@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  12%{?dist}
+Release:  13%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -414,6 +414,9 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Tue Mar 25 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-13
+- Update dhclient-script to handle domain-search correctly (#437840)
+
 * Tue Mar 25 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-12
 - Remove Requires on openldap-server (#432180)
 - Replace CLIENTBINDIR, ETCDIR, DBDIR, and RUNDIR in the man pages with the
