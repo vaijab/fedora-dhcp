@@ -226,14 +226,14 @@ for page in client/dhclient.conf.5 client/dhclient.leases.5 \
     %{__sed} -i -e 's|CLIENTBINDIR|/sbin|g' \
                 -e 's|RUNDIR|%{_localstatedir}/run|g' \
                 -e 's|DBDIR|%{_localstatedir}/db/dhclient|g' \
-                -e 's|ETCDIR|%{_sysconfdir}|g' $$page
+                -e 's|ETCDIR|%{_sysconfdir}|g' $page
 done
 
 for page in server/dhcpd.conf.5 server/dhcpd.leases.5 server/dhcpd.8 ; do
     %{__sed} -i -e 's|CLIENTBINDIR|/sbin|g' \
                 -e 's|RUNDIR|%{_localstatedir}/run|g' \
                 -e 's|DBDIR|%{_localstatedir}/db/dhcpd|g' \
-                -e 's|ETCDIR|%{_sysconfdir}|g' $$page
+                -e 's|ETCDIR|%{_sysconfdir}|g' $page
 done
 
 aclocal
