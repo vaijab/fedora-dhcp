@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  11%{?dist}
+Release:  12%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -50,9 +50,6 @@ BuildRequires: automake
 BuildRequires: groff
 BuildRequires: libtool
 BuildRequires: openldap-devel
-
-# For /etc/openldap/schema (and slapd, if you're using that with dhcpd)
-Requires: openldap-servers
 
 Requires(post): chkconfig
 Requires(preun): chkconfig
@@ -206,7 +203,7 @@ client library.
 # Ensure we don't pick up Perl as a dependency from the scripts and modules
 # in the contrib directory (we copy this to /usr/share/doc in the final
 # package).
-%{__cp} -a contrib __fedora_contrib
+%{__cp} -pR contrib __fedora_contrib
 pushd __fedora_contrib
 %{__chmod} -x 3.0b1-lease-convert dhclient-tz-exithook.sh dhcpd-conf-to-ldap
 %{__chmod} -x sethostname.sh solaris.init
@@ -222,6 +219,22 @@ popd
 # Replace @PRODUCTNAME@
 %{__sed} -i -e 's|@PRODUCTNAME@|%{vvendor}|g' common/dhcp-options.5
 %{__sed} -i -e 's|@PRODUCTNAME@|%{vvendor}|g' configure.ac
+
+# Update paths in all man pages
+for page in client/dhclient.conf.5 client/dhclient.leases.5 \
+            client/dhclient-script.8 client/dhclient.8 ; do
+    %{__sed} -i -e 's|CLIENTBINDIR|/sbin|g' \
+                -e 's|RUNDIR|%{_localstatedir}/run|g' \
+                -e 's|DBDIR|%{_localstatedir}/db/dhclient|g' \
+                -e 's|ETCDIR|%{_sysconfdir}|g' $$page
+done
+
+for page in server/dhcpd.conf.5 server/dhcpd.leases.5 server/dhcpd.8 ; do
+    %{__sed} -i -e 's|CLIENTBINDIR|/sbin|g' \
+                -e 's|RUNDIR|%{_localstatedir}/run|g' \
+                -e 's|DBDIR|%{_localstatedir}/db/dhcpd|g' \
+                -e 's|ETCDIR|%{_sysconfdir}|g' $$page
+done
 
 aclocal
 libtoolize --copy --force
@@ -401,6 +414,11 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Tue Mar 25 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-12
+- Remove Requires on openldap-server (#432180)
+- Replace CLIENTBINDIR, ETCDIR, DBDIR, and RUNDIR in the man pages with the
+  correct paths
+
 * Wed Feb 13 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-11
 - Add missing newline to usage() screen in dhclient
 
