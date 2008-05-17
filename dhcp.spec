@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  14%{?dist}
+Release:  15%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -43,7 +43,8 @@ Patch13:  %{name}-4.0.0-dhclient-anycast.patch
 Patch14:  %{name}-4.0.0-manpages.patch
 Patch15:  %{name}-4.0.0-paths.patch
 Patch16:  %{name}-4.0.0-NetworkManager-crash.patch
-Patch17:  %{name}-4.0.0-libdhcp4client.patch
+Patch17:  %{name}-4.0.0-selinux.patch
+Patch18:  %{name}-4.0.0-libdhcp4client.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -187,8 +188,11 @@ client library.
 # Avoid crash when dhclient is run with NetworkManager
 %patch16 -p1
 
-# Add the libdhcp4client target (library version of dhclient)
+# Set close-on-exec for dhclient.leases for SELinux (#446632)
 %patch17 -p1
+
+# Add the libdhcp4client target (library version of dhclient)
+%patch18 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %{SOURCE5} .
@@ -418,6 +422,9 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Fri May 16 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-15
+- Set close-on-exec on dhclient.leases for SELinux (#446632)
+
 * Tue Apr 01 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-14
 - Avoid dhclient crash when run via NetworkManager (#439796)
 
