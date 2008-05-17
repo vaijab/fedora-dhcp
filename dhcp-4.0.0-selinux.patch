@@ -1,0 +1,48 @@
+diff -up dhcp-4.0.0//client/dhclient.c.selinux dhcp-4.0.0//client/dhclient.c
+--- dhcp-4.0.0//client/dhclient.c.selinux	2008-05-16 13:42:18.000000000 -1000
++++ dhcp-4.0.0//client/dhclient.c	2008-05-16 13:57:54.000000000 -1000
+@@ -2908,6 +2908,11 @@ void rewrite_client_leases ()
+ 		return;
+ 	}
+ 
++	if (fcntl(leaseFile, F_SETFD, FD_CLOEXEC) == -1) {
++		log_error ("failed to set close-on-exec for %s", path_dhclient_db);
++		return;
++	}
++
+ 	/* If there is a default duid, write it out. */
+ 	if (default_duid.len != 0)
+ 		write_duid(&default_duid);
+@@ -3011,6 +3016,10 @@ write_duid(struct data_string *duid)
+ 			log_error("can't create %s: %m", path_dhclient_db);
+ 			return ISC_R_IOERROR;
+ 		}
++		if (fcntl(leaseFile, F_SETFD, FD_CLOEXEC) == -1) {
++			log_error ("failed to set close-on-exec for %s", path_dhclient_db);
++			return ISC_R_IOERROR;
++		}
+ 	}
+ 
+ 	/* It would make more sense to write this as a hex string,
+@@ -3058,6 +3067,10 @@ write_client6_lease(struct client_state 
+ 			log_error("can't create %s: %m", path_dhclient_db);
+ 			return ISC_R_IOERROR;
+ 		}
++		if (fcntl(leaseFile, F_SETFD, FD_CLOEXEC) == -1) {
++			log_error ("failed to set close-on-exec for %s", path_dhclient_db);
++			return ISC_R_IOERROR;
++		}
+ 	}
+ 
+ 	stat = fprintf(leaseFile, "lease6 {\n");
+@@ -3161,6 +3174,10 @@ int write_client_lease (client, lease, r
+ 			log_error ("can't create %s: %m", path_dhclient_db);
+ 			return 0;
+ 		}
++		if (fcntl(leaseFile, F_SETFD, FD_CLOEXEC) == -1) {
++			log_error ("failed to set close-on-exec for %s", path_dhclient_db);
++			return ISC_R_IOERROR;
++		}
+ 	}
+ 
+ 	errno = 0;
