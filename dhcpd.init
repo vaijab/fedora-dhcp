@@ -62,6 +62,11 @@ configtest() {
     [ -f $conf ] || return 6
     $dhcpd -q -t -cf $conf
     RETVAL=$?
+    if [ $RETVAL -eq 1 ]; then
+        $dhcpd -t -cf $conf
+    else
+        echo "Syntax: OK" >&2
+    fi
     return $RETVAL
 }
 
