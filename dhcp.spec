@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  15%{?dist}
+Release:  16%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -422,6 +422,10 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Mon Jun 23 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-16
+- Remove instances of \032 in domain search option (#450042)
+- Make 'service dhcpd configtest' display text indicating the status
+
 * Fri May 16 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-15
 - Set close-on-exec on dhclient.leases for SELinux (#446632)
 
