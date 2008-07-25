@@ -55,6 +55,10 @@ make_resolv_conf() {
             fi
         fi
 
+        if [ -n "$RES_OPTIONS" ]; then
+            echo options $RES_OPTIONS >> $rscf
+        fi
+
         for nameserver in $new_domain_name_servers; do
             echo nameserver $nameserver >> $rscf
         done

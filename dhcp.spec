@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  16%{?dist}
+Release:  17%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -45,6 +45,7 @@ Patch15:  %{name}-4.0.0-paths.patch
 Patch16:  %{name}-4.0.0-NetworkManager-crash.patch
 Patch17:  %{name}-4.0.0-selinux.patch
 Patch18:  %{name}-4.0.0-libdhcp4client.patch
+Patch19:  %{name}-4.0.0-O_CLOEXEC.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -91,6 +92,7 @@ provides the ISC DHCP client daemon.
 %package devel
 Summary: Development headers and libraries for interfacing to the DHCP server
 Group: Development/Libraries
+Requires: %{name} = %{epoch}:%{version}-%{release}
 
 %description devel
 Header files and API documentation for using the ISC DHCP libraries.  The
@@ -193,6 +195,9 @@ client library.
 
 # Add the libdhcp4client target (library version of dhclient)
 %patch18 -p1
+
+# Make sure all open file descriptors are closed-on-exec for SELinux
+%patch19 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %{SOURCE5} .
@@ -422,6 +427,10 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Thu Jul 24 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-17
+- Carry over RES_OPTIONS from ifcfg-ethX files to /etc/resolv.conf (#202923)
+- Clean up Requires tags for devel packages
+
 * Sat Jun 21 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-16
 - Remove instaces of \032 in domain search option (#450042)
 - Make 'service dhcpd configtest' display text indicating the status
