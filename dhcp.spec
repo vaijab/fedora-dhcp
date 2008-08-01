@@ -26,16 +26,16 @@ Source10: libdhcp_control.h
 Source11: dhcp.schema
 Source12: get-ldap-patch.sh
 
-Patch0:   %{name}-3.0.5-errwarn-message.patch
+Patch0:   %{name}-4.0.0-errwarn-message.patch
 Patch1:   %{name}-4.0.0-ldap-configuration.patch
-Patch2:   %{name}-3.0.6-memory.patch
+Patch2:   %{name}-4.0.0-memory.patch
 Patch3:   %{name}-4.0.0-options.patch
-Patch4:   %{name}-3.0.5-release-by-ifup.patch
-Patch5:   %{name}-3.0.5-dhclient-decline-backoff.patch
-Patch6:   %{name}-3.0.5-enable-timeout-functions.patch
-Patch7:   %{name}-3.0.5-unicast-bootp.patch
+Patch4:   %{name}-4.0.0-release-by-ifup.patch
+Patch5:   %{name}-4.0.0-dhclient-decline-backoff.patch
+Patch6:   %{name}-4.0.0-enable-timeout-functions.patch
+Patch7:   %{name}-4.0.0-unicast-bootp.patch
 Patch8:   %{name}-4.0.0-fast-timeout.patch
-Patch9:   %{name}-3.0.5-failover-ports.patch
+Patch9:   %{name}-4.0.0-failover-ports.patch
 Patch10:  %{name}-4.0.0-dhclient-usage.patch
 Patch11:  %{name}-4.0.0-default-requested-options.patch
 Patch12:  %{name}-4.0.0-xen-checksum.patch
@@ -46,6 +46,7 @@ Patch16:  %{name}-4.0.0-NetworkManager-crash.patch
 Patch17:  %{name}-4.0.0-selinux.patch
 Patch18:  %{name}-4.0.0-libdhcp4client.patch
 Patch19:  %{name}-4.0.0-O_CLOEXEC.patch
+Patch20:  %{name}-4.0.0-inherit-leases.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -198,6 +199,9 @@ client library.
 
 # Make sure all open file descriptors are closed-on-exec for SELinux
 %patch19 -p1
+
+# If we have an active lease, do not down the interface (#453982)
+%patch20 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %{SOURCE5} .
@@ -427,9 +431,12 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
-* Thu Jul 24 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-17
+* Fri Aug 01 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-17
 - Carry over RES_OPTIONS from ifcfg-ethX files to /etc/resolv.conf (#202923)
 - Clean up Requires tags for devel packages
+- Allow SEARCH variable in ifcfg files to override search path (#454152)
+- Do not down interface if there is an active lease (#453982)
+- Clean up how dhclient-script restarts ypbind
 
 * Sat Jun 21 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-16
 - Remove instaces of \032 in domain search option (#450042)
