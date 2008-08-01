@@ -43,10 +43,9 @@ Patch13:  %{name}-4.0.0-dhclient-anycast.patch
 Patch14:  %{name}-4.0.0-manpages.patch
 Patch15:  %{name}-4.0.0-paths.patch
 Patch16:  %{name}-4.0.0-NetworkManager-crash.patch
-Patch17:  %{name}-4.0.0-selinux.patch
+Patch17:  %{name}-4.0.0-FD_CLOEXEC.patch
 Patch18:  %{name}-4.0.0-libdhcp4client.patch
-Patch19:  %{name}-4.0.0-O_CLOEXEC.patch
-Patch20:  %{name}-4.0.0-inherit-leases.patch
+Patch19:  %{name}-4.0.0-inherit-leases.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -191,17 +190,14 @@ client library.
 # Avoid crash when dhclient is run with NetworkManager
 %patch16 -p1
 
-# Set close-on-exec for dhclient.leases for SELinux (#446632)
+# Make sure all open file descriptors are closed-on-exec for SELinux (#446632)
 %patch17 -p1
 
 # Add the libdhcp4client target (library version of dhclient)
 %patch18 -p1
 
-# Make sure all open file descriptors are closed-on-exec for SELinux
-%patch19 -p1
-
 # If we have an active lease, do not down the interface (#453982)
-%patch20 -p1
+%patch19 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %{SOURCE5} .
@@ -437,6 +433,7 @@ fi
 - Allow SEARCH variable in ifcfg files to override search path (#454152)
 - Do not down interface if there is an active lease (#453982)
 - Clean up how dhclient-script restarts ypbind
+- Set close-on-exec on dhclient.leases for SELinux (#446632)
 
 * Sat Jun 21 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-16
 - Remove instaces of \032 in domain search option (#450042)
