@@ -1,0 +1,19 @@
+diff -up dhcp-4.0.0//client/dhclient.c.inherit dhcp-4.0.0//client/dhclient.c
+--- dhcp-4.0.0//client/dhclient.c.inherit	2008-08-01 09:49:36.000000000 -1000
++++ dhcp-4.0.0//client/dhclient.c	2008-08-01 09:53:28.000000000 -1000
+@@ -2393,6 +2393,15 @@ void send_request (cpp)
+ 		/* Now do a preinit on the interface so that we can
+ 		   discover a new address. */
+ 		script_init (client, "PREINIT", (struct string_list *)0);
++		/* Has an active lease */
++		if (client -> active &&
++			client -> active -> is_bootp &&
++			client -> active -> expiry > cur_time &&
++		    primary_address.s_addr != 0 &&
++			client -> active -> address.len == 4 &&
++			memcpy (client -> active -> address.iabuf, &primary_address, 4) == 0)
++				client_envadd (client, "", "keep_old_ip", "%s", "yes");
++			
+ 		if (client -> alias)
+ 			script_write_params (client, "alias_",
+ 					     client -> alias);
