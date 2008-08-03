@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  17%{?dist}
+Release:  18%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -229,6 +229,15 @@ pushd __fedora_contrib
 %{__sed} -i -e 's/\r//' ms2isc/ms2isc.pl
 popd
 
+# Filter false positive perl requires (all of them)
+cat <<EOF > %{name}-req
+#!/bin/sh
+%{__perl_requires} \
+| grep -v 'perl('
+EOF
+%define __perl_requires %{_builddir}/%{name}-%{version}/%{name}-req
+chmod +x %{__perl_requires}
+
 # Replace @PRODUCTNAME@
 %{__sed} -i -e 's|@PRODUCTNAME@|%{vvendor}|g' common/dhcp-options.5
 %{__sed} -i -e 's|@PRODUCTNAME@|%{vvendor}|g' configure.ac
@@ -427,6 +436,9 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Sun Aug 03 2008 Tom "spot" Callaway <tcallawa@redhat.com> - 12:4.0.0-18
+- filter out false positive perl requires
+
 * Fri Aug 01 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-17
 - Carry over RES_OPTIONS from ifcfg-ethX files to /etc/resolv.conf (#202923)
 - Clean up Requires tags for devel packages
