@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  18%{?dist}
+Release:  19%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -46,6 +46,7 @@ Patch16:  %{name}-4.0.0-NetworkManager-crash.patch
 Patch17:  %{name}-4.0.0-FD_CLOEXEC.patch
 Patch18:  %{name}-4.0.0-libdhcp4client.patch
 Patch19:  %{name}-4.0.0-inherit-leases.patch
+Patch20:  %{name}-4.0.0-garbage-chars.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -199,6 +200,9 @@ client library.
 # If we have an active lease, do not down the interface (#453982)
 %patch19 -p1
 
+# Fix 'garbage in format string' error (#450052)
+%patch20 -p1
+
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %{SOURCE5} .
 %{__install} -p -m 0644 %{SOURCE6} doc/
@@ -230,13 +234,13 @@ pushd __fedora_contrib
 popd
 
 # Filter false positive perl requires (all of them)
-cat <<EOF > %{name}-req
+%{__cat} << EOF > %{name}-req
 #!/bin/sh
 %{__perl_requires} \
-| grep -v 'perl('
+| %{__grep} -v 'perl('
 EOF
 %define __perl_requires %{_builddir}/%{name}-%{version}/%{name}-req
-chmod +x %{__perl_requires}
+%{__chmod} +x %{__perl_requires}
 
 # Replace @PRODUCTNAME@
 %{__sed} -i -e 's|@PRODUCTNAME@|%{vvendor}|g' common/dhcp-options.5
@@ -436,6 +440,11 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Wed Aug 06 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-19
+- Remove 'c' from the domain-search format string in common/tables.c
+- Prevent \032 from appearing in resolv.conf search line (#450042)
+- Restore SELinux context on saved /etc files (#451560)
+
 * Sun Aug 03 2008 Tom "spot" Callaway <tcallawa@redhat.com> - 12:4.0.0-18
 - filter out false positive perl requires
 
