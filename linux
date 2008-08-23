@@ -423,7 +423,7 @@ if [ -x /etc/dhclient-enter-hooks ]; then
     if [ ${exit_status} -ne 0 ]; then
         exit ${exit_status}
     fi
-}
+fi
 
 if [ ! -r /etc/sysconfig/network-scripts/network-functions ]; then
     echo "Missing /etc/sysconfig/network-scripts/network-functions, exiting." >&2
