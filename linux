@@ -183,7 +183,7 @@ add_default_gateway() {
     router="${1}"
     metric=""
 
-    if [ $# -gt 1 ] && [ "${2}" -gt 0 ]; then
+    if [ $# -gt 1 ] && [ ${2} -gt 0 ]; then
         metric="metric ${2}"
     fi
 
@@ -215,7 +215,7 @@ dhconfig() {
         ip -family inet link set dev ${interface} down
     fi
 
-    if [ "${REASON}" = "BOUND" ] || "${REASON}" = "REBOOT" ] ||
+    if [ "${reason}" = "BOUND" ] || [ "${reason}" = "REBOOT" ] ||
        [ ! "${old_ip_address}" = "${new_ip_address}" ] ||
        [ ! "${old_subnet_mask}" = "${new_subnet_mask}" ] ||
        [ ! "${old_network_number}" = "${new_network_number}" ] ||
