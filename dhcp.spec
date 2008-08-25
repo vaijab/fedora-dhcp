@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  21%{?dist}
+Release:  22%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -440,6 +440,10 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Sun Aug 24 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-22
+- Add missing '[' to dhclient-script (#459860)
+- Correct test statement in add_default_gateway() in dhclient-script (#459860)
+
 * Sat Aug 23 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-21
 - Fix syntax error in dhclient-script (#459860)
 
