@@ -239,7 +239,7 @@ dhconfig() {
               (( -z "$GATEWAY" ) ||
                (( -n "$DHCLIENT_IGNORE_GATEWAY" ) &&
                 ( "$DHCLIENT_IGNORE_GATEWAY" = [Yy]* ))) ]]; then
-            metric="${METRIC:-''}"
+            metric="${METRIC:-}"
             let i="${METRIC:-0}"
             default_routers=()
 
@@ -451,11 +451,7 @@ need_config ${CONFIG}
 
 if [ -f "${CONFIG}" ]; then
     source_config
-else
-    echo "${0}: configuration for ${interface} not found.  Continuing with defaults." >&2
 fi
-
-source_config
 
 if [ -n "${new_subnet_mask}" ]; then
     new_prefix="$(ipcalc -p ${new_ip_address} ${new_subnet_mask} | cut -d '=' -f 2)"

@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  22%{?dist}
+Release:  23%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -20,7 +20,7 @@ Source3:  libdhcp4client.pc
 Source5:  README.ldap
 Source6:  draft-ietf-dhc-ldap-schema-01.txt
 Source7:  dhcpd-conf-to-ldap
-Source8:  linux
+Source8:  dhclient-script
 Source9:  dhcp4client.h
 Source10: libdhcp_control.h
 Source11: dhcp.schema
@@ -209,7 +209,7 @@ client library.
 %{__install} -p -m 0755 %{SOURCE7} contrib/
 
 # Copy in the Fedora/RHEL dhclient script
-%{__install} -p -m 0755 %{SOURCE8} client/scripts/
+%{__install} -p -m 0755 %{SOURCE8} client/scripts/linux
 
 # Copy in the libdhcp4client headers and Makefile.dist
 %{__install} -p -m 0644 %{SOURCE9} includes/
@@ -440,6 +440,11 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Fri Aug 29 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-23
+- Prevent $metric from being set to '' (#460640)
+- Remove unnecessary warning messages
+- Do not source config file (ifcfg-DEVICE) unless it exists
+
 * Sun Aug 24 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-22
 - Add missing '[' to dhclient-script (#459860)
 - Correct test statement in add_default_gateway() in dhclient-script (#459860)
