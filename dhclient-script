@@ -362,7 +362,7 @@ dhconfig() {
             if [ $contents -gt 0 ]; then
                 if [ -x /etc/rc.d/init.d/ypbind ] &&
                    [ -r /var/run/ypbind.pid ]; then
-                    server ypbind restart >/dev/null 2>&1
+                    service ypbind restart >/dev/null 2>&1
                 fi
             fi
         fi
