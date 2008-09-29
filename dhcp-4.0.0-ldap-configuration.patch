@@ -1073,8 +1073,8 @@ diff -up /dev/null dhcp-4.0.0/server/ldap.c
 +      creds.bv_val = strdup(ldap_password);
 +      creds.bv_len = strlen(ldap_password);
 +
-+      if ((ret == ldap_sasl_bind_s (ld, ldap_username, LDAP_SASL_SIMPLE,
-+                                    &creds, NULL, NULL, NULL)) != LDAP_SUCCESS)
++      if ((ret = ldap_sasl_bind_s (ld, ldap_username, LDAP_SASL_SIMPLE,
++                                   &creds, NULL, NULL, NULL)) != LDAP_SUCCESS)
 +        {
 +          log_error ("Error: Cannot login into ldap server %s:%d: %s",
 +                     ldap_server, ldap_port, ldap_err2string (ret));
@@ -1478,7 +1478,7 @@ diff -up /dev/null dhcp-4.0.0/server/ldap.c
 +    return (EOF);
 +
 +  cfile->bufix = 1;
-+  cfile->buflen = strlen (cfile->inbuf);
++  cfile->buflen = strlen (cfile->inbuf) - 1;
 +  if (cfile->buflen > 0)
 +    ldap_write_debug (cfile->inbuf, cfile->buflen);
 +

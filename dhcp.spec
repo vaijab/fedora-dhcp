@@ -440,8 +440,9 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
-* Tue Sep 16 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-24
+* Mon Sep 29 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-24
 - 'server' -> 'service' in dhclient-script (#462343)
+- Fix dhcpd so it can find configuration data via LDAP (#452985)
 
 * Fri Aug 29 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-23
 - Prevent $metric from being set to '' (#460640)
