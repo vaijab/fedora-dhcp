@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  24%{?dist}
+Release:  25%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -440,9 +440,11 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
-* Mon Sep 29 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-24
-- 'server' -> 'service' in dhclient-script (#462343)
+* Mon Sep 29 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-25
 - Fix dhcpd so it can find configuration data via LDAP (#452985)
+
+* Tue Sep 16 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-24
+- 'server' -> 'service' in dhclient-script (#462343)
 
 * Fri Aug 29 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-23
 - Prevent $metric from being set to '' (#460640)
