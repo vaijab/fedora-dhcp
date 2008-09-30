@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  18%{?dist}
+Release:  19%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -430,6 +430,9 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Tue Sep 30 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-19
+- Fix ldap patch for dhcpd so it can find its config file (#452985)
+
 * Wed Aug 06 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-18
 - Remove 'c' from the domain-search format string in common/tables.c
 - Prevent \032 from appearing in resolv.conf search line (#450042)
