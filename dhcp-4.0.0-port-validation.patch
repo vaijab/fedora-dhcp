@@ -1,6 +1,6 @@
 diff -up dhcp-4.0.0/client/dhclient.c.port dhcp-4.0.0/client/dhclient.c
---- dhcp-4.0.0/client/dhclient.c.port	2008-09-30 15:56:35.000000000 -1000
-+++ dhcp-4.0.0/client/dhclient.c	2008-09-30 15:56:52.000000000 -1000
+--- dhcp-4.0.0/client/dhclient.c.port	2008-09-30 16:27:28.000000000 -1000
++++ dhcp-4.0.0/client/dhclient.c	2008-09-30 16:27:28.000000000 -1000
 @@ -218,7 +218,7 @@ int main(int argc, char **argv, char **e
  		} else if (!strcmp (argv [i], "-p")) {
  			if (++i == argc)
@@ -12,7 +12,7 @@ diff -up dhcp-4.0.0/client/dhclient.c.port dhcp-4.0.0/client/dhclient.c
  		} else if (!strcmp (argv [i], "-d")) {
 diff -up dhcp-4.0.0/common/inet.c.port dhcp-4.0.0/common/inet.c
 --- dhcp-4.0.0/common/inet.c.port	2007-07-12 20:43:41.000000000 -1000
-+++ dhcp-4.0.0/common/inet.c	2008-09-30 15:57:20.000000000 -1000
++++ dhcp-4.0.0/common/inet.c	2008-09-30 16:27:28.000000000 -1000
 @@ -604,3 +604,20 @@ piaddrcidr(const struct iaddr *addr, uns
  	return ret;
  }
@@ -35,19 +35,19 @@ diff -up dhcp-4.0.0/common/inet.c.port dhcp-4.0.0/common/inet.c
 +	return htons(local_port);
 +}
 diff -up dhcp-4.0.0/includes/dhcpd.h.port dhcp-4.0.0/includes/dhcpd.h
---- dhcp-4.0.0/includes/dhcpd.h.port	2008-09-30 15:56:35.000000000 -1000
-+++ dhcp-4.0.0/includes/dhcpd.h	2008-09-30 15:56:52.000000000 -1000
-@@ -2432,6 +2432,7 @@ isc_result_t free_iaddrcidrnetlist(struc
- const char *piaddr PROTO ((struct iaddr));
- char *piaddrmask(struct iaddr *, struct iaddr *);
- char *piaddrcidr(const struct iaddr *, unsigned int);
-+u_int16_t validate_port(char *);
+--- dhcp-4.0.0/includes/dhcpd.h.port	2008-09-30 16:27:28.000000000 -1000
++++ dhcp-4.0.0/includes/dhcpd.h	2008-09-30 16:27:54.000000000 -1000
+@@ -64,6 +64,7 @@
+ #endif
  
- /* dhclient.c */
- extern int nowait;
+ #include <setjmp.h>
++#include <errno.h>
+ 
+ #include "cdefs.h"
+ #include "osdep.h"
 diff -up dhcp-4.0.0/relay/dhcrelay.c.port dhcp-4.0.0/relay/dhcrelay.c
 --- dhcp-4.0.0/relay/dhcrelay.c.port	2007-11-30 11:51:43.000000000 -1000
-+++ dhcp-4.0.0/relay/dhcrelay.c	2008-09-30 15:56:52.000000000 -1000
++++ dhcp-4.0.0/relay/dhcrelay.c	2008-09-30 16:27:28.000000000 -1000
 @@ -141,7 +141,7 @@ main(int argc, char **argv) {
  		if (!strcmp (argv [i], "-p")) {
  			if (++i == argc)
@@ -58,8 +58,8 @@ diff -up dhcp-4.0.0/relay/dhcrelay.c.port dhcp-4.0.0/relay/dhcrelay.c
  			       ntohs (local_port));
  		} else if (!strcmp (argv [i], "-d")) {
 diff -up dhcp-4.0.0/server/dhcpd.c.port dhcp-4.0.0/server/dhcpd.c
---- dhcp-4.0.0/server/dhcpd.c.port	2008-09-30 15:56:34.000000000 -1000
-+++ dhcp-4.0.0/server/dhcpd.c	2008-09-30 15:56:52.000000000 -1000
+--- dhcp-4.0.0/server/dhcpd.c.port	2008-09-30 16:27:28.000000000 -1000
++++ dhcp-4.0.0/server/dhcpd.c	2008-09-30 16:27:28.000000000 -1000
 @@ -257,15 +257,7 @@ main(int argc, char **argv) {
  		if (!strcmp (argv [i], "-p")) {
  			if (++i == argc)
