@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  25%{?dist}
+Release:  26%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -47,6 +47,7 @@ Patch17:  %{name}-4.0.0-FD_CLOEXEC.patch
 Patch18:  %{name}-4.0.0-libdhcp4client.patch
 Patch19:  %{name}-4.0.0-inherit-leases.patch
 Patch20:  %{name}-4.0.0-garbage-chars.patch
+Patch21:  %{name}-4.0.0-port-validation.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -202,6 +203,10 @@ client library.
 
 # Fix 'garbage in format string' error (#450052)
 %patch20 -p1
+
+# Validate port numbers specified for dhclient, dhcpd, and dhcrelay
+# to make sure they are within 1-65535, inclusive.  (#438149)
+%patch21 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %{SOURCE5} .
@@ -440,6 +445,10 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Tue Sep 30 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-26
+- Validate port numbers for dhclient, dhcpd, and dhcrelay to ensure
+  that are within the correct range (#438149)
+
 * Mon Sep 29 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-25
 - Fix dhcpd so it can find configuration data via LDAP (#452985)
 
