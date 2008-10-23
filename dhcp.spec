@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  29%{?dist}
+Release:  30%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -48,6 +48,7 @@ Patch18:  %{name}-4.0.0-libdhcp4client.patch
 Patch19:  %{name}-4.0.0-inherit-leases.patch
 Patch20:  %{name}-4.0.0-garbage-chars.patch
 Patch21:  %{name}-4.0.0-port-validation.patch
+Patch22:  %{name}-4.0.0-invalid-dhclient-conf.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -207,6 +208,9 @@ client library.
 # Validate port numbers specified for dhclient, dhcpd, and dhcrelay
 # to make sure they are within 1-65535, inclusive.  (#438149)
 %patch21 -p1
+
+# The sample dhclient.conf should say 'supersede domain-search' (#467955)
+%patch22 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %{SOURCE5} .
@@ -445,6 +449,10 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Thu Oct 23 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-30
+- Fix dhclient.conf man page and sample config file to say 'supersede
+  domain-search', which is what was actually demonstrated (#467955)
+
 * Wed Oct 01 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-29
 - Make sure /etc/resolv.conf has restorecon run on it (#451560)
 
