@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  20%{?dist}
+Release:  21%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -43,7 +43,7 @@ Patch13:  %{name}-4.0.0-dhclient-anycast.patch
 Patch14:  %{name}-4.0.0-manpages.patch
 Patch15:  %{name}-4.0.0-paths.patch
 Patch16:  %{name}-4.0.0-NetworkManager-crash.patch
-Patch17:  %{name}-4.0.0-FD_CLOEXEC.patch
+Patch17:  %{name}-4.0.0-CLOEXEC.patch
 Patch18:  %{name}-4.0.0-libdhcp4client.patch
 Patch19:  %{name}-4.0.0-inherit-leases.patch
 Patch20:  %{name}-4.0.0-garbage-chars.patch
@@ -259,7 +259,7 @@ autoheader
 automake --foreign --add-missing --copy
 
 %build
-CFLAGS="%{optflags} -fPIC" \
+CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE" \
 %configure \
     --disable-dhcpv6 \
     --with-srv-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd.leases \
@@ -430,6 +430,10 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Wed Oct 29 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-21
+- Use O_CLOEXEC in open(2) calls and "e" mode in fopen(3) calls, build
+  with -D_GNU_SOURCE so we pick up O_CLOEXEC (#468938)
+
 * Wed Oct 01 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-20
 - Make sure /etc/resolv.conf has restorecon run on it (#451560)
 
