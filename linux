@@ -112,16 +112,11 @@ cd /etc/sysconfig/network-scripts;
 [ -f ../networking/network ] && . ../networking/network
 
 CONFIG=$interface
-
-need_config ${CONFIG}
-
-if [ -f "${CONFIG}" ]; then 
-    source_config
-else
-    echo $"$0: configuration for $interface not found. Continuing with defaults." >&2
+if [ -d /etc/sysconfig/network-scripts ]; then
+    cd /etc/sysconfig/network-scripts
+    need_config ${CONFIG}
+    source_config >/dev/null 2>&1
 fi
-
-source_config
 
 release=$(uname -r)
 relmajor=$(echo $release | cut -f1 -d'.')

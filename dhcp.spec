@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  21%{?dist}
+Release:  22%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -430,6 +430,10 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Tue Nov 11 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-22
+- Correctly source ifcfg-DEVICE files (#471126)
+- Honor $keep_old_ip in dhclient-script (#453982)
+
 * Wed Oct 29 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-21
 - Use O_CLOEXEC in open(2) calls and "e" mode in fopen(3) calls, build
   with -D_GNU_SOURCE so we pick up O_CLOEXEC (#468938)
