@@ -451,10 +451,10 @@ if [ -f /etc/sysconfig/networking/network ]; then
 fi
 
 CONFIG="${interface}"
-need_config ${CONFIG}
-
-if [ -f "${CONFIG}" ]; then
-    source_config
+if [ -d /etc/sysconfig/network-scripts ]; then
+    cd /etc/sysconfig/network-scripts
+    need_config ${CONFIG}
+    source_config >/dev/null 2>&1
 fi
 
 if [ -n "${new_subnet_mask}" ]; then
