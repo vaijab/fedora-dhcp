@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  32%{?dist}
+Release:  33%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -449,6 +449,9 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Wed Dec 03 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-33
+- Do not calculate a prefix for an address we did not receive (#473885)
+
 * Tue Nov 11 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-32
 - Correctly source ifcfg-DEVICE files (#470928)
 - Honor $keep_old_ip in dhclient-script (#471127)
