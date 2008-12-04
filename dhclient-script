@@ -215,7 +215,7 @@ dhconfig() {
        [ ! "${old_ip_address}" = "${new_ip_address}" ]; then
         # IP address changed.  Bringing down the interface will delete all
         # routes, and clear the ARP cache.
-        ip -family inet addr flush dev ${interface}
+        ip -family inet addr flush dev ${interface} >/dev/null 2>&1
         ip -family inet link set dev ${interface} down
     fi
 
@@ -319,7 +319,7 @@ dhconfig() {
 
     if [ ! "${new_ip_address}" = "${alias_ip_address}" ] &&
        [ -n "${alias_ip_address}" ]; then
-        ip -family inet addr flush dev ${interface}:0
+        ip -family inet addr flush dev ${interface}:0 >/dev/null 2>&1
         ip -family inet addr add ${alias_ip_address}/${alias_prefix} dev ${interface}:0
         ip route replace ${alias_ip_address}/32 dev ${interface}:0
     fi
@@ -413,6 +413,15 @@ dhconfig() {
     fi
 }
 
+get_prefix() {
+    ip="${1}"
+    nm="${2}"
+
+    if [ -n "${ip}" -a -n "${nm}" ]; then
+        ipcalc -s -p ${ip} ${nm} | cut -d '=' -f 2
+    fi
+}
+
 
 #
 # ### MAIN
@@ -450,24 +459,13 @@ if [ -f /etc/sysconfig/networking/network ]; then
     . /etc/sysconfig/networking/network
 fi
 
-CONFIG="${interface}"
+CONFIG="/etc/sysconfig/network-scripts/ifcfg-${interface}"
 need_config ${CONFIG}
+source_config >/dev/null 2>&1
 
-if [ -f "${CONFIG}" ]; then
-    source_config
-fi
-
-if [ -n "${new_subnet_mask}" ]; then
-    new_prefix="$(ipcalc -p ${new_ip_address} ${new_subnet_mask} | cut -d '=' -f 2)"
-fi
-
-if [ -n "${old_subnet_mask}" ]; then
-    old_prefix="$(ipcalc -p ${old_ip_address} ${new_subnet_mask} | cut -d '=' -f 2)"
-fi
-
-if [ -n "${alias_subnet_mask}" ]; then
-    alias_prefix="$(ipcalc -p ${alias_ip_address} ${alias_subnet_mask} | cut -d '=' -f 2)"
-fi
+new_prefix="$(get_prefix ${new_ip_address} ${new_subnet_mask})"
+old_prefix="$(get_prefix ${old_ip_address} ${new_subnet_mask})"
+alias_prefix="$(get_prefix ${alias_ip_address} ${alias_subnet_mask})"
 
 case "${reason}" in
     MEDIUM)
@@ -484,7 +482,7 @@ case "${reason}" in
         if [ "${keep_old_ip}" = "yes" ]; then
             ip -family inet link set ${interface} up
         else
-            ip -family inet addr flush dev ${interface}
+            ip -family inet addr flush dev ${interface} >/dev/null 2>&1
             ip -family inet link set ${interface} up
         fi
 
@@ -556,7 +554,7 @@ case "${reason}" in
 
         if [ -n "${old_ip_address}" ]; then
             # Shut down interface, which will delete routes and clear arp cache.
-            ip -family inet addr flush dev ${interface}
+            ip -family inet addr flush dev ${interface} >/dev/null 2>&1
             ip -family inet link set ${interface} down
         fi
 
@@ -571,7 +569,7 @@ case "${reason}" in
     TIMEOUT)
         if [ -n "${new_routers}" ]; then
             if [ -n "${alias_ip_address}" ]; then
-                ip -family inet addr flush dev ${interface}:0
+                ip -family inet addr flush dev ${interface}:0 >/dev/null 2>&1
             fi
 
             ip -family inet addr add ${new_ip_address}/${new_prefix} broadcast ${new_broadcast_address} dev ${interface}
@@ -582,7 +580,7 @@ case "${reason}" in
                 exit_with_hooks 0
             fi
 
-            ip -family inet addr flush dev ${interface}
+            ip -family inet addr flush dev ${interface} >/dev/null 2>&1
             ip -family inet link set ${interface} down
             exit_with_hooks 1
         else

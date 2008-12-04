@@ -1,10 +1,23 @@
 # vendor string (e.g., Fedora, EL)
 %define vvendor Fedora
 
+# Make it easy for package rebuilders to select LPF or sockets
+%define netmethod USE_LPF
+
+%define with_USE_SOCKETS %{?_with_USE_SOCKETS: 1} %{?!_with_USE_SOCKETS: 0}
+%if %{with_USE_SOCKETS}
+%define netmethod USE_SOCKETS
+%endif
+
+%define with_USE_LPF %{?_with_USE_LPF: 1} %{?!_with_USE_LPF: 0}
+%if %{with_USE_LPF}
+%define netmethod USE_LPF
+%endif
+
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  31%{?dist}
+Release:  32%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -16,15 +29,12 @@ URL:      http://isc.org/products/DHCP/
 Source0:  ftp://ftp.isc.org/isc/%{name}/%{name}-%{version}.tar.gz
 Source1:  dhcpd.init
 Source2:  dhcrelay.init
-Source3:  libdhcp4client.pc
-Source5:  README.ldap
-Source6:  draft-ietf-dhc-ldap-schema-01.txt
-Source7:  dhcpd-conf-to-ldap
+Source3:  README.ldap
+Source4:  draft-ietf-dhc-ldap-schema-01.txt
+Source5:  dhcpd-conf-to-ldap
 Source8:  dhclient-script
-Source9:  dhcp4client.h
-Source10: libdhcp_control.h
-Source11: dhcp.schema
-Source12: get-ldap-patch.sh
+Source9:  dhcp.schema
+Source10: get-ldap-patch.sh
 
 Patch0:   %{name}-4.0.0-errwarn-message.patch
 Patch1:   %{name}-4.0.0-ldap-configuration.patch
@@ -44,11 +54,10 @@ Patch14:  %{name}-4.0.0-manpages.patch
 Patch15:  %{name}-4.0.0-paths.patch
 Patch16:  %{name}-4.0.0-NetworkManager-crash.patch
 Patch17:  %{name}-4.0.0-CLOEXEC.patch
-Patch18:  %{name}-4.0.0-libdhcp4client.patch
-Patch19:  %{name}-4.0.0-inherit-leases.patch
-Patch20:  %{name}-4.0.0-garbage-chars.patch
-Patch21:  %{name}-4.0.0-port-validation.patch
-Patch22:  %{name}-4.0.0-invalid-dhclient-conf.patch
+Patch18:  %{name}-4.0.0-inherit-leases.patch
+Patch19:  %{name}-4.0.0-garbage-chars.patch
+Patch20:  %{name}-4.0.0-port-validation.patch
+Patch21:  %{name}-4.0.0-invalid-dhclient-conf.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -101,29 +110,17 @@ Requires: %{name} = %{epoch}:%{version}-%{release}
 Header files and API documentation for using the ISC DHCP libraries.  The
 libdhcpctl and libomapi static libraries are also included in this package.
 
-%package -n libdhcp4client
-Summary: ISC DHCP IPv4 client in a library for invocation from other programs
-Group: Development/Libraries
-
-%description -n libdhcp4client
-The Internet Software Consortium (ISC) Dynamic Host Configuration Protocol
-(DHCP) Internet Protocol version 4 (IPv4) client software in a library
-suitable for linkage with and invocation by other programs.
-
-%package -n libdhcp4client-devel
-Summary: Header files for development with the ISC DHCP IPv4 client library
-Group: Development/Libraries
-Requires: dhcp-devel = %{epoch}:%{version}-%{release}
-Requires: libdhcp4client = %{epoch}:%{version}-%{release}
-Requires: openldap-devel
-Requires: pkgconfig
-
-%description -n libdhcp4client-devel
-Header files for development with the Internet Software Consortium (ISC)
-Dynamic Host Configuration Protocol (DHCP) Internet Protocol version 4 (IPv4)
-client library.
-
 %prep
+case "%{netmethod}" in
+    USE_LPF|USE_SOCKETS)
+        continue ;;
+    *)
+        echo >&2
+        echo "ERROR: Only --with options supported:  USE_LPF, USE_SOCKETS" >&2
+        echo >&2
+        exit 1 ;;
+esac
+
 %setup -q
 
 # Replace the standard ISC warning message about requesting help with an
@@ -196,35 +193,26 @@ client library.
 # Make sure all open file descriptors are closed-on-exec for SELinux (#446632)
 %patch17 -p1
 
-# Add the libdhcp4client target (library version of dhclient)
+# If we have an active lease, do not down the interface (#453982)
 %patch18 -p1
 
-# If we have an active lease, do not down the interface (#453982)
-%patch19 -p1
-
 # Fix 'garbage in format string' error (#450052)
-%patch20 -p1
+%patch19 -p1
 
 # Validate port numbers specified for dhclient, dhcpd, and dhcrelay
 # to make sure they are within 1-65535, inclusive.  (#438149)
-%patch21 -p1
+%patch20 -p1
 
 # The sample dhclient.conf should say 'supersede domain-search' (#467955)
-%patch22 -p1
+%patch21 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
-%{__install} -p -m 0644 %{SOURCE5} .
-%{__install} -p -m 0644 %{SOURCE6} doc/
-%{__install} -p -m 0755 %{SOURCE7} contrib/
+%{__install} -p -m 0644 %{SOURCE3} .
+%{__install} -p -m 0644 %{SOURCE4} doc/
+%{__install} -p -m 0755 %{SOURCE5} contrib/
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE8} client/scripts/linux
-
-# Copy in the libdhcp4client headers and Makefile.dist
-%{__install} -p -m 0644 %{SOURCE9} includes/
-
-# Copy in libdhcp_control.h to the isc-dhcp includes directory
-%{__install} -p -m 0644 %{SOURCE10} includes/isc-dhcp/
 
 # Ensure we don't pick up Perl as a dependency from the scripts and modules
 # in the contrib directory (we copy this to /usr/share/doc in the final
@@ -278,7 +266,7 @@ autoheader
 automake --foreign --add-missing --copy
 
 %build
-CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE" \
+CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE -DUSE_SSL=1 -D%{netmethod}=1" \
 %configure \
     --disable-dhcpv6 \
     --with-srv-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd.leases \
@@ -288,34 +276,17 @@ CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE" \
     --with-relay-pid-file=%{_localstatedir}/run/dhcrelay.pid
 %{__make} %{?_smp_mflags}
 
-%{__sed} 's/@DHCP_VERSION@/%{version}/' < %{SOURCE3} > libdhcp4client.pc
-
 %install
 %{__rm} -rf %{buildroot}
 %{__make} install DESTDIR=%{buildroot}
 
 # Remove files we don't want
-%{__rm} -rf %{buildroot}%{_libdir}/libdhcp4client.a
-%{__rm} -rf %{buildroot}%{_libdir}/libdhcp4client.la
 %{__rm} %{buildroot}%{_sysconfdir}/dhclient.conf
 
 # Install correct dhclient-script
 %{__mkdir} -p %{buildroot}/sbin
 %{__mv} %{buildroot}%{_sbindir}/dhclient %{buildroot}/sbin/dhclient
 %{__install} -p -m 0755 client/scripts/linux %{buildroot}/sbin/dhclient-script
-
-# Install pkg-config file
-%{__install} -p -m 0644 %{SOURCE10} %{buildroot}%{_includedir}/isc-dhcp/
-%{__install} -p -m 0644 -D libdhcp4client.pc %{buildroot}%{_libdir}/pkgconfig/libdhcp4client.pc
-
-# Install headers for libdhcp4client-devel
-%{__mkdir} -p %{buildroot}%{_includedir}/dhcp4client/minires
-%{__install} -p -m 0644 %{SOURCE9} %{buildroot}%{_includedir}/dhcp4client
-for hdr in cdefs.h ctrace.h dhcp.h dhcp6.h dhcpd.h dhctoken.h failover.h \
-           heap.h inet.h minires/minires.h minires/res_update.h \
-           minires/resolv.h osdep.h site.h statement.h tree.h ; do
-    %{__install} -p -m 0644 includes/${hdr} %{buildroot}%{_includedir}/dhcp4client/${hdr}
-done
 
 # Install init scripts
 %{__mkdir} -p %{buildroot}%{_initrddir}
@@ -356,7 +327,7 @@ EOF
 
 # Install dhcp.schema for LDAP configuration
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/openldap/schema
-%{__install} -p -m 0644 -D %{SOURCE11} %{buildroot}%{_sysconfdir}/openldap/schema
+%{__install} -p -m 0644 -D %{SOURCE9} %{buildroot}%{_sysconfdir}/openldap/schema
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -386,10 +357,6 @@ if [ $1 -ge 1 ]; then
     /sbin/service dhcpd condrestart >/dev/null 2>&1
     /sbin/service dhcrelay condrestart >/dev/null 2>&1 || :
 fi
-
-%post -n libdhcp4client -p /sbin/ldconfig
-
-%postun -n libdhcp4client -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root,-)
@@ -438,17 +405,12 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/dhcpctl.3.gz
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
-%files -n libdhcp4client
-%defattr(0755,root,root,0755)
-%{_libdir}/libdhcp4client-*.*.so.*
-
-%files -n libdhcp4client-devel
-%defattr(0644,root,root,0755)
-%{_includedir}/dhcp4client
-%{_libdir}/pkgconfig/libdhcp4client.pc
-%{_libdir}/libdhcp4client.so
-
 %changelog
+* Wed Dec 03 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-32
+- Enable LDAP/SSL support in dhcpd (#467740)
+- Do not calculate a prefix for an address we did not receive (#473885)
+- Removed libdhcp4client because libdhcp has been removed from Fedora
+
 * Wed Oct 29 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-31
 - Use O_CLOEXEC in open(2) calls and "e" mode in fopen(3) calls, build
   with -D_GNU_SOURCE so we pick up O_CLOEXEC (#468984)
