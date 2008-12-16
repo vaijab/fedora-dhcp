@@ -14,7 +14,7 @@
 %define netmethod USE_LPF
 %endif
 
-Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
+Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.0.0
 Release:  32%{?dist}
