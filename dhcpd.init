@@ -97,7 +97,6 @@ stop() {
     killproc $prog
     RETVAL=$?
 
-    [ $RETVAL = 0 ] && success || failure
     echo
     [ $RETVAL = 0 ] && rm -f $lockfile
     return $RETVAL

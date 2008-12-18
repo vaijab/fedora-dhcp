@@ -17,7 +17,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.0.0
-Release:  32%{?dist}
+Release:  33%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -406,6 +406,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Dec 18 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-33
+- Remove unnecessary success/failure lines in init scripts (#476846)
+
 * Wed Dec 03 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-32
 - Enable LDAP/SSL support in dhcpd (#467740)
 - Do not calculate a prefix for an address we did not receive (#473885)
