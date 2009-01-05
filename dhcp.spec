@@ -17,7 +17,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.0.0
-Release:  33%{?dist}
+Release:  34%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -329,6 +329,9 @@ EOF
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/openldap/schema
 %{__install} -p -m 0644 -D %{SOURCE9} %{buildroot}%{_sysconfdir}/openldap/schema
 
+# Install empty directory for dhclient.d scripts
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/dhcp/dhclient.d
+
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -384,6 +387,7 @@ fi
 %files -n dhclient
 %defattr(-,root,root,-)
 %doc dhclient.conf.sample
+%dir %{_sysconfdir}/dhcp/dhclient.d
 %dir %{_localstatedir}/lib/dhclient
 /sbin/dhclient
 /sbin/dhclient-script
@@ -406,6 +410,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Dec 18 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-34
+- Move /etc/dhclient.conf to /etc/dhcp/dhclient.conf
+- Move /etc/dhcpd.conf to /etc/dhcp/dhcpd.conf
+
 * Thu Dec 18 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-33
 - Remove unnecessary success/failure lines in init scripts (#476846)
 
