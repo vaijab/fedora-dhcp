@@ -1,7 +1,7 @@
-diff -up dhcp-4.0.0//client/dhclient.c.backoff dhcp-4.0.0//client/dhclient.c
---- dhcp-4.0.0//client/dhclient.c.backoff	2008-08-01 10:09:17.000000000 -1000
-+++ dhcp-4.0.0//client/dhclient.c	2008-08-01 10:10:10.000000000 -1000
-@@ -1003,6 +1003,7 @@ void state_init (cpp)
+diff -up dhcp-4.1.0/client/dhclient.c.backoff dhcp-4.1.0/client/dhclient.c
+--- dhcp-4.1.0/client/dhclient.c.backoff	2009-01-06 10:08:07.000000000 -1000
++++ dhcp-4.1.0/client/dhclient.c	2009-01-06 10:10:27.000000000 -1000
+@@ -1185,6 +1185,7 @@ void state_init (cpp)
  	void *cpp;
  {
  	struct client_state *client = cpp;
@@ -9,7 +9,7 @@ diff -up dhcp-4.0.0//client/dhclient.c.backoff dhcp-4.0.0//client/dhclient.c
  
  	ASSERT_STATE(state, S_INIT);
  
-@@ -1015,9 +1016,16 @@ void state_init (cpp)
+@@ -1197,9 +1198,16 @@ void state_init (cpp)
  	client -> first_sending = cur_time;
  	client -> interval = client -> config -> initial_interval;
  
@@ -28,8 +28,8 @@ diff -up dhcp-4.0.0//client/dhclient.c.backoff dhcp-4.0.0//client/dhclient.c
 +	}
  }
  
- /* state_selecting is called when one or more DHCPOFFER packets have been
-@@ -1284,6 +1292,7 @@ void bind_lease (client)
+ /*
+@@ -1478,6 +1486,7 @@ void bind_lease (client)
  		send_decline (client);
  		destroy_client_lease (client -> new);
  		client -> new = (struct client_lease *)0;
@@ -37,7 +37,7 @@ diff -up dhcp-4.0.0//client/dhclient.c.backoff dhcp-4.0.0//client/dhclient.c
  		state_init (client);
  		return;
  	}
-@@ -3439,6 +3448,7 @@ void client_location_changed ()
+@@ -3680,6 +3689,7 @@ void client_location_changed ()
  			      case S_INIT:
  			      case S_REBINDING:
  			      case S_STOPPED:
@@ -45,10 +45,10 @@ diff -up dhcp-4.0.0//client/dhclient.c.backoff dhcp-4.0.0//client/dhclient.c
  				break;
  			}
  			client -> state = S_INIT;
-diff -up dhcp-4.0.0//includes/dhcpd.h.backoff dhcp-4.0.0//includes/dhcpd.h
---- dhcp-4.0.0//includes/dhcpd.h.backoff	2008-08-01 10:09:01.000000000 -1000
-+++ dhcp-4.0.0//includes/dhcpd.h	2008-08-01 10:10:10.000000000 -1000
-@@ -992,7 +992,8 @@ enum dhcp_state {
+diff -up dhcp-4.1.0/includes/dhcpd.h.backoff dhcp-4.1.0/includes/dhcpd.h
+--- dhcp-4.1.0/includes/dhcpd.h.backoff	2009-01-06 10:08:07.000000000 -1000
++++ dhcp-4.1.0/includes/dhcpd.h	2009-01-06 10:08:07.000000000 -1000
+@@ -1016,7 +1016,8 @@ enum dhcp_state {
  	S_BOUND = 5,
  	S_RENEWING = 6,
  	S_REBINDING = 7,

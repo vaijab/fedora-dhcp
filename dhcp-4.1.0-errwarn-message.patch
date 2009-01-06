@@ -1,6 +1,6 @@
-diff -up dhcp-4.0.0//omapip/errwarn.c.errwarn dhcp-4.0.0//omapip/errwarn.c
---- dhcp-4.0.0//omapip/errwarn.c.errwarn	2007-07-12 20:43:42.000000000 -1000
-+++ dhcp-4.0.0//omapip/errwarn.c	2008-08-01 10:06:05.000000000 -1000
+diff -up dhcp-4.1.0/omapip/errwarn.c.errwarn dhcp-4.1.0/omapip/errwarn.c
+--- dhcp-4.1.0/omapip/errwarn.c.errwarn	2007-07-12 20:43:42.000000000 -1000
++++ dhcp-4.1.0/omapip/errwarn.c	2009-01-06 07:02:20.000000000 -1000
 @@ -76,20 +76,13 @@ void log_fatal (const char * fmt, ... )
  
  #if !defined (NOMINUM)

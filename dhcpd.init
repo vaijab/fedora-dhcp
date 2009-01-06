@@ -46,7 +46,7 @@ findConfig() {
             continue
         fi
     done
-    echo "/etc/dhcpd.conf"
+    echo "/etc/dhcp/dhcpd.conf"
 }
 
 conf="$(findConfig "$DHCPDARGS")"

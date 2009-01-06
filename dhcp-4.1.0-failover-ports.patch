@@ -1,7 +1,7 @@
-diff -up dhcp-4.0.0//server/confpars.c.failover dhcp-4.0.0//server/confpars.c
---- dhcp-4.0.0//server/confpars.c.failover	2008-08-01 10:07:46.000000000 -1000
-+++ dhcp-4.0.0//server/confpars.c	2008-08-01 10:14:03.000000000 -1000
-@@ -1065,10 +1065,17 @@ void parse_failover_peer (cfile, group, 
+diff -up dhcp-4.1.0/server/confpars.c.failover dhcp-4.1.0/server/confpars.c
+--- dhcp-4.1.0/server/confpars.c.failover	2009-01-06 10:24:38.000000000 -1000
++++ dhcp-4.1.0/server/confpars.c	2009-01-06 10:24:38.000000000 -1000
+@@ -1142,10 +1142,17 @@ void parse_failover_peer (cfile, group, 
  		parse_warn (cfile, "peer address may not be omitted");
  
  	/* XXX - when/if we get a port number assigned, just set as default */
