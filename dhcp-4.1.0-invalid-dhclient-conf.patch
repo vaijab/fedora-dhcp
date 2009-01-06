@@ -1,6 +1,6 @@
-diff -up dhcp-4.0.0/client/dhclient.conf.invalid dhcp-4.0.0/client/dhclient.conf
---- dhcp-4.0.0/client/dhclient.conf.invalid	1997-06-02 12:50:44.000000000 -1000
-+++ dhcp-4.0.0/client/dhclient.conf	2008-10-23 10:01:58.000000000 -1000
+diff -up dhcp-4.1.0/client/dhclient.conf.supersede dhcp-4.1.0/client/dhclient.conf
+--- dhcp-4.1.0/client/dhclient.conf.supersede	1997-06-02 12:50:44.000000000 -1000
++++ dhcp-4.1.0/client/dhclient.conf	2009-01-06 12:27:08.000000000 -1000
 @@ -1,10 +1,10 @@
  send host-name "andare.fugue.com";
  send dhcp-client-identifier 1:0:a0:24:ab:fb:9c;

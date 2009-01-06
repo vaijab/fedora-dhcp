@@ -1,18 +1,18 @@
-diff -up dhcp-4.0.0/common/nit.c.xen dhcp-4.0.0/common/nit.c
---- dhcp-4.0.0/common/nit.c.xen	2007-09-05 07:32:10.000000000 -1000
-+++ dhcp-4.0.0/common/nit.c	2007-12-29 06:39:16.000000000 -1000
-@@ -366,7 +366,7 @@ ssize_t receive_packet (interface, buf, 
+diff -up dhcp-4.1.0/common/bpf.c.xen dhcp-4.1.0/common/bpf.c
+--- dhcp-4.1.0/common/bpf.c.xen	2007-08-22 23:49:51.000000000 -1000
++++ dhcp-4.1.0/common/bpf.c	2009-01-06 10:41:32.000000000 -1000
+@@ -482,7 +482,7 @@ ssize_t receive_packet (interface, buf, 
+ 		offset = decode_udp_ip_header (interface,
+ 					       interface -> rbuf,
+ 					       interface -> rbuf_offset,
+-  					       from, hdr.bh_caplen, &paylen);
++  					       from, hdr.bh_caplen, &paylen, 0);
  
- 	/* Decode the IP and UDP headers... */
- 	offset = decode_udp_ip_header (interface, ibuf, bufix,
--				       from, length, &paylen);
-+				       from, length, &paylen, 0);
- 
- 	/* If the IP or UDP checksum was bad, skip the packet... */
- 	if (offset < 0)
-diff -up dhcp-4.0.0/common/dlpi.c.xen dhcp-4.0.0/common/dlpi.c
---- dhcp-4.0.0/common/dlpi.c.xen	2007-10-08 04:27:53.000000000 -1000
-+++ dhcp-4.0.0/common/dlpi.c	2007-12-29 06:39:13.000000000 -1000
+ 		/* If the IP or UDP checksum was bad, skip the packet... */
+ 		if (offset < 0) {
+diff -up dhcp-4.1.0/common/dlpi.c.xen dhcp-4.1.0/common/dlpi.c
+--- dhcp-4.1.0/common/dlpi.c.xen	2008-02-29 13:57:56.000000000 -1000
++++ dhcp-4.1.0/common/dlpi.c	2009-01-06 10:41:32.000000000 -1000
 @@ -689,7 +689,7 @@ ssize_t receive_packet (interface, buf, 
  	length -= offset;
  #endif
@@ -22,21 +22,9 @@ diff -up dhcp-4.0.0/common/dlpi.c.xen dhcp-4.0.0/common/dlpi.c
  
  	/* If the IP or UDP checksum was bad, skip the packet... */
  	if (offset < 0) {
-diff -up dhcp-4.0.0/common/upf.c.xen dhcp-4.0.0/common/upf.c
---- dhcp-4.0.0/common/upf.c.xen	2007-07-12 20:43:42.000000000 -1000
-+++ dhcp-4.0.0/common/upf.c	2007-12-29 06:39:24.000000000 -1000
-@@ -317,7 +317,7 @@ ssize_t receive_packet (interface, buf, 
- 
- 	/* Decode the IP and UDP headers... */
- 	offset = decode_udp_ip_header (interface, ibuf, bufix,
--				       from, length, &paylen);
-+				       from, length, &paylen, 0);
- 
- 	/* If the IP or UDP checksum was bad, skip the packet... */
- 	if (offset < 0)
-diff -up dhcp-4.0.0/common/lpf.c.xen dhcp-4.0.0/common/lpf.c
---- dhcp-4.0.0/common/lpf.c.xen	2007-12-29 06:37:53.000000000 -1000
-+++ dhcp-4.0.0/common/lpf.c	2007-12-29 06:43:08.000000000 -1000
+diff -up dhcp-4.1.0/common/lpf.c.xen dhcp-4.1.0/common/lpf.c
+--- dhcp-4.1.0/common/lpf.c.xen	2009-01-06 10:41:31.000000000 -1000
++++ dhcp-4.1.0/common/lpf.c	2009-01-06 10:41:32.000000000 -1000
 @@ -29,18 +29,33 @@
  #include "dhcpd.h"
  #if defined (USE_LPF_SEND) || defined (USE_LPF_RECEIVE)
@@ -127,7 +115,7 @@ diff -up dhcp-4.0.0/common/lpf.c.xen dhcp-4.0.0/common/lpf.c
  #if defined (HAVE_TR_SUPPORT)
  	if (info -> hw_address.hbuf [0] == HTYPE_IEEE802)
  		lpf_tr_filter_setup (info);
-@@ -291,7 +324,6 @@ ssize_t send_packet (interface, packet, 
+@@ -293,7 +326,6 @@ ssize_t send_packet (interface, packet, 
  	double hh [16];
  	double ih [1536 / sizeof (double)];
  	unsigned char *buf = (unsigned char *)ih;
@@ -135,7 +123,7 @@ diff -up dhcp-4.0.0/common/lpf.c.xen dhcp-4.0.0/common/lpf.c
  	int result;
  	int fudge;
  
-@@ -309,15 +341,7 @@ ssize_t send_packet (interface, packet, 
+@@ -311,15 +343,7 @@ ssize_t send_packet (interface, packet, 
  				(unsigned char *)raw, len);
  	memcpy (buf + ibufp, raw, len);
  
@@ -152,7 +140,7 @@ diff -up dhcp-4.0.0/common/lpf.c.xen dhcp-4.0.0/common/lpf.c
  	if (result < 0)
  		log_error ("send_packet: %m");
  	return result;
-@@ -334,14 +358,35 @@ ssize_t receive_packet (interface, buf, 
+@@ -336,14 +360,35 @@ ssize_t receive_packet (interface, buf, 
  {
  	int length = 0;
  	int offset = 0;
@@ -189,7 +177,7 @@ diff -up dhcp-4.0.0/common/lpf.c.xen dhcp-4.0.0/common/lpf.c
  	bufix = 0;
  	/* Decode the physical header... */
  	offset = decode_hw_header (interface, ibuf, bufix, hfrom);
-@@ -358,7 +403,7 @@ ssize_t receive_packet (interface, buf, 
+@@ -360,7 +405,7 @@ ssize_t receive_packet (interface, buf, 
  
  	/* Decode the IP and UDP headers... */
  	offset = decode_udp_ip_header (interface, ibuf, bufix, from,
@@ -198,21 +186,21 @@ diff -up dhcp-4.0.0/common/lpf.c.xen dhcp-4.0.0/common/lpf.c
  
  	/* If the IP or UDP checksum was bad, skip the packet... */
  	if (offset < 0)
-diff -up dhcp-4.0.0/common/bpf.c.xen dhcp-4.0.0/common/bpf.c
---- dhcp-4.0.0/common/bpf.c.xen	2007-08-22 23:49:51.000000000 -1000
-+++ dhcp-4.0.0/common/bpf.c	2007-12-29 06:39:09.000000000 -1000
-@@ -482,7 +482,7 @@ ssize_t receive_packet (interface, buf, 
- 		offset = decode_udp_ip_header (interface,
- 					       interface -> rbuf,
- 					       interface -> rbuf_offset,
--  					       from, hdr.bh_caplen, &paylen);
-+  					       from, hdr.bh_caplen, &paylen, 0);
+diff -up dhcp-4.1.0/common/nit.c.xen dhcp-4.1.0/common/nit.c
+--- dhcp-4.1.0/common/nit.c.xen	2007-09-05 07:32:10.000000000 -1000
++++ dhcp-4.1.0/common/nit.c	2009-01-06 10:41:32.000000000 -1000
+@@ -366,7 +366,7 @@ ssize_t receive_packet (interface, buf, 
  
- 		/* If the IP or UDP checksum was bad, skip the packet... */
- 		if (offset < 0) {
-diff -up dhcp-4.0.0/common/packet.c.xen dhcp-4.0.0/common/packet.c
---- dhcp-4.0.0/common/packet.c.xen	2007-12-29 06:37:53.000000000 -1000
-+++ dhcp-4.0.0/common/packet.c	2007-12-29 06:39:20.000000000 -1000
+ 	/* Decode the IP and UDP headers... */
+ 	offset = decode_udp_ip_header (interface, ibuf, bufix,
+-				       from, length, &paylen);
++				       from, length, &paylen, 0);
+ 
+ 	/* If the IP or UDP checksum was bad, skip the packet... */
+ 	if (offset < 0)
+diff -up dhcp-4.1.0/common/packet.c.xen dhcp-4.1.0/common/packet.c
+--- dhcp-4.1.0/common/packet.c.xen	2009-01-06 10:41:31.000000000 -1000
++++ dhcp-4.1.0/common/packet.c	2009-01-06 10:41:32.000000000 -1000
 @@ -210,7 +210,7 @@ ssize_t
  decode_udp_ip_header(struct interface_info *interface,
  		     unsigned char *buf, unsigned bufix,
@@ -231,10 +219,22 @@ diff -up dhcp-4.0.0/common/packet.c.xen dhcp-4.0.0/common/packet.c
  	  udp_packets_bad_checksum++;
  	  if (udp_packets_seen > 4 &&
  	      (udp_packets_seen / udp_packets_bad_checksum) < 2) {
-diff -up dhcp-4.0.0/includes/dhcpd.h.xen dhcp-4.0.0/includes/dhcpd.h
---- dhcp-4.0.0/includes/dhcpd.h.xen	2007-12-29 06:37:53.000000000 -1000
-+++ dhcp-4.0.0/includes/dhcpd.h	2007-12-29 06:39:27.000000000 -1000
-@@ -2561,7 +2561,7 @@ ssize_t decode_hw_header PROTO ((struct 
+diff -up dhcp-4.1.0/common/upf.c.xen dhcp-4.1.0/common/upf.c
+--- dhcp-4.1.0/common/upf.c.xen	2007-07-12 20:43:42.000000000 -1000
++++ dhcp-4.1.0/common/upf.c	2009-01-06 10:41:32.000000000 -1000
+@@ -317,7 +317,7 @@ ssize_t receive_packet (interface, buf, 
+ 
+ 	/* Decode the IP and UDP headers... */
+ 	offset = decode_udp_ip_header (interface, ibuf, bufix,
+-				       from, length, &paylen);
++				       from, length, &paylen, 0);
+ 
+ 	/* If the IP or UDP checksum was bad, skip the packet... */
+ 	if (offset < 0)
+diff -up dhcp-4.1.0/includes/dhcpd.h.xen dhcp-4.1.0/includes/dhcpd.h
+--- dhcp-4.1.0/includes/dhcpd.h.xen	2009-01-06 10:41:32.000000000 -1000
++++ dhcp-4.1.0/includes/dhcpd.h	2009-01-06 10:41:32.000000000 -1000
+@@ -2640,7 +2640,7 @@ ssize_t decode_hw_header PROTO ((struct 
  				 unsigned, struct hardware *));
  ssize_t decode_udp_ip_header PROTO ((struct interface_info *, unsigned char *,
  				     unsigned, struct sockaddr_in *,

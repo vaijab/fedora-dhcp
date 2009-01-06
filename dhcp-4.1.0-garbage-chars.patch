@@ -1,7 +1,7 @@
-diff -up dhcp-4.0.0//common/tables.c.garbage dhcp-4.0.0//common/tables.c
---- dhcp-4.0.0//common/tables.c.garbage	2007-12-03 09:10:19.000000000 -1000
-+++ dhcp-4.0.0//common/tables.c	2008-08-05 14:59:08.000000000 -1000
-@@ -201,7 +201,7 @@ static struct option dhcp_options[] = {
+diff -up dhcp-4.1.0/common/tables.c.garbage dhcp-4.1.0/common/tables.c
+--- dhcp-4.1.0/common/tables.c.garbage	2008-01-23 16:43:04.000000000 -1000
++++ dhcp-4.1.0/common/tables.c	2009-01-06 12:09:41.000000000 -1000
+@@ -207,7 +207,7 @@ static struct option dhcp_options[] = {
  	{ "netinfo-server-tag", "t",		&dhcp_universe, 113, 1 },
  	{ "default-url", "t",			&dhcp_universe, 114, 1 },
  	{ "subnet-selection", "I",		&dhcp_universe, 118, 1 },

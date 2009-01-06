@@ -1,23 +1,18 @@
 # vendor string (e.g., Fedora, EL)
 %define vvendor Fedora
 
-# Make it easy for package rebuilders to select LPF or sockets
-%define netmethod USE_LPF
+# Make it easy for package rebuilders to enable DHCPv6 support
+%define dhcpv6opt --disable-dhcpv6
 
-%define with_USE_SOCKETS %{?_with_USE_SOCKETS: 1} %{?!_with_USE_SOCKETS: 0}
-%if %{with_USE_SOCKETS}
-%define netmethod USE_SOCKETS
-%endif
-
-%define with_USE_LPF %{?_with_USE_LPF: 1} %{?!_with_USE_LPF: 0}
-%if %{with_USE_LPF}
-%define netmethod USE_LPF
+%define with_DHCPv6 %{?_with_DHCPv6: 1} %{?!_with_DHCPv6: 0}
+%if %{with_DHCPv6}
+%define dhcpv6opt --enable-dhcpv6
 %endif
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
-Version:  4.0.0
-Release:  34%{?dist}
+Version:  4.1.0
+Release:  1%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -36,28 +31,25 @@ Source8:  dhclient-script
 Source9:  dhcp.schema
 Source10: get-ldap-patch.sh
 
-Patch0:   %{name}-4.0.0-errwarn-message.patch
-Patch1:   %{name}-4.0.0-ldap-configuration.patch
-Patch2:   %{name}-4.0.0-memory.patch
-Patch3:   %{name}-4.0.0-options.patch
-Patch4:   %{name}-4.0.0-release-by-ifup.patch
-Patch5:   %{name}-4.0.0-dhclient-decline-backoff.patch
-Patch6:   %{name}-4.0.0-enable-timeout-functions.patch
-Patch7:   %{name}-4.0.0-unicast-bootp.patch
-Patch8:   %{name}-4.0.0-fast-timeout.patch
-Patch9:   %{name}-4.0.0-failover-ports.patch
-Patch10:  %{name}-4.0.0-dhclient-usage.patch
-Patch11:  %{name}-4.0.0-default-requested-options.patch
-Patch12:  %{name}-4.0.0-xen-checksum.patch
-Patch13:  %{name}-4.0.0-dhclient-anycast.patch
-Patch14:  %{name}-4.0.0-manpages.patch
-Patch15:  %{name}-4.0.0-paths.patch
-Patch16:  %{name}-4.0.0-NetworkManager-crash.patch
-Patch17:  %{name}-4.0.0-CLOEXEC.patch
-Patch18:  %{name}-4.0.0-inherit-leases.patch
-Patch19:  %{name}-4.0.0-garbage-chars.patch
-Patch20:  %{name}-4.0.0-port-validation.patch
-Patch21:  %{name}-4.0.0-invalid-dhclient-conf.patch
+Patch0:   %{name}-4.1.0-errwarn-message.patch
+Patch1:   %{name}-4.1.0-ldap-configuration.patch
+Patch2:   %{name}-4.1.0-memory.patch
+Patch3:   %{name}-4.1.0-options.patch
+Patch4:   %{name}-4.1.0-release-by-ifup.patch
+Patch5:   %{name}-4.1.0-dhclient-decline-backoff.patch
+Patch6:   %{name}-4.1.0-unicast-bootp.patch
+Patch7:   %{name}-4.1.0-failover-ports.patch
+Patch8:   %{name}-4.1.0-dhclient-usage.patch
+Patch9:   %{name}-4.1.0-default-requested-options.patch
+Patch10:  %{name}-4.1.0-xen-checksum.patch
+Patch11:  %{name}-4.1.0-dhclient-anycast.patch
+Patch12:  %{name}-4.1.0-manpages.patch
+Patch13:  %{name}-4.1.0-paths.patch
+Patch14:  %{name}-4.1.0-CLOEXEC.patch
+Patch15:  %{name}-4.1.0-inherit-leases.patch
+Patch16:  %{name}-4.1.0-garbage-chars.patch
+Patch17:  %{name}-4.1.0-port-validation.patch
+Patch18:  %{name}-4.1.0-invalid-dhclient-conf.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -111,16 +103,6 @@ Header files and API documentation for using the ISC DHCP libraries.  The
 libdhcpctl and libomapi static libraries are also included in this package.
 
 %prep
-case "%{netmethod}" in
-    USE_LPF|USE_SOCKETS)
-        continue ;;
-    *)
-        echo >&2
-        echo "ERROR: Only --with options supported:  USE_LPF, USE_SOCKETS" >&2
-        echo >&2
-        exit 1 ;;
-esac
-
 %setup -q
 
 # Replace the standard ISC warning message about requesting help with an
@@ -138,7 +120,7 @@ esac
 # Init struct sock_prog in common/lpf.c to NULL
 %patch2 -p1
 
-# Add more dhclient options (-I, -B, -H, -F, -T, -V, and -R)
+# Add more dhclient options (-I, -B, -H, -F, -timeout, -V, and -R)
 %patch3 -p1
 
 # Handle releasing interfaces requested by /sbin/ifup
@@ -149,62 +131,52 @@ esac
 # backoff for an amount of time before trying again
 %patch5 -p1
 
-# Enable cancel_all_timeouts() and relinquish_timeouts() regardless of
-# the DEBUG_MEMORY_LEAKAGE_ON_EXIT macro
-%patch6 -p1
-
 # Support unicast BOOTP for IBM pSeries systems (and maybe others)
-%patch7 -p1
-
-# Fast timeout for dhclient
-%patch8 -p1
+%patch6 -p1
 
 # Use the following IANA-registered failover ports:
 # dhcp-failover 647/tcp
 # dhcp-failover 647/udp
 # dhcp-failover 847/tcp
 # dhcp-failover 847/udp
-%patch9 -p1
+%patch7 -p1
 
 # Update the usage screen for dhclient(8) indicating new options
 # Use printf() rather than log_info() to display the information
 # Also, return EXIT_FAILURE when the usage() screen is displayed (stop parsing)
-%patch10 -p1
+%patch8 -p1
 
 # Add NIS domain, NIS servers, and NTP servers to the list of default
 # requested DHCP options
-%patch11 -p1
+%patch9 -p1
 
 # Handle Xen partial UDP checksums
-%patch12 -p1
+%patch10 -p1
 
 # Add anycast support to dhclient (for OLPC)
-%patch13 -p1
+%patch11 -p1
 
 # Patch man page contents
-%patch14 -p1
+%patch12 -p1
 
 # Change paths to conform to our standards
-%patch15 -p1
-
-# Avoid crash when dhclient is run with NetworkManager
-%patch16 -p1
+%patch13 -p1
 
 # Make sure all open file descriptors are closed-on-exec for SELinux (#446632)
-%patch17 -p1
+%patch14 -p1
 
 # If we have an active lease, do not down the interface (#453982)
-%patch18 -p1
+%patch15 -p1
 
 # Fix 'garbage in format string' error (#450052)
-%patch19 -p1
+%patch16 -p1
 
 # Validate port numbers specified for dhclient, dhcpd, and dhcrelay
 # to make sure they are within 1-65535, inclusive.  (#438149)
-%patch20 -p1
+%patch17 -p1
 
 # The sample dhclient.conf should say 'supersede domain-search' (#467955)
-%patch21 -p1
+%patch18 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %{SOURCE3} .
@@ -249,14 +221,14 @@ for page in client/dhclient.conf.5 client/dhclient.leases.5 \
     %{__sed} -i -e 's|CLIENTBINDIR|/sbin|g' \
                 -e 's|RUNDIR|%{_localstatedir}/run|g' \
                 -e 's|DBDIR|%{_localstatedir}/db/dhclient|g' \
-                -e 's|ETCDIR|%{_sysconfdir}|g' $page
+                -e 's|ETCDIR|%{_sysconfdir}/dhcp|g' $page
 done
 
 for page in server/dhcpd.conf.5 server/dhcpd.leases.5 server/dhcpd.8 ; do
     %{__sed} -i -e 's|CLIENTBINDIR|/sbin|g' \
                 -e 's|RUNDIR|%{_localstatedir}/run|g' \
                 -e 's|DBDIR|%{_localstatedir}/db/dhcpd|g' \
-                -e 's|ETCDIR|%{_sysconfdir}|g' $page
+                -e 's|ETCDIR|%{_sysconfdir}/dhcp|g' $page
 done
 
 aclocal
@@ -266,9 +238,9 @@ autoheader
 automake --foreign --add-missing --copy
 
 %build
-CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE -DUSE_SSL=1 -D%{netmethod}=1" \
+CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE -DLDAP_CONFIGURATION -DUSE_SSL" \
 %configure \
-    --disable-dhcpv6 \
+    %{dhcpv6opt} \
     --with-srv-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd.leases \
     --with-cli-lease-file=%{_localstatedir}/lib/dhclient/dhclient.leases \
     --with-srv-pid-file=%{_localstatedir}/run/dhcpd.pid \
@@ -336,8 +308,22 @@ EOF
 %{__rm} -rf %{buildroot}
 
 %post
+if [ -f /etc/dhcpd.conf ]; then
+    /bin/cp -a /etc/dhcpd.conf /etc/dhcp/dhcpd.conf >/dev/null 2>&1
+    /bin/rm -f /etc/dhcpd.conf >/dev/null 2>&1
+fi
+
 /sbin/chkconfig --add dhcpd
 /sbin/chkconfig --add dhcrelay || :
+
+%post -n dhclient
+/bin/ls -1 /etc/dhclient* >/dev/null 2>&1
+if [ $? = 0 ]; then
+    /bin/ls -1 /etc/dhclient* 2>/dev/null | while read etcfile ; do
+        /bin/cp -a "${etcfile}" /etc/dhcp
+        /bin/rm -f "${etcfile}"
+    done || :
+fi || :
 
 %preun
 if [ $1 = 0 ]; then
@@ -410,6 +396,15 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Tue Jan 06 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-1
+- Upgraded to ISC dhcp-4.1.0
+- Had to rename the -T option to -timeout as ISC is now using -T
+- Allow package rebuilders to easily enable DHCPv6 support with:
+      rpmbuild --with DHCPv6 dhcp.spec
+  Note that Fedora is still using the 'dhcpv6' package, but some
+  users may want to experiment with the ISC DHCPv6 implementation
+  locally.
+
 * Thu Dec 18 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-34
 - Move /etc/dhclient.conf to /etc/dhcp/dhclient.conf
 - Move /etc/dhcpd.conf to /etc/dhcp/dhcpd.conf
