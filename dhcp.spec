@@ -257,7 +257,8 @@ CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE -DLDAP_CONFIGURATION -DUSE_SSL" \
 %{__make} install DESTDIR=%{buildroot}
 
 # Remove files we don't want
-%{__rm} %{buildroot}%{_sysconfdir}/dhcp/dhclient.conf
+%{__rm} -f %{buildroot}%{_sysconfdir}/dhclient.conf
+%{__rm} -f %{buildroot}%{_sysconfdir}/dhcp/dhclient.conf
 
 # Install correct dhclient-script
 %{__mkdir} -p %{buildroot}/sbin
