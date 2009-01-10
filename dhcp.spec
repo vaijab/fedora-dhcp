@@ -12,7 +12,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  1%{?dist}
+Release:  2%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -132,6 +132,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 %patch5 -p1
 
 # Support unicast BOOTP for IBM pSeries systems (and maybe others)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19146])
 %patch6 -p1
 
 # Use the following IANA-registered failover ports:
@@ -163,19 +164,22 @@ libdhcpctl and libomapi static libraries are also included in this package.
 %patch13 -p1
 
 # Make sure all open file descriptors are closed-on-exec for SELinux (#446632)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19148])
 %patch14 -p1
 
 # If we have an active lease, do not down the interface (#453982)
 %patch15 -p1
 
-# Fix 'garbage in format string' error (#450052)
+# Fix 'garbage in format string' error (#450042)
 %patch16 -p1
 
 # Validate port numbers specified for dhclient, dhcpd, and dhcrelay
 # to make sure they are within 1-65535, inclusive.  (#438149)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #18695])
 %patch17 -p1
 
 # The sample dhclient.conf should say 'supersede domain-search' (#467955)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19147])
 %patch18 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
@@ -253,7 +257,7 @@ CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE -DLDAP_CONFIGURATION -DUSE_SSL" \
 %{__make} install DESTDIR=%{buildroot}
 
 # Remove files we don't want
-%{__rm} %{buildroot}%{_sysconfdir}/dhclient.conf
+%{__rm} %{buildroot}%{_sysconfdir}/dhcp/dhclient.conf
 
 # Install correct dhclient-script
 %{__mkdir} -p %{buildroot}/sbin
@@ -289,7 +293,7 @@ EOF
 %{__cp} -p server/dhcpd.conf dhcpd.conf.sample
 
 # Install default (empty) dhcpd.conf:
-%{__cat} << EOF > %{buildroot}%{_sysconfdir}/dhcpd.conf
+%{__cat} << EOF > %{buildroot}%{_sysconfdir}/dhcp/dhcpd.conf
 #
 # DHCP Server Configuration file.
 #   see /usr/share/doc/dhcp*/dhcpd.conf.sample
@@ -308,7 +312,7 @@ EOF
 %{__rm} -rf %{buildroot}
 
 %post
-if [ -f /etc/dhcpd.conf ]; then
+if [ -f /etc/dhcpd.conf ] -a [ ! -f /etc/dhcp/dhcpd.conf ]; then
     /bin/cp -a /etc/dhcpd.conf /etc/dhcp/dhcpd.conf >/dev/null 2>&1
     /bin/rm -f /etc/dhcpd.conf >/dev/null 2>&1
 fi
@@ -320,8 +324,11 @@ fi
 /bin/ls -1 /etc/dhclient* >/dev/null 2>&1
 if [ $? = 0 ]; then
     /bin/ls -1 /etc/dhclient* 2>/dev/null | while read etcfile ; do
-        /bin/cp -a "${etcfile}" /etc/dhcp
-        /bin/rm -f "${etcfile}"
+        cf="$(/bin/basename ${etcfile})"
+        if [ ! -f /etc/dhcp/${cf} ]; then
+            /bin/cp -a "${etcfile}" /etc/dhcp
+            /bin/rm -f "${etcfile}"
+        fi
     done || :
 fi || :
 
@@ -352,10 +359,11 @@ fi
 %doc LICENSE README README.ldap RELNOTES dhcpd.conf.sample
 %doc doc/IANA-arp-parameters doc/api+protocol doc/*.txt __fedora_contrib/*
 %dir %{_localstatedir}/lib/dhcpd
+%dir %{_sysconfdir}/dhcp
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
-%config(noreplace) %{_sysconfdir}/dhcpd.conf
+%config(noreplace) %{_sysconfdir}/dhcp/dhcpd.conf
 %config(noreplace) %{_sysconfdir}/openldap/schema/dhcp.schema
 %{_initrddir}/dhcpd
 %{_initrddir}/dhcrelay
@@ -373,6 +381,7 @@ fi
 %files -n dhclient
 %defattr(-,root,root,-)
 %doc dhclient.conf.sample
+%dir %{_sysconfdir}/dhcp
 %dir %{_sysconfdir}/dhcp/dhclient.d
 %dir %{_localstatedir}/lib/dhclient
 /sbin/dhclient
@@ -396,6 +405,11 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Sat Jan 10 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-2
+- Make sure all /etc/dhcp config files are marked in the manifest
+- Include new config file directies in the dhcp and dhclient packages
+- Do not overwrite new config files if they already exist
+
 * Tue Jan 06 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-1
 - Upgraded to ISC dhcp-4.1.0
 - Had to rename the -T option to -timeout as ISC is now using -T
