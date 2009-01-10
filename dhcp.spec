@@ -258,7 +258,7 @@ CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE -DLDAP_CONFIGURATION -DUSE_SSL" \
 
 # Remove files we don't want
 %{__rm} -f %{buildroot}%{_sysconfdir}/dhclient.conf
-%{__rm} -f %{buildroot}%{_sysconfdir}/dhcp/dhclient.conf
+%{__rm} -f %{buildroot}%{_sysconfdir}/dhcpd.conf
 
 # Install correct dhclient-script
 %{__mkdir} -p %{buildroot}/sbin
@@ -294,6 +294,7 @@ EOF
 %{__cp} -p server/dhcpd.conf dhcpd.conf.sample
 
 # Install default (empty) dhcpd.conf:
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/dhcp
 %{__cat} << EOF > %{buildroot}%{_sysconfdir}/dhcp/dhcpd.conf
 #
 # DHCP Server Configuration file.
