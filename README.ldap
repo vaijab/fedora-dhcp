@@ -1,5 +1,5 @@
 LDAP Support in DHCP
-Brian Masney <masneyb@ntelos.net>
+Brian Masney <masneyb@gftp.org>
 Last updated 3/23/2003
 
 This document describes setting up the DHCP server to read it's configuration
