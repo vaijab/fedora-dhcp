@@ -18,7 +18,7 @@
 # description: dhcpd provides the Dynamic Host Configuration Protocol (DHCP) \
 #              server
 # processname: dhcpd
-# config: /etc/dhcpd.conf
+# config: /etc/dhcp/dhcpd.conf
 # config: /var/lib/dhcpd/dhcpd.leases
 # pidfile: /var/run/dhcpd.pid
 
