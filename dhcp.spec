@@ -1,18 +1,10 @@
 # vendor string (e.g., Fedora, EL)
 %define vvendor Fedora
 
-# Make it easy for package rebuilders to enable DHCPv6 support
-%define dhcpv6opt --disable-dhcpv6
-
-%define with_DHCPv6 %{?_with_DHCPv6: 1} %{?!_with_DHCPv6: 0}
-%if %{with_DHCPv6}
-%define dhcpv6opt --enable-dhcpv6
-%endif
-
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  5%{?dist}
+Release:  6%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -30,6 +22,7 @@ Source5:  dhcpd-conf-to-ldap
 Source8:  dhclient-script
 Source9:  dhcp.schema
 Source10: get-ldap-patch.sh
+Source11: README.dhclient.d
 
 Patch0:   %{name}-4.1.0-errwarn-message.patch
 Patch1:   %{name}-4.1.0-ldap-configuration.patch
@@ -59,6 +52,7 @@ BuildRequires: libtool
 BuildRequires: openldap-devel
 
 Requires(post): chkconfig
+Requires(post): coreutils
 Requires(preun): chkconfig
 Requires(preun): initscripts
 Requires(postun): initscripts
@@ -79,6 +73,7 @@ the ISC DHCP service and relay agent.
 Summary: Provides the dhclient ISC DHCP client daemon and dhclient-script
 Group: System Environment/Base
 Requires: initscripts >= 6.75
+Requires(post): coreutils
 Obsoletes: dhcpcd <= 1.3.22pl1-7
 Provides: dhcpcd = 1.3.22pl1-8
 
@@ -189,6 +184,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE8} client/scripts/linux
+%{__install} -p -m 0644 %{SOURCE11} .
 
 # Ensure we don't pick up Perl as a dependency from the scripts and modules
 # in the contrib directory (we copy this to /usr/share/doc in the final
@@ -244,11 +240,15 @@ automake --foreign --add-missing --copy
 %build
 CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE -DLDAP_CONFIGURATION -DUSE_SSL" \
 %configure \
-    %{dhcpv6opt} \
+    --enable-dhcpv6 \
     --with-srv-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd.leases \
+    --with-srv6-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd6.leases \
     --with-cli-lease-file=%{_localstatedir}/lib/dhclient/dhclient.leases \
+    --with-cli6-lease-file=%{_localstatedir}/lib/dhclient/dhclient6.leases \
     --with-srv-pid-file=%{_localstatedir}/run/dhcpd.pid \
+    --with-srv6-pid-file=%{_localstatedir}/run/dhcpd6.pid \
     --with-cli-pid-file=%{_localstatedir}/run/dhclient.pid \
+    --with-cli6-pid-file=%{_localstatedir}/run/dhclient6.pid \
     --with-relay-pid-file=%{_localstatedir}/run/dhcrelay.pid
 %{__make} %{?_smp_mflags}
 
@@ -273,6 +273,7 @@ CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE -DLDAP_CONFIGURATION -DUSE_SSL" \
 # Start empty lease databases
 %{__mkdir} -p %{buildroot}%{_localstatedir}/lib/dhcpd/
 touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd.leases
+touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd6.leases
 %{__mkdir} -p %{buildroot}%{_localstatedir}/lib/dhclient/
 
 # Create default sysconfig files for dhcpd and dhcrelay
@@ -314,9 +315,8 @@ EOF
 %{__rm} -rf %{buildroot}
 
 %post
-if [ -f /etc/dhcpd.conf -a ! -f /etc/dhcp/dhcpd.conf ]; then
+if [ -f /etc/dhcpd.conf ]; then
     /bin/cp -a /etc/dhcpd.conf /etc/dhcp/dhcpd.conf >/dev/null 2>&1
-    /bin/rm -f /etc/dhcpd.conf >/dev/null 2>&1
 fi
 
 /sbin/chkconfig --add dhcpd
@@ -329,7 +329,13 @@ if [ $? = 0 ]; then
         cf="$(/bin/basename ${etcfile})"
         if [ ! -f /etc/dhcp/${cf} ]; then
             /bin/cp -a "${etcfile}" /etc/dhcp
-            /bin/rm -f "${etcfile}"
+            if [ ! -f "${etcfile}.rpmsave" ]; then
+                /bin/mv -f "${etcfile}" "${etcfile}.rpmsave"
+            elif [ ! -f "${etcfile}.rpmsave.$$" ]; then
+                /bin/mv -f "${etcfile}" "${etcfile}.rpmsave.$$"
+            else
+                /bin/mv -f "${etcfile}" "${etcfile}.rpmsave.$(date +%s)"
+            fi
         fi
     done || :
 fi || :
@@ -363,6 +369,7 @@ fi
 %dir %{_localstatedir}/lib/dhcpd
 %dir %{_sysconfdir}/dhcp
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
+%verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd6.leases
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
 %config(noreplace) %{_sysconfdir}/dhcp/dhcpd.conf
@@ -382,7 +389,7 @@ fi
 
 %files -n dhclient
 %defattr(-,root,root,-)
-%doc dhclient.conf.sample
+%doc dhclient.conf.sample README.dhclient.d
 %dir %{_sysconfdir}/dhcp
 %dir %{_sysconfdir}/dhcp/dhclient.d
 %dir %{_localstatedir}/lib/dhclient
@@ -407,6 +414,11 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Mon Feb 16 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-6
+- Enable dhcpv6 support (#480798)
+- Fix config file migration in scriptlets (#480543)
+- Allow dhclient-script expansion with /etc/dhcp/dhclient.d/*.sh scripts
+
 * Thu Jan 15 2009 Tomas Mraz <tmraz@redhat.com> - 12:4.1.0-5
 - rebuild with new openssl
 
