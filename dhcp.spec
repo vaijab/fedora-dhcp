@@ -4,7 +4,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  6%{?dist}
+Release:  7%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -43,6 +43,7 @@ Patch15:  %{name}-4.1.0-inherit-leases.patch
 Patch16:  %{name}-4.1.0-garbage-chars.patch
 Patch17:  %{name}-4.1.0-port-validation.patch
 Patch18:  %{name}-4.1.0-invalid-dhclient-conf.patch
+Patch19:  %{name}-4.1.0-missing-ipv6-not-fatal.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -176,6 +177,10 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # The sample dhclient.conf should say 'supersede domain-search' (#467955)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19147])
 %patch18 -p1
+
+# If the ipv6 kernel module is missing, do not segfault
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19367]
+%patch19 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %{SOURCE3} .
@@ -414,6 +419,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Feb 18 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-7
+- Do not segfault if the ipv6 kernel module is not loaded (#486097)
+
 * Mon Feb 16 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-6
 - Enable dhcpv6 support (#480798)
 - Fix config file migration in scriptlets (#480543)
