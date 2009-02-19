@@ -358,9 +358,8 @@ dhconfig() {
     if [ -d /etc/dhcp/dhclient.d ]; then
         for f in /etc/dhcp/dhclient.d/*.sh ; do
             if [ -x ${f} ]; then
-                subsystem="$(basename ${f} .sh)"
-                . ${f}
-                \${subsystem}_config
+                subsystem="${f%.sh}"
+                . ${f} "${subsystem}_config"
             fi
         done
     fi
