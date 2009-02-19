@@ -4,7 +4,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  7%{?dist}
+Release:  8%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -419,6 +419,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Feb 18 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-8
+- Correct subsystem execution in dhclient-script (#486251)
+
 * Wed Feb 18 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-7
 - Do not segfault if the ipv6 kernel module is not loaded (#486097)
 
