@@ -40,6 +40,12 @@ logmessage() {
     logger -p ${LOGFACILITY}.${LOGLEVEL} -t "NET" "dhclient: ${msg}"
 }
 
+fix_context() {
+    if [ -x /sbin/restorecon ]; then
+        /sbin/restorecon ${1} >/dev/null 2>&1
+    fi
+}
+
 save_previous() {
     origfile="${1}"
     savefile="${SAVEDIR}/${origfile##*/}.predhclient.${interface}"
@@ -54,7 +60,7 @@ save_previous() {
         echo > ${savefile}
     fi
 
-    restorecon ${savefile} >/dev/null 2>&1
+    fix_context ${savefile}
 }
 
 make_resolv_conf() {
@@ -94,9 +100,7 @@ make_resolv_conf() {
         change_resolv_conf ${rscf}
         rm -f ${rscf}
 
-        if [ -x /sbin/restorecon ]; then
-            /sbin/restorecon /etc/resolv.conf >/dev/null 2>&1
-        fi
+        fix_context /etc/resolv.conf
     fi
 }
 
@@ -350,6 +354,7 @@ dhconfig() {
                 save_previous /etc/localtime
                 cp -fp ${tzfile} /etc/localtime
                 touch /etc/localtime
+                fix_context /etc/localtime
             fi
         fi
     fi
@@ -475,22 +480,19 @@ case "${reason}" in
                     rm -f /etc/localtime
                     mv ${SAVEDIR}/localtime.predhclient.${interface} /etc/localtime
                     touch /etc/localtime
+                    fix_context /etc/localtime
                 fi
             fi
+        fi
 
-            if [ -f ${SAVEDIR}/ntp.conf.predhclient.${interface} ]; then
-                rm -f /etc/ntp.conf
-                mv -f ${SAVEDIR}/ntp.conf.predhclient.${interface} /etc/ntp.conf
-                service ntpd condrestart >/dev/null 2>&1
-            fi
-
-            if [ -f ${SAVEDIR}/yp.conf.predhclient.${interface} ]; then
-                rm -f /etc/yp.conf
-                mv -f ${SAVEDIR}/yp.conf.predhclient.${interface} /etc/yp.conf
-                if [ -x /etc/rc.d/init.d/ypbind ] && [ -r /var/run/ypbind.pid ]; then
-                    service ypbind restart >/dev/null 2>&1
+        # execute any additional client side configuration scripts we have
+        if [ -d /etc/dhcp/dhclient.d ]; then
+            for f in /etc/dhcp/dhclient.d/*.sh ; do
+                if [ -x ${f} ]; then
+                    subsystem="${f%.sh}"
+                    . ${f} "${subsystem}_restore"
                 fi
-            fi
+            done
         fi
 
         if [ -x /etc/dhclient-${interface}-down-hooks ]; then
