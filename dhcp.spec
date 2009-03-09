@@ -4,7 +4,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  10%{?dist}
+Release:  11%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -14,36 +14,31 @@ License:  ISC
 Group:    System Environment/Daemons
 URL:      http://isc.org/products/DHCP/
 Source0:  ftp://ftp.isc.org/isc/%{name}/%{name}-%{version}.tar.gz
-Source1:  dhcpd.init
-Source2:  dhcrelay.init
-Source3:  README.ldap
-Source4:  draft-ietf-dhc-ldap-schema-01.txt
-Source5:  dhcpd-conf-to-ldap
-Source8:  dhclient-script
-Source9:  dhcp.schema
-Source10: get-ldap-patch.sh
-Source11: README.dhclient.d
+Source1:  http://dcantrel.fedorapeople.org/dhcp/ldap-patch/ldap-for-dhcp-%{version}.tar.gz
+Source2:  dhcpd.init
+Source3:  dhcrelay.init
+Source4:  dhclient-script
+Source5:  README.dhclient.d
 
 Patch0:   %{name}-4.1.0-errwarn-message.patch
-Patch1:   %{name}-4.1.0-ldap-configuration.patch
-Patch2:   %{name}-4.1.0-memory.patch
-Patch3:   %{name}-4.1.0-options.patch
-Patch4:   %{name}-4.1.0-release-by-ifup.patch
-Patch5:   %{name}-4.1.0-dhclient-decline-backoff.patch
-Patch6:   %{name}-4.1.0-unicast-bootp.patch
-Patch7:   %{name}-4.1.0-failover-ports.patch
-Patch8:   %{name}-4.1.0-dhclient-usage.patch
-Patch9:   %{name}-4.1.0-default-requested-options.patch
-Patch10:  %{name}-4.1.0-xen-checksum.patch
-Patch11:  %{name}-4.1.0-dhclient-anycast.patch
-Patch12:  %{name}-4.1.0-manpages.patch
-Patch13:  %{name}-4.1.0-paths.patch
-Patch14:  %{name}-4.1.0-CLOEXEC.patch
-Patch15:  %{name}-4.1.0-inherit-leases.patch
-Patch16:  %{name}-4.1.0-garbage-chars.patch
-Patch17:  %{name}-4.1.0-port-validation.patch
-Patch18:  %{name}-4.1.0-invalid-dhclient-conf.patch
-Patch19:  %{name}-4.1.0-missing-ipv6-not-fatal.patch
+Patch1:   %{name}-4.1.0-memory.patch
+Patch2:   %{name}-4.1.0-options.patch
+Patch3:   %{name}-4.1.0-release-by-ifup.patch
+Patch4:   %{name}-4.1.0-dhclient-decline-backoff.patch
+Patch5:   %{name}-4.1.0-unicast-bootp.patch
+Patch6:   %{name}-4.1.0-failover-ports.patch
+Patch7:   %{name}-4.1.0-dhclient-usage.patch
+Patch8:   %{name}-4.1.0-default-requested-options.patch
+Patch9:   %{name}-4.1.0-xen-checksum.patch
+Patch10:  %{name}-4.1.0-dhclient-anycast.patch
+Patch11:  %{name}-4.1.0-manpages.patch
+Patch12:  %{name}-4.1.0-paths.patch
+Patch13:  %{name}-4.1.0-CLOEXEC.patch
+Patch14:  %{name}-4.1.0-inherit-leases.patch
+Patch15:  %{name}-4.1.0-garbage-chars.patch
+Patch16:  %{name}-4.1.0-port-validation.patch
+Patch17:  %{name}-4.1.0-invalid-dhclient-conf.patch
+Patch18:  %{name}-4.1.0-missing-ipv6-not-fatal.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -100,96 +95,93 @@ libdhcpctl and libomapi static libraries are also included in this package.
 
 %prep
 %setup -q
+%setup -T -D -a 1
+
+# Add in LDAP support
+%{__patch} -p1 < ldap-for-dhcp-%{version}/%{name}-%{version}-ldap.patch
 
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
 # reported through bugzilla.redhat.com
 %patch0 -p1
 
-# Add support for dhcpd.conf data in LDAP
-# NOTE: Use get-ldap-patch.sh to pull down latest LDAP patch and then modify
-# it for this package.
-%patch1 -p1
-
 # Fix memory alignment and initialization problems in common/packet.c
 # Fix buffer overflow in minires library
 # Init struct sock_prog in common/lpf.c to NULL
-%patch2 -p1
+%patch1 -p1
 
 # Add more dhclient options (-I, -B, -H, -F, -timeout, -V, and -R)
-%patch3 -p1
+%patch2 -p1
 
 # Handle releasing interfaces requested by /sbin/ifup
 # pid file is assumed to be /var/run/dhclient-$interface.pid
-%patch4 -p1
+%patch3 -p1
 
 # If we receive a DHCP offer in dhclient and it's DECLINEd in dhclient-script,
 # backoff for an amount of time before trying again
-%patch5 -p1
+%patch4 -p1
 
 # Support unicast BOOTP for IBM pSeries systems (and maybe others)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19146])
-%patch6 -p1
+%patch5 -p1
 
 # Use the following IANA-registered failover ports:
 # dhcp-failover 647/tcp
 # dhcp-failover 647/udp
 # dhcp-failover 847/tcp
 # dhcp-failover 847/udp
-%patch7 -p1
+%patch6 -p1
 
 # Update the usage screen for dhclient(8) indicating new options
 # Use printf() rather than log_info() to display the information
 # Also, return EXIT_FAILURE when the usage() screen is displayed (stop parsing)
-%patch8 -p1
+%patch7 -p1
 
 # Add NIS domain, NIS servers, and NTP servers to the list of default
 # requested DHCP options
-%patch9 -p1
+%patch8 -p1
 
 # Handle Xen partial UDP checksums
-%patch10 -p1
+%patch9 -p1
 
 # Add anycast support to dhclient (for OLPC)
-%patch11 -p1
+%patch10 -p1
 
 # Patch man page contents
-%patch12 -p1
+%patch11 -p1
 
 # Change paths to conform to our standards
-%patch13 -p1
+%patch12 -p1
 
 # Make sure all open file descriptors are closed-on-exec for SELinux (#446632)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19148])
-%patch14 -p1
+%patch13 -p1
 
 # If we have an active lease, do not down the interface (#453982)
-%patch15 -p1
+%patch14 -p1
 
 # Fix 'garbage in format string' error (#450042)
-%patch16 -p1
+%patch15 -p1
 
 # Validate port numbers specified for dhclient, dhcpd, and dhcrelay
 # to make sure they are within 1-65535, inclusive.  (#438149)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #18695])
-%patch17 -p1
+%patch16 -p1
 
 # The sample dhclient.conf should say 'supersede domain-search' (#467955)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19147])
-%patch18 -p1
+%patch17 -p1
 
 # If the ipv6 kernel module is missing, do not segfault
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19367]
-%patch19 -p1
+%patch18 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
-%{__install} -p -m 0644 %{SOURCE3} .
-%{__install} -p -m 0644 %{SOURCE4} doc/
-%{__install} -p -m 0755 %{SOURCE5} contrib/
+%{__install} -p -m 0755 ldap-for-dhcp-%{version}/dhcpd-conf-to-ldap contrib/
 
 # Copy in the Fedora/RHEL dhclient script
-%{__install} -p -m 0755 %{SOURCE8} client/scripts/linux
-%{__install} -p -m 0644 %{SOURCE11} .
+%{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
+%{__install} -p -m 0644 %{SOURCE5} .
 
 # Ensure we don't pick up Perl as a dependency from the scripts and modules
 # in the contrib directory (we copy this to /usr/share/doc in the final
@@ -272,8 +264,8 @@ CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE -DLDAP_CONFIGURATION -DUSE_SSL" \
 
 # Install init scripts
 %{__mkdir} -p %{buildroot}%{_initrddir}
-%{__install} -p -m 0755 %{SOURCE1} %{buildroot}%{_initrddir}/dhcpd
-%{__install} -p -m 0755 %{SOURCE2} %{buildroot}%{_initrddir}/dhcrelay
+%{__install} -p -m 0755 %{SOURCE2} %{buildroot}%{_initrddir}/dhcpd
+%{__install} -p -m 0755 %{SOURCE3} %{buildroot}%{_initrddir}/dhcrelay
 
 # Start empty lease databases
 %{__mkdir} -p %{buildroot}%{_localstatedir}/lib/dhcpd/
@@ -311,7 +303,8 @@ EOF
 
 # Install dhcp.schema for LDAP configuration
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/openldap/schema
-%{__install} -p -m 0644 -D %{SOURCE9} %{buildroot}%{_sysconfdir}/openldap/schema
+%{__install} -p -m 0644 -D ldap-for-dhcp-%{version}/dhcp.schema \
+    %{buildroot}%{_sysconfdir}/openldap/schema
 
 # Install empty directory for dhclient.d scripts
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/dhcp/dhclient.d
@@ -369,8 +362,9 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%doc LICENSE README README.ldap RELNOTES dhcpd.conf.sample
-%doc doc/IANA-arp-parameters doc/api+protocol doc/*.txt __fedora_contrib/*
+%doc LICENSE README ldap-for-dhcp-%{version}/README.ldap
+%doc RELNOTES dhcpd.conf.sample doc/IANA-arp-parameters doc/api+protocol
+%doc doc/*.txt __fedora_contrib/* ldap-for-dhcp-%{version}/*.txt
 %dir %{_localstatedir}/lib/dhcpd
 %dir %{_sysconfdir}/dhcp
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
@@ -419,6 +413,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Mon Mar 09 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-11
+- Use LDAP configuration patch from upstream tarball
+
 * Thu Mar 05 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-10
 - restorecon fixes for /etc/localtime and /etc/resolv.conf (#488470)
 
