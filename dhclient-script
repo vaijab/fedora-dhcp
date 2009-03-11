@@ -364,7 +364,9 @@ dhconfig() {
         for f in /etc/dhcp/dhclient.d/*.sh ; do
             if [ -x ${f} ]; then
                 subsystem="${f%.sh}"
-                . ${f} "${subsystem}_config"
+                subsystem="${subsystem##*/}"
+                . ${f}
+                "${subsystem}_config"
             fi
         done
     fi
@@ -490,7 +492,9 @@ case "${reason}" in
             for f in /etc/dhcp/dhclient.d/*.sh ; do
                 if [ -x ${f} ]; then
                     subsystem="${f%.sh}"
-                    . ${f} "${subsystem}_restore"
+                    subsystem="${subsystem##*/}"
+                    . ${f}
+                    "${subsystem}_restore"
                 fi
             done
         fi
