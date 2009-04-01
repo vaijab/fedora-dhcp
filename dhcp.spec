@@ -4,7 +4,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  12%{?dist}
+Release:  13%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -71,6 +71,7 @@ Group: System Environment/Base
 Requires: initscripts >= 6.75
 Requires(post): coreutils
 Obsoletes: dhcpcd <= 1.3.22pl1-7
+Obsoletes: libdhcp4client <= 12:4.0.0-31
 Provides: dhcpcd = 1.3.22pl1-8
 
 %description -n dhclient
@@ -87,6 +88,7 @@ provides the ISC DHCP client daemon.
 %package devel
 Summary: Development headers and libraries for interfacing to the DHCP server
 Group: Development/Libraries
+Obsoletes: libdhcp4client-devel <= 12:4.0.0-31
 Requires: %{name} = %{epoch}:%{version}-%{release}
 
 %description devel
@@ -413,6 +415,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Tue Mar 31 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-13
+- dhclient obsoletes libdhcp4client (#493213)
+- dhcp-devel obsolets libdhcp4client-devel (#493213)
+
 * Wed Mar 11 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-12
 - Fix problems with dhclient.d script execution (#488864)
 
