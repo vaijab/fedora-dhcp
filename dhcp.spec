@@ -4,7 +4,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  14%{?dist}
+Release:  15%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -71,8 +71,8 @@ Group: System Environment/Base
 Requires: initscripts >= 6.75
 Requires(post): coreutils
 Obsoletes: dhcpcd <= 1.3.22pl1-7
-Obsoletes: libdhcp4client <= 12:4.0.0-31
-Obsoletes: libdhcp <= 1.99.8-1
+Obsoletes: libdhcp4client <= 12:4.0.0-31.fc10
+Obsoletes: libdhcp <= 1.99.8-1.fc10
 Provides: dhcpcd = 1.3.22pl1-8
 
 %description -n dhclient
@@ -417,6 +417,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Apr 03 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-15
+- Obsolete libdhcp and libdhcp-devel (#493547)
+
 * Thu Apr 02 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-14
 - Obsolete libdhcp and libdhcp-devel (#493547)
 
