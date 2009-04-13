@@ -1,10 +1,13 @@
 # vendor string (e.g., Fedora, EL)
 %define vvendor Fedora
 
+# Where dhcp configuration files are stored
+%define dhcpconfdir %{_sysconfdir}/dhcp
+
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  15%{?dist}
+Release:  16%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -14,7 +17,7 @@ License:  ISC
 Group:    System Environment/Daemons
 URL:      http://isc.org/products/DHCP/
 Source0:  ftp://ftp.isc.org/isc/%{name}/%{name}-%{version}.tar.gz
-Source1:  http://dcantrel.fedorapeople.org/dhcp/ldap-patch/ldap-for-dhcp-%{version}.tar.gz
+Source1:  http://dcantrel.fedorapeople.org/dhcp/ldap-patch/ldap-for-dhcp-%{version}-2.tar.gz
 Source2:  dhcpd.init
 Source3:  dhcrelay.init
 Source4:  dhclient-script
@@ -70,6 +73,7 @@ Summary: Provides the dhclient ISC DHCP client daemon and dhclient-script
 Group: System Environment/Base
 Requires: initscripts >= 6.75
 Requires(post): coreutils
+Requires(post): grep
 Obsoletes: dhcpcd <= 1.3.22pl1-7
 Obsoletes: libdhcp4client <= 12:4.0.0-31.fc10
 Obsoletes: libdhcp <= 1.99.8-1.fc10
@@ -102,7 +106,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 %setup -T -D -a 1
 
 # Add in LDAP support
-%{__patch} -p1 < ldap-for-dhcp-%{version}/%{name}-%{version}-ldap.patch
+%{__patch} -p1 < ldap-for-dhcp-%{version}-2/%{name}-%{version}-ldap.patch
 
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
@@ -222,14 +226,14 @@ for page in client/dhclient.conf.5 client/dhclient.leases.5 \
     %{__sed} -i -e 's|CLIENTBINDIR|/sbin|g' \
                 -e 's|RUNDIR|%{_localstatedir}/run|g' \
                 -e 's|DBDIR|%{_localstatedir}/db/dhclient|g' \
-                -e 's|ETCDIR|%{_sysconfdir}/dhcp|g' $page
+                -e 's|ETCDIR|%{dhcpconfdir}|g' $page
 done
 
 for page in server/dhcpd.conf.5 server/dhcpd.leases.5 server/dhcpd.8 ; do
     %{__sed} -i -e 's|CLIENTBINDIR|/sbin|g' \
                 -e 's|RUNDIR|%{_localstatedir}/run|g' \
                 -e 's|DBDIR|%{_localstatedir}/db/dhcpd|g' \
-                -e 's|ETCDIR|%{_sysconfdir}/dhcp|g' $page
+                -e 's|ETCDIR|%{dhcpconfdir}|g' $page
 done
 
 aclocal
@@ -296,8 +300,8 @@ EOF
 %{__cp} -p server/dhcpd.conf dhcpd.conf.sample
 
 # Install default (empty) dhcpd.conf:
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/dhcp
-%{__cat} << EOF > %{buildroot}%{_sysconfdir}/dhcp/dhcpd.conf
+%{__mkdir} -p %{buildroot}%{dhcpconfdir}
+%{__cat} << EOF > %{buildroot}%{dhcpconfdir}/dhcpd.conf
 #
 # DHCP Server Configuration file.
 #   see /usr/share/doc/dhcp*/dhcpd.conf.sample
@@ -311,33 +315,28 @@ EOF
     %{buildroot}%{_sysconfdir}/openldap/schema
 
 # Install empty directory for dhclient.d scripts
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/dhcp/dhclient.d
+%{__mkdir} -p %{buildroot}%{dhcpconfdir}/dhclient.d
 
 %clean
 %{__rm} -rf %{buildroot}
 
 %post
-if [ -f /etc/dhcpd.conf ]; then
-    /bin/cp -a /etc/dhcpd.conf /etc/dhcp/dhcpd.conf >/dev/null 2>&1
+if [ -f %{_sysconfdir}/dhcpd.conf ] && [ ! -r %{dhcpconfdir}/dhcpd.conf ]; then
+    /bin/ln -s %{_sysconfdir}/dhcpd.conf %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
 fi
 
 /sbin/chkconfig --add dhcpd
 /sbin/chkconfig --add dhcrelay || :
 
 %post -n dhclient
-/bin/ls -1 /etc/dhclient* >/dev/null 2>&1
+/bin/ls -1 %{_sysconfdir}/dhclient* >/dev/null 2>&1
 if [ $? = 0 ]; then
-    /bin/ls -1 /etc/dhclient* 2>/dev/null | while read etcfile ; do
+    /bin/ls -1 %{_sysconfdir}/dhclient* | \
+    /bin/grep -v "\.rpmsave$" 2>/dev/null | \
+    while read etcfile ; do
         cf="$(/bin/basename ${etcfile})"
-        if [ ! -f /etc/dhcp/${cf} ]; then
-            /bin/cp -a "${etcfile}" /etc/dhcp
-            if [ ! -f "${etcfile}.rpmsave" ]; then
-                /bin/mv -f "${etcfile}" "${etcfile}.rpmsave"
-            elif [ ! -f "${etcfile}.rpmsave.$$" ]; then
-                /bin/mv -f "${etcfile}" "${etcfile}.rpmsave.$$"
-            else
-                /bin/mv -f "${etcfile}" "${etcfile}.rpmsave.$(date +%s)"
-            fi
+        if [ -f ${etcfile} ] && [ ! -r %{dhcpconfdir}/${cf} ]; then
+            /bin/ln -s ${etcfile} %{dhcpconfdir}/${cf} >/dev/null 2>&1
         fi
     done || :
 fi || :
@@ -370,12 +369,12 @@ fi
 %doc RELNOTES dhcpd.conf.sample doc/IANA-arp-parameters doc/api+protocol
 %doc doc/*.txt __fedora_contrib/* ldap-for-dhcp-%{version}/*.txt
 %dir %{_localstatedir}/lib/dhcpd
-%dir %{_sysconfdir}/dhcp
+%dir %{dhcpconfdir}
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd6.leases
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
-%config(noreplace) %{_sysconfdir}/dhcp/dhcpd.conf
+%config(noreplace) %{dhcpconfdir}/dhcpd.conf
 %config(noreplace) %{_sysconfdir}/openldap/schema/dhcp.schema
 %{_initrddir}/dhcpd
 %{_initrddir}/dhcrelay
@@ -393,8 +392,8 @@ fi
 %files -n dhclient
 %defattr(-,root,root,-)
 %doc dhclient.conf.sample README.dhclient.d
-%dir %{_sysconfdir}/dhcp
-%dir %{_sysconfdir}/dhcp/dhclient.d
+%dir %{dhcpconfdir}
+%dir %{dhcpconfdir}/dhclient.d
 %dir %{_localstatedir}/lib/dhclient
 /sbin/dhclient
 /sbin/dhclient-script
@@ -417,6 +416,11 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Mon Apr 13 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-16
+- Correct %%post problems in dhclient package (#495361)
+- Read hooks scripts from /etc/dhcp (#495361)
+- Update to latest ldap-for-dhcp
+
 * Fri Apr 03 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-15
 - Obsolete libdhcp and libdhcp-devel (#493547)
 
