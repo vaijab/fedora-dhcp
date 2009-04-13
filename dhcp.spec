@@ -4,6 +4,9 @@
 # Where dhcp configuration files are stored
 %define dhcpconfdir %{_sysconfdir}/dhcp
 
+# LDAP patch version
+%define ldappatchver %{version}-2
+
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
@@ -17,7 +20,7 @@ License:  ISC
 Group:    System Environment/Daemons
 URL:      http://isc.org/products/DHCP/
 Source0:  ftp://ftp.isc.org/isc/%{name}/%{name}-%{version}.tar.gz
-Source1:  http://dcantrel.fedorapeople.org/dhcp/ldap-patch/ldap-for-dhcp-%{version}-2.tar.gz
+Source1:  http://dcantrel.fedorapeople.org/dhcp/ldap-patch/ldap-for-dhcp-%{ldappatchver}.tar.gz
 Source2:  dhcpd.init
 Source3:  dhcrelay.init
 Source4:  dhclient-script
@@ -106,7 +109,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 %setup -T -D -a 1
 
 # Add in LDAP support
-%{__patch} -p1 < ldap-for-dhcp-%{version}-2/%{name}-%{version}-ldap.patch
+%{__patch} -p1 < ldap-for-dhcp-%{ldappatchver}/%{name}-%{version}-ldap.patch
 
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
@@ -185,7 +188,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 %patch18 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
-%{__install} -p -m 0755 ldap-for-dhcp-%{version}/dhcpd-conf-to-ldap contrib/
+%{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -311,7 +314,7 @@ EOF
 
 # Install dhcp.schema for LDAP configuration
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/openldap/schema
-%{__install} -p -m 0644 -D ldap-for-dhcp-%{version}/dhcp.schema \
+%{__install} -p -m 0644 -D ldap-for-dhcp-%{ldappatchver}/dhcp.schema \
     %{buildroot}%{_sysconfdir}/openldap/schema
 
 # Install empty directory for dhclient.d scripts
@@ -365,9 +368,9 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%doc LICENSE README ldap-for-dhcp-%{version}/README.ldap
+%doc LICENSE README ldap-for-dhcp-%{ldappatchver}/README.ldap
 %doc RELNOTES dhcpd.conf.sample doc/IANA-arp-parameters doc/api+protocol
-%doc doc/*.txt __fedora_contrib/* ldap-for-dhcp-%{version}/*.txt
+%doc doc/*.txt __fedora_contrib/* ldap-for-dhcp-%{ldappatchver}/*.txt
 %dir %{_localstatedir}/lib/dhcpd
 %dir %{dhcpconfdir}
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
