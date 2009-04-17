@@ -233,6 +233,7 @@ dhconfig() {
        [ ! "${old_routers}" = "${new_routers}" ] ||
        [ ! "${old_interface_mtu}" = "${new_interface_mtu}" ]; then
         ip -family inet addr add ${new_ip_address}/${new_prefix} broadcast ${new_broadcast_address} dev ${interface}
+        ip -family inet link set dev ${interface} up
 
         if [ -n "${new_interface_mtu}" ]; then
             ip link set ${interface} mtu ${new_interface_mtu}
