@@ -121,9 +121,6 @@ case "$1" in
         stop ; start
         RETVAL=$?
         ;;
-    try-restart|reload)
-        RETVAL=3
-        ;;
     condrestart)
         if [ -f $lockfile ]; then
             stop ; start

@@ -3,7 +3,7 @@
 # dhclient-script: Network interface configuration script run by
 #                  dhclient based on DHCP client communication
 #
-# Copyright (C) 2008 Red Hat, Inc.
+# Copyright (C) 2008, 2009  Red Hat, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -40,6 +40,12 @@ logmessage() {
     logger -p ${LOGFACILITY}.${LOGLEVEL} -t "NET" "dhclient: ${msg}"
 }
 
+fix_context() {
+    if [ -x /sbin/restorecon ]; then
+        /sbin/restorecon ${1} >/dev/null 2>&1
+    fi
+}
+
 save_previous() {
     origfile="${1}"
     savefile="${SAVEDIR}/${origfile##*/}.predhclient.${interface}"
@@ -54,7 +60,7 @@ save_previous() {
         echo > ${savefile}
     fi
 
-    restorecon ${savefile} >/dev/null 2>&1
+    fix_context ${savefile}
 }
 
 make_resolv_conf() {
@@ -94,9 +100,7 @@ make_resolv_conf() {
         change_resolv_conf ${rscf}
         rm -f ${rscf}
 
-        if [ -x /sbin/restorecon ]; then
-            /sbin/restorecon /etc/resolv.conf >/dev/null 2>&1
-        fi
+        fix_context /etc/resolv.conf
     fi
 }
 
@@ -227,6 +231,7 @@ dhconfig() {
        [ ! "${old_routers}" = "${new_routers}" ] ||
        [ ! "${old_interface_mtu}" = "${new_interface_mtu}" ]; then
         ip -family inet addr add ${new_ip_address}/${new_prefix} broadcast ${new_broadcast_address} dev ${interface}
+        ip -family inet link set dev ${interface} up
 
         if [ -n "${new_interface_mtu}" ]; then
             ip link set ${interface} mtu ${new_interface_mtu}
@@ -400,7 +405,7 @@ dhconfig() {
        [ -n "${new_ntp_servers}" ] && [ -e /etc/ntp.conf ]; then
         save_previous /etc/ntp.conf
         egrep -v '^server .*  # added by /sbin/dhclient-script$'< ${SAVEDIR}/ntp.conf.predhclient.${interface} > /etc/ntp.conf
-        restorecon /etc/ntp.conf >/dev/null 2>&1
+        fix_context /etc/ntp.conf
 
         for s in ${new_ntp_servers} ; do
             echo "server ${s}  # added by /sbin/dhclient-script" >> /etc/ntp.conf
@@ -523,18 +528,21 @@ case "${reason}" in
                     rm -f /etc/localtime
                     mv ${SAVEDIR}/localtime.predhclient.${interface} /etc/localtime
                     touch /etc/localtime
+                    fix_context /etc/localtime
                 fi
             fi
 
             if [ -f ${SAVEDIR}/ntp.conf.predhclient.${interface} ]; then
                 rm -f /etc/ntp.conf
-                mv -f ${SAVEDIR}/ntp.conf.predhclient.${interface} /etc/ntp.conf
+                mv ${SAVEDIR}/ntp.conf.predhclient.${interface} /etc/ntp.conf
+                fix_context /etc/ntp.conf
                 service ntpd condrestart >/dev/null 2>&1
             fi
 
             if [ -f ${SAVEDIR}/yp.conf.predhclient.${interface} ]; then
                 rm -f /etc/yp.conf
-                mv -f ${SAVEDIR}/yp.conf.predhclient.${interface} /etc/yp.conf
+                mv ${SAVEDIR}/yp.conf.predhclient.${interface} /etc/yp.conf
+                fix_context /etc/yp.conf
                 if [ -x /etc/rc.d/init.d/ypbind ] && [ -r /var/run/ypbind.pid ]; then
                     service ypbind restart >/dev/null 2>&1
                 fi

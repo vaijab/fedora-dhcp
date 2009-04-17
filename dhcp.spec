@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  33%{?dist}
+Release:  34%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -449,6 +449,12 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Thu Apr 16 2009 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-34
+- Fix setting default route when client IP address changes (#486512, #473658)
+- Restore SELinux context on /etc/ntp.conf and /etc/yp.conf (#483747)
+- 'reload' and 'try-restart' on dhcpd and dhcrelay init scripts
+  will display usage information and return code 3
+
 * Wed Dec 03 2008 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-33
 - Do not calculate a prefix for an address we did not receive (#473885)
 
