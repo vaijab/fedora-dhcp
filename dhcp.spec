@@ -10,7 +10,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  16%{?dist}
+Release:  17%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -419,6 +419,11 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Apr 16 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-17
+- Fix setting default route when client IP address changes (#486512, #473658)
+- 'reload' and 'try-restart' on dhcpd and dhcrelay init scripts
+  will display usage information and return code 3
+
 * Mon Apr 13 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-16
 - Correct %%post problems in dhclient package (#495361)
 - Read hooks scripts from /etc/dhcp (#495361)
