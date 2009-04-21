@@ -222,7 +222,6 @@ dhconfig() {
         # IP address changed.  Bringing down the interface will delete all
         # routes, and clear the ARP cache.
         ip -family inet addr flush dev ${interface} >/dev/null 2>&1
-        ip -family inet link set dev ${interface} down
     fi
 
     if [ "${reason}" = "BOUND" ] || [ "${reason}" = "REBOOT" ] ||
