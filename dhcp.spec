@@ -426,6 +426,8 @@ fi
 * Mon Apr 20 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-19
 - Restrict interface names given on the dhcpd command line to length
   IFNAMSIZ or shorter (#441524)
+- Change to /etc/sysconfig/network-scripts in dhclient-script before
+  calling need_config or source_config (#496233)
 
 * Mon Apr 20 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-18
 - Make dhclient-script work with pre-configured wireless interfaces (#491157)
