@@ -10,7 +10,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  19%{?dist}
+Release:  20%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -79,7 +79,7 @@ Requires: initscripts >= 6.75
 Requires(post): coreutils
 Requires(post): grep
 Obsoletes: dhcpcd <= 1.3.22pl1-7
-Obsoletes: libdhcp4client <= 12:4.0.0-31.fc10
+Obsoletes: libdhcp4client <= 12:4.0.0-34.fc10
 Obsoletes: libdhcp <= 1.99.8-1.fc10
 Provides: dhcpcd = 1.3.22pl1-8
 
@@ -97,7 +97,7 @@ provides the ISC DHCP client daemon.
 %package devel
 Summary: Development headers and libraries for interfacing to the DHCP server
 Group: Development/Libraries
-Obsoletes: libdhcp4client-devel <= 12:4.0.0-31
+Obsoletes: libdhcp4client-devel <= 12:4.0.0-34.fc10
 Obsoletes: libdhcp-devel <= 1.99.8-1
 Requires: %{name} = %{epoch}:%{version}-%{release}
 
@@ -423,6 +423,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed May 06 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-20
+- Obsolete libdhcp4client <= 12:4.0.0-34.fc10 (#499290)
+
 * Mon Apr 20 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-19
 - Restrict interface names given on the dhcpd command line to length
   IFNAMSIZ or shorter (#441524)
