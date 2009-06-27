@@ -55,7 +55,9 @@ save_previous() {
     fi
 
     if [ -e ${origfile} ]; then
-        mv ${origfile} ${savefile}
+        contents="$(< ${origfile})"
+        echo "${contents}" > ${savefile}
+        rm -f ${origfile}
     else
         echo > ${savefile}
     fi
@@ -525,7 +527,9 @@ case "${reason}" in
                [[ "${DHCP_TIME_OFFSET_SETS_TIMEZONE}" = [yY1]* ]]; then
                 if [ -e ${SAVEDIR}/localtime.predhclient.${interface} ]; then
                     rm -f /etc/localtime
-                    mv ${SAVEDIR}/localtime.predhclient.${interface} /etc/localtime
+                    contents="$(< ${SAVEDIR}/localtime.predhclient.${interface})"
+                    echo "${contents}" > /etc/localtime
+                    rm -f ${SAVEDIR}/localtime.predhclient.${interface}
                     touch /etc/localtime
                     fix_context /etc/localtime
                 fi
@@ -533,14 +537,18 @@ case "${reason}" in
 
             if [ -f ${SAVEDIR}/ntp.conf.predhclient.${interface} ]; then
                 rm -f /etc/ntp.conf
-                mv ${SAVEDIR}/ntp.conf.predhclient.${interface} /etc/ntp.conf
+                contents="$(< ${SAVEDIR}/ntp.conf.predhclient.${interface})"
+                echo "${contents}" > /etc/ntp.conf
+                rm -f ${SAVEDIR}/ntp.conf.predhclient.${interface}
                 fix_context /etc/ntp.conf
                 service ntpd condrestart >/dev/null 2>&1
             fi
 
             if [ -f ${SAVEDIR}/yp.conf.predhclient.${interface} ]; then
                 rm -f /etc/yp.conf
-                mv ${SAVEDIR}/yp.conf.predhclient.${interface} /etc/yp.conf
+                contents="$(< ${SAVEDIR}/yp.conf.predhclient.${interface})"
+                echo "${contents}" > /etc/yp.conf
+                rm -f ${SAVEDIR}/yp.conf.predhclient.${interface}
                 fix_context /etc/yp.conf
                 if [ -x /etc/rc.d/init.d/ypbind ] && [ -r /var/run/ypbind.pid ]; then
                     service ypbind restart >/dev/null 2>&1

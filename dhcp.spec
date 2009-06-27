@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  35%{?dist}
+Release:  36%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -449,6 +449,10 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Fri Jun 26 2009 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-36
+- Fix SELinux denials in dhclient-script when the script makes backup
+  configuration files and restores them later (#483747)
+
 * Mon Apr 20 2009 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-35
 - Make dhclient-script work with pre-configured wireless interfaces (#491157)
 
