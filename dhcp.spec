@@ -10,7 +10,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  21%{?dist}
+Release:  22%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -429,6 +429,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Jun 26 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-22
+- Fix SELinux denials in dhclient-script when the script makes backup
+  configuration files and restores them later (#483747)
+
 * Fri Jun 26 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-21
 - Handle cases in add_timeout() where the function is called with a NULL
   value for the 'when' parameter (#506626)
