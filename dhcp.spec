@@ -186,7 +186,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 %patch17 -p1
 
 # If the ipv6 kernel module is missing, do not segfault
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19367]
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19367])
 %patch18 -p1
 
 # Read only up to IFNAMSIZ characters for the interface name in dhcpd (#441524)
@@ -194,6 +194,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 
 # Handle cases in add_timeout() where the function is called with a NULL
 # value for the 'when' parameter
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19867])
 %patch20 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
