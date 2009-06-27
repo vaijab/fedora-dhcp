@@ -432,6 +432,8 @@ fi
 * Fri Jun 26 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-21
 - Handle cases in add_timeout() where the function is called with a NULL
   value for the 'when' parameter (#506626)
+- Fix SELinux denials in dhclient-script when the script makes backup
+  configuration files and restores them later (#483747)
 
 * Wed May 06 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-20
 - Obsolete libdhcp4client <= 12:4.0.0-34.fc10 (#499290)
