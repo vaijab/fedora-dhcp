@@ -10,7 +10,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  20%{?dist}
+Release:  21%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -46,6 +46,7 @@ Patch16:  %{name}-4.1.0-port-validation.patch
 Patch17:  %{name}-4.1.0-invalid-dhclient-conf.patch
 Patch18:  %{name}-4.1.0-missing-ipv6-not-fatal.patch
 Patch19:  %{name}-4.1.0-IFNAMSIZ.patch
+Patch20:  %{name}-4.1.0-add_timeout_when_NULL.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -185,11 +186,16 @@ libdhcpctl and libomapi static libraries are also included in this package.
 %patch17 -p1
 
 # If the ipv6 kernel module is missing, do not segfault
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19367]
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19367])
 %patch18 -p1
 
 # Read only up to IFNAMSIZ characters for the interface name in dhcpd (#441524)
 %patch19 -p1
+
+# Handle cases in add_timeout() where the function is called with a NULL
+# value for the 'when' parameter
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19867])
+%patch20 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
@@ -423,6 +429,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Jun 26 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-21
+- Handle cases in add_timeout() where the function is called with a NULL
+  value for the 'when' parameter (#506626)
+
 * Wed May 06 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-20
 - Obsolete libdhcp4client <= 12:4.0.0-34.fc10 (#499290)
 
