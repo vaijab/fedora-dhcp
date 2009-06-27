@@ -57,7 +57,9 @@ save_previous() {
     fi
 
     if [ -e ${origfile} ]; then
-        mv ${origfile} ${savefile}
+        contents="$(< ${origfile})"
+        echo "${contents}" > ${savefile}
+        rm -f ${origfile}
     else
         echo > ${savefile}
     fi
@@ -483,7 +485,9 @@ case "${reason}" in
                [[ "${DHCP_TIME_OFFSET_SETS_TIMEZONE}" = [yY1]* ]]; then
                 if [ -e ${SAVEDIR}/localtime.predhclient.${interface} ]; then
                     rm -f /etc/localtime
-                    mv ${SAVEDIR}/localtime.predhclient.${interface} /etc/localtime
+                    contents="$(< ${SAVEDIR}/localtime.predhclient.${interface})"
+                    echo "${contents}" > /etc/localtime
+                    rm -f ${SAVEDIR}/localtime.predhclient.${interface}
                     touch /etc/localtime
                     fix_context /etc/localtime
                 fi
