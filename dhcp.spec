@@ -10,7 +10,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  22%{?dist}
+Release:  23%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -57,6 +57,7 @@ BuildRequires: openldap-devel
 
 Requires(post): chkconfig
 Requires(post): coreutils
+Requires(post): policycoreutils
 Requires(preun): chkconfig
 Requires(preun): initscripts
 Requires(postun): initscripts
@@ -79,6 +80,7 @@ Group: System Environment/Base
 Requires: initscripts >= 6.75
 Requires(post): coreutils
 Requires(post): grep
+Requires(post): policycoreutils
 Obsoletes: dhcpcd <= 1.3.22pl1-7
 Obsoletes: libdhcp4client <= 12:4.0.0-34.fc10
 Obsoletes: libdhcp <= 1.99.8-1.fc10
@@ -334,8 +336,20 @@ EOF
 %{__rm} -rf %{buildroot}
 
 %post
-if [ -f %{_sysconfdir}/dhcpd.conf ] && [ ! -r %{dhcpconfdir}/dhcpd.conf ]; then
-    /bin/ln -s %{_sysconfdir}/dhcpd.conf %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
+sampleconf="#
+# DHCP Server Configuration file.
+#   see /usr/share/doc/dhcp*/dhcpd.conf.sample
+#   see 'man 5 dhcpd.conf'
+#"
+
+contents="$(/bin/cat %{dhcpconfdir}/dhcpd.conf)"
+prevconf="%{_sysconfdir}/dhcpd.conf"
+
+if [ ! -z "${prevconf}" ]; then
+    if [ ! -f %{dhcpconfdir}/dhcpd.conf -o "${sampleconf}" = "${contents}" ]; then
+        /bin/cp -a ${prevconf} %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
+        /sbin/restorecon %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
+    fi
 fi
 
 /sbin/chkconfig --add dhcpd
@@ -349,7 +363,8 @@ if [ $? = 0 ]; then
     while read etcfile ; do
         cf="$(/bin/basename ${etcfile})"
         if [ -f ${etcfile} ] && [ ! -r %{dhcpconfdir}/${cf} ]; then
-            /bin/ln -s ${etcfile} %{dhcpconfdir}/${cf} >/dev/null 2>&1
+            /bin/cp -a ${etcfile} %{dhcpconfdir}/${cf} >/dev/null 2>&1
+            /sbin/restorecon %{dhcpconfdir}/${cf} >/dev/null 2>&1
         fi
     done || :
 fi || :
@@ -429,6 +444,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Jul 02 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-23
+- Correct problems when upgrading from a previous release and your
+  dhcpd.conf file not being placed in /etc/dhcp (#506600)
+
 * Fri Jun 26 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-22
 - Fix SELinux denials in dhclient-script when the script makes backup
   configuration files and restores them later (#483747)
