@@ -5,12 +5,12 @@
 %define dhcpconfdir %{_sysconfdir}/dhcp
 
 # LDAP patch version
-%define ldappatchver %{version}-2
+%define ldappatchver %{version}-3
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  21%{?dist}
+Release:  22%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -57,6 +57,7 @@ BuildRequires: openldap-devel
 
 Requires(post): chkconfig
 Requires(post): coreutils
+Requires(post): policycoreutils
 Requires(preun): chkconfig
 Requires(preun): initscripts
 Requires(postun): initscripts
@@ -256,7 +257,7 @@ autoheader
 automake --foreign --add-missing --copy
 
 %build
-CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE -DLDAP_CONFIGURATION -DUSE_SSL" \
+CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE" \
 %configure \
     --enable-dhcpv6 \
     --with-srv-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd.leases \
@@ -267,7 +268,9 @@ CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE -DLDAP_CONFIGURATION -DUSE_SSL" \
     --with-srv6-pid-file=%{_localstatedir}/run/dhcpd6.pid \
     --with-cli-pid-file=%{_localstatedir}/run/dhclient.pid \
     --with-cli6-pid-file=%{_localstatedir}/run/dhclient6.pid \
-    --with-relay-pid-file=%{_localstatedir}/run/dhcrelay.pid
+    --with-relay-pid-file=%{_localstatedir}/run/dhcrelay.pid \
+    --with-ldap \
+    --with-ldapcrypto
 %{__make} %{?_smp_mflags}
 
 %install
@@ -334,8 +337,20 @@ EOF
 %{__rm} -rf %{buildroot}
 
 %post
-if [ -f %{_sysconfdir}/dhcpd.conf ] && [ ! -r %{dhcpconfdir}/dhcpd.conf ]; then
-    /bin/ln -s %{_sysconfdir}/dhcpd.conf %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
+sampleconf="#
+# DHCP Server Configuration file.
+#   see /usr/share/doc/dhcp*/dhcpd.conf.sample
+#   see 'man 5 dhcpd.conf'
+#"
+
+contents="$(/bin/cat %{dhcpconfdir}/dhcpd.conf)"
+prevconf="%{_sysconfdir}/dhcpd.conf"
+
+if [ ! -z "${prevconf}" ]; then
+    if [ ! -f %{dhcpconfdir}/dhcpd.conf -o "${sampleconf}" = "${contents}" ]; then
+        /bin/cp -a ${prevconf} %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
+        /sbin/restorecon %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
+    fi
 fi
 
 /sbin/chkconfig --add dhcpd
@@ -349,7 +364,8 @@ if [ $? = 0 ]; then
     while read etcfile ; do
         cf="$(/bin/basename ${etcfile})"
         if [ -f ${etcfile} ] && [ ! -r %{dhcpconfdir}/${cf} ]; then
-            /bin/ln -s ${etcfile} %{dhcpconfdir}/${cf} >/dev/null 2>&1
+            /bin/cp -a ${etcfile} %{dhcpconfdir}/${cf} >/dev/null 2>&1
+            /sbin/restorecon %{dhcpconfdir}/${cf} >/dev/null 2>&1
         fi
     done || :
 fi || :
@@ -382,7 +398,7 @@ fi
 %doc RELNOTES dhcpd.conf.sample doc/IANA-arp-parameters doc/api+protocol
 %doc doc/*.txt __fedora_contrib/* ldap-for-dhcp-%{ldappatchver}/*.txt
 %dir %{_localstatedir}/lib/dhcpd
-%dir %{dhcpconfdir}
+%attr(0750,root,root) %dir %{dhcpconfdir}
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd6.leases
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
@@ -405,7 +421,7 @@ fi
 %files -n dhclient
 %defattr(-,root,root,-)
 %doc dhclient.conf.sample README.dhclient.d
-%dir %{dhcpconfdir}
+%attr(0750,root,root) %dir %{dhcpconfdir}
 %dir %{dhcpconfdir}/dhclient.d
 %dir %{_localstatedir}/lib/dhclient
 /sbin/dhclient
@@ -429,6 +445,12 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Jul 01 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-22
+- Set permissions on /etc/dhcp to 0750 (#508247)
+- Update to new ldap-for-dhcp patch set
+- Correct problems when upgrading from a previous release and your
+  dhcpd.conf file not being placed in /etc/dhcp (#506600)
+
 * Fri Jun 26 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-21
 - Handle cases in add_timeout() where the function is called with a NULL
   value for the 'when' parameter (#506626)
