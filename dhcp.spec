@@ -5,12 +5,12 @@
 %define dhcpconfdir %{_sysconfdir}/dhcp
 
 # LDAP patch version
-%define ldappatchver %{version}-3
+%define ldappatchver %{version}-4
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  22%{?dist}
+Release:  23%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -20,7 +20,7 @@ License:  ISC
 Group:    System Environment/Daemons
 URL:      http://isc.org/products/DHCP/
 Source0:  ftp://ftp.isc.org/isc/%{name}/%{name}-%{version}.tar.gz
-Source1:  http://dcantrel.fedorapeople.org/dhcp/ldap-patch/ldap-for-dhcp-%{ldappatchver}.tar.gz
+Source1:  http://cloud.github.com/downloads/dcantrell/ldap-for-dhcp/ldap-for-dhcp-%{ldappatchver}.tar.gz
 Source2:  dhcpd.init
 Source3:  dhcrelay.init
 Source4:  dhclient-script
@@ -445,6 +445,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Jul 09 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-23
+- Upgrade to ldap-for-dhcp-4.1.0-4
+
 * Wed Jul 01 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-22
 - Set permissions on /etc/dhcp to 0750 (#508247)
 - Update to new ldap-for-dhcp patch set
