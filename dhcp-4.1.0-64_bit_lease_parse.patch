@@ -1,0 +1,14 @@
+diff -up dhcp-4.1.0/common/parse.c.64-bit_lease_parse dhcp-4.1.0/common/parse.c
+--- dhcp-4.1.0/common/parse.c.64-bit_lease_parse	2008-10-08 06:26:42.000000000 -1000
++++ dhcp-4.1.0/common/parse.c	2009-07-09 16:22:05.000000000 -1000
+@@ -905,8 +905,8 @@ TIME 
+ parse_date_core(cfile)
+ 	struct parse *cfile;
+ {
+-	int guess;
+-	int tzoff, wday, year, mon, mday, hour, min, sec;
++	TIME guess;
++	long int tzoff, wday, year, mon, mday, hour, min, sec;
+ 	const char *val;
+ 	enum dhcp_token token;
+ 	static int months [11] = { 31, 59, 90, 120, 151, 181,
