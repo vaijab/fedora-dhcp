@@ -10,7 +10,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  24%{?dist}
+Release:  25%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -25,6 +25,7 @@ Source2:  dhcpd.init
 Source3:  dhcrelay.init
 Source4:  dhclient-script
 Source5:  README.dhclient.d
+Source6:  10-dhclient
 
 Patch0:   %{name}-4.1.0-errwarn-message.patch
 Patch1:   %{name}-4.1.0-memory.patch
@@ -337,6 +338,10 @@ EOF
 # Install empty directory for dhclient.d scripts
 %{__mkdir} -p %{buildroot}%{dhcpconfdir}/dhclient.d
 
+# Install NetworkManager dispatcher script
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
+%{__install} -p -m 0755 %{SOURCE6} %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
+
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -409,6 +414,9 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
 %config(noreplace) %{dhcpconfdir}/dhcpd.conf
 %config(noreplace) %{_sysconfdir}/openldap/schema/dhcp.schema
+%dir %{_sysconfdir}/NetworkManager
+%dir %{_sysconfdir}/NetworkManager/dispatcher.d
+%{_sysconfdir}/NetworkManager/dispatcher.d/10-dhclient
 %{_initrddir}/dhcpd
 %{_initrddir}/dhcrelay
 %{_bindir}/omshell
@@ -449,6 +457,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Jul 23 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-25
+- Include NetworkManager dispatcher script to run dhclient.d scripts (#459276)
+
 * Thu Jul 09 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-24
 - Ensure 64-bit platforms parse lease file dates & times correctly (#448615)
 
