@@ -10,7 +10,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  23%{?dist}
+Release:  24%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -47,6 +47,7 @@ Patch17:  %{name}-4.1.0-invalid-dhclient-conf.patch
 Patch18:  %{name}-4.1.0-missing-ipv6-not-fatal.patch
 Patch19:  %{name}-4.1.0-IFNAMSIZ.patch
 Patch20:  %{name}-4.1.0-add_timeout_when_NULL.patch
+Patch21:  %{name}-4.1.0-lease-file-semicolons.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -198,6 +199,9 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # value for the 'when' parameter
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19867])
 %patch20 -p1
+
+# Add missing semicolons to lines in the client lease file (#514828)
+%patch21 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
@@ -444,6 +448,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Tue Aug 04 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-24
+- Correct lease file format written by dhclient (#514828)
+
 * Thu Jul 02 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-23
 - Correct problems when upgrading from a previous release and your
   dhcpd.conf file not being placed in /etc/dhcp (#506600)
