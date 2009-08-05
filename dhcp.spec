@@ -4,7 +4,7 @@
 Summary:  DHCP (Dynamic Host Configuration Protocol) server and relay agent
 Name:     dhcp
 Version:  4.0.0
-Release:  36%{?dist}
+Release:  37%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -49,6 +49,8 @@ Patch19:  %{name}-4.0.0-inherit-leases.patch
 Patch20:  %{name}-4.0.0-garbage-chars.patch
 Patch21:  %{name}-4.0.0-port-validation.patch
 Patch22:  %{name}-4.0.0-invalid-dhclient-conf.patch
+Patch23:  %{name}-4.0.0-CVE-2009-0692.patch
+Patch24:  %{name}-4.0.0-CVE-2009-1892.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -211,6 +213,14 @@ client library.
 
 # The sample dhclient.conf should say 'supersede domain-search' (#467955)
 %patch22 -p1
+
+# Fix for CVE-2009-0692 (patch from Mandriva SRPM)
+# http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0692
+%patch23 -p1
+
+# Fix for CVE-2009-1892 (patch from Mandriva SRPM)
+# http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1892
+%patch24 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0644 %{SOURCE5} .
@@ -449,6 +459,10 @@ fi
 %{_libdir}/libdhcp4client.so
 
 %changelog
+* Wed Aug 05 2009 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-37
+- Fix for CVE-2009-0692
+- Fix for CVE-2009-1892 (#511834)
+
 * Fri Jun 26 2009 David Cantrell <dcantrell@redhat.com> - 12:4.0.0-36
 - Fix SELinux denials in dhclient-script when the script makes backup
   configuration files and restores them later (#483747)
