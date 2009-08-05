@@ -10,7 +10,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.0
-Release:  26%{?dist}
+Release:  27%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -49,6 +49,8 @@ Patch18:  %{name}-4.1.0-missing-ipv6-not-fatal.patch
 Patch19:  %{name}-4.1.0-IFNAMSIZ.patch
 Patch20:  %{name}-4.1.0-add_timeout_when_NULL.patch
 Patch21:  %{name}-4.1.0-64_bit_lease_parse.patch
+Patch22:  %{name}-4.1.0-CVE-2009-0692.patch
+Patch23:  %{name}-4.1.0-CVE-2009-1892.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -202,6 +204,14 @@ libdhcpctl and libomapi static libraries are also included in this package.
 
 # Ensure 64-bit platforms parse lease file dates & times correctly (#448615)
 %patch21 -p1
+
+# Fix for CVE-2009-0692 (patch from Mandriva SRPM)
+# http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0692
+%patch22 -p1
+
+# Fix for CVE-2009-1892 (patch from Mandriva SRPM)
+# http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1892
+%patch23 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
@@ -457,6 +467,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Aug 05 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-27
+- Fix for CVE-2009-0692
+- Fix for CVE-2009-1892 (#511834)
+
 * Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 12:4.1.0-26
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
