@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}p1
-Release:  1%{?dist}
+Release:  2%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -28,6 +28,7 @@ Source2:  dhcpd.init
 Source3:  dhcrelay.init
 Source4:  dhclient-script
 Source5:  README.dhclient.d
+Source6:  56dhclient
 
 Patch0:   %{name}-4.1.0-errwarn-message.patch
 Patch1:   %{name}-4.1.0-memory.patch
@@ -340,6 +341,10 @@ EOF
 # Install empty directory for dhclient.d scripts
 %{__mkdir} -p %{buildroot}%{dhcpconfdir}/dhclient.d
 
+# Install pm-utils script to handle suspend/resume and dhclient leases
+%{__mkdir} -p %{buildroot}%{_libdir}/pm-utils/sleep.d
+%{__install} -p -m 0755 %{SOURCE6} %{buildroot}%{_libdir}/pm-utils/sleep.d
+
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -433,6 +438,7 @@ fi
 %dir %{_localstatedir}/lib/dhclient
 /sbin/dhclient
 /sbin/dhclient-script
+%{_libdir}/pm-utils
 %attr(0644,root,root) %{_mandir}/man5/dhclient.conf.5.gz
 %attr(0644,root,root) %{_mandir}/man5/dhclient.leases.5.gz
 %attr(0644,root,root) %{_mandir}/man8/dhclient.8.gz
@@ -452,6 +458,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Aug 06 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-2
+- Add /usr/lib[64]/pm-utils/sleep.d/56dhclient to handle suspend and
+  resume with active dhclient leases (#479639)
+
 * Wed Aug 05 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-1
 - Upgrade to dhcp-4.1.0p1, which is the official upstream release to fix
   CVE-2009-0692
