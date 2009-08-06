@@ -4,13 +4,16 @@
 # Where dhcp configuration files are stored
 %define dhcpconfdir %{_sysconfdir}/dhcp
 
+# Base version number from ISC
+%define basever 4.1.0
+
 # LDAP patch version
-%define ldappatchver %{version}-2
+%define ldappatchver %{basever}-2
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
-Version:  4.1.0
-Release:  25%{?dist}
+Version:  %{basever}p1
+Release:  1%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -20,7 +23,7 @@ License:  ISC
 Group:    System Environment/Daemons
 URL:      http://isc.org/products/DHCP/
 Source0:  ftp://ftp.isc.org/isc/%{name}/%{name}-%{version}.tar.gz
-Source1:  http://dcantrel.fedorapeople.org/dhcp/ldap-patch/ldap-for-dhcp-%{ldappatchver}.tar.gz
+Source1:  http://cloud.github.com/downloads/dcantrell/ldap-for-dhcp/ldap-for-dhcp-%{ldappatchver}.tar.gz
 Source2:  dhcpd.init
 Source3:  dhcrelay.init
 Source4:  dhclient-script
@@ -47,8 +50,7 @@ Patch17:  %{name}-4.1.0-invalid-dhclient-conf.patch
 Patch18:  %{name}-4.1.0-missing-ipv6-not-fatal.patch
 Patch19:  %{name}-4.1.0-IFNAMSIZ.patch
 Patch20:  %{name}-4.1.0-add_timeout_when_NULL.patch
-Patch21:  %{name}-4.1.0-CVE-2009-0692.patch
-Patch22:  %{name}-4.1.0-CVE-2009-1892.patch
+Patch21:  %{name}-4.1.0-CVE-2009-1892.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -115,7 +117,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 %setup -T -D -a 1
 
 # Add in LDAP support
-%{__patch} -p1 < ldap-for-dhcp-%{ldappatchver}/%{name}-%{version}-ldap.patch
+%{__patch} -p1 < ldap-for-dhcp-%{ldappatchver}/%{name}-%{basever}-ldap.patch
 
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
@@ -201,13 +203,9 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19867])
 %patch20 -p1
 
-# Fix for CVE-2009-0692 (patch from Mandriva SRPM)
-# http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0692
-%patch21 -p1
-
 # Fix for CVE-2009-1892 (patch from Mandriva SRPM)
 # http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1892
-%patch22 -p1
+%patch21 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
@@ -454,6 +452,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Aug 05 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-1
+- Upgrade to dhcp-4.1.0p1, which is the official upstream release to fix
+  CVE-2009-0692
+
 * Wed Aug 05 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0-25
 - Fix for CVE-2009-0692
 - Fix for CVE-2009-1892 (#511834)
