@@ -1,18 +1,22 @@
 #!/bin/bash
 # run dhclient.d scripts in an emulated environment
 
+PATH=/bin:/usr/bin:/sbin
 SAVEDIR=/var/lib/dhclient
 ETCDIR=/etc/dhcp
 interface=$1
 
 eval "$(
 declare | LC_ALL=C grep '^DHCP4_[A-Z_]*=' | while read opt; do
-    optname=$(echo "${opt%%=*}" | LC_ALL=C tr 'A-Z' 'a-z')
+    optname=${opt%%=*}
+    optname=${optname,,}
     optname=new_${optname#dhcp4_}
     optvalue=${opt#*=}
     echo "$optname=$optvalue"
 done
 )"
+
+[ -f /etc/sysconfig/network ] && . /etc/sysconfig/network
 
 [ -f /etc/sysconfig/network-scripts/ifcfg-$interface ] && \
     . /etc/sysconfig/network-scripts/ifcfg-$interface

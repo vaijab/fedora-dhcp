@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}p1
-Release:  2%{?dist}
+Release:  3%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -471,6 +471,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Aug 12 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-3
+- Update NetworkManager dispatcher script to remove case conversion
+  and source /etc/sysconfig/network
+
 * Thu Aug 06 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-2
 - Add /usr/lib[64]/pm-utils/sleep.d/56dhclient to handle suspend and
   resume with active dhclient leases (#479639)
