@@ -8,12 +8,12 @@
 %define basever 4.1.0
 
 # LDAP patch version
-%define ldappatchver %{basever}-4
+%define ldappatchver %{basever}-5
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}p1
-Release:  3%{?dist}
+Release:  4%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -471,6 +471,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Aug 14 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-4
+- Upgrade to latest ldap-for-dhcp patch which makes sure that only
+  dhcpd links with OpenLDAP (#517474)
+
 * Wed Aug 12 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-3
 - Update NetworkManager dispatcher script to remove case conversion
   and source /etc/sysconfig/network
