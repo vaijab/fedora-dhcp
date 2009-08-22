@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}p1
-Release:  5%{?dist}
+Release:  6%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -62,6 +62,7 @@ BuildRequires: automake
 BuildRequires: groff
 BuildRequires: libtool
 BuildRequires: openldap-devel
+BuildRequires: libcap-ng-devel
 
 Requires(post): chkconfig
 Requires(post): coreutils
@@ -475,6 +476,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Aug 21 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-6
+- BR libcap-ng-devel (#517649)
+
 * Tue Aug 18 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-5
 - Drop unnecessary capabilities in dhclient (#517649)
 
