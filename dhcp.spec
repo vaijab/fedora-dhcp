@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}p1
-Release:  3%{?dist}
+Release:  4%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -84,7 +84,6 @@ Group: System Environment/Base
 Requires: initscripts >= 6.75
 Requires(post): coreutils
 Requires(post): grep
-Requires(post): policycoreutils
 Obsoletes: dhcpcd <= 1.3.22pl1-7
 Obsoletes: libdhcp4client <= 12:4.0.0-34.fc10
 Obsoletes: libdhcp <= 1.99.8-1.fc10
@@ -360,7 +359,9 @@ prevconf="%{_sysconfdir}/dhcpd.conf"
 if [ ! -z "${prevconf}" ]; then
     if [ ! -f %{dhcpconfdir}/dhcpd.conf -o "${sampleconf}" = "${contents}" ]; then
         /bin/cp -a ${prevconf} %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
-        /sbin/restorecon %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
+        if [ -x /sbin/restorecon ]; then
+            /sbin/restorecon %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
+        fi
     fi
 fi
 
@@ -376,7 +377,9 @@ if [ $? = 0 ]; then
         cf="$(/bin/basename ${etcfile})"
         if [ -f ${etcfile} ] && [ ! -r %{dhcpconfdir}/${cf} ]; then
             /bin/cp -a ${etcfile} %{dhcpconfdir}/${cf} >/dev/null 2>&1
-            /sbin/restorecon %{dhcpconfdir}/${cf} >/dev/null 2>&1
+            if [ -x /sbin/restorecon ]; then
+                /sbin/restorecon %{dhcpconfdir}/${cf} >/dev/null 2>&1
+            fi
         fi
     done || :
 fi || :
@@ -457,6 +460,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Aug 26 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-4
+- Do not require policycoreutils for dhclient subpackage, fix restorecon
+  calls in postinstall scriptlets (#519479)
+
 * Wed Aug 26 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-3
 - Do not require policycoreutils for post scriptlet (#519479)
 
