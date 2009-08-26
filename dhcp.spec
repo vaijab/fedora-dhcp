@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}p1
-Release:  7%{?dist}
+Release:  8%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -375,7 +375,9 @@ prevconf="%{_sysconfdir}/dhcpd.conf"
 if [ ! -z "${prevconf}" ]; then
     if [ ! -f %{dhcpconfdir}/dhcpd.conf -o "${sampleconf}" = "${contents}" ]; then
         /bin/cp -a ${prevconf} %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
-        /sbin/restorecon %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
+        if [ -x /sbin/restorecon ]; then
+            /sbin/restorecon %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
+        fi
     fi
 fi
 
@@ -391,7 +393,9 @@ if [ $? = 0 ]; then
         cf="$(/bin/basename ${etcfile})"
         if [ -f ${etcfile} ] && [ ! -r %{dhcpconfdir}/${cf} ]; then
             /bin/cp -a ${etcfile} %{dhcpconfdir}/${cf} >/dev/null 2>&1
-            /sbin/restorecon %{dhcpconfdir}/${cf} >/dev/null 2>&1
+            if [ -x /sbin/restorecon ]; then
+                /sbin/restorecon %{dhcpconfdir}/${cf} >/dev/null 2>&1
+            fi
         fi
     done || :
 fi || :
@@ -475,6 +479,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Aug 26 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-8
+- Conditionalize restorecon calls in post scriptlets (#519479)
+
 * Wed Aug 26 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-7
 - Do not require policycoreutils for post scriptlet (#519479)
 
