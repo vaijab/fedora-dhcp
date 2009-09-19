@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}p1
-Release:  8%{?dist}
+Release:  9%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -479,6 +479,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Sep 18 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-9
+- Update dhclient-script with handlers for DHCPv6 states
+
 * Wed Aug 26 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-8
 - Conditionalize restorecon calls in post scriptlets (#519479)
 
