@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}p1
-Release:  9%{?dist}
+Release:  10%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -69,6 +69,7 @@ Requires(post): coreutils
 Requires(preun): chkconfig
 Requires(preun): initscripts
 Requires(postun): initscripts
+Obsoletes: dhcpv6 <= 1.2.0-4
 
 %description
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
@@ -91,6 +92,7 @@ Requires(post): grep
 Obsoletes: dhcpcd <= 1.3.22pl1-7
 Obsoletes: libdhcp4client <= 12:4.0.0-34.fc10
 Obsoletes: libdhcp <= 1.99.8-1.fc10
+Obsoletes: dhcpv6-client <= 1.2.0-4
 Provides: dhcpcd = 1.3.22pl1-8
 
 %description -n dhclient
@@ -479,6 +481,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Mon Sep 21 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-10
+- Obsolete the dhcpv6 and dhcpv6-client packages
+
 * Fri Sep 18 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-9
 - Update dhclient-script with handlers for DHCPv6 states
 
