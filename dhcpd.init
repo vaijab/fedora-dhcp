@@ -22,12 +22,12 @@
 # config: /var/lib/dhcpd/dhcpd.leases
 # pidfile: /var/run/dhcpd.pid
 
-. /etc/init.d/functions
+. /etc/rc.d/init.d/functions
 
 RETVAL=0
 
 prog=dhcpd
-dhcpd=/usr/sbin/dhcpd
+exec=/usr/sbin/dhcpd
 lockfile=/var/lock/subsys/dhcpd
 pidfile=/var/run/dhcpd.pid
 statedir=/var/lib/dhcpd
@@ -49,7 +49,7 @@ findConfig() {
     echo "/etc/dhcp/dhcpd.conf"
 }
 
-conf="$(findConfig "$DHCPDARGS")"
+config="$(findConfig "$DHCPDARGS")"
 
 if [ ! -f $statedir/dhcpd.leases ] ; then
     mkdir -p $statedir
@@ -58,12 +58,12 @@ if [ ! -f $statedir/dhcpd.leases ] ; then
 fi
 
 configtest() {
-    [ -x $dhcpd ] || return 5
-    [ -f $conf ] || return 6
-    $dhcpd -q -t -cf $conf
+    [ -x $exec ] || return 5
+    [ -f $config ] || return 6
+    $exec -q -t -cf $config
     RETVAL=$?
     if [ $RETVAL -eq 1 ]; then
-        $dhcpd -t -cf $conf
+        $exec -t -cf $config
     else
         echo "Syntax: OK" >&2
     fi
@@ -71,35 +71,42 @@ configtest() {
 }
 
 start() {
-    [ -x $dhcpd ] || return 5
-    [ -f $conf ] || return 6
+    [ `id -u` -eq 0 ] || return 4
+    [ -x $exec ] || return 5
+    [ -f $config ] || return 6
 
     pidofproc $prog >/dev/null 2>&1
     RETVAL=$?
     [ $RETVAL -eq 0 ] && return $RETVAL
 
     echo -n $"Starting $prog: "
-    daemon $dhcpd $DHCPDARGS 2>/dev/null
+    daemon $exec $DHCPDARGS 2>/dev/null
     RETVAL=$?
     echo
-    [ $RETVAL = 0 ] && touch $lockfile
+    [ $RETVAL -eq 0 ] && touch $lockfile
     return $RETVAL
 }
 
 stop() {
+    [ `id -u` -eq 0 ] || return 4
+
     pidofproc $prog >/dev/null 2>&1
     if [ $? -ne 0 ]; then
-        RETVAL=7
+        RETVAL=0
         return $RETVAL
     fi
-
+    
     echo -n $"Shutting down $prog: "
     killproc $prog
     RETVAL=$?
 
     echo
-    [ $RETVAL = 0 ] && rm -f $lockfile
+    [ $RETVAL -eq 0 ] && rm -f $lockfile
     return $RETVAL
+}
+
+usage() {
+    echo $"Usage: $0 {start|stop|restart|force-reload|condrestart|try-restart|configtest|status}"
 }
 
 if [ $# -gt 1 ]; then
@@ -120,23 +127,28 @@ case "$1" in
         stop ; start
         RETVAL=$?
         ;;
-    condrestart)
+    condrestart|try-restart)
         if [ -f $lockfile ]; then
             stop ; start
             RETVAL=$?
         fi
+        ;;
+    reload)
+        usage
+        # unimplemented feature
+        RETVAL=3
         ;;
     configtest)
         configtest
         RETVAL=$?
         ;;
     status)
-        status $dhcpd
+        status $exec
         RETVAL=$?
         ;;
     *)
-        echo $"Usage: $0 {start|stop|restart|condrestart|configtest|status}"
-        RETVAL=3
+        usage
+        RETVAL=2
         ;;
 esac
 
