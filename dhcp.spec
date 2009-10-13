@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}p1
-Release:  4%{?dist}
+Release:  5%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -460,6 +460,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Tue Oct 13 2009 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.0p1-5
+- Fix 56dhclient so network comes back after suspend/hibernate (#527641)
+
 * Wed Aug 26 2009 David Cantrell <dcantrell@redhat.com> - 12:4.1.0p1-4
 - Do not require policycoreutils for dhclient subpackage, fix restorecon
   calls in postinstall scriptlets (#519479)
