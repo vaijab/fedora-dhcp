@@ -43,7 +43,7 @@ resume_dhclient() {
 
     cd /etc/sysconfig/network-scripts
     while read device ; do
-        /sbin/ifup ${DEVICE}
+        /sbin/ifup ${device}
     done < ${PM_DHCLIENT_SUSPEND}
 
     /bin/rm -f ${PM_DHCLIENT_SUSPEND}
