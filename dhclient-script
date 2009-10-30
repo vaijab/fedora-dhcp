@@ -405,16 +405,14 @@ dhconfig() {
 dh6config() {
     case "${reason}" in
         BOUND6)
-            if [ -n "${new_ip6_address}" ] ||
-               [ -n "${new_ip6_prefixlen}" ]; then
+            if [ -z "${new_ip6_address}" ] &&
+               [ -z "${new_ip6_prefixlen}" ]; then
                 exit_with_hooks 2
             fi
 
             ip -f inet6 addr add ${new_ip6_address}/${new_ip6_prefixlen} \
                 dev ${interface} scope global
             make_resolv_conf
-
-            break
             ;;
 
         RENEW6|REBIND6)
@@ -422,19 +420,15 @@ dh6config() {
                [ ! "${new_dhcp6_domain_search}" = "${old_dhcp6_domain_search}" ]; then
                 make_resolv_conf
             fi
-
-            break
             ;;
 
         DEPREF6)
-            if [ -n "${new_ip6_prefixlen}" ]; then
+            if [ -z "${new_ip6_prefixlen}" ]; then
                 exit_with_hooks 2
             fi
 
             ip -f inet6 addr change ${new_ip6_address}/${new_ip6_prefixlen} \
                 dev ${interface} scope global preferred_lft 0
-
-            break
             ;;
     esac
 
