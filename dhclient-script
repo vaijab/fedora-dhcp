@@ -272,45 +272,45 @@ dhconfig() {
             . ${ETCDIR}/dhclient-up-hooks
         fi
 
-        if [[ (( -z "${GATEWAYDEV}" ) ||
-               ( "${GATEWAYDEV}" = "${interface}" )) &&
-              (( -z "$GATEWAY" ) ||
-               (( -n "$DHCLIENT_IGNORE_GATEWAY" ) &&
-                ( "$DHCLIENT_IGNORE_GATEWAY" = [Yy]* ))) ]]; then
-            metric="${METRIC:-}"
-            let i="${METRIC:-0}"
-            default_routers=()
+        if [[ ( "${DEFROUTE}" != "no") &&
+              (( -z "${GATEWAYDEV}" ) ||
+               ( "${GATEWAYDEV}" = "${interface}" )) ]]; then
+            if [[ ( -z "$GATEWAY" ) ||
+                  (( -n "$DHCLIENT_IGNORE_GATEWAY" ) &&
+                   ( "$DHCLIENT_IGNORE_GATEWAY" = [Yy]* )) ]]; then
+                metric="${METRIC:-}"
+                let i="${METRIC:-0}"
+                default_routers=()
 
-            for router in ${new_routers} ; do
-                added_router=-
+                for router in ${new_routers} ; do
+                    added_router=-
 
-                for r in ${default_routers[@]} ; do
-                    if [ "${r}" = "${router}" ]; then
-                        added_router=1
+                    for r in ${default_routers[@]} ; do
+                        if [ "${r}" = "${router}" ]; then
+                            added_router=1
+                        fi
+                    done
+
+                    if [ -z "${router}" ] ||
+                       [ "${added_router}" = "1" ] ||
+                       [ $(IFS=. ip2num ${router}) -le 0 ] ||
+                       [[ ( "${router}" = "${new_broadcast_address}" ) &&
+                          ( "${new_subnet_mask}" != "255.255.255.255" ) ]]; then
+                        continue
                     fi
+
+                    default_routers=(${default_routers[@]} ${router})
+                    add_default_gateway ${router} ${metric}
+                    let i=i+1
+                    metric=${i}
                 done
+            elif [ -n "${GATEWAY}" ]; then
+                routersubnet=$(mask ${GATEWAY} ${new_subnet_mask})
+                mysubnet=$(mask ${new_ip_address} ${new_subnet_mask})
 
-                if [ -z "${router}" ] ||
-                   [ "${added_router}" = "1" ] ||
-                   [ $(IFS=. ip2num ${router}) -le 0 ] ||
-                   [[ ( "${router}" = "${new_broadcast_address}" ) &&
-                      ( "${new_subnet_mask}" != "255.255.255.255" ) ]]; then
-                    continue
+                if [ "${routersubnet}" = "${mysubnet}" ]; then
+                    ip route replace default via ${GATEWAY} dev ${interface}
                 fi
-
-                default_routers=(${default_routers[@]} ${router})
-                add_default_gateway ${router} ${metric}
-                let i=i+1
-                metric=${i}
-            done
-        elif [[ (( -z "${GATEWAYDEV}" ) ||
-                 ( "${GATEWAYDEV}" = "${interface}" )) &&
-                ( -n "${GATEWAY}" ) ]]; then
-            routersubnet=$(mask ${GATEWAY} ${new_subnet_mask})
-            mysubnet=$(mask ${new_ip_address} ${new_subnet_mask})
-
-            if [ "${routersubnet}" = "${mysubnet}" ]; then
-                ip route replace default via ${GATEWAY} dev ${interface}
             fi
         fi
 
