@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}p1
-Release:  14%{?dist}
+Release:  15%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -55,6 +55,7 @@ Patch20:  %{name}-4.1.0-add_timeout_when_NULL.patch
 Patch21:  %{name}-4.1.0-64_bit_lease_parse.patch
 Patch22:  %{name}-4.1.0-CVE-2009-1892.patch
 Patch23:  %{name}-4.1.0p1-capability.patch
+Patch24:  %{name}-4.1.0p1-logpid.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -217,6 +218,10 @@ libdhcpctl and libomapi static libraries are also included in this package.
 
 # Drop unnecessary capabilities in dhclient (#517649)
 %patch23 -p1
+
+# dhclient logs its pid to make troubleshooting NM managed systems
+# with multiple dhclients running easier (#546792)
+%patch24 -p1
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
@@ -481,6 +486,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Mon Dec 14 2009 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.0p1-15
+- dhclient logs its pid to make troubleshooting NM managed systems
+  with multiple dhclients running easier (#546792)
+
 * Mon Nov 23 2009 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.0p1-14
 - Honor DEFROUTE=yes|no for all connection types (#530209)
 
