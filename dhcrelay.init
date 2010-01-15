@@ -39,8 +39,15 @@ configtest() {
     [ -x $exec ] || exit 5
     [ -f $config ] || exit 6
     [ -z "$DHCPSERVERS" ] && exit 6
-    RETVAL=0
-    return $RETVAL
+    return 0
+}
+
+rh_status() {
+    status $exec
+}
+
+rh_status_q() {
+    rh_status >/dev/null 2>&1
 }
 
 start() {
@@ -48,9 +55,7 @@ start() {
     [ -x $exec ] || exit 5
     [ -f $config ] || exit 6
 
-    pidofproc $prog >/dev/null 2>&1
-    RETVAL=$?
-    [ $RETVAL -eq 0 ] && return $RETVAL
+    rh_status_q && return 0
 
     echo -n $"Starting $prog: "
     daemon $exec $([ -n "$INTERFACES" ] && for int in $INTERFACES ; do echo -n " -i $int" ; done) $DHCPSERVERS 2>/dev/null
@@ -63,11 +68,7 @@ start() {
 stop() {
     [ `id -u` -eq 0 ] || exit 4
 
-    pidofproc $prog >/dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        RETVAL=0
-        return $RETVAL
-    fi
+    rh_status_q || return 0
 
     echo -n $"Shutting down $prog: "
     killproc $prog -TERM
@@ -84,52 +85,39 @@ usage() {
     echo $"Usage: $0 {start|stop|restart|force-reload|condrestart|try-restart|configtest|status}"
 }
 
-if [ ! -x $exec ]; then
-    RETVAL=5
-    exit $RETVAL
-fi
-
 if [ $# -gt 1 ]; then
-    RETVAL=2
-    exit $RETVAL
+    exit 2
 fi
 
 case "$1" in
     start)
         start
-        RETVAL=$?
         ;;
     stop)
         stop
-        RETVAL=$?
         ;;
     restart|force-reload)
-        stop && start
-        RETVAL=$?
+        stop ; start
         ;;
     condrestart|try-restart)
-        if [ -f $lockfile ]; then
-            stop && start
-            RETVAL=$?
-        fi
+        rh_status_q || exit 0
+        stop ; start
         ;;
     reload)
         usage
         # unimplemented feature
-        RETVAL=3
+        exit 3
         ;;
     configtest)
         configtest
-        RETVAL=$?
         ;;
     status)
-        status $prog
-        RETVAL=$?
+        rh_status
         ;;
     *)
         usage
-        RETVAL=2
+        exit 2
         ;;
 esac
 
-exit $RETVAL
+exit $?

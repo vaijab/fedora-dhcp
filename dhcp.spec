@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}p1
-Release:  15%{?dist}
+Release:  16%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -30,6 +30,8 @@ Source4:  dhclient-script
 Source5:  README.dhclient.d
 Source6:  10-dhclient
 Source7:  56dhclient
+Source8:  dhcpd6.init
+Source9:  dhcpd6.conf.sample
 
 Patch0:   %{name}-4.1.0-errwarn-message.patch
 Patch1:   %{name}-4.1.0-memory.patch
@@ -226,6 +228,9 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
 
+# Copy in dhcpd6.conf.sample
+%{__install} -p -m 0644 %{SOURCE9} .
+
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
 %{__install} -p -m 0644 %{SOURCE5} .
@@ -314,6 +319,7 @@ CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE" \
 # Install init scripts
 %{__mkdir} -p %{buildroot}%{_initrddir}
 %{__install} -p -m 0755 %{SOURCE2} %{buildroot}%{_initrddir}/dhcpd
+%{__install} -p -m 0755 %{SOURCE8} %{buildroot}%{_initrddir}/dhcpd6
 %{__install} -p -m 0755 %{SOURCE3} %{buildroot}%{_initrddir}/dhcrelay
 
 # Start empty lease databases
@@ -336,17 +342,31 @@ EOF
 DHCPDARGS=
 EOF
 
+%{__cat} <<EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcpd6
+# Command line options here
+DHCPDARGS=
+EOF
+
 # Copy sample conf files into position (called by doc macro)
 %{__cp} -p client/dhclient.conf dhclient.conf.sample
 %{__cp} -p server/dhcpd.conf dhcpd.conf.sample
 
-# Install default (empty) dhcpd.conf:
+# Install default (empty) dhcpd.conf and dhcpd6.conf:
 %{__mkdir} -p %{buildroot}%{dhcpconfdir}
 %{__cat} << EOF > %{buildroot}%{dhcpconfdir}/dhcpd.conf
 #
 # DHCP Server Configuration file.
 #   see /usr/share/doc/dhcp*/dhcpd.conf.sample
 #   see 'man 5 dhcpd.conf'
+#
+EOF
+
+%{__cat} << EOF > %{buildroot}%{dhcpconfdir}/dhcpd6.conf
+#
+# DHCP for IPv6 Server Configuration file.
+#   see /usr/share/doc/dhcp*/dhcpd6.conf.sample
+#   see 'man 5 dhcpd.conf'
+#   run 'service dhcpd6 start' or 'dhcpd -6 -cf /etc/dhcp/dhcpd6.conf'
 #
 EOF
 
@@ -389,6 +409,7 @@ if [ ! -z "${prevconf}" ]; then
 fi
 
 /sbin/chkconfig --add dhcpd
+/sbin/chkconfig --add dhcpd6
 /sbin/chkconfig --add dhcrelay || :
 
 %post -n dhclient
@@ -414,38 +435,48 @@ if [ $1 = 0 ]; then
         /sbin/service dhcpd stop >/dev/null 2>&1
     fi
 
+    /sbin/service dhcpd6 status >/dev/null 2>&1
+    if [ $? = 3 ]; then
+        /sbin/service dhcpd6 stop >/dev/null 2>&1
+    fi
+
     /sbin/service dhcrelay status >/dev/null 2>&1
     if [ $? = 3 ]; then
         /sbin/service dhcrelay stop >/dev/null 2>&1
     fi
 
     /sbin/chkconfig --del dhcpd
+    /sbin/chkconfig --del dhcpd6
     /sbin/chkconfig --del dhcrelay || :
 fi
 
 %postun
 if [ $1 -ge 1 ]; then
     /sbin/service dhcpd condrestart >/dev/null 2>&1
+    /sbin/service dhcpd6 condrestart >/dev/null 2>&1
     /sbin/service dhcrelay condrestart >/dev/null 2>&1 || :
 fi
 
 %files
 %defattr(-,root,root,-)
 %doc LICENSE README ldap-for-dhcp-%{ldappatchver}/README.ldap
-%doc RELNOTES dhcpd.conf.sample doc/IANA-arp-parameters doc/api+protocol
+%doc RELNOTES dhcpd.conf.sample dhcpd6.conf.sample doc/IANA-arp-parameters doc/api+protocol
 %doc doc/*.txt __fedora_contrib/* ldap-for-dhcp-%{ldappatchver}/*.txt
 %dir %{_localstatedir}/lib/dhcpd
 %attr(0750,root,root) %dir %{dhcpconfdir}
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd6.leases
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
+%config(noreplace) %{_sysconfdir}/sysconfig/dhcpd6
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
 %config(noreplace) %{dhcpconfdir}/dhcpd.conf
+%config(noreplace) %{dhcpconfdir}/dhcpd6.conf
 %config(noreplace) %{_sysconfdir}/openldap/schema/dhcp.schema
 %dir %{_sysconfdir}/NetworkManager
 %dir %{_sysconfdir}/NetworkManager/dispatcher.d
 %{_sysconfdir}/NetworkManager/dispatcher.d/10-dhclient
 %{_initrddir}/dhcpd
+%{_initrddir}/dhcpd6
 %{_initrddir}/dhcrelay
 %{_bindir}/omshell
 %{_sbindir}/dhcpd
@@ -486,6 +517,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Jan 15 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.0p1-16
+- Added init script to also start dhcpd for IPv6 (#552453)
+- Added dhcpd6.conf.sample
+
 * Mon Dec 14 2009 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.0p1-15
 - dhclient logs its pid to make troubleshooting NM managed systems
   with multiple dhclients running easier (#546792)
