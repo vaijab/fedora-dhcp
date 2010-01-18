@@ -71,13 +71,11 @@ stop() {
     rh_status_q || return 0
 
     echo -n $"Shutting down $prog: "
-    killproc $prog -TERM
+    killproc $prog
     RETVAL=$?
 
     echo
     [ $RETVAL -eq 0 ] && rm -f $lockfile
-    # killproc -TERM doesn't remove pidfile, remove it manually
-    [ $RETVAL -eq 0 ] && rm -f $pidfile
     return $RETVAL
 }
 

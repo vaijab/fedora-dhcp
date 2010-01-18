@@ -1,19 +1,19 @@
 # vendor string (e.g., Fedora, EL)
-%define vvendor Fedora
+%global vvendor Fedora
 
 # Where dhcp configuration files are stored
-%define dhcpconfdir %{_sysconfdir}/dhcp
+%global dhcpconfdir %{_sysconfdir}/dhcp
 
 # Base version number from ISC
-%define basever 4.1.0
+%global basever 4.1.0
 
 # LDAP patch version
-%define ldappatchver %{basever}-5
+%global ldappatchver %{basever}-5
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}p1
-Release:  16%{?dist}
+Release:  17%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -257,7 +257,7 @@ popd
 %{__perl_requires} \
 | %{__grep} -v 'perl('
 EOF
-%define __perl_requires %{_builddir}/%{name}-%{version}/%{name}-req
+%global __perl_requires %{_builddir}/%{name}-%{version}/%{name}-req
 %{__chmod} +x %{__perl_requires}
 
 # Replace @PRODUCTNAME@
@@ -517,6 +517,11 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Mon Jan 18 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.0p1-17
+- Hide startup info when starting dhcpd6 service.
+- Use macro global instead of define.
+- Remove -TERM from calling killproc when stopping dhcrelay (#555672)
+
 * Fri Jan 15 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.0p1-16
 - Added init script to also start dhcpd for IPv6 (#552453)
 - Added dhcpd6.conf.sample
