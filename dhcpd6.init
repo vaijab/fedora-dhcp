@@ -90,7 +90,7 @@ start() {
     [ "${config}" = "${default_config}" ] && DHCPDARGS="$DHCPDARGS -cf $default_config"
 
     echo -n $"Starting $prog (DHCPv6): "
-    daemon --pidfile=$pidfile $exec -6 $DHCPDARGS
+    daemon --pidfile=$pidfile $exec -6 $DHCPDARGS 2>/dev/null
     RETVAL=$?
     echo
     [ $RETVAL -eq 0 ] && touch $lockfile
