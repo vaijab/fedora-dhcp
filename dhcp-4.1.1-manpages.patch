@@ -1,6 +1,6 @@
-diff -up dhcp-4.1.0/client/dhclient.8.man dhcp-4.1.0/client/dhclient.8
---- dhcp-4.1.0/client/dhclient.8.man	2008-11-20 04:55:14.000000000 -1000
-+++ dhcp-4.1.0/client/dhclient.8	2009-01-06 11:51:30.000000000 -1000
+diff -up dhcp-4.1.1/client/dhclient.8.man dhcp-4.1.1/client/dhclient.8
+--- dhcp-4.1.1/client/dhclient.8.man	2009-07-25 00:04:51.000000000 +0200
++++ dhcp-4.1.1/client/dhclient.8	2010-01-20 17:20:31.000000000 +0100
 @@ -111,6 +111,33 @@ relay
  .B -w
  ]
@@ -466,9 +466,9 @@ diff -up dhcp-4.1.0/client/dhclient.8.man dhcp-4.1.0/client/dhclient.8
  .B ETCDIR/dhclient.conf, DBDIR/dhclient.leases, RUNDIR/dhclient.pid,
  .B DBDIR/dhclient.leases~.
  .SH SEE ALSO
-diff -up dhcp-4.1.0/client/dhclient.conf.5.man dhcp-4.1.0/client/dhclient.conf.5
---- dhcp-4.1.0/client/dhclient.conf.5.man	2008-03-07 08:58:29.000000000 -1000
-+++ dhcp-4.1.0/client/dhclient.conf.5	2009-01-06 10:50:40.000000000 -1000
+diff -up dhcp-4.1.1/client/dhclient.conf.5.man dhcp-4.1.1/client/dhclient.conf.5
+--- dhcp-4.1.1/client/dhclient.conf.5.man	2009-07-23 21:02:09.000000000 +0200
++++ dhcp-4.1.1/client/dhclient.conf.5	2010-01-20 17:20:31.000000000 +0100
 @@ -186,9 +186,9 @@ responding to the client send the client
  options.   Only the option names should be specified in the request
  statement - not option parameters.   By default, the DHCP server
@@ -482,7 +482,7 @@ diff -up dhcp-4.1.0/client/dhclient.conf.5.man dhcp-4.1.0/client/dhclient.conf.5
  .PP
  In some cases, it may be desirable to send no parameter request list
  at all.   To do this, simply write the request statement but specify
-@@ -627,6 +627,18 @@ database and will record the media type 
+@@ -659,6 +659,18 @@ database and will record the media type 
  Whenever the client tries to renew the lease, it will use that same
  media type.   The lease must expire before the client will go back to
  cycling through media types.
@@ -501,7 +501,7 @@ diff -up dhcp-4.1.0/client/dhclient.conf.5.man dhcp-4.1.0/client/dhclient.conf.5
  .SH SAMPLE
  The following configuration file is used on a laptop running NetBSD
  1.3.   The laptop has an IP alias of 192.5.5.213, and has one
-@@ -648,12 +660,12 @@ interface "ep0" {
+@@ -680,12 +692,12 @@ interface "ep0" {
      send host-name "andare.fugue.com";
      send dhcp-client-identifier 1:0:a0:24:ab:fb:9c;
      send dhcp-lease-time 3600;
@@ -517,9 +517,9 @@ diff -up dhcp-4.1.0/client/dhclient.conf.5.man dhcp-4.1.0/client/dhclient.conf.5
      media "media 10baseT/UTP", "media 10base2/BNC";
  }
  
-diff -up dhcp-4.1.0/client/dhclient-script.8.man dhcp-4.1.0/client/dhclient-script.8
---- dhcp-4.1.0/client/dhclient-script.8.man	2006-02-24 13:16:27.000000000 -1000
-+++ dhcp-4.1.0/client/dhclient-script.8	2009-01-06 10:50:40.000000000 -1000
+diff -up dhcp-4.1.1/client/dhclient-script.8.man dhcp-4.1.1/client/dhclient-script.8
+--- dhcp-4.1.1/client/dhclient-script.8.man	2009-07-25 00:04:51.000000000 +0200
++++ dhcp-4.1.1/client/dhclient-script.8	2010-01-20 17:20:31.000000000 +0100
 @@ -47,16 +47,16 @@ customizations are needed, they should b
  exit hooks provided (see HOOKS for details).   These hooks will allow the
  user to override the default behaviour of the client in creating a
@@ -600,9 +600,9 @@ diff -up dhcp-4.1.0/client/dhclient-script.8.man dhcp-4.1.0/client/dhclient-scri
  In all cases, $reason is set to the name of the reason why the script
  has been invoked.   The following reasons are currently defined:
  MEDIUM, PREINIT, BOUND, RENEW, REBIND, REBOOT, EXPIRE, FAIL, STOP, RELEASE,
-diff -up dhcp-4.1.0/common/dhcp-options.5.man dhcp-4.1.0/common/dhcp-options.5
---- dhcp-4.1.0/common/dhcp-options.5.man	2008-11-21 03:59:56.000000000 -1000
-+++ dhcp-4.1.0/common/dhcp-options.5	2009-01-06 10:50:40.000000000 -1000
+diff -up dhcp-4.1.1/common/dhcp-options.5.man dhcp-4.1.1/common/dhcp-options.5
+--- dhcp-4.1.1/common/dhcp-options.5.man	2009-07-25 00:04:52.000000000 +0200
++++ dhcp-4.1.1/common/dhcp-options.5	2010-01-20 17:20:31.000000000 +0100
 @@ -905,6 +905,21 @@ classless IP routing - it does not inclu
  classless IP routing is now the most widely deployed routing standard,
  this option is virtually useless, and is not implemented by any of the
@@ -625,9 +625,9 @@ diff -up dhcp-4.1.0/common/dhcp-options.5.man dhcp-4.1.0/common/dhcp-options.5
  .RE
  .PP
  .nf
-diff -up dhcp-4.1.0/server/dhcpd.conf.5.man dhcp-4.1.0/server/dhcpd.conf.5
---- dhcp-4.1.0/server/dhcpd.conf.5.man	2008-11-03 08:13:58.000000000 -1000
-+++ dhcp-4.1.0/server/dhcpd.conf.5	2009-01-06 10:50:40.000000000 -1000
+diff -up dhcp-4.1.1/server/dhcpd.conf.5.man dhcp-4.1.1/server/dhcpd.conf.5
+--- dhcp-4.1.1/server/dhcpd.conf.5.man	2009-07-23 21:02:10.000000000 +0200
++++ dhcp-4.1.1/server/dhcpd.conf.5	2010-01-20 17:20:31.000000000 +0100
 @@ -519,6 +519,9 @@ pool {
  };
  .fi
@@ -692,7 +692,7 @@ diff -up dhcp-4.1.0/server/dhcpd.conf.5.man dhcp-4.1.0/server/dhcpd.conf.5
    secret pRP5FapFoJ95JEL06sv4PQ==;
  };
  
-@@ -2302,7 +2301,7 @@ statement
+@@ -2315,7 +2314,7 @@ statement
  .PP
  .I Name
  should be the name of the DHCP server's lease file.   By default, this
@@ -701,7 +701,7 @@ diff -up dhcp-4.1.0/server/dhcpd.conf.5.man dhcp-4.1.0/server/dhcpd.conf.5
  scope of the configuration file - if it appears in some other scope,
  it will have no effect.  Furthermore, it has no effect if overridden
  by the
-@@ -2337,7 +2336,7 @@ statement
+@@ -2350,7 +2349,7 @@ statement
  .PP
  .I Name
  is the name of the lease file to use if and only if the server is running
@@ -710,7 +710,7 @@ diff -up dhcp-4.1.0/server/dhcpd.conf.5.man dhcp-4.1.0/server/dhcpd.conf.5
  like
  .I lease-file-name,
  \fBmust\fR appear in the outer scope of the configuration file.  It
-@@ -2495,7 +2494,8 @@ statement
+@@ -2508,7 +2507,8 @@ statement
  The \fInext-server\fR statement is used to specify the host address of
  the server from which the initial boot file (specified in the
  \fIfilename\fR statement) is to be loaded.   \fIServer-name\fR should
@@ -720,7 +720,7 @@ diff -up dhcp-4.1.0/server/dhcpd.conf.5.man dhcp-4.1.0/server/dhcpd.conf.5
  .RE
  .PP
  The
-@@ -2540,7 +2540,7 @@ statement
+@@ -2553,7 +2553,7 @@ statement
  .I Name
  should be the name of the DHCP server's process ID file.   This is the
  file in which the DHCP server's process ID is stored when the server
@@ -729,7 +729,7 @@ diff -up dhcp-4.1.0/server/dhcpd.conf.5.man dhcp-4.1.0/server/dhcpd.conf.5
  .I lease-file-name
  statement, this statement must appear in the outer scope
  of the configuration file.  It has no effect if overridden by the
-@@ -2558,7 +2558,7 @@ statement
+@@ -2571,7 +2571,7 @@ statement
  .PP
  .I Name
  is the name of the pid file to use if and only if the server is running

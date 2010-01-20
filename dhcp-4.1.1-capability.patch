@@ -1,6 +1,6 @@
-diff -urp dhcp-4.1.0p1.orig/client/dhclient.c dhcp-4.1.0p1/client/dhclient.c
---- dhcp-4.1.0p1.orig/client/dhclient.c	2009-08-15 11:44:33.000000000 -0400
-+++ dhcp-4.1.0p1/client/dhclient.c	2009-08-15 12:32:52.000000000 -0400
+diff -up dhcp-4.1.1/client/dhclient.c.capability dhcp-4.1.1/client/dhclient.c
+--- dhcp-4.1.1/client/dhclient.c.capability	2010-01-20 17:39:07.000000000 +0100
++++ dhcp-4.1.1/client/dhclient.c	2010-01-20 17:39:07.000000000 +0100
 @@ -37,6 +37,9 @@
  #include <sys/time.h>
  #include <sys/wait.h>
@@ -11,7 +11,7 @@ diff -urp dhcp-4.1.0p1.orig/client/dhclient.c dhcp-4.1.0p1/client/dhclient.c
  
  /*
   * Defined in stdio.h when _GNU_SOURCE is set, but we don't want to define
-@@ -422,6 +425,15 @@ main(int argc, char **argv) {
+@@ -424,6 +427,15 @@ main(int argc, char **argv) {
  		path_dhclient_script = s;
  	}
  
@@ -27,9 +27,9 @@ diff -urp dhcp-4.1.0p1.orig/client/dhclient.c dhcp-4.1.0p1/client/dhclient.c
  	/* Set up the initial dhcp option universe. */
  	initialize_common_option_spaces();
  
-diff -urp dhcp-4.1.0p1.orig/client/Makefile.am dhcp-4.1.0p1/client/Makefile.am
---- dhcp-4.1.0p1.orig/client/Makefile.am	2009-08-15 11:44:33.000000000 -0400
-+++ dhcp-4.1.0p1/client/Makefile.am	2009-08-15 12:32:34.000000000 -0400
+diff -up dhcp-4.1.1/client/Makefile.am.capability dhcp-4.1.1/client/Makefile.am
+--- dhcp-4.1.1/client/Makefile.am.capability	2008-11-18 23:33:22.000000000 +0100
++++ dhcp-4.1.1/client/Makefile.am	2010-01-20 17:39:07.000000000 +0100
 @@ -5,7 +5,7 @@ dhclient_SOURCES = clparse.c dhclient.c 
  		   scripts/netbsd scripts/nextstep scripts/openbsd \
  		   scripts/solaris scripts/openwrt
@@ -39,10 +39,10 @@ diff -urp dhcp-4.1.0p1.orig/client/Makefile.am dhcp-4.1.0p1/client/Makefile.am
  man_MANS = dhclient.8 dhclient-script.8 dhclient.conf.5 dhclient.leases.5
  EXTRA_DIST = $(man_MANS)
  
-diff -urp dhcp-4.1.0p1.orig/configure.ac dhcp-4.1.0p1/configure.ac
---- dhcp-4.1.0p1.orig/configure.ac	2009-08-15 11:44:33.000000000 -0400
-+++ dhcp-4.1.0p1/configure.ac	2009-08-15 12:32:34.000000000 -0400
-@@ -388,6 +388,9 @@ AC_TRY_LINK(
+diff -up dhcp-4.1.1/configure.ac.capability dhcp-4.1.1/configure.ac
+--- dhcp-4.1.1/configure.ac.capability	2010-01-20 17:39:07.000000000 +0100
++++ dhcp-4.1.1/configure.ac	2010-01-20 17:39:07.000000000 +0100
+@@ -419,6 +419,9 @@ AC_TRY_LINK(
  # Look for optional headers.
  AC_CHECK_HEADERS(sys/socket.h net/if_dl.h net/if6.h regex.h)
  
