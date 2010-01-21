@@ -1,7 +1,7 @@
-diff -up dhcp-4.1.0/server/dhcpd.c.ifnamsiz dhcp-4.1.0/server/dhcpd.c
---- dhcp-4.1.0/server/dhcpd.c.ifnamsiz	2009-04-20 16:35:30.000000000 -1000
-+++ dhcp-4.1.0/server/dhcpd.c	2009-04-20 15:45:15.000000000 -1000
-@@ -401,7 +401,7 @@ main(int argc, char **argv) {
+diff -up dhcp-4.1.1/server/dhcpd.c.ifnamsiz dhcp-4.1.1/server/dhcpd.c
+--- dhcp-4.1.1/server/dhcpd.c.ifnamsiz	2010-01-20 17:26:44.000000000 +0100
++++ dhcp-4.1.1/server/dhcpd.c	2010-01-20 17:26:44.000000000 +0100
+@@ -402,7 +402,7 @@ main(int argc, char **argv) {
  				log_fatal ("Insufficient memory to %s %s: %s",
  					   "record interface", argv [i],
  					   isc_result_totext (result));

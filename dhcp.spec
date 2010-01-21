@@ -5,15 +5,15 @@
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
 # Base version number from ISC
-%global basever 4.1.0
+%global basever 4.1.1
 
 # LDAP patch version
-%global ldappatchver %{basever}-5
+%global ldappatchver %{basever}-1
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
-Version:  %{basever}p1
-Release:  17%{?dist}
+Version:  %{basever}
+Release:  1%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -31,33 +31,29 @@ Source5:  README.dhclient.d
 Source6:  10-dhclient
 Source7:  56dhclient
 Source8:  dhcpd6.init
-Source9:  dhcpd6.conf.sample
 
-Patch0:   %{name}-4.1.0-errwarn-message.patch
-Patch1:   %{name}-4.1.0-memory.patch
-Patch2:   %{name}-4.1.0-options.patch
-Patch3:   %{name}-4.1.0-release-by-ifup.patch
-Patch4:   %{name}-4.1.0-dhclient-decline-backoff.patch
-Patch5:   %{name}-4.1.0-unicast-bootp.patch
-Patch6:   %{name}-4.1.0-failover-ports.patch
-Patch7:   %{name}-4.1.0-dhclient-usage.patch
-Patch8:   %{name}-4.1.0-default-requested-options.patch
-Patch9:   %{name}-4.1.0-xen-checksum.patch
-Patch10:  %{name}-4.1.0-dhclient-anycast.patch
-Patch11:  %{name}-4.1.0-manpages.patch
-Patch12:  %{name}-4.1.0-paths.patch
-Patch13:  %{name}-4.1.0-CLOEXEC.patch
-Patch14:  %{name}-4.1.0-inherit-leases.patch
-Patch15:  %{name}-4.1.0-garbage-chars.patch
-Patch16:  %{name}-4.1.0-port-validation.patch
-Patch17:  %{name}-4.1.0-invalid-dhclient-conf.patch
-Patch18:  %{name}-4.1.0-missing-ipv6-not-fatal.patch
-Patch19:  %{name}-4.1.0-IFNAMSIZ.patch
-Patch20:  %{name}-4.1.0-add_timeout_when_NULL.patch
-Patch21:  %{name}-4.1.0-64_bit_lease_parse.patch
-Patch22:  %{name}-4.1.0-CVE-2009-1892.patch
-Patch23:  %{name}-4.1.0p1-capability.patch
-Patch24:  %{name}-4.1.0p1-logpid.patch
+Patch0:   %{name}-4.1.1-errwarn-message.patch
+Patch1:   %{name}-4.1.1-options.patch
+Patch2:   %{name}-4.1.1-release-by-ifup.patch
+Patch3:   %{name}-4.1.1-dhclient-decline-backoff.patch
+Patch4:   %{name}-4.1.1-unicast-bootp.patch
+Patch5:   %{name}-4.1.1-failover-ports.patch
+Patch6:   %{name}-4.1.1-dhclient-usage.patch
+Patch7:   %{name}-4.1.1-default-requested-options.patch
+Patch8:   %{name}-4.1.1-xen-checksum.patch
+Patch9:   %{name}-4.1.1-dhclient-anycast.patch
+Patch10:  %{name}-4.1.1-manpages.patch
+Patch11:  %{name}-4.1.1-paths.patch
+Patch12:  %{name}-4.1.1-CLOEXEC.patch
+Patch13:  %{name}-4.1.1-inherit-leases.patch
+Patch14:  %{name}-4.1.1-garbage-chars.patch
+Patch15:  %{name}-4.1.1-invalid-dhclient-conf.patch
+Patch16:  %{name}-4.1.1-missing-ipv6-not-fatal.patch
+Patch17:  %{name}-4.1.1-IFNAMSIZ.patch
+Patch18:  %{name}-4.1.1-add_timeout_when_NULL.patch
+Patch19:  %{name}-4.1.1-64_bit_lease_parse.patch
+Patch20:  %{name}-4.1.1-capability.patch
+Patch21:  %{name}-4.1.1-logpid.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -130,106 +126,89 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
 # reported through bugzilla.redhat.com
-%patch0 -p1
-
-# Fix memory alignment and initialization problems in common/packet.c
-# Fix buffer overflow in minires library
-# Init struct sock_prog in common/lpf.c to NULL
-%patch1 -p1
+%patch0 -p1 -b .errwarn
 
 # Add more dhclient options (-I, -B, -H, -F, -timeout, -V, and -R)
-%patch2 -p1
+%patch1 -p1 -b .options
 
 # Handle releasing interfaces requested by /sbin/ifup
 # pid file is assumed to be /var/run/dhclient-$interface.pid
-%patch3 -p1
+%patch2 -p1 -b .ifup
 
 # If we receive a DHCP offer in dhclient and it's DECLINEd in dhclient-script,
 # backoff for an amount of time before trying again
-%patch4 -p1
+%patch3 -p1 -b .backoff
 
 # Support unicast BOOTP for IBM pSeries systems (and maybe others)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19146])
-%patch5 -p1
+%patch4 -p1 -b .unicast
 
 # Use the following IANA-registered failover ports:
 # dhcp-failover 647/tcp
 # dhcp-failover 647/udp
 # dhcp-failover 847/tcp
 # dhcp-failover 847/udp
-%patch6 -p1
+%patch5 -p1 -b .failover-ports
 
 # Update the usage screen for dhclient(8) indicating new options
 # Use printf() rather than log_info() to display the information
 # Also, return EXIT_FAILURE when the usage() screen is displayed (stop parsing)
-%patch7 -p1
+%patch6 -p1 -b .usage
 
 # Add NIS domain, NIS servers, and NTP servers to the list of default
 # requested DHCP options
-%patch8 -p1
+%patch7 -p1 -b .requested
 
 # Handle Xen partial UDP checksums
-%patch9 -p1
+%patch8 -p1 -b .xen
 
 # Add anycast support to dhclient (for OLPC)
-%patch10 -p1
+%patch9 -p1 -b .anycast
 
 # Patch man page contents
-%patch11 -p1
+%patch10 -p1 -b .man
 
 # Change paths to conform to our standards
-%patch12 -p1
+%patch11 -p1 -b .paths
 
 # Make sure all open file descriptors are closed-on-exec for SELinux (#446632)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19148])
-%patch13 -p1
+%patch12 -p1 -b .cloexec
 
 # If we have an active lease, do not down the interface (#453982)
-%patch14 -p1
+%patch13 -p1 -b .inherit
 
 # Fix 'garbage in format string' error (#450042)
-%patch15 -p1
-
-# Validate port numbers specified for dhclient, dhcpd, and dhcrelay
-# to make sure they are within 1-65535, inclusive.  (#438149)
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #18695])
-%patch16 -p1
+%patch14 -p1 -b .garbage
 
 # The sample dhclient.conf should say 'supersede domain-search' (#467955)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19147])
-%patch17 -p1
+%patch15 -p1 -b .supersede
 
 # If the ipv6 kernel module is missing, do not segfault
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19367])
-%patch18 -p1
+%patch16 -p1 -b .noipv6
 
 # Read only up to IFNAMSIZ characters for the interface name in dhcpd (#441524)
-%patch19 -p1
+%patch17 -p1 -b .ifnamsiz
 
 # Handle cases in add_timeout() where the function is called with a NULL
 # value for the 'when' parameter
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19867])
-%patch20 -p1
+%patch18 -p1 -b .dracut
 
 # Ensure 64-bit platforms parse lease file dates & times correctly (#448615)
-%patch21 -p1
-
-# Fix for CVE-2009-1892 (patch from Mandriva SRPM)
-# http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1892
-%patch22 -p1
+%patch19 -p1 -b .64-bit_lease_parse
 
 # Drop unnecessary capabilities in dhclient (#517649)
-%patch23 -p1
+%patch20 -p1 -b .capability
 
 # dhclient logs its pid to make troubleshooting NM managed systems
 # with multiple dhclients running easier (#546792)
-%patch24 -p1
+%patch21 -p1 -b .logpid
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
-
-# Copy in dhcpd6.conf.sample
-%{__install} -p -m 0644 %{SOURCE9} .
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -350,8 +329,10 @@ EOF
 # Copy sample conf files into position (called by doc macro)
 %{__cp} -p client/dhclient.conf dhclient.conf.sample
 %{__cp} -p server/dhcpd.conf dhcpd.conf.sample
+%{__cp} -p doc/examples/dhclient-dhcpv6.conf dhclient6.conf.sample
+%{__cp} -p doc/examples/dhcpd-dhcpv6.conf dhcpd6.conf.sample
 
-# Install default (empty) dhcpd.conf and dhcpd6.conf:
+# Install default (empty) dhcpd.conf:
 %{__mkdir} -p %{buildroot}%{dhcpconfdir}
 %{__cat} << EOF > %{buildroot}%{dhcpconfdir}/dhcpd.conf
 #
@@ -361,6 +342,7 @@ EOF
 #
 EOF
 
+# Install default (empty) dhcpd6.conf:
 %{__cat} << EOF > %{buildroot}%{dhcpconfdir}/dhcpd6.conf
 #
 # DHCP for IPv6 Server Configuration file.
@@ -491,7 +473,7 @@ fi
 
 %files -n dhclient
 %defattr(-,root,root,-)
-%doc dhclient.conf.sample README.dhclient.d
+%doc dhclient.conf.sample dhclient6.conf.sample README.dhclient.d
 %attr(0750,root,root) %dir %{dhcpconfdir}
 %dir %{dhcpconfdir}/dhclient.d
 %dir %{_localstatedir}/lib/dhclient
@@ -517,6 +499,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Jan 21 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-1
+- Upgraded to ISC dhcp-4.1.1
+
 * Mon Jan 18 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.0p1-17
 - Hide startup info when starting dhcpd6 service.
 - Use macro global instead of define.
