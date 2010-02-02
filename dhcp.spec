@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  1%{?dist}
+Release:  2%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -200,7 +200,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # Ensure 64-bit platforms parse lease file dates & times correctly (#448615)
 %patch19 -p1 -b .64-bit_lease_parse
 
-# Drop unnecessary capabilities in dhclient (#517649)
+# Drop unnecessary capabilities in dhclient (#517649, #546765)
 %patch20 -p1 -b .capability
 
 # dhclient logs its pid to make troubleshooting NM managed systems
@@ -499,6 +499,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Tue Feb 02 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-2
+- Fix capability patch (#546765)
+
 * Thu Jan 21 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-1
 - Upgraded to ISC dhcp-4.1.1
 
