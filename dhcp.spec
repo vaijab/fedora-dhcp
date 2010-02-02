@@ -200,7 +200,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # Ensure 64-bit platforms parse lease file dates & times correctly (#448615)
 %patch19 -p1 -b .64-bit_lease_parse
 
-# Drop unnecessary capabilities in dhclient (#517649)
+# Drop unnecessary capabilities in dhclient (#517649, #546765)
 %patch20 -p1 -b .capability
 
 # dhclient logs its pid to make troubleshooting NM managed systems
