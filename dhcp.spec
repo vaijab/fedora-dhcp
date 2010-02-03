@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  2%{?dist}
+Release:  3%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -384,6 +384,7 @@ prevconf="%{_sysconfdir}/dhcpd.conf"
 if [ ! -z "${prevconf}" ]; then
     if [ ! -f %{dhcpconfdir}/dhcpd.conf -o "${sampleconf}" = "${contents}" ]; then
         /bin/cp -a ${prevconf} %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
+        /bin/mv ${prevconf} ${prevconf}.rpmsave >/dev/null 2>&1
         if [ -x /sbin/restorecon ]; then
             /sbin/restorecon %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
         fi
@@ -499,6 +500,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Feb 03 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-3
+- move /etc/dhcp.conf to /etc/dhcp.conf.rpmsave in %%post (#561094)
+- document -nc option in dhclient(8) man page
+
 * Tue Feb 02 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-2
 - Fix capability patch (#546765)
 
