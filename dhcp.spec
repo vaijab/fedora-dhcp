@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  3%{?dist}
+Release:  4%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -500,6 +500,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Feb 05 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-4
+- Fix dhclient-script to delete address which the client is going to release
+  as soon as it begins the Release message exchange process (#559142)
+
 * Wed Feb 03 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-3
 - move /etc/dhcp.conf to /etc/dhcp.conf.rpmsave in %%post (#561094)
 - document -nc option in dhclient(8) man page

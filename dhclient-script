@@ -556,7 +556,7 @@ case "${reason}" in
         ;;
 
     EXPIRE6|RELEASE6|STOP6)
-        if [ -n "${old_ip6_address}" ] || [ -n "${old_ip6_prefixlen}" ]; then
+        if [ -z "${old_ip6_address}" ] || [ -z "${old_ip6_prefixlen}" ]; then
             exit_with_hooks 2
         fi
 
