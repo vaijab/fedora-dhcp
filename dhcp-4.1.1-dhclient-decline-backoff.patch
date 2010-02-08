@@ -1,15 +1,16 @@
 diff -up dhcp-4.1.1/client/dhclient.c.backoff dhcp-4.1.1/client/dhclient.c
---- dhcp-4.1.1/client/dhclient.c.backoff	2010-01-20 17:14:37.000000000 +0100
-+++ dhcp-4.1.1/client/dhclient.c	2010-01-20 17:14:37.000000000 +0100
-@@ -1187,6 +1187,7 @@ void state_init (cpp)
+--- dhcp-4.1.1/client/dhclient.c.backoff	2010-02-08 16:41:52.000000000 +0100
++++ dhcp-4.1.1/client/dhclient.c	2010-02-08 16:43:56.000000000 +0100
+@@ -1187,6 +1187,8 @@ void state_init (cpp)
  	void *cpp;
  {
  	struct client_state *client = cpp;
 +	enum dhcp_state init_state = client->state;
++	struct timeval tv;
  
  	ASSERT_STATE(state, S_INIT);
  
-@@ -1199,9 +1200,16 @@ void state_init (cpp)
+@@ -1199,9 +1201,18 @@ void state_init (cpp)
  	client -> first_sending = cur_time;
  	client -> interval = client -> config -> initial_interval;
  
@@ -24,12 +25,14 @@ diff -up dhcp-4.1.1/client/dhclient.c.backoff dhcp-4.1.1/client/dhclient.c
 +		/* We've received an OFFER and it has been DECLINEd by dhclient-script.
 +		 * wait for a random time between 1 and backoff_cutoff seconds before
 +		 * trying again. */
-+		add_timeout(cur_time + ((1 + (random() >> 2)) %  client->config->backoff_cutoff), send_discover, client, 0, 0);
++		tv . tv_sec = cur_time + ((1 + (random() >> 2)) %  client->config->backoff_cutoff);
++		tv . tv_usec = 0;
++		add_timeout(&tv, send_discover, client, 0, 0);
 +	}
  }
  
  /*
-@@ -1480,6 +1488,7 @@ void bind_lease (client)
+@@ -1480,6 +1491,7 @@ void bind_lease (client)
  		send_decline (client);
  		destroy_client_lease (client -> new);
  		client -> new = (struct client_lease *)0;
@@ -37,7 +40,7 @@ diff -up dhcp-4.1.1/client/dhclient.c.backoff dhcp-4.1.1/client/dhclient.c
  		state_init (client);
  		return;
  	}
-@@ -3689,6 +3698,7 @@ void client_location_changed ()
+@@ -3689,6 +3701,7 @@ void client_location_changed ()
  			      case S_INIT:
  			      case S_REBINDING:
  			      case S_STOPPED:
@@ -46,8 +49,8 @@ diff -up dhcp-4.1.1/client/dhclient.c.backoff dhcp-4.1.1/client/dhclient.c
  			}
  			client -> state = S_INIT;
 diff -up dhcp-4.1.1/includes/dhcpd.h.backoff dhcp-4.1.1/includes/dhcpd.h
---- dhcp-4.1.1/includes/dhcpd.h.backoff	2010-01-20 17:14:37.000000000 +0100
-+++ dhcp-4.1.1/includes/dhcpd.h	2010-01-20 17:14:37.000000000 +0100
+--- dhcp-4.1.1/includes/dhcpd.h.backoff	2010-02-08 16:41:52.000000000 +0100
++++ dhcp-4.1.1/includes/dhcpd.h	2010-02-08 16:41:52.000000000 +0100
 @@ -1017,7 +1017,8 @@ enum dhcp_state {
  	S_BOUND = 5,
  	S_RENEWING = 6,
