@@ -8,12 +8,12 @@
 %global basever 4.1.1
 
 # LDAP patch version
-%global ldappatchver %{basever}-1
+%global ldappatchver %{basever}-2
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  6%{?dist}
+Release:  7%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -207,9 +207,6 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # dhclient logs its pid to make troubleshooting NM managed systems
 # with multiple dhclients running easier (#546792)
 %patch21 -p1 -b .logpid
-
-# implicit DSO linking (remove this patch when upstream fix this in ldap-for-dhcp)
-%patch22 -p1 -b .DSO
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
@@ -504,6 +501,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Tue Feb 16 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-7
+- ldap-for-dhcp-4.1.1-2 (#564810)
+
 * Tue Feb 16 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-6
 - Fix ldap patch to explicitly link with liblber (#564810)
 
