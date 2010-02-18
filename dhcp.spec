@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  7%{?dist}
+Release:  8%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -54,7 +54,6 @@ Patch18:  %{name}-4.1.1-add_timeout_when_NULL.patch
 Patch19:  %{name}-4.1.1-64_bit_lease_parse.patch
 Patch20:  %{name}-4.1.1-capability.patch
 Patch21:  %{name}-4.1.1-logpid.patch
-Patch22:  %{name}-4.1.1-implicit-DSO-linking.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -367,7 +366,7 @@ EOF
 
 # Install pm-utils script to handle suspend/resume and dhclient leases
 %{__mkdir} -p %{buildroot}%{_libdir}/pm-utils/sleep.d
-%{__install} -p -m 0755 %{SOURCE6} %{buildroot}%{_libdir}/pm-utils/sleep.d
+%{__install} -p -m 0755 %{SOURCE7} %{buildroot}%{_libdir}/pm-utils/sleep.d
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -501,6 +500,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Feb 18 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-8
+- Fix installation of pm-utils script (#479639, c#16)
+
 * Tue Feb 16 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-7
 - ldap-for-dhcp-4.1.1-2 (#564810)
 
