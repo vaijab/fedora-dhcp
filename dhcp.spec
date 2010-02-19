@@ -8,12 +8,12 @@
 %global basever 4.1.1
 
 # LDAP patch version
-%global ldappatchver %{basever}-1
+%global ldappatchver %{basever}-2
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  6%{?dist}
+Release:  7%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -480,7 +480,7 @@ fi
 %dir %{_localstatedir}/lib/dhclient
 /sbin/dhclient
 /sbin/dhclient-script
-%{_libdir}/pm-utils
+%attr(0755,root,root) %{_libdir}/pm-utils/sleep.d/56dhclient
 %attr(0644,root,root) %{_mandir}/man5/dhclient.conf.5.gz
 %attr(0644,root,root) %{_mandir}/man5/dhclient.leases.5.gz
 %attr(0644,root,root) %{_mandir}/man8/dhclient.8.gz
@@ -500,6 +500,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Feb 19 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-7
+- Fix pm-utils/sleep.d/ directory ownership conflict
+
 * Thu Feb 18 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-6
 - Fix installation of pm-utils script (#479639, c#16)
 
