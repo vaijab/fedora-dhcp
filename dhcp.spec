@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  8%{?dist}
+Release:  9%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -500,6 +500,11 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Feb 19 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-9
+- In dhclient-script:
+  - use ip command options '-4' or '-6' as shortcuts for '-f[amily] inet' resp. '-f[amily] inet6'
+  - do not use IP protocol family identifier with 'ip link'
+
 * Thu Feb 18 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-8
 - Fix installation of pm-utils script (#479639, c#16)
 
