@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  9%{?dist}
+Release:  10%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -155,8 +155,8 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # Also, return EXIT_FAILURE when the usage() screen is displayed (stop parsing)
 %patch6 -p1 -b .usage
 
-# Add NIS domain, NIS servers, and NTP servers to the list of default
-# requested DHCP options
+# Add NIS domain, NIS servers, NTP servers and interface-mtu
+# to the list of default requested DHCP options
 %patch7 -p1 -b .requested
 
 # Handle Xen partial UDP checksums
@@ -500,6 +500,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Mon Feb 22 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-10
+- Add interface-mtu to the list of default requested DHCP options (#566873)
+
 * Fri Feb 19 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-9
 - Fix pm-utils/sleep.d/ directory ownership conflict
 
