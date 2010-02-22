@@ -352,9 +352,9 @@ diff -up dhcp-4.1.1/client/dhclient.8.man dhcp-4.1.1/client/dhclient.8
 +.BR
 +    subnet-mask, broadcast-address, time-offset, routers,
 +.BR
-+    domain-name, domain-name-servers, host-name, nis-domain,
++    domain-name, domain-name-servers, host-name, name-servers,
 +.BR
-+    nis-servers, ntp-servers
++    domain-search, nis-domain, nis-servers, ntp-servers, interface-mtu
 +
  The
 -.B -x
@@ -476,8 +476,8 @@ diff -up dhcp-4.1.1/client/dhclient.conf.5.man dhcp-4.1.1/client/dhclient.conf.5
 -domain-name, domain-name-servers and host-name options.  Note that if
 -you enter a 'request' statement, you over-ride this default and these
 -options will not be requested.
-+domain-name, domain-name-servers host-name, nis-domain, nis-servers,
-+and ntp-servers options.  Note that if you enter a 'request' statement,
++domain-name, domain-name-servers, host-name, name-servers, domain-search, nis-domain, nis-servers,
++ntp-servers and interface-mtu options.  Note that if you enter a 'request' statement,
 +you over-ride this default and these options will not be requested.
  .PP
  In some cases, it may be desirable to send no parameter request list
