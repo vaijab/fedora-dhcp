@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  8%{?dist}
+Release:  9%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -248,14 +248,14 @@ for page in client/dhclient.conf.5 client/dhclient.leases.5 \
             client/dhclient-script.8 client/dhclient.8 ; do
     %{__sed} -i -e 's|CLIENTBINDIR|/sbin|g' \
                 -e 's|RUNDIR|%{_localstatedir}/run|g' \
-                -e 's|DBDIR|%{_localstatedir}/db/dhclient|g' \
+                -e 's|DBDIR|%{_localstatedir}/lib/dhclient|g' \
                 -e 's|ETCDIR|%{dhcpconfdir}|g' $page
 done
 
 for page in server/dhcpd.conf.5 server/dhcpd.leases.5 server/dhcpd.8 ; do
     %{__sed} -i -e 's|CLIENTBINDIR|/sbin|g' \
                 -e 's|RUNDIR|%{_localstatedir}/run|g' \
-                -e 's|DBDIR|%{_localstatedir}/db/dhcpd|g' \
+                -e 's|DBDIR|%{_localstatedir}/lib/dhcpd|g' \
                 -e 's|ETCDIR|%{dhcpconfdir}|g' $page
 done
 
@@ -413,20 +413,9 @@ fi || :
 
 %preun
 if [ $1 = 0 ]; then
-    /sbin/service dhcpd status >/dev/null 2>&1
-    if [ $? = 3 ]; then
-        /sbin/service dhcpd stop >/dev/null 2>&1
-    fi
-
-    /sbin/service dhcpd6 status >/dev/null 2>&1
-    if [ $? = 3 ]; then
-        /sbin/service dhcpd6 stop >/dev/null 2>&1
-    fi
-
-    /sbin/service dhcrelay status >/dev/null 2>&1
-    if [ $? = 3 ]; then
-        /sbin/service dhcrelay stop >/dev/null 2>&1
-    fi
+    /sbin/service dhcpd stop >/dev/null 2>&1
+    /sbin/service dhcpd6 stop >/dev/null 2>&1
+    /sbin/service dhcrelay stop >/dev/null 2>&1
 
     /sbin/chkconfig --del dhcpd
     /sbin/chkconfig --del dhcpd6
@@ -500,6 +489,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Feb 25 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-9
+- Fix paths in man pages (#568031)
+- Remove odd tests in %%preun
+
 * Mon Feb 22 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-8
 - Add interface-mtu to the list of default requested DHCP options (#566873)
 

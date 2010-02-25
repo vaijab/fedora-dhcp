@@ -1,6 +1,6 @@
 diff -up dhcp-4.1.1/client/dhclient.8.man dhcp-4.1.1/client/dhclient.8
 --- dhcp-4.1.1/client/dhclient.8.man	2009-07-25 00:04:51.000000000 +0200
-+++ dhcp-4.1.1/client/dhclient.8	2010-01-20 17:20:31.000000000 +0100
++++ dhcp-4.1.1/client/dhclient.8	2010-02-25 17:41:36.000000000 +0100
 @@ -111,6 +111,33 @@ relay
  .B -w
  ]
@@ -274,7 +274,7 @@ diff -up dhcp-4.1.1/client/dhclient.8.man dhcp-4.1.1/client/dhclient.8
 +Path to the network configuration script invoked by
 +.B dhclient
 +when it gets a lease.  If unspecified, the default
-+.B /sbin/dhclient-script
++.B CLIENTBINDIR/dhclient-script
 +is used.
 +
 +.TP
@@ -352,9 +352,9 @@ diff -up dhcp-4.1.1/client/dhclient.8.man dhcp-4.1.1/client/dhclient.8
 +.BR
 +    subnet-mask, broadcast-address, time-offset, routers,
 +.BR
-+    domain-name, domain-name-servers, host-name, name-servers,
++    domain-name, domain-name-servers, host-name, 
 +.BR
-+    domain-search, nis-domain, nis-servers, ntp-servers, interface-mtu
++    nis-domain, nis-servers, ntp-servers, interface-mtu
 +
  The
 -.B -x
@@ -457,18 +457,9 @@ diff -up dhcp-4.1.1/client/dhclient.8.man dhcp-4.1.1/client/dhclient.8
  .SH CONFIGURATION
  The syntax of the dhclient.conf(5) file is discussed separately.
  .SH OMAPI
-@@ -386,7 +505,7 @@ do a DHCPRELEASE.   To pause it, set its
- resume it, set its state attribute to 4.
- .PP
- .SH FILES
--.B CLIENTBINDIR/dhclient-script,
-+.B /sbin/dhclient-script,
- .B ETCDIR/dhclient.conf, DBDIR/dhclient.leases, RUNDIR/dhclient.pid,
- .B DBDIR/dhclient.leases~.
- .SH SEE ALSO
 diff -up dhcp-4.1.1/client/dhclient.conf.5.man dhcp-4.1.1/client/dhclient.conf.5
 --- dhcp-4.1.1/client/dhclient.conf.5.man	2009-07-23 21:02:09.000000000 +0200
-+++ dhcp-4.1.1/client/dhclient.conf.5	2010-01-20 17:20:31.000000000 +0100
++++ dhcp-4.1.1/client/dhclient.conf.5	2010-02-25 17:43:16.000000000 +0100
 @@ -186,9 +186,9 @@ responding to the client send the client
  options.   Only the option names should be specified in the request
  statement - not option parameters.   By default, the DHCP server
@@ -476,8 +467,8 @@ diff -up dhcp-4.1.1/client/dhclient.conf.5.man dhcp-4.1.1/client/dhclient.conf.5
 -domain-name, domain-name-servers and host-name options.  Note that if
 -you enter a 'request' statement, you over-ride this default and these
 -options will not be requested.
-+domain-name, domain-name-servers, host-name, name-servers, domain-search, nis-domain, nis-servers,
-+ntp-servers and interface-mtu options.  Note that if you enter a 'request' statement,
++domain-name, domain-name-servers, host-name, nis-domain, nis-servers, ntp-servers,
++and interface-mtu options.  Note that if you enter a 'request' statement,
 +you over-ride this default and these options will not be requested.
  .PP
  In some cases, it may be desirable to send no parameter request list
@@ -501,7 +492,7 @@ diff -up dhcp-4.1.1/client/dhclient.conf.5.man dhcp-4.1.1/client/dhclient.conf.5
  .SH SAMPLE
  The following configuration file is used on a laptop running NetBSD
  1.3.   The laptop has an IP alias of 192.5.5.213, and has one
-@@ -680,12 +692,12 @@ interface "ep0" {
+@@ -680,10 +692,10 @@ interface "ep0" {
      send host-name "andare.fugue.com";
      send dhcp-client-identifier 1:0:a0:24:ab:fb:9c;
      send dhcp-lease-time 3600;
@@ -512,15 +503,12 @@ diff -up dhcp-4.1.1/client/dhclient.conf.5.man dhcp-4.1.1/client/dhclient.conf.5
 -	    domain-name, domain-name-servers, host-name;
 +	    domain-search, domain-name, domain-name-servers, host-name;
      require subnet-mask, domain-name-servers;
--    script "CLIENTBINDIR/dhclient-script";
-+    script "/sbin/dhclient-script";
+     script "CLIENTBINDIR/dhclient-script";
      media "media 10baseT/UTP", "media 10base2/BNC";
- }
- 
 diff -up dhcp-4.1.1/client/dhclient-script.8.man dhcp-4.1.1/client/dhclient-script.8
 --- dhcp-4.1.1/client/dhclient-script.8.man	2009-07-25 00:04:51.000000000 +0200
-+++ dhcp-4.1.1/client/dhclient-script.8	2010-01-20 17:20:31.000000000 +0100
-@@ -47,16 +47,16 @@ customizations are needed, they should b
++++ dhcp-4.1.1/client/dhclient-script.8	2010-02-25 17:45:46.000000000 +0100
+@@ -47,7 +47,7 @@ customizations are needed, they should b
  exit hooks provided (see HOOKS for details).   These hooks will allow the
  user to override the default behaviour of the client in creating a
  .B /etc/resolv.conf
@@ -529,80 +517,36 @@ diff -up dhcp-4.1.1/client/dhclient-script.8.man dhcp-4.1.1/client/dhclient-scri
  .PP
  No standard client script exists for some operating systems, even though
  the actual client may work, so a pioneering user may well need to create
- a new script or modify an existing one.  In general, customizations specific
- to a particular computer should be done in the
--.B ETCDIR/dhclient.conf
-+.B /usr/local/etc/dhclient.conf
- file.   If you find that you can't make such a customization without
- customizing
--.B ETCDIR/dhclient.conf
-+.B /usr/local/etc/dhclient.conf
- or using the enter and exit hooks, please submit a bug report.
- .SH HOOKS
- When it starts, the client script first defines a shell function,
-@@ -68,33 +68,53 @@ the enter hook script.
- .PP
- On after defining the make_resolv_conf function, the client script checks
- for the presence of an executable
--.B ETCDIR/dhclient-enter-hooks
-+.B /usr/local/etc/dhclient-enter-hooks
- script, and if present, it invokes the script inline, using the Bourne
- shell '.' command.   The entire environment documented under OPERATION
- is available to this script, which may modify the environment if needed
- to change the behaviour of the script.   If an error occurs during the
- execution of the script, it can set the exit_status variable to a nonzero
- value, and
--.B CLIENTBINDIR/dhclient-script
-+.B /sbin/dhclient-script
- will exit with that error code immediately after the client script exits.
- .PP
- After all processing has completed,
--.B CLIENTBINDIR/dhclient-script
-+.B /sbin/dhclient-script
- checks for the presence of an executable
--.B ETCDIR/dhclient-exit-hooks
-+.B /usr/local/etc/dhclient-exit-hooks
- script, which if present is invoked using the '.' command.  The exit
- status of dhclient-script will be passed to dhclient-exit-hooks in the
- exit_status shell variable, and will always be zero if the script
- succeeded at the task for which it was invoked.   The rest of the
- environment as described previously for dhclient-enter-hooks is also
- present.   The
--.B ETCDIR/dhclient-exit-hooks
-+.B /usr/local/etc/dhclient-exit-hooks
+@@ -91,6 +91,26 @@ present.   The
+ .B ETCDIR/dhclient-exit-hooks
  script can modify the valid of exit_status to change the exit status
  of dhclient-script.
 +.PP
 +Immediately after dhclient brings an interface UP with a new IP address,
 +subnet mask, and routes, in the REBOOT/BOUND states, it will check for the
 +existence of an executable
-+.B /usr/local/etc/dhclient-up-hooks
++.B ETCDIR/dhclient-up-hooks
 +script, and source it if found. This script can handle DHCP options in
 +the environment that are not handled by default. A per-interface.
-+.B /usr/local/etc/dhclient-${IF}-up-hooks
++.B ETCDIR/dhclient-${IF}-up-hooks
 +script will override the generic script and be sourced when interface
 +$IF has been brought up.
 +.PP
 +Immediately before dhclient brings an interface DOWN, removing its IP
 +address, subnet mask, and routes, in the STOP/RELEASE  states, it will
 +check for the existence of an executable
-+.B /usr/local/etc/dhclient-down-hooks
++.B ETCDIR/dhclient-down-hooks
 +script, and source it if found. This script can handle DHCP options in
 +the environment that are not handled by default. A per-interface
-+.B /usr/local/etc/dhclient-${IF}-down-hooks
++.B ETCDIR/dhclient-${IF}-down-hooks
 +script will override the generic script and be sourced when interface
 +$IF is about to be brought down.
  .SH OPERATION
  When dhclient needs to invoke the client configuration script, it
  defines a set of variables in the environment, and then invokes
--.B CLIENTBINDIR/dhclient-script.
-+.B /sbin/dhclient-script.
- In all cases, $reason is set to the name of the reason why the script
- has been invoked.   The following reasons are currently defined:
- MEDIUM, PREINIT, BOUND, RENEW, REBIND, REBOOT, EXPIRE, FAIL, STOP, RELEASE,
 diff -up dhcp-4.1.1/common/dhcp-options.5.man dhcp-4.1.1/common/dhcp-options.5
 --- dhcp-4.1.1/common/dhcp-options.5.man	2009-07-25 00:04:52.000000000 +0200
-+++ dhcp-4.1.1/common/dhcp-options.5	2010-01-20 17:20:31.000000000 +0100
++++ dhcp-4.1.1/common/dhcp-options.5	2010-02-25 17:40:19.000000000 +0100
 @@ -905,6 +905,21 @@ classless IP routing - it does not inclu
  classless IP routing is now the most widely deployed routing standard,
  this option is virtually useless, and is not implemented by any of the
@@ -627,7 +571,7 @@ diff -up dhcp-4.1.1/common/dhcp-options.5.man dhcp-4.1.1/common/dhcp-options.5
  .nf
 diff -up dhcp-4.1.1/server/dhcpd.conf.5.man dhcp-4.1.1/server/dhcpd.conf.5
 --- dhcp-4.1.1/server/dhcpd.conf.5.man	2009-07-23 21:02:10.000000000 +0200
-+++ dhcp-4.1.1/server/dhcpd.conf.5	2010-01-20 17:20:31.000000000 +0100
++++ dhcp-4.1.1/server/dhcpd.conf.5	2010-02-25 17:51:20.000000000 +0100
 @@ -519,6 +519,9 @@ pool {
  };
  .fi
@@ -692,24 +636,6 @@ diff -up dhcp-4.1.1/server/dhcpd.conf.5.man dhcp-4.1.1/server/dhcpd.conf.5
    secret pRP5FapFoJ95JEL06sv4PQ==;
  };
  
-@@ -2315,7 +2314,7 @@ statement
- .PP
- .I Name
- should be the name of the DHCP server's lease file.   By default, this
--is DBDIR/dhcpd.leases.   This statement \fBmust\fR appear in the outer
-+is /private/var/db/dhcpd/dhcpd.leases.   This statement \fBmust\fR appear in the outer
- scope of the configuration file - if it appears in some other scope,
- it will have no effect.  Furthermore, it has no effect if overridden
- by the
-@@ -2350,7 +2349,7 @@ statement
- .PP
- .I Name
- is the name of the lease file to use if and only if the server is running
--in DHCPv6 mode.  By default, this is DBDIR/dhcpd6.leases.  This statement,
-+in DHCPv6 mode.  By default, this is /private/var/db/dhcpd/dhcpd6.leases.  This statement,
- like
- .I lease-file-name,
- \fBmust\fR appear in the outer scope of the configuration file.  It
 @@ -2508,7 +2507,8 @@ statement
  The \fInext-server\fR statement is used to specify the host address of
  the server from which the initial boot file (specified in the
@@ -720,21 +646,3 @@ diff -up dhcp-4.1.1/server/dhcpd.conf.5.man dhcp-4.1.1/server/dhcpd.conf.5
  .RE
  .PP
  The
-@@ -2553,7 +2553,7 @@ statement
- .I Name
- should be the name of the DHCP server's process ID file.   This is the
- file in which the DHCP server's process ID is stored when the server
--starts.   By default, this is RUNDIR/dhcpd.pid.   Like the
-+starts.   By default, this is /private/var/run/dhcpd.pid.   Like the
- .I lease-file-name
- statement, this statement must appear in the outer scope
- of the configuration file.  It has no effect if overridden by the
-@@ -2571,7 +2571,7 @@ statement
- .PP
- .I Name
- is the name of the pid file to use if and only if the server is running
--in DHCPv6 mode.  By default, this is DBDIR/dhcpd6.pid.  This statement,
-+in DHCPv6 mode.  By default, this is /private/var/db/dhcpd/dhcpd6.pid.  This statement,
- like
- .I pid-file-name,
- \fBmust\fR appear in the outer scope of the configuration file.  It
