@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  12%{?dist}
+Release:  13%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -54,6 +54,7 @@ Patch18:  %{name}-4.1.1-add_timeout_when_NULL.patch
 Patch19:  %{name}-4.1.1-64_bit_lease_parse.patch
 Patch20:  %{name}-4.1.1-capability.patch
 Patch21:  %{name}-4.1.1-logpid.patch
+Patch22:  %{name}-4.1.1-UseMulticast.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -206,6 +207,11 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # dhclient logs its pid to make troubleshooting NM managed systems
 # with multiple dhclients running easier (#546792)
 %patch21 -p1 -b .logpid
+
+# Discard unicast Request/Renew/Release/Decline message
+# (unless we set unicast option) and respond with Reply
+# with UseMulticast Status Code option (#573090)
+%patch22 -p1 -b .UseMulticast
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
@@ -489,6 +495,13 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Mar 12 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-13
+- Discard unicast Request/Renew/Release/Decline message
+  (unless we set unicast option) and respond with Reply
+  with UseMulticast Status Code option (#573090)
+- Remove DHCPV6 OPERATION section from dhclient.conf.5
+  describing deprecated 'send dhcp6.oro' syntax
+
 * Thu Feb 25 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-12
 - Fix paths in man pages (#568031)
 - Remove odd tests in %%preun
