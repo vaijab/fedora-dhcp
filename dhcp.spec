@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  13%{?dist}
+Release:  14%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -495,6 +495,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Mar 19 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-14
+- Fix UseMulticast.patch to not repeatedly parse dhcpd.conf for unicast option
+- Fix dhclient-script to set interface MTU only when it's greater than 576 (#574629)
+
 * Fri Mar 12 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-13
 - Discard unicast Request/Renew/Release/Decline message
   (unless we set unicast option) and respond with Reply
