@@ -3,7 +3,7 @@
 # dhclient-script: Network interface configuration script run by
 #                  dhclient based on DHCP client communication
 #
-# Copyright (C) 2008, 2009  Red Hat, Inc.
+# Copyright (C) 2008, 2009, 2010  Red Hat, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -202,7 +202,7 @@ is_router_reachable() {
     if [ ! "${routersubnet}" = "${mysubnet}" ]; then
         unreachable=1
         if arping -f -q -I ${interface} -w2 ${router}; then
-            ip route add ${router}/32 dev ${interface}
+            ip -4 route add ${router}/32 dev ${interface}
             if [ $? -eq 0 ]; then
                 unreachable=0
             else
@@ -226,7 +226,7 @@ add_default_gateway() {
     fi
 
     if is_router_reachable ${router} ; then
-        ip route replace default via ${router} dev ${interface} ${metric}
+        ip -4 route replace default via ${router} dev ${interface} ${metric}
         if [ $? -ne 0 ]; then
             logmessage "failed to create default route: ${router} dev ${interface} ${metric}"
             return 1
@@ -242,14 +242,14 @@ dhconfig() {
     if [ -n "${old_ip_address}" ] && [ -n "${alias_ip_address}" ] &&
        [ ! "${alias_ip_address}" = "${old_ip_address}" ]; then
         # possible new alias, remove old alias first
-        ip -family inet addr del ${old_ip_address} dev ${interface}:0
+        ip -4 addr del ${old_ip_address} dev ${interface}:0
     fi
 
     if [ -n "${old_ip_address}" ] &&
        [ ! "${old_ip_address}" = "${new_ip_address}" ]; then
         # IP address changed.  Bringing down the interface will delete all
         # routes, and clear the ARP cache.
-        ip -family inet addr flush dev ${interface} >/dev/null 2>&1
+        ip -4 addr flush dev ${interface} >/dev/null 2>&1
     fi
 
     if [ "${reason}" = "BOUND" ] || [ "${reason}" = "REBOOT" ] ||
@@ -259,10 +259,15 @@ dhconfig() {
        [ ! "${old_broadcast_address}" = "${new_broadcast_address}" ] ||
        [ ! "${old_routers}" = "${new_routers}" ] ||
        [ ! "${old_interface_mtu}" = "${new_interface_mtu}" ]; then
-        ip -family inet addr add ${new_ip_address}/${new_prefix} broadcast ${new_broadcast_address} dev ${interface}
-        ip -family inet link set dev ${interface} up
+        ip -4 addr add ${new_ip_address}/${new_prefix} broadcast ${new_broadcast_address} dev ${interface}
+        ip link set dev ${interface} up
 
-        if [ -n "${new_interface_mtu}" ]; then
+        # The 576 MTU is only used for X.25 and dialup connections
+        # where the admin wants low latency.  Such a low MTU can cause
+        # problems with UDP traffic, among other things.  As such,
+        # disallow MTUs from 576 and below by default, so that broken
+        # MTUs are ignored, but higher stuff is allowed (1492, 1500, etc).
+        if [ -n "${new_interface_mtu}" ] && [ ${new_interface_mtu} -gt 576 ]; then
             ip link set ${interface} mtu ${new_interface_mtu}
         fi
 
@@ -309,7 +314,7 @@ dhconfig() {
                 mysubnet=$(mask ${new_ip_address} ${new_subnet_mask})
 
                 if [ "${routersubnet}" = "${mysubnet}" ]; then
-                    ip route replace default via ${GATEWAY} dev ${interface}
+                    ip -4 route replace default via ${GATEWAY} dev ${interface}
                 fi
             fi
         fi
@@ -339,7 +344,7 @@ dhconfig() {
                 fi
 
                 if is_router_reachable ${gateway}; then
-                    ip route replace ${target}/$(class_bits ${target}) via ${gateway} dev ${interface} ${metric}
+                    ip -4 route replace ${target}/$(class_bits ${target}) via ${gateway} dev ${interface} ${metric}
 
                     if [ $? -ne 0 ]; then
                         logmessage "failed to create static route: ${target}/$(class_bits ${target}) via ${gateway} dev ${interface} ${metric}"
@@ -353,9 +358,9 @@ dhconfig() {
 
     if [ ! "${new_ip_address}" = "${alias_ip_address}" ] &&
        [ -n "${alias_ip_address}" ]; then
-        ip -family inet addr flush dev ${interface}:0 >/dev/null 2>&1
-        ip -family inet addr add ${alias_ip_address}/${alias_prefix} dev ${interface}:0
-        ip route replace ${alias_ip_address}/32 dev ${interface}:0
+        ip -4 addr flush dev ${interface}:0 >/dev/null 2>&1
+        ip -4 addr add ${alias_ip_address}/${alias_prefix} dev ${interface}:0
+        ip -4 route replace ${alias_ip_address}/32 dev ${interface}:0
     fi
 
     make_resolv_conf
@@ -410,7 +415,7 @@ dh6config() {
                 exit_with_hooks 2
             fi
 
-            ip -f inet6 addr add ${new_ip6_address}/${new_ip6_prefixlen} \
+            ip -6 addr add ${new_ip6_address}/${new_ip6_prefixlen} \
                 dev ${interface} scope global
             make_resolv_conf
             ;;
@@ -427,7 +432,7 @@ dh6config() {
                 exit_with_hooks 2
             fi
 
-            ip -f inet6 addr change ${new_ip6_address}/${new_ip6_prefixlen} \
+            ip -6 addr change ${new_ip6_address}/${new_ip6_prefixlen} \
                 dev ${interface} scope global preferred_lft 0
             ;;
     esac
@@ -497,7 +502,7 @@ need_config ${CONFIG}
 source_config >/dev/null 2>&1
 
 new_prefix="$(get_prefix ${new_ip_address} ${new_subnet_mask})"
-old_prefix="$(get_prefix ${old_ip_address} ${new_subnet_mask})"
+old_prefix="$(get_prefix ${old_ip_address} ${old_subnet_mask})"
 alias_prefix="$(get_prefix ${alias_ip_address} ${alias_subnet_mask})"
 
 case "${reason}" in
@@ -509,14 +514,14 @@ case "${reason}" in
     PREINIT)
         if [ -n "${alias_ip_address}" ]; then
             # Bring down alias interface, its routes will disappear too.
-            ip -family inet link set ${interface}:0 down
+            ip link set ${interface}:0 down
         fi
 
         if [ "${keep_old_ip}" = "yes" ]; then
-            ip -family inet link set ${interface} up
+            ip link set ${interface} up
         else
-            ip -family inet addr flush dev ${interface} >/dev/null 2>&1
-            ip -family inet link set ${interface} up
+            ip -4 addr flush dev ${interface} >/dev/null 2>&1
+            ip link set ${interface} up
         fi
 
         if [ -n "${DHCLIENT_DELAY}" ] && [ ${DHCLIENT_DELAY} -gt 0 ]; then
@@ -531,7 +536,7 @@ case "${reason}" in
         ip link set ${interface} up
 
         # remove any stale addresses from aborted clients
-        ip -f inet6 addr flush dev ${interface} scope global permanent
+        ip -6 addr flush dev ${interface} scope global permanent
 
         exit_with_hooks 0
         ;;
@@ -560,7 +565,7 @@ case "${reason}" in
             exit_with_hooks 2
         fi
 
-        ip -f inet6 addr del ${old_ip6_address}/${old_ip6_prefixlen} \
+        ip -6 addr del ${old_ip6_address}/${old_ip6_prefixlen} \
             dev ${interface}
 
         # execute any additional client side configuration scripts we have
@@ -627,18 +632,18 @@ case "${reason}" in
 
         if [ -n "${alias_ip_address}" ]; then
             # Turn off alias interface
-            ip -family inet link set ${interface}:0 down
+            ip link set ${interface}:0 down
         fi
 
         if [ -n "${old_ip_address}" ]; then
             # Shut down interface, which will delete routes and clear arp cache.
-            ip -family inet addr flush dev ${interface} >/dev/null 2>&1
-            ip -family inet link set ${interface} down
+            ip -4 addr flush dev ${interface} >/dev/null 2>&1
+            ip link set ${interface} down
         fi
 
         if [ -n "${alias_ip_address}" ]; then
-            ip -family inet addr add ${alias_ip_address}/${alias_prefix} dev ${interface}:0
-            ip -family inet route replace ${alias_ip_address}/32 ${interface}:0
+            ip -4 addr add ${alias_ip_address}/${alias_prefix} dev ${interface}:0
+            ip -4 route replace ${alias_ip_address}/32 ${interface}:0
         fi
 
         exit_with_hooks 0
@@ -647,10 +652,10 @@ case "${reason}" in
     TIMEOUT)
         if [ -n "${new_routers}" ]; then
             if [ -n "${alias_ip_address}" ]; then
-                ip -family inet addr flush dev ${interface}:0 >/dev/null 2>&1
+                ip -4 addr flush dev ${interface}:0 >/dev/null 2>&1
             fi
 
-            ip -family inet addr add ${new_ip_address}/${new_prefix} broadcast ${new_broadcast_address} dev ${interface}
+            ip -4 addr add ${new_ip_address}/${new_prefix} broadcast ${new_broadcast_address} dev ${interface}
             set ${new_routers}
 
             if ping -q -c 1 -w 10 -I ${interface} ${1}; then
@@ -658,8 +663,8 @@ case "${reason}" in
                 exit_with_hooks 0
             fi
 
-            ip -family inet addr flush dev ${interface} >/dev/null 2>&1
-            ip -family inet link set ${interface} down
+            ip -4 addr flush dev ${interface} >/dev/null 2>&1
+            ip link set ${interface} down
             exit_with_hooks 1
         else
             exit_with_hooks 1
