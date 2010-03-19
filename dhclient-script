@@ -262,7 +262,12 @@ dhconfig() {
         ip -family inet addr add ${new_ip_address}/${new_prefix} broadcast ${new_broadcast_address} dev ${interface}
         ip -family inet link set dev ${interface} up
 
-        if [ -n "${new_interface_mtu}" ]; then
+        # The 576 MTU is only used for X.25 and dialup connections
+        # where the admin wants low latency.  Such a low MTU can cause
+        # problems with UDP traffic, among other things.  As such,
+        # disallow MTUs from 576 and below by default, so that broken
+        # MTUs are ignored, but higher stuff is allowed (1492, 1500, etc).
+        if [ -n "${new_interface_mtu}" ] && [ ${new_interface_mtu} -gt 576 ]; then
             ip link set ${interface} mtu ${new_interface_mtu}
         fi
 
