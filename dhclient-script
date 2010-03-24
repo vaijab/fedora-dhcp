@@ -417,6 +417,29 @@ dh6config() {
 
             ip -f inet6 addr add ${new_ip6_address}/${new_ip6_prefixlen} \
                 dev ${interface} scope global
+
+            # repeatedly test whether newly added address passed
+            # duplicate address detection (DAD)
+            for i in $(seq 5); do
+                sleep 1 # give the DAD some time
+
+                # tentative flag = DAD is still not complete or failed
+                duplicate=$(ip -6 addr show dev ${interface} tentative \
+                              | grep ${new_ip6_address}/${new_ip6_prefixlen})
+
+                # if there's no tentative flag, address passed DAD
+                if [ -z "${duplicate}" ]; then
+                    break
+                fi
+            done
+
+            # if there's still tentative flag = address didn't pass DAD = 
+            # = it's duplicate = remove it
+            if [ -n "${duplicate}" ]; then
+                ip -6 addr del ${new_ip6_address}/${new_ip6_prefixlen} dev ${interface}
+                exit_with_hooks 3
+            fi
+
             make_resolv_conf
             ;;
 
