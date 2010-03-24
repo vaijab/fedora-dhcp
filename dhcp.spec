@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  14%{?dist}
+Release:  15%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -55,6 +55,7 @@ Patch19:  %{name}-4.1.1-64_bit_lease_parse.patch
 Patch20:  %{name}-4.1.1-capability.patch
 Patch21:  %{name}-4.1.1-logpid.patch
 Patch22:  %{name}-4.1.1-UseMulticast.patch
+Patch23:  %{name}-4.1.1-sendDecline.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -212,6 +213,11 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # (unless we set unicast option) and respond with Reply
 # with UseMulticast Status Code option (#573090)
 %patch22 -p1 -b .UseMulticast
+
+# If any of the bound addresses are found to be in use on the link,
+# the dhcpv6 client sends a Decline message to the server
+# as described in section 18.1.7 of RFC-3315 (#559147)
+%patch23 -p1 -b .sendDecline
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
@@ -495,6 +501,13 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Mar 24 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-15
+- In dhclient-script check whether bound address
+  passed duplicate address detection (DAD) (#559147)
+- If the bound address failed DAD (is found to be in use on the link),
+  the dhcpv6 client sends a Decline message to the server
+  as described in section 18.1.7 of RFC-3315 (#559147)
+
 * Fri Mar 19 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-14
 - Fix UseMulticast.patch to not repeatedly parse dhcpd.conf for unicast option
 - Fix dhclient-script to set interface MTU only when it's greater than 576 (#574629)
