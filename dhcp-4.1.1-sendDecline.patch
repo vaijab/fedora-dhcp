@@ -122,7 +122,7 @@ diff -up dhcp-4.1.1/client/dhc6.c.sendDecline dhcp-4.1.1/client/dhc6.c
 +	struct client_state *client;
 +	struct data_string ds;
 +	int send_ret;
-+	struct timeval elapsed, tv;
++	struct timeval tv;
 +
 +	client = input;
 +
