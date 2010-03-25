@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  14%{?dist}
+Release:  15%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -56,6 +56,7 @@ Patch20:  %{name}-4.1.1-capability.patch
 Patch21:  %{name}-4.1.1-logpid.patch
 Patch22:  %{name}-4.1.1-UseMulticast.patch
 Patch23:  %{name}-4.1.1-sendDecline.patch
+Patch24:  %{name}-4.1.1-retransmission.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -218,6 +219,10 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # the dhcpv6 client sends a Decline message to the server
 # as described in section 18.1.7 of RFC-3315 (#559147)
 %patch23 -p1 -b .sendDecline
+
+# In client initiated message exchanges stop retransmission
+# upon reaching the MRD rather than at some point after it (#559153)
+%patch24 -p1 -b .retransmission
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
@@ -501,6 +506,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Mar 25 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-15
+- In client initiated message exchanges stop retransmission
+  upon reaching the MRD rather than at some point after it (#559153)
+
 * Wed Mar 24 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-14
 - In dhclient-script check whether bound address
   passed duplicate address detection (DAD) (#559147)
@@ -514,7 +523,6 @@ fi
 - In dhclient-script:
   - use ip command options '-4' or '-6' as shortcuts for '-f[amily] inet' resp. '-f[amily] inet6'
   - do not use IP protocol family identifier with 'ip link'
-
 
 * Fri Mar 12 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-12
 - Discard unicast Request/Renew/Release/Decline message
