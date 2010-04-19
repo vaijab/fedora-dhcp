@@ -460,20 +460,24 @@ diff -up dhcp-4.1.1/client/dhclient.8.man dhcp-4.1.1/client/dhclient.8
 diff -up dhcp-4.1.1/client/dhclient.conf.5.man dhcp-4.1.1/client/dhclient.conf.5
 --- dhcp-4.1.1/client/dhclient.conf.5.man	2009-07-23 21:02:09.000000000 +0200
 +++ dhcp-4.1.1/client/dhclient.conf.5	2010-02-25 17:43:16.000000000 +0100
-@@ -186,9 +186,9 @@ responding to the client send the client
+@@ -184,11 +184,12 @@ are called \fIDHCP Options\fR.  DHCP Opt
+ The request statement causes the client to request that any server
+ responding to the client send the client its values for the specified
  options.   Only the option names should be specified in the request
- statement - not option parameters.   By default, the DHCP server
+-statement - not option parameters.   By default, the DHCP server
++statement - not option parameters.   By default, the DHCPv4 client
  requests the subnet-mask, broadcast-address, time-offset, routers,
 -domain-name, domain-name-servers and host-name options.  Note that if
 -you enter a 'request' statement, you over-ride this default and these
 -options will not be requested.
-+domain-name, domain-name-servers, host-name, nis-domain, nis-servers, ntp-servers,
-+and interface-mtu options.  Note that if you enter a 'request' statement,
++domain-name, domain-name-servers, host-name, nis-domain, nis-servers,
++ntp-servers and interface-mtu options. The DHCPv6 client requests by default
++name-servers and domain-search. Note that if you enter a 'request' statement,
 +you over-ride this default and these options will not be requested.
  .PP
  In some cases, it may be desirable to send no parameter request list
  at all.   To do this, simply write the request statement but specify
-@@ -239,17 +239,6 @@ than the default requested lease time, w
+@@ -239,17 +240,6 @@ than the default requested lease time, w
  obvious use for this statement is to send information to the server
  that will allow it to differentiate between this client and other
  clients or kinds of clients.
@@ -491,7 +495,7 @@ diff -up dhcp-4.1.1/client/dhclient.conf.5.man dhcp-4.1.1/client/dhclient.conf.5
  .SH DYNAMIC DNS
  The client now has some very limited support for doing DNS updates
  when a lease is acquired.   This is prototypical, and probably doesn't
-@@ -659,6 +659,18 @@ database and will record the media type 
+@@ -659,6 +649,18 @@ database and will record the media type 
  Whenever the client tries to renew the lease, it will use that same
  media type.   The lease must expire before the client will go back to
  cycling through media types.
@@ -510,7 +514,7 @@ diff -up dhcp-4.1.1/client/dhclient.conf.5.man dhcp-4.1.1/client/dhclient.conf.5
  .SH SAMPLE
  The following configuration file is used on a laptop running NetBSD
  1.3.   The laptop has an IP alias of 192.5.5.213, and has one
-@@ -680,10 +692,10 @@ interface "ep0" {
+@@ -680,10 +682,10 @@ interface "ep0" {
      send host-name "andare.fugue.com";
      send dhcp-client-identifier 1:0:a0:24:ab:fb:9c;
      send dhcp-lease-time 3600;
