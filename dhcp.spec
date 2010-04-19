@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  13%{?dist}
+Release:  14%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -57,6 +57,7 @@ Patch21:  %{name}-4.1.1-logpid.patch
 Patch22:  %{name}-4.1.1-UseMulticast.patch
 Patch23:  %{name}-4.1.1-sendDecline.patch
 Patch24:  %{name}-4.1.1-retransmission.patch
+Patch25:  %{name}-4.1.1-release6-elapsed.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -223,6 +224,9 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # In client initiated message exchanges stop retransmission
 # upon reaching the MRD rather than at some point after it (#559153)
 %patch24 -p1 -b .retransmission
+
+# Fill in Elapsed Time Option in Release message (#582939)
+%patch25 -p1 -b .release6-elapsed
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
@@ -506,6 +510,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Mon Apr 19 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-14
+- Fill in Elapsed Time Option in Release/Decline messages (#582939)
+
 * Thu Mar 25 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-13
 - In client initiated message exchanges stop retransmission
   upon reaching the MRD rather than at some point after it (#559153)
