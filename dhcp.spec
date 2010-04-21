@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  16%{?dist}
+Release:  17%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -226,6 +226,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 %patch24 -p1 -b .retransmission
 
 # Fill in Elapsed Time Option in Release message (#582939)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21171])
 %patch25 -p1 -b .release6-elapsed
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
@@ -510,6 +511,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Apr 21 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-17
+- If the Reply was received in response to Renew or Rebind message,
+  client adds any new addresses in the IA option to the IA (#578097)
+
 * Mon Apr 19 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-16
 - Fill in Elapsed Time Option in Release/Decline messages (#582939)
 
