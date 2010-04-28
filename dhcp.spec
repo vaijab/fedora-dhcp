@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  17%{?dist}
+Release:  18%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -511,6 +511,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Apr 28 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-18
+- Add domain-search to the list of default requested DHCP options (#586906)
+
 * Wed Apr 21 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-17
 - If the Reply was received in response to Renew or Rebind message,
   client adds any new addresses in the IA option to the IA (#578097)
