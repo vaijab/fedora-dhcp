@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  18%{?dist}
+Release:  19%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -159,7 +159,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # Also, return EXIT_FAILURE when the usage() screen is displayed (stop parsing)
 %patch6 -p1 -b .usage
 
-# Add NIS domain, NIS servers, NTP servers and interface-mtu
+# Add NIS domain, NIS servers, NTP servers, interface-mtu and domain-search
 # to the list of default requested DHCP options
 %patch7 -p1 -b .requested
 
@@ -466,9 +466,6 @@ fi
 %config(noreplace) %{dhcpconfdir}/dhcpd.conf
 %config(noreplace) %{dhcpconfdir}/dhcpd6.conf
 %config(noreplace) %{_sysconfdir}/openldap/schema/dhcp.schema
-%dir %{_sysconfdir}/NetworkManager
-%dir %{_sysconfdir}/NetworkManager/dispatcher.d
-%{_sysconfdir}/NetworkManager/dispatcher.d/10-dhclient
 %{_initrddir}/dhcpd
 %{_initrddir}/dhcpd6
 %{_initrddir}/dhcrelay
@@ -489,6 +486,9 @@ fi
 %attr(0750,root,root) %dir %{dhcpconfdir}
 %dir %{dhcpconfdir}/dhclient.d
 %dir %{_localstatedir}/lib/dhclient
+%dir %{_sysconfdir}/NetworkManager
+%dir %{_sysconfdir}/NetworkManager/dispatcher.d
+%{_sysconfdir}/NetworkManager/dispatcher.d/10-dhclient
 /sbin/dhclient
 /sbin/dhclient-script
 %attr(0755,root,root) %{_libdir}/pm-utils/sleep.d/56dhclient
@@ -511,6 +511,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Apr 28 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-20
+- Move /etc/NetworkManager/dispatcher.d/10-dhclient script
+  from dhcp to dhclient subpackage (#586999).
+
 * Wed Apr 28 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-18
 - Add domain-search to the list of default requested DHCP options (#586906)
 
