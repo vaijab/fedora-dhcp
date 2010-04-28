@@ -477,7 +477,13 @@ diff -up dhcp-4.1.1/client/dhclient.conf.5.man dhcp-4.1.1/client/dhclient.conf.5
  .PP
  In some cases, it may be desirable to send no parameter request list
  at all.   To do this, simply write the request statement but specify
-@@ -239,17 +240,6 @@ than the default requested lease time, w
+@@ -234,22 +235,11 @@ The send statement causes the client to 
+ the server with the specified values.  These are full option
+ declarations as described in \fBdhcp-options(5)\fR.  Options that are
+ always sent in the DHCP protocol should not be specified here, except
+-that the client can specify a \fBrequested-lease-time\fR option other
++that the client can specify a requested \fBdhcp-lease-time\fR option other
+ than the default requested lease time, which is two hours.  The other
  obvious use for this statement is to send information to the server
  that will allow it to differentiate between this client and other
  clients or kinds of clients.
@@ -519,7 +525,7 @@ diff -up dhcp-4.1.1/client/dhclient.conf.5.man dhcp-4.1.1/client/dhclient.conf.5
      send dhcp-client-identifier 1:0:a0:24:ab:fb:9c;
      send dhcp-lease-time 3600;
 -    supersede domain-name "fugue.com rc.vix.com home.vix.com";
-+    supersede domain-search "fugue.com rc.vix.com home.vix.com";
++    supersede domain-search "fugue.com", "rc.vix.com", "home.vix.com";
      prepend domain-name-servers 127.0.0.1;
      request subnet-mask, broadcast-address, time-offset, routers,
 -	    domain-name, domain-name-servers, host-name;

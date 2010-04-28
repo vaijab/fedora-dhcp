@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  15%{?dist}
+Release:  16%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -466,9 +466,6 @@ fi
 %config(noreplace) %{dhcpconfdir}/dhcpd.conf
 %config(noreplace) %{dhcpconfdir}/dhcpd6.conf
 %config(noreplace) %{_sysconfdir}/openldap/schema/dhcp.schema
-%dir %{_sysconfdir}/NetworkManager
-%dir %{_sysconfdir}/NetworkManager/dispatcher.d
-%{_sysconfdir}/NetworkManager/dispatcher.d/10-dhclient
 %{_initrddir}/dhcpd
 %{_initrddir}/dhcpd6
 %{_initrddir}/dhcrelay
@@ -489,6 +486,9 @@ fi
 %attr(0750,root,root) %dir %{dhcpconfdir}
 %dir %{dhcpconfdir}/dhclient.d
 %dir %{_localstatedir}/lib/dhclient
+%dir %{_sysconfdir}/NetworkManager
+%dir %{_sysconfdir}/NetworkManager/dispatcher.d
+%{_sysconfdir}/NetworkManager/dispatcher.d/10-dhclient
 /sbin/dhclient
 /sbin/dhclient-script
 %attr(0755,root,root) %{_libdir}/pm-utils/sleep.d/56dhclient
@@ -511,6 +511,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Apr 28 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-16
+- Move /etc/NetworkManager/dispatcher.d/10-dhclient script
+  from dhcp to dhclient subpackage (#586999).
+
 * Wed Apr 21 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-15
 - If the Reply was received in response to Renew or Rebind message,
   client adds any new addresses in the IA option to the IA (#578097)
