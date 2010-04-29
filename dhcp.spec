@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  20%{?dist}
+Release:  21%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -58,6 +58,7 @@ Patch22:  %{name}-4.1.1-UseMulticast.patch
 Patch23:  %{name}-4.1.1-sendDecline.patch
 Patch24:  %{name}-4.1.1-retransmission.patch
 Patch25:  %{name}-4.1.1-release6-elapsed.patch
+Patch26:  %{name}-4.1.1-initialization-delay.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -228,6 +229,10 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # Fill in Elapsed Time Option in Release message (#582939)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21171])
 %patch25 -p1 -b .release6-elapsed
+
+# There was a useless 0-4 second delay before sending first DHCPDISCOVER.
+# I didn't remove it at all, but made it 0-1 second. (#587070)
+%patch26 -p1 -b .initialization-delay
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
@@ -511,6 +516,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Apr 29 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-21
+- There was a useless 0-4 second delay before sending first DHCPDISCOVER.
+  I didn't remove it at all, but made it 0-1 second. (#587070)
+
 * Wed Apr 28 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-20
 - Move /etc/NetworkManager/dispatcher.d/10-dhclient script
   from dhcp to dhclient subpackage (#586999).
