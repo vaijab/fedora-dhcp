@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}
-Release:  21%{?dist}
+Release:  22%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -215,23 +215,25 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # Discard unicast Request/Renew/Release/Decline message
 # (unless we set unicast option) and respond with Reply
 # with UseMulticast Status Code option (#573090)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21235])
 %patch22 -p1 -b .UseMulticast
 
 # If any of the bound addresses are found to be in use on the link,
 # the dhcpv6 client sends a Decline message to the server
 # as described in section 18.1.7 of RFC-3315 (#559147)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21237])
 %patch23 -p1 -b .sendDecline
 
 # In client initiated message exchanges stop retransmission
 # upon reaching the MRD rather than at some point after it (#559153)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21238])
 %patch24 -p1 -b .retransmission
 
 # Fill in Elapsed Time Option in Release message (#582939)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21171])
 %patch25 -p1 -b .release6-elapsed
 
-# There was a useless 0-4 second delay before sending first DHCPDISCOVER.
-# I didn't remove it at all, but made it 0-1 second. (#587070)
+# Cut down the 0-4 second delay before sending first DHCPDISCOVER (#587070)
 %patch26 -p1 -b .initialization-delay
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
@@ -286,11 +288,7 @@ for page in server/dhcpd.conf.5 server/dhcpd.leases.5 server/dhcpd.8 ; do
                 -e 's|ETCDIR|%{dhcpconfdir}|g' $page
 done
 
-aclocal
-libtoolize --copy --force
-autoconf
-autoheader
-automake --foreign --add-missing --copy
+autoreconf --verbose --force --install
 
 %build
 CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE" \
@@ -516,9 +514,11 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Mon May 03 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-22
+- Fix the initialization-delay.patch (#587070)
+
 * Thu Apr 29 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-21
-- There was a useless 0-4 second delay before sending first DHCPDISCOVER.
-  I didn't remove it at all, but made it 0-1 second. (#587070)
+- Cut down the 0-4 second delay before sending first DHCPDISCOVER (#587070)
 
 * Wed Apr 28 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-20
 - Move /etc/NetworkManager/dispatcher.d/10-dhclient script
