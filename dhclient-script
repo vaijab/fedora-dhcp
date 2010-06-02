@@ -369,7 +369,7 @@ dhconfig() {
     make_resolv_conf
 
     if [ -n "${new_host_name}" ] && need_hostname; then
-        hostname ${new_host_name}
+        hostname ${new_host_name} || echo "See -nc option in dhclient(8) man page."
     fi
 
     if [ -n "${DHCP_TIME_OFFSET_SETS_TIMEZONE}" ] &&

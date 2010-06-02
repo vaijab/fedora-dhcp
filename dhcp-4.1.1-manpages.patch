@@ -352,7 +352,7 @@ diff -up dhcp-4.1.1/client/dhclient.8.man dhcp-4.1.1/client/dhclient.8
 +.BR
 +    subnet-mask, broadcast-address, time-offset, routers,
 +.BR
-+    domain-name, domain-name-servers, host-name, 
++    domain-search, domain-name, domain-name-servers, host-name, 
 +.BR
 +    nis-domain, nis-servers, ntp-servers, interface-mtu
 +
@@ -470,7 +470,7 @@ diff -up dhcp-4.1.1/client/dhclient.conf.5.man dhcp-4.1.1/client/dhclient.conf.5
 -domain-name, domain-name-servers and host-name options.  Note that if
 -you enter a 'request' statement, you over-ride this default and these
 -options will not be requested.
-+domain-name, domain-search, domain-name-servers, host-name, nis-domain, nis-servers,
++domain-search, domain-name, domain-name-servers, host-name, nis-domain, nis-servers,
 +ntp-servers and interface-mtu options. The DHCPv6 client requests by default
 +name-servers and domain-search. Note that if you enter a 'request' statement,
 +you over-ride this default and these options will not be requested.
