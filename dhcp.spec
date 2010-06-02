@@ -12,8 +12,8 @@
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
-Version:  %{basever}
-Release:  22%{?dist}
+Version:  %{basever}_P1
+Release:  1%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -22,7 +22,7 @@ Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
 URL:      http://isc.org/products/DHCP/
-Source0:  ftp://ftp.isc.org/isc/%{name}/%{name}-%{version}.tar.gz
+Source0:  ftp://ftp.isc.org/isc/dhcp/dhcp-%{basever}-P1.tar.gz
 Source1:  http://cloud.github.com/downloads/dcantrell/ldap-for-dhcp/ldap-for-dhcp-%{ldappatchver}.tar.gz
 Source2:  dhcpd.init
 Source3:  dhcrelay.init
@@ -122,11 +122,11 @@ Header files and API documentation for using the ISC DHCP libraries.  The
 libdhcpctl and libomapi static libraries are also included in this package.
 
 %prep
-%setup -q
-%setup -T -D -a 1
+%setup -q -n dhcp-%{basever}-P1
+%setup -T -D -a 1 -n dhcp-%{basever}-P1
 
 # Add in LDAP support
-%{__patch} -p1 < ldap-for-dhcp-%{ldappatchver}/%{name}-%{basever}-ldap.patch
+%{__patch} -p1 < ldap-for-dhcp-%{ldappatchver}/dhcp-%{basever}-ldap.patch
 
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
@@ -265,7 +265,7 @@ popd
 %{__perl_requires} \
 | %{__grep} -v 'perl('
 EOF
-%global __perl_requires %{_builddir}/%{name}-%{version}/%{name}-req
+%global __perl_requires %{_builddir}/%{name}-%{basever}-P1/%{name}-req
 %{__chmod} +x %{__perl_requires}
 
 # Replace @PRODUCTNAME@
@@ -288,10 +288,10 @@ for page in server/dhcpd.conf.5 server/dhcpd.leases.5 server/dhcpd.8 ; do
                 -e 's|ETCDIR|%{dhcpconfdir}|g' $page
 done
 
+%build
 autoreconf --verbose --force --install
 
-%build
-CFLAGS="%{optflags} -fPIC -D_GNU_SOURCE" \
+CFLAGS="%{optflags} -fno-strict-aliasing -fPIC -D_GNU_SOURCE" \
 %configure \
     --enable-dhcpv6 \
     --with-srv-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd.leases \
@@ -514,6 +514,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Jun 02 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1_P1-1
+- 4.1.1-P1 (pair of bug fixes including one for a security related bug).
+- Compile with -fno-strict-aliasing
+
 * Mon May 03 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-22
 - Fix the initialization-delay.patch (#587070)
 
