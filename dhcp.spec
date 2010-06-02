@@ -13,7 +13,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  %{basever}_P1
-Release:  1%{?dist}
+Release:  2%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -514,6 +514,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Jun 02 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1_P1-2
+- Bumped Release.
+
 * Wed Jun 02 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1_P1-1
 - 4.1.1-P1 (pair of bug fixes including one for a security related bug).
 - Compile with -fno-strict-aliasing
