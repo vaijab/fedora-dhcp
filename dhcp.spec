@@ -4,16 +4,18 @@
 # Where dhcp configuration files are stored
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
-# Base version number from ISC
-%global basever 4.1.1
+# Patch version
+%global patchver P1
+
+%global VERSION %{version}-%{patchver}
 
 # LDAP patch version
-%global ldappatchver %{basever}-2
+%global ldappatchver %{version}-2
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
-Version:  %{basever}_P1
-Release:  2%{?dist}
+Version:  4.1.1
+Release:  23.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -22,7 +24,7 @@ Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
 URL:      http://isc.org/products/DHCP/
-Source0:  ftp://ftp.isc.org/isc/dhcp/dhcp-%{basever}-P1.tar.gz
+Source0:  ftp://ftp.isc.org/isc/dhcp/dhcp-%{VERSION}.tar.gz
 Source1:  http://cloud.github.com/downloads/dcantrell/ldap-for-dhcp/ldap-for-dhcp-%{ldappatchver}.tar.gz
 Source2:  dhcpd.init
 Source3:  dhcrelay.init
@@ -122,11 +124,11 @@ Header files and API documentation for using the ISC DHCP libraries.  The
 libdhcpctl and libomapi static libraries are also included in this package.
 
 %prep
-%setup -q -n dhcp-%{basever}-P1
-%setup -T -D -a 1 -n dhcp-%{basever}-P1
+%setup -q -n dhcp-%{VERSION}
+%setup -T -D -a 1 -n dhcp-%{VERSION}
 
 # Add in LDAP support
-%{__patch} -p1 < ldap-for-dhcp-%{ldappatchver}/dhcp-%{basever}-ldap.patch
+%{__patch} -p1 < ldap-for-dhcp-%{ldappatchver}/dhcp-%{version}-ldap.patch
 
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
@@ -265,7 +267,7 @@ popd
 %{__perl_requires} \
 | %{__grep} -v 'perl('
 EOF
-%global __perl_requires %{_builddir}/%{name}-%{basever}-P1/%{name}-req
+%global __perl_requires %{_builddir}/%{name}-%{VERSION}/%{name}-req
 %{__chmod} +x %{__perl_requires}
 
 # Replace @PRODUCTNAME@
@@ -514,12 +516,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
-* Wed Jun 02 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1_P1-2
-- Bumped Release.
-
-* Wed Jun 02 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1_P1-1
+* Wed Jun 03 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-23.P1
 - 4.1.1-P1 (pair of bug fixes including one for a security related bug).
 - Compile with -fno-strict-aliasing
+- N-V-R (copied from bind.spec): Name-Version-Release.Patch.dist
 
 * Mon May 03 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-22
 - Fix the initialization-delay.patch (#587070)
