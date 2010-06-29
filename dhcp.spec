@@ -15,7 +15,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.1
-Release:  22.%{patchver}%{?dist}
+Release:  23.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -61,6 +61,7 @@ Patch23:  %{name}-4.1.1-sendDecline.patch
 Patch24:  %{name}-4.1.1-retransmission.patch
 Patch25:  %{name}-4.1.1-release6-elapsed.patch
 Patch26:  %{name}-4.1.1-initialization-delay.patch
+Patch27:  %{name}-4.1.1-P1-parse_date.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -237,6 +238,10 @@ libdhcpctl and libomapi static libraries are also included in this package.
 
 # Cut down the 0-4 second delay before sending first DHCPDISCOVER (#587070)
 %patch26 -p1 -b .initialization-delay
+
+# Fix parsing of date (#514828)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21501])
+%patch27 -p1 -b .parse_date
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
@@ -520,8 +525,12 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Tue Jun 29 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-23.P1
+- Fix parsing of date (#514828)
+
 * Wed Jun 03 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-22.P1
 - 4.1.1-P1 (pair of bug fixes including one for a security related bug).
+- Fix for CVE-2010-2156 (#601405)
 - Compile with -fno-strict-aliasing
 - N-V-R (copied from bind.spec): Name-Version-Release.Patch.dist
 
