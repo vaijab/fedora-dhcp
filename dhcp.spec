@@ -15,7 +15,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.1
-Release:  24.%{patchver}%{?dist}
+Release:  25.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -118,6 +118,7 @@ Summary: Development headers and libraries for interfacing to the DHCP server
 Group: Development/Libraries
 Obsoletes: libdhcp4client-devel <= 12:4.0.0-34.fc10
 Obsoletes: libdhcp-devel <= 1.99.8-1
+Provides: %{name}-static = %{epoch}:%{version}-%{release}
 Requires: %{name} = %{epoch}:%{version}-%{release}
 
 %description devel
@@ -521,6 +522,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Jul 01 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-25.P1
+- Adhere to Static Library Packaging Guidelines (#609605).
+
 * Tue Jun 29 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-24.P1
 - Fix parsing of date (#514828)
 
