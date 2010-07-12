@@ -15,7 +15,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.1
-Release:  25.%{patchver}%{?dist}
+Release:  26.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -493,7 +493,7 @@ fi
 
 %files -n dhclient
 %defattr(-,root,root,-)
-%doc dhclient.conf.sample dhclient6.conf.sample README.dhclient.d
+%doc LICENSE RELNOTES dhclient.conf.sample dhclient6.conf.sample README.dhclient.d
 %attr(0750,root,root) %dir %{dhcpconfdir}
 %dir %{dhcpconfdir}/dhclient.d
 %dir %{_localstatedir}/lib/dhclient
@@ -522,6 +522,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Mon Jul 12 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-26.P1
+- Add LICENSE file to dhclient subpackage.
+
 * Thu Jul 01 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-25.P1
 - Adhere to Static Library Packaging Guidelines (#609605).
 
