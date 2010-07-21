@@ -1,6 +1,6 @@
-diff -up dhcp-4.1.1-P1/common/parse.c.parse_date dhcp-4.1.1-P1/common/parse.c
---- dhcp-4.1.1-P1/common/parse.c.parse_date	2010-06-11 14:25:10.000000000 +0200
-+++ dhcp-4.1.1-P1/common/parse.c	2010-06-11 15:00:08.000000000 +0200
+diff -up dhcp-4.2.0/common/parse.c.parse_date dhcp-4.2.0/common/parse.c
+--- dhcp-4.2.0/common/parse.c.parse_date	2010-07-21 16:11:36.000000000 +0200
++++ dhcp-4.2.0/common/parse.c	2010-07-21 16:23:10.000000000 +0200
 @@ -913,48 +913,46 @@ parse_date_core(cfile)
  					  212, 243, 273, 304, 334 };
  

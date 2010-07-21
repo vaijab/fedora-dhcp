@@ -4,18 +4,10 @@
 # Where dhcp configuration files are stored
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
-# Patch version
-%global patchver P1
-
-%global VERSION %{version}-%{patchver}
-
-# LDAP patch version
-%global ldappatchver %{version}-2
-
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
-Version:  4.1.1
-Release:  26.%{patchver}%{?dist}
+Version:  4.2.0
+Release:  1%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -24,44 +16,43 @@ Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
 URL:      http://isc.org/products/DHCP/
-Source0:  ftp://ftp.isc.org/isc/dhcp/dhcp-%{VERSION}.tar.gz
-Source1:  http://cloud.github.com/downloads/dcantrell/ldap-for-dhcp/ldap-for-dhcp-%{ldappatchver}.tar.gz
-Source2:  dhcpd.init
+Source0:  ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
+Source1:  dhcpd.init
+Source2:  dhcpd6.init
 Source3:  dhcrelay.init
 Source4:  dhclient-script
 Source5:  README.dhclient.d
 Source6:  10-dhclient
 Source7:  56dhclient
-Source8:  dhcpd6.init
 
-Patch0:   %{name}-4.1.1-errwarn-message.patch
-Patch1:   %{name}-4.1.1-options.patch
-Patch2:   %{name}-4.1.1-release-by-ifup.patch
-Patch3:   %{name}-4.1.1-dhclient-decline-backoff.patch
-Patch4:   %{name}-4.1.1-unicast-bootp.patch
-Patch5:   %{name}-4.1.1-failover-ports.patch
-Patch6:   %{name}-4.1.1-dhclient-usage.patch
-Patch7:   %{name}-4.1.1-default-requested-options.patch
-Patch8:   %{name}-4.1.1-xen-checksum.patch
-Patch9:   %{name}-4.1.1-dhclient-anycast.patch
-Patch10:  %{name}-4.1.1-manpages.patch
-Patch11:  %{name}-4.1.1-paths.patch
-Patch12:  %{name}-4.1.1-CLOEXEC.patch
-Patch13:  %{name}-4.1.1-inherit-leases.patch
-Patch14:  %{name}-4.1.1-garbage-chars.patch
-Patch15:  %{name}-4.1.1-invalid-dhclient-conf.patch
-Patch16:  %{name}-4.1.1-missing-ipv6-not-fatal.patch
-Patch17:  %{name}-4.1.1-IFNAMSIZ.patch
-Patch18:  %{name}-4.1.1-add_timeout_when_NULL.patch
-Patch19:  %{name}-4.1.1-64_bit_lease_parse.patch
-Patch20:  %{name}-4.1.1-capability.patch
-Patch21:  %{name}-4.1.1-logpid.patch
-Patch22:  %{name}-4.1.1-UseMulticast.patch
-Patch23:  %{name}-4.1.1-sendDecline.patch
-Patch24:  %{name}-4.1.1-retransmission.patch
-Patch25:  %{name}-4.1.1-release6-elapsed.patch
-Patch26:  %{name}-4.1.1-initialization-delay.patch
-Patch27:  %{name}-4.1.1-P1-parse_date.patch
+
+Patch0:   dhcp-4.2.0-errwarn-message.patch
+Patch1:   dhcp-4.2.0-options.patch
+Patch2:   dhcp-4.2.0-release-by-ifup.patch
+Patch3:   dhcp-4.2.0-dhclient-decline-backoff.patch
+Patch4:   dhcp-4.2.0-unicast-bootp.patch
+Patch5:   dhcp-4.2.0-ldap.patch
+Patch6:   dhcp-4.2.0-dhclient-usage.patch
+Patch7:   dhcp-4.2.0-default-requested-options.patch
+Patch8:   dhcp-4.2.0-xen-checksum.patch
+Patch10:  dhcp-4.2.0-manpages.patch
+Patch11:  dhcp-4.2.0-paths.patch
+Patch12:  dhcp-4.2.0-CLOEXEC.patch
+Patch13:  dhcp-4.2.0-inherit-leases.patch
+Patch14:  dhcp-4.2.0-garbage-chars.patch
+Patch15:  dhcp-4.2.0-invalid-dhclient-conf.patch
+Patch16:  dhcp-4.2.0-missing-ipv6-not-fatal.patch
+Patch17:  dhcp-4.2.0-IFNAMSIZ.patch
+Patch18:  dhcp-4.2.0-add_timeout_when_NULL.patch
+Patch19:  dhcp-4.2.0-64_bit_lease_parse.patch
+Patch20:  dhcp-4.2.0-capability.patch
+Patch21:  dhcp-4.2.0-logpid.patch
+Patch22:  dhcp-4.2.0-UseMulticast.patch
+Patch23:  dhcp-4.2.0-sendDecline.patch
+Patch24:  dhcp-4.2.0-retransmission.patch
+Patch25:  dhcp-4.2.0-release6-elapsed.patch
+Patch26:  dhcp-4.2.0-initialization-delay.patch
+Patch27:  dhcp-4.2.0-parse_date.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -126,11 +117,7 @@ Header files and API documentation for using the ISC DHCP libraries.  The
 libdhcpctl and libomapi static libraries are also included in this package.
 
 %prep
-%setup -q -n dhcp-%{VERSION}
-%setup -T -D -a 1 -n dhcp-%{VERSION}
-
-# Add in LDAP support
-%{__patch} -p1 < ldap-for-dhcp-%{ldappatchver}/dhcp-%{version}-ldap.patch
+%setup -q
 
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
@@ -152,12 +139,8 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19146])
 %patch4 -p1 -b .unicast
 
-# Use the following IANA-registered failover ports:
-# dhcp-failover 647/tcp
-# dhcp-failover 647/udp
-# dhcp-failover 847/tcp
-# dhcp-failover 847/udp
-%patch5 -p1 -b .failover-ports
+# Search for liblber in configure.ac (#564810)
+%patch5 -p1 -b .ldap
 
 # Update the usage screen for dhclient(8) indicating new options
 # Use printf() rather than log_info() to display the information
@@ -170,9 +153,6 @@ libdhcpctl and libomapi static libraries are also included in this package.
 
 # Handle Xen partial UDP checksums
 %patch8 -p1 -b .xen
-
-# Add anycast support to dhclient (for OLPC)
-%patch9 -p1 -b .anycast
 
 # Patch man page contents
 %patch10 -p1 -b .man
@@ -199,6 +179,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 %patch16 -p1 -b .noipv6
 
 # Read only up to IFNAMSIZ characters for the interface name in dhcpd (#441524)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19617])
 %patch17 -p1 -b .ifnamsiz
 
 # Handle cases in add_timeout() where the function is called with a NULL
@@ -244,9 +225,6 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21501])
 %patch27 -p1 -b .parse_date
 
-# Copy in documentation and example scripts for LDAP patch to dhcpd
-%{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
-
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
 %{__install} -p -m 0644 %{SOURCE5} .
@@ -256,7 +234,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # package).
 %{__cp} -pR contrib __fedora_contrib
 pushd __fedora_contrib
-%{__chmod} -x 3.0b1-lease-convert dhclient-tz-exithook.sh dhcpd-conf-to-ldap
+%{__chmod} -x 3.0b1-lease-convert dhclient-tz-exithook.sh ldap/dhcpd-conf-to-ldap
 %{__chmod} -x sethostname.sh solaris.init
 %{__mv} ms2isc/Registry.pm ms2isc/Registry.perlmodule
 %{__rm} -f dhcp.spec
@@ -268,12 +246,12 @@ pushd __fedora_contrib
 popd
 
 # Filter false positive perl requires (all of them)
-%{__cat} << EOF > %{name}-req
+%{__cat} << EOF > dhcp-req
 #!/bin/sh
 %{__perl_requires} \
 | %{__grep} -v 'perl('
 EOF
-%global __perl_requires %{_builddir}/%{name}-%{VERSION}/%{name}-req
+%global __perl_requires %{_builddir}/dhcp-%{version}/dhcp-req
 %{__chmod} +x %{__perl_requires}
 
 # Replace @PRODUCTNAME@
@@ -301,7 +279,6 @@ autoreconf --verbose --force --install
 
 CFLAGS="%{optflags} -fno-strict-aliasing -fPIC -D_GNU_SOURCE" \
 %configure \
-    --enable-dhcpv6 \
     --with-srv-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd.leases \
     --with-srv6-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd6.leases \
     --with-cli-lease-file=%{_localstatedir}/lib/dhclient/dhclient.leases \
@@ -329,10 +306,10 @@ CFLAGS="%{optflags} -fno-strict-aliasing -fPIC -D_GNU_SOURCE" \
 %{__install} -p -m 0755 client/scripts/linux %{buildroot}/sbin/dhclient-script
 
 # Install init scripts
-%{__mkdir} -p %{buildroot}%{_initrddir}
-%{__install} -p -m 0755 %{SOURCE2} %{buildroot}%{_initrddir}/dhcpd
-%{__install} -p -m 0755 %{SOURCE8} %{buildroot}%{_initrddir}/dhcpd6
-%{__install} -p -m 0755 %{SOURCE3} %{buildroot}%{_initrddir}/dhcrelay
+%{__mkdir} -p %{buildroot}%{_initddir}
+%{__install} -p -m 0755 %{SOURCE1} %{buildroot}%{_initddir}/dhcpd
+%{__install} -p -m 0755 %{SOURCE2} %{buildroot}%{_initddir}/dhcpd6
+%{__install} -p -m 0755 %{SOURCE3} %{buildroot}%{_initddir}/dhcrelay
 
 # Start empty lease databases
 %{__mkdir} -p %{buildroot}%{_localstatedir}/lib/dhcpd/
@@ -387,7 +364,7 @@ EOF
 
 # Install dhcp.schema for LDAP configuration
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/openldap/schema
-%{__install} -p -m 0644 -D ldap-for-dhcp-%{ldappatchver}/dhcp.schema \
+%{__install} -p -m 0644 -D contrib/ldap/dhcp.schema \
     %{buildroot}%{_sysconfdir}/openldap/schema
 
 # Install empty directory for dhclient.d scripts
@@ -464,9 +441,9 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%doc LICENSE README ldap-for-dhcp-%{ldappatchver}/README.ldap
-%doc RELNOTES dhcpd.conf.sample dhcpd6.conf.sample doc/IANA-arp-parameters doc/api+protocol
-%doc doc/*.txt __fedora_contrib/* ldap-for-dhcp-%{ldappatchver}/*.txt
+%doc LICENSE README RELNOTES dhcpd.conf.sample dhcpd6.conf.sample
+%doc doc/IANA-arp-parameters doc/api+protocol doc/References.txt
+%doc __fedora_contrib/*
 %dir %{_localstatedir}/lib/dhcpd
 %attr(0750,root,root) %dir %{dhcpconfdir}
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
@@ -477,9 +454,9 @@ fi
 %config(noreplace) %{dhcpconfdir}/dhcpd.conf
 %config(noreplace) %{dhcpconfdir}/dhcpd6.conf
 %config(noreplace) %{_sysconfdir}/openldap/schema/dhcp.schema
-%{_initrddir}/dhcpd
-%{_initrddir}/dhcpd6
-%{_initrddir}/dhcrelay
+%{_initddir}/dhcpd
+%{_initddir}/dhcpd6
+%{_initddir}/dhcrelay
 %{_bindir}/omshell
 %{_sbindir}/dhcpd
 %{_sbindir}/dhcrelay
@@ -522,6 +499,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Jul 21 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-1
+- 4.2.0: includes ldap-for-dhcp
+
 * Mon Jul 12 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-26.P1
 - Add LICENSE file to dhclient subpackage.
 
@@ -532,10 +512,8 @@ fi
 - Fix parsing of date (#514828)
 
 * Wed Jun 03 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-23.P1
-- 4.1.1-P1 (pair of bug fixes including one for a security related bug).
-- Fix for CVE-2010-2156 (#601405)
+- 4.1.1-P1: pair of bug fixes including one for CVE-2010-2156 (#601405).
 - Compile with -fno-strict-aliasing
-- N-V-R (copied from bind.spec): Name-Version-Release.Patch.dist
 
 * Mon May 03 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-22
 - Fix the initialization-delay.patch (#587070)

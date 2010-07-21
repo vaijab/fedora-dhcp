@@ -1,7 +1,7 @@
-diff -up dhcp-4.1.1/client/dhclient.c.initialization-delay dhcp-4.1.1/client/dhclient.c
---- dhcp-4.1.1/client/dhclient.c.initialization-delay	2010-05-03 15:16:43.000000000 +0200
-+++ dhcp-4.1.1/client/dhclient.c	2010-05-03 15:23:05.000000000 +0200
-@@ -927,11 +927,16 @@ main(int argc, char **argv) {
+diff -up dhcp-4.2.0/client/dhclient.c.initialization-delay dhcp-4.2.0/client/dhclient.c
+--- dhcp-4.2.0/client/dhclient.c.initialization-delay	2010-07-21 16:16:51.000000000 +0200
++++ dhcp-4.2.0/client/dhclient.c	2010-07-21 16:22:18.000000000 +0200
+@@ -949,11 +949,16 @@ main(int argc, char **argv) {
  					do_release(client);
  				else {
  					client->state = S_INIT;
@@ -22,7 +22,7 @@ diff -up dhcp-4.1.1/client/dhclient.c.initialization-delay dhcp-4.1.1/client/dhc
  					add_timeout(&tv, state_reboot,
  						    client, 0, 0);
  				}
-@@ -3911,10 +3916,16 @@ isc_result_t dhclient_interface_startup_
+@@ -3930,10 +3935,16 @@ isc_result_t dhclient_interface_startup_
  		ip -> flags |= INTERFACE_RUNNING;
  		for (client = ip -> client; client; client = client -> next) {
  			client -> state = S_INIT;

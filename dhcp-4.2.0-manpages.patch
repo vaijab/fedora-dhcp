@@ -1,7 +1,7 @@
-diff -up dhcp-4.1.1/client/dhclient.8.man dhcp-4.1.1/client/dhclient.8
---- dhcp-4.1.1/client/dhclient.8.man	2009-07-25 00:04:51.000000000 +0200
-+++ dhcp-4.1.1/client/dhclient.8	2010-02-25 17:41:36.000000000 +0100
-@@ -111,6 +111,33 @@ relay
+diff -up dhcp-4.2.0/client/dhclient.8.man dhcp-4.2.0/client/dhclient.8
+--- dhcp-4.2.0/client/dhclient.8.man	2010-07-10 05:25:51.000000000 +0200
++++ dhcp-4.2.0/client/dhclient.8	2010-07-21 14:27:13.000000000 +0200
+@@ -115,6 +115,33 @@ relay
  .B -w
  ]
  [
@@ -35,14 +35,18 @@ diff -up dhcp-4.1.1/client/dhclient.8.man dhcp-4.1.1/client/dhclient.8
  .B -v
  ]
  [
-@@ -138,32 +165,6 @@ important details about the network to w
+@@ -142,46 +169,6 @@ important details about the network to w
  the location of a default router, the location of a name server, and
  so on.
  .PP
--If given the -4 command line argument (default), dhclient will use the
+-If given the 
+-.B -4
+-command line argument (default), dhclient will use the
 -DHCPv4 protocol to obtain an IPv4 address and configuration parameters.
 -.PP
--If given the -6 command line argument, dhclient will use the DHCPv6
+-If given the
+-.B -6
+-command line argument, dhclient will use the DHCPv6
 -protocol to obtain whatever IPv6 addresses are available along with
 -configuration parameters. But with
 -.B -S
@@ -62,13 +66,23 @@ diff -up dhcp-4.1.1/client/dhclient.8.man dhcp-4.1.1/client/dhclient.8
 -restores it. Note it is not recommended to mix queries of different types
 -together, or even to share the lease file between them.
 -.PP
--If given the --version command line argument, dhclient will print its
+-By default, DHCPv6 dhclient creates an identifier based on the
+-link-layer address (DUID-LL) if it is running in stateless mode (with
+--S, not requesting an address), or it creates an identifier based on
+-the link-layer address plus a timestamp (DUID-LLT) if it is running in
+-stateful mode (without -S, requesting an address).
+-.B -D
+-overrides this default, with a value of either "LL" or "LLT".
+-.PP
+-If given the 
+-.B --version
+-command line argument, dhclient will print its
 -version number and exit.
 -.PP
  On startup, dhclient reads the
  .IR dhclient.conf
  for configuration instructions.   It then gets a list of all the
-@@ -217,141 +218,259 @@ file.   If interfaces are specified in t
+@@ -235,141 +222,269 @@ file.   If interfaces are specified in t
  only configure interfaces that are either specified in the
  configuration file or on the command line, and will ignore all other
  interfaces.
@@ -209,6 +223,16 @@ diff -up dhcp-4.1.1/client/dhclient.8.man dhcp-4.1.1/client/dhclient.8
 +valid with the
 +.BI \-6
 +option.
++
++.TP
++.BI \-D
++By default, DHCPv6 dhclient creates an identifier based on the
++link-layer address (DUID-LL) if it is running in stateless mode (with
++-S, not requesting an address), or it creates an identifier based on
++the link-layer address plus a timestamp (DUID-LLT) if it is running in
++stateful mode (without -S, requesting an address).
++.BI \-D
++overrides this default, with a value of either "LL" or "LLT".
 +
 +.TP
 +.BI \-p\ <port\ number>
@@ -457,55 +481,23 @@ diff -up dhcp-4.1.1/client/dhclient.8.man dhcp-4.1.1/client/dhclient.8
  .SH CONFIGURATION
  The syntax of the dhclient.conf(5) file is discussed separately.
  .SH OMAPI
-diff -up dhcp-4.1.1/client/dhclient.conf.5.man dhcp-4.1.1/client/dhclient.conf.5
---- dhcp-4.1.1/client/dhclient.conf.5.man	2009-07-23 21:02:09.000000000 +0200
-+++ dhcp-4.1.1/client/dhclient.conf.5	2010-02-25 17:43:16.000000000 +0100
-@@ -184,11 +184,12 @@ are called \fIDHCP Options\fR.  DHCP Opt
- The request statement causes the client to request that any server
- responding to the client send the client its values for the specified
+diff -up dhcp-4.2.0/client/dhclient.conf.5.man dhcp-4.2.0/client/dhclient.conf.5
+--- dhcp-4.2.0/client/dhclient.conf.5.man	2010-07-10 05:25:51.000000000 +0200
++++ dhcp-4.2.0/client/dhclient.conf.5	2010-07-21 14:14:00.000000000 +0200
+@@ -186,7 +186,8 @@ responding to the client send the client
  options.   Only the option names should be specified in the request
--statement - not option parameters.   By default, the DHCP server
-+statement - not option parameters.   By default, the DHCPv4 client
+ statement - not option parameters.   By default, the DHCPv4 client
  requests the subnet-mask, broadcast-address, time-offset, routers,
--domain-name, domain-name-servers and host-name options.  Note that if
--you enter a 'request' statement, you over-ride this default and these
--options will not be requested.
-+domain-search, domain-name, domain-name-servers, host-name, nis-domain, nis-servers,
-+ntp-servers and interface-mtu options. The DHCPv6 client requests by default
-+name-servers and domain-search. Note that if you enter a 'request' statement,
-+you over-ride this default and these options will not be requested.
+-domain-name, domain-name-servers and host-name options while the DHCPv6
++domain-search, domain-name, domain-name-servers, host-name, nis-domain,
++nis-servers, ntp-servers and interface-mtu options while the DHCPv6
+ client requests the dhcp6 name-servers and domain-search options.  Note
+ that if you enter a \'request\' statement, you over-ride these defaults
+ and these options will not be requested.
+@@ -672,6 +673,17 @@ know the DHCP service(s) anycast MAC add
+ client.  The \fIlink-type\fR and \fImac-address\fR parameters are configured
+ in a similar manner to the \fBhardware\fR statement.
  .PP
- In some cases, it may be desirable to send no parameter request list
- at all.   To do this, simply write the request statement but specify
-@@ -234,22 +235,11 @@ The send statement causes the client to 
- the server with the specified values.  These are full option
- declarations as described in \fBdhcp-options(5)\fR.  Options that are
- always sent in the DHCP protocol should not be specified here, except
--that the client can specify a \fBrequested-lease-time\fR option other
-+that the client can specify a requested \fBdhcp-lease-time\fR option other
- than the default requested lease time, which is two hours.  The other
- obvious use for this statement is to send information to the server
- that will allow it to differentiate between this client and other
- clients or kinds of clients.
--.SH DHCPV6 OPERATION
--The client does not yet have a default DHCPv6 Option Request Option (ORO),
--nor has it been integrated with the 'request' and 'require' syntax above.
--It is neccessary to configure an ORO then.
--.PP
--.nf
--  send dhcp6.oro 1, 2, 7, 12, 13, 23, 24, 39;
--.fi
--.PP
--The above ORO will request both identifiers (server, client), the preference,
--unicast, nameservers, domain-search, and FQDN(v6) options.
- .SH DYNAMIC DNS
- The client now has some very limited support for doing DNS updates
- when a lease is acquired.   This is prototypical, and probably doesn't
-@@ -659,6 +649,18 @@ database and will record the media type 
- Whenever the client tries to renew the lease, it will use that same
- media type.   The lease must expire before the client will go back to
- cycling through media types.
-+.PP
 + \fBbootp-broadcast-always;\fR
 +.PP
 +The
@@ -520,8 +512,8 @@ diff -up dhcp-4.1.1/client/dhclient.conf.5.man dhcp-4.1.1/client/dhclient.conf.5
  .SH SAMPLE
  The following configuration file is used on a laptop running NetBSD
  1.3.   The laptop has an IP alias of 192.5.5.213, and has one
-@@ -680,10 +682,10 @@ interface "ep0" {
-     send host-name "andare.fugue.com";
+@@ -694,10 +706,10 @@ interface "ep0" {
+     hardware ethernet 00:a0:24:ab:fb:9c;
      send dhcp-client-identifier 1:0:a0:24:ab:fb:9c;
      send dhcp-lease-time 3600;
 -    supersede domain-name "fugue.com rc.vix.com home.vix.com";
@@ -533,9 +525,9 @@ diff -up dhcp-4.1.1/client/dhclient.conf.5.man dhcp-4.1.1/client/dhclient.conf.5
      require subnet-mask, domain-name-servers;
      script "CLIENTBINDIR/dhclient-script";
      media "media 10baseT/UTP", "media 10base2/BNC";
-diff -up dhcp-4.1.1/client/dhclient-script.8.man dhcp-4.1.1/client/dhclient-script.8
---- dhcp-4.1.1/client/dhclient-script.8.man	2009-07-25 00:04:51.000000000 +0200
-+++ dhcp-4.1.1/client/dhclient-script.8	2010-02-25 17:45:46.000000000 +0100
+diff -up dhcp-4.2.0/client/dhclient-script.8.man dhcp-4.2.0/client/dhclient-script.8
+--- dhcp-4.2.0/client/dhclient-script.8.man	2010-07-10 05:25:51.000000000 +0200
++++ dhcp-4.2.0/client/dhclient-script.8	2010-07-21 14:00:16.000000000 +0200
 @@ -47,7 +47,7 @@ customizations are needed, they should b
  exit hooks provided (see HOOKS for details).   These hooks will allow the
  user to override the default behaviour of the client in creating a
@@ -572,10 +564,10 @@ diff -up dhcp-4.1.1/client/dhclient-script.8.man dhcp-4.1.1/client/dhclient-scri
  .SH OPERATION
  When dhclient needs to invoke the client configuration script, it
  defines a set of variables in the environment, and then invokes
-diff -up dhcp-4.1.1/common/dhcp-options.5.man dhcp-4.1.1/common/dhcp-options.5
---- dhcp-4.1.1/common/dhcp-options.5.man	2009-07-25 00:04:52.000000000 +0200
-+++ dhcp-4.1.1/common/dhcp-options.5	2010-02-25 17:40:19.000000000 +0100
-@@ -905,6 +905,21 @@ classless IP routing - it does not inclu
+diff -up dhcp-4.2.0/common/dhcp-options.5.man dhcp-4.2.0/common/dhcp-options.5
+--- dhcp-4.2.0/common/dhcp-options.5.man	2010-07-10 05:25:51.000000000 +0200
++++ dhcp-4.2.0/common/dhcp-options.5	2010-07-21 14:00:16.000000000 +0200
+@@ -913,6 +913,21 @@ classless IP routing - it does not inclu
  classless IP routing is now the most widely deployed routing standard,
  this option is virtually useless, and is not implemented by any of the
  popular DHCP clients, for example the Microsoft DHCP client.
@@ -597,9 +589,9 @@ diff -up dhcp-4.1.1/common/dhcp-options.5.man dhcp-4.1.1/common/dhcp-options.5
  .RE
  .PP
  .nf
-diff -up dhcp-4.1.1/server/dhcpd.conf.5.man dhcp-4.1.1/server/dhcpd.conf.5
---- dhcp-4.1.1/server/dhcpd.conf.5.man	2009-07-23 21:02:10.000000000 +0200
-+++ dhcp-4.1.1/server/dhcpd.conf.5	2010-02-25 17:51:20.000000000 +0100
+diff -up dhcp-4.2.0/server/dhcpd.conf.5.man dhcp-4.2.0/server/dhcpd.conf.5
+--- dhcp-4.2.0/server/dhcpd.conf.5.man	2010-07-10 05:25:51.000000000 +0200
++++ dhcp-4.2.0/server/dhcpd.conf.5	2010-07-21 14:00:16.000000000 +0200
 @@ -519,6 +519,9 @@ pool {
  };
  .fi
@@ -622,31 +614,7 @@ diff -up dhcp-4.1.1/server/dhcpd.conf.5.man dhcp-4.1.1/server/dhcpd.conf.5
    max-response-delay 60;
    max-unacked-updates 10;
    mclt 3600;
-@@ -594,9 +597,7 @@ statement
- .B port \fIport-number\fR\fB;\fR
- .PP
- The \fBport\fR statement declares the TCP port on which the server
--should listen for connections from its failover peer.   This statement
--may not currently be omitted, because the failover protocol does not
--yet have a reserved TCP port number.
-+should listen for connections from its failover peer.
- .RE
- .PP
- The 
-@@ -608,10 +609,8 @@ statement
- .PP
- The \fBpeer port\fR statement declares the TCP port to which the
- server should connect to reach its failover peer for failover
--messages.   This statement may not be omitted because the failover
--protocol does not yet have a reserved TCP port number.   The port
--number declared in the \fBpeer port\fR statement may be the same as
--the port number declared in the \fBport\fR statement.
-+messages.  The port number declared in the \fBpeer port\fR statement
-+may be the same as the port number declared in the \fBport\fR statement.
- .RE
- .PP
- The
-@@ -1278,7 +1277,7 @@ the zone containing PTR records - for IS
+@@ -1305,7 +1308,7 @@ the zone containing PTR records - for IS
  .PP
  .nf
  key DHCP_UPDATER {
@@ -655,7 +623,7 @@ diff -up dhcp-4.1.1/server/dhcpd.conf.5.man dhcp-4.1.1/server/dhcpd.conf.5
    secret pRP5FapFoJ95JEL06sv4PQ==;
  };
  
-@@ -1301,7 +1300,7 @@ dhcpd.conf file:
+@@ -1328,7 +1331,7 @@ dhcpd.conf file:
  .PP
  .nf
  key DHCP_UPDATER {
@@ -664,7 +632,7 @@ diff -up dhcp-4.1.1/server/dhcpd.conf.5.man dhcp-4.1.1/server/dhcpd.conf.5
    secret pRP5FapFoJ95JEL06sv4PQ==;
  };
  
-@@ -2508,7 +2507,8 @@ statement
+@@ -2540,7 +2543,8 @@ statement
  The \fInext-server\fR statement is used to specify the host address of
  the server from which the initial boot file (specified in the
  \fIfilename\fR statement) is to be loaded.   \fIServer-name\fR should

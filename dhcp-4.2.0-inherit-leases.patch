@@ -1,7 +1,7 @@
-diff -up dhcp-4.1.1/client/dhclient.c.inherit dhcp-4.1.1/client/dhclient.c
---- dhcp-4.1.1/client/dhclient.c.inherit	2010-01-20 17:22:34.000000000 +0100
-+++ dhcp-4.1.1/client/dhclient.c	2010-01-20 17:22:34.000000000 +0100
-@@ -2301,6 +2301,7 @@ void send_request (cpp)
+diff -up dhcp-4.2.0/client/dhclient.c.inherit dhcp-4.2.0/client/dhclient.c
+--- dhcp-4.2.0/client/dhclient.c.inherit	2010-07-21 14:33:44.000000000 +0200
++++ dhcp-4.2.0/client/dhclient.c	2010-07-21 14:40:05.000000000 +0200
+@@ -2322,6 +2322,7 @@ void send_request (cpp)
  {
  	struct client_state *client = cpp;
  
@@ -9,7 +9,7 @@ diff -up dhcp-4.1.1/client/dhclient.c.inherit dhcp-4.1.1/client/dhclient.c
  	int result;
  	int interval;
  	struct sockaddr_in destination;
-@@ -2360,6 +2361,22 @@ void send_request (cpp)
+@@ -2381,6 +2382,22 @@ void send_request (cpp)
  		/* Now do a preinit on the interface so that we can
  		   discover a new address. */
  		script_init (client, "PREINIT", (struct string_list *)0);

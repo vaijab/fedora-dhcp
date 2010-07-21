@@ -1,6 +1,6 @@
-diff -up dhcp-4.1.1/client/clparse.c.requested dhcp-4.1.1/client/clparse.c
---- dhcp-4.1.1/client/clparse.c.requested	2010-04-28 15:20:43.000000000 +0200
-+++ dhcp-4.1.1/client/clparse.c	2010-04-28 15:21:49.000000000 +0200
+diff -up dhcp-4.2.0/client/clparse.c.requested dhcp-4.2.0/client/clparse.c
+--- dhcp-4.2.0/client/clparse.c.requested	2010-07-21 13:29:05.000000000 +0200
++++ dhcp-4.2.0/client/clparse.c	2010-07-21 13:50:29.000000000 +0200
 @@ -37,7 +37,7 @@
  
  struct client_config top_level_config;

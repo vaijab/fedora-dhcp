@@ -1,7 +1,7 @@
-diff -up dhcp-4.1.1/client/dhc6.c.release6-elapsed dhcp-4.1.1/client/dhc6.c
---- dhcp-4.1.1/client/dhc6.c.release6-elapsed	2010-04-19 11:55:59.000000000 +0200
-+++ dhcp-4.1.1/client/dhc6.c	2010-04-19 12:00:00.000000000 +0200
-@@ -2174,7 +2174,7 @@ do_release6(void *input)
+diff -up dhcp-4.2.0/client/dhc6.c.release6-elapsed dhcp-4.2.0/client/dhc6.c
+--- dhcp-4.2.0/client/dhc6.c.release6-elapsed	2010-07-21 16:19:52.000000000 +0200
++++ dhcp-4.2.0/client/dhc6.c	2010-07-21 16:21:14.000000000 +0200
+@@ -2177,7 +2177,7 @@ do_release6(void *input)
  	struct client_state *client;
  	struct data_string ds;
  	int send_ret;
@@ -10,7 +10,7 @@ diff -up dhcp-4.1.1/client/dhc6.c.release6-elapsed dhcp-4.1.1/client/dhc6.c
  
  	client = input;
  
-@@ -2194,6 +2194,14 @@ do_release6(void *input)
+@@ -2197,6 +2197,14 @@ do_release6(void *input)
  		client->start_time.tv_usec = cur_tv.tv_usec;
  	}
  
@@ -25,7 +25,7 @@ diff -up dhcp-4.1.1/client/dhc6.c.release6-elapsed dhcp-4.1.1/client/dhc6.c
  	/*
  	 * Don't use unicast as we don't know if we still have an
  	 * available address with enough scope.
-@@ -2210,6 +2218,18 @@ do_release6(void *input)
+@@ -2213,6 +2221,18 @@ do_release6(void *input)
  	ds.buffer->data[0] = DHCPV6_RELEASE;
  	memcpy(ds.buffer->data + 1, client->dhcpv6_transaction_id, 3);
  
