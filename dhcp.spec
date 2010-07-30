@@ -7,7 +7,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  1%{?dist}
+Release:  2%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -22,8 +22,9 @@ Source2:  dhcpd6.init
 Source3:  dhcrelay.init
 Source4:  dhclient-script
 Source5:  README.dhclient.d
-Source6:  10-dhclient
-Source7:  56dhclient
+Source6:  11-dhclient
+Source7:  12-dhcpd
+Source8:  56dhclient
 
 
 Patch0:   dhcp-4.2.0-errwarn-message.patch
@@ -373,10 +374,11 @@ EOF
 # Install NetworkManager dispatcher script
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
 %{__install} -p -m 0755 %{SOURCE6} %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
+%{__install} -p -m 0755 %{SOURCE7} %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
 
 # Install pm-utils script to handle suspend/resume and dhclient leases
 %{__mkdir} -p %{buildroot}%{_libdir}/pm-utils/sleep.d
-%{__install} -p -m 0755 %{SOURCE7} %{buildroot}%{_libdir}/pm-utils/sleep.d
+%{__install} -p -m 0755 %{SOURCE8} %{buildroot}%{_libdir}/pm-utils/sleep.d
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -454,6 +456,9 @@ fi
 %config(noreplace) %{dhcpconfdir}/dhcpd.conf
 %config(noreplace) %{dhcpconfdir}/dhcpd6.conf
 %config(noreplace) %{_sysconfdir}/openldap/schema/dhcp.schema
+%dir %{_sysconfdir}/NetworkManager
+%dir %{_sysconfdir}/NetworkManager/dispatcher.d
+%{_sysconfdir}/NetworkManager/dispatcher.d/12-dhcpd
 %{_initddir}/dhcpd
 %{_initddir}/dhcpd6
 %{_initddir}/dhcrelay
@@ -476,7 +481,7 @@ fi
 %dir %{_localstatedir}/lib/dhclient
 %dir %{_sysconfdir}/NetworkManager
 %dir %{_sysconfdir}/NetworkManager/dispatcher.d
-%{_sysconfdir}/NetworkManager/dispatcher.d/10-dhclient
+%{_sysconfdir}/NetworkManager/dispatcher.d/11-dhclient
 /sbin/dhclient
 /sbin/dhclient-script
 %attr(0755,root,root) %{_libdir}/pm-utils/sleep.d/56dhclient
@@ -499,6 +504,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Jul 30 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-2
+- Add 12-dhcpd NM dispatcher script (#565921)
+- Rename 10-dhclient to 11-dhclient (10-sendmail already exists)
+
 * Wed Jul 21 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-1
 - 4.2.0: includes ldap-for-dhcp
 
@@ -506,13 +515,13 @@ fi
 - Add LICENSE file to dhclient subpackage.
 
 * Thu Jul 01 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-25.P1
-- Adhere to Static Library Packaging Guidelines (#609605).
+- Adhere to Static Library Packaging Guidelines (#609605)
 
 * Tue Jun 29 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-24.P1
 - Fix parsing of date (#514828)
 
 * Wed Jun 03 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-23.P1
-- 4.1.1-P1: pair of bug fixes including one for CVE-2010-2156 (#601405).
+- 4.1.1-P1: pair of bug fixes including one for CVE-2010-2156 (#601405)
 - Compile with -fno-strict-aliasing
 
 * Mon May 03 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-22
@@ -523,7 +532,7 @@ fi
 
 * Wed Apr 28 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-20
 - Move /etc/NetworkManager/dispatcher.d/10-dhclient script
-  from dhcp to dhclient subpackage (#586999).
+  from dhcp to dhclient subpackage (#586999)
 
 * Wed Apr 28 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-19
 - Add domain-search to the list of default requested DHCP options (#586906)
