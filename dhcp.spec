@@ -15,7 +15,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.1
-Release:  23.%{patchver}%{?dist}
+Release:  24.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -348,7 +348,10 @@ touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd6.leases
 
 %{__cat} << EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcrelay
 # Command line options here
+DHCRELAYARGS=""
+# DHCPv4 only
 INTERFACES=""
+# DHCPv4 only
 DHCPSERVERS=""
 EOF
 
@@ -525,6 +528,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Aug 20 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-24.P1
+- Add DHCRELAYARGS variable to /etc/sysconfig/dhcrelay
+
 * Tue Jun 29 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-23.P1
 - Fix parsing of date (#514828)
 

@@ -58,7 +58,7 @@ start() {
     rh_status_q && return 0
 
     echo -n $"Starting $prog: "
-    daemon $exec $([ -n "$INTERFACES" ] && for int in $INTERFACES ; do echo -n " -i $int" ; done) $DHCPSERVERS 2>/dev/null
+    daemon $exec $DHCRELAYARGS $([ -n "$INTERFACES" ] && for int in $INTERFACES ; do echo -n " -i $int" ; done) $DHCPSERVERS 2>/dev/null
     RETVAL=$?
     echo
     [ $RETVAL -eq 0 ] && touch $lockfile
