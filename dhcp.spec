@@ -7,7 +7,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  2%{?dist}
+Release:  3%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -323,7 +323,10 @@ touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd6.leases
 
 %{__cat} << EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcrelay
 # Command line options here
+DHCRELAYARGS=""
+# DHCPv4 only
 INTERFACES=""
+# DHCPv4 only
 DHCPSERVERS=""
 EOF
 
@@ -504,6 +507,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Aug 20 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-3
+- Add DHCRELAYARGS variable to /etc/sysconfig/dhcrelay
+
 * Fri Jul 30 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-2
 - Add 12-dhcpd NM dispatcher script (#565921)
 - Rename 10-dhclient to 11-dhclient (10-sendmail already exists)
