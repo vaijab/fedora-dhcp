@@ -7,7 +7,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  3%{?dist}
+Release:  4%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -25,7 +25,6 @@ Source5:  README.dhclient.d
 Source6:  11-dhclient
 Source7:  12-dhcpd
 Source8:  56dhclient
-
 
 Patch0:   dhcp-4.2.0-errwarn-message.patch
 Patch1:   dhcp-4.2.0-options.patch
@@ -54,6 +53,7 @@ Patch24:  dhcp-4.2.0-retransmission.patch
 Patch25:  dhcp-4.2.0-release6-elapsed.patch
 Patch26:  dhcp-4.2.0-initialization-delay.patch
 Patch27:  dhcp-4.2.0-parse_date.patch
+Patch28:  dhcp-4.2.0-rfc3442-classless-static-routes.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -225,6 +225,9 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # Fix parsing of date (#514828)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21501])
 %patch27 -p1 -b .parse_date
+
+# RFC 3442 - Classless Static Route Option for DHCPv4 (#516325)
+%patch28 -p1 -b .rfc3442
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -507,6 +510,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Tue Aug 31 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-4
+- RFC 3442 - Classless Static Route Option for DHCPv4 (#516325)
+
 * Fri Aug 20 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-3
 - Add DHCRELAYARGS variable to /etc/sysconfig/dhcrelay
 
