@@ -7,7 +7,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  4%{?dist}
+Release:  5%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -510,6 +510,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Tue Sep 1 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-5
+- Fix parsing of lease file dates & times on 64-bit platforms (#628258)
+
 * Tue Aug 31 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-4
 - RFC 3442 - Classless Static Route Option for DHCPv4 (#516325)
 
