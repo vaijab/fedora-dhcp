@@ -7,7 +7,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  6%{?dist}
+Release:  7%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -54,6 +54,7 @@ Patch25:  dhcp-4.2.0-release6-elapsed.patch
 Patch26:  dhcp-4.2.0-initialization-delay.patch
 Patch27:  dhcp-4.2.0-parse_date.patch
 Patch28:  dhcp-4.2.0-rfc3442-classless-static-routes.patch
+Patch29:  dhcp-4.2.0-PIE-RELRO.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -189,6 +190,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 %patch18 -p1 -b .dracut
 
 # Ensure 64-bit platforms parse lease file dates & times correctly (#448615)
+# (Partly submitted to dhcp-bugs@isc.org - [ISC-Bugs #22033])
 %patch19 -p1 -b .64-bit_lease_parse
 
 # Drop unnecessary capabilities in dhclient (#517649, #546765)
@@ -228,6 +230,9 @@ libdhcpctl and libomapi static libraries are also included in this package.
 
 # RFC 3442 - Classless Static Route Option for DHCPv4 (#516325)
 %patch28 -p1 -b .rfc3442
+
+# hardening dhcpd/dhcrelay/dhclient by making them PIE & RELRO
+%patch29 -p1 -b .PIE-RELRO
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -281,7 +286,7 @@ done
 %build
 autoreconf --verbose --force --install
 
-CFLAGS="%{optflags} -fno-strict-aliasing -fPIC -D_GNU_SOURCE" \
+CFLAGS="%{optflags} -fno-strict-aliasing -fPIE -D_GNU_SOURCE" \
 %configure \
     --with-srv-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd.leases \
     --with-srv6-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd6.leases \
@@ -510,6 +515,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Tue Sep 7 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-7
+- Hardening dhcpd/dhcrelay/dhclient by making them PIE & RELRO
+
 * Thu Sep 2 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-6
 - Another fix for handling time values on 64-bit platforms (#628258)
 
