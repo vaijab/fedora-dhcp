@@ -15,7 +15,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.1
-Release:  18.%{patchver}%{?dist}
+Release:  19.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -61,6 +61,7 @@ Patch23:  %{name}-4.1.1-sendDecline.patch
 Patch24:  %{name}-4.1.1-retransmission.patch
 Patch25:  %{name}-4.1.1-release6-elapsed.patch
 Patch26:  %{name}-4.1.1-P1-parse_date.patch
+Patch27:  %{name}-4.1.1-P1-PIE-RELRO.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -236,6 +237,9 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21501])
 %patch26 -p1 -b .parse_date
 
+# Make dhcpd/dhcrelay/dhclient PIE and RELRO
+%patch27 -p1 -b .PIE-RELRO
+
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
 
@@ -295,7 +299,7 @@ autoheader
 automake --foreign --add-missing --copy
 
 %build
-CFLAGS="%{optflags} -fno-strict-aliasing -fPIC -D_GNU_SOURCE" \
+CFLAGS="%{optflags} -fno-strict-aliasing -fPIE -D_GNU_SOURCE" \
 %configure \
     --enable-dhcpv6 \
     --with-srv-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd.leases \
@@ -518,6 +522,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Tue Sep 07 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-19.P1
+- Hardening dhcpd/dhcrelay/dhclient by making them PIE & RELRO
+
 * Tue Jun 29 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-18.P1
 - Fix parsing of date (#514828)
 
