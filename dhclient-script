@@ -256,6 +256,14 @@ add_default_gateway() {
     return 1
 }
 
+flush_dev() {
+# Instead of bringing the interface down (#574568)
+# explicitly clear the ARP cache and flush all addresses & routes.
+    ip -4 addr flush dev ${1} >/dev/null 2>&1
+    ip -4 route flush dev ${1} >/dev/null 2>&1
+    ip -4 neigh flush dev ${1} >/dev/null 2>&1
+}
+
 dhconfig() {
     if [ -n "${old_ip_address}" ] && [ -n "${alias_ip_address}" ] &&
        [ ! "${alias_ip_address}" = "${old_ip_address}" ]; then
@@ -265,9 +273,8 @@ dhconfig() {
 
     if [ -n "${old_ip_address}" ] &&
        [ ! "${old_ip_address}" = "${new_ip_address}" ]; then
-        # IP address changed.  Bringing down the interface will delete all
-        # routes, and clear the ARP cache.
-        ip -4 addr flush dev ${interface} >/dev/null 2>&1
+        # IP address changed. Delete all routes, and clear the ARP cache.
+        flush_dev ${interface}
     fi
 
     if [ "${reason}" = "BOUND" ] || [ "${reason}" = "REBOOT" ] ||
@@ -710,9 +717,8 @@ case "${reason}" in
         fi
 
         if [ -n "${old_ip_address}" ]; then
-            # Shut down interface, which will delete routes and clear arp cache.
-            ip -4 addr flush dev ${interface} >/dev/null 2>&1
-            ip link set ${interface} down
+            # Delete addresses/routes/arp cache.
+            flush_dev ${interface}
         fi
 
         if [ -n "${alias_ip_address}" ]; then
@@ -737,8 +743,7 @@ case "${reason}" in
                 exit_with_hooks 0
             fi
 
-            ip -4 addr flush dev ${interface} >/dev/null 2>&1
-            ip link set ${interface} down
+            flush_dev ${interface}
             exit_with_hooks 1
         else
             exit_with_hooks 1
