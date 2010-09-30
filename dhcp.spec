@@ -7,7 +7,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  12%{?dist}
+Release:  13%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -254,6 +254,15 @@ libdhcpctl and libomapi static libraries are also included in this package.
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
 %{__install} -p -m 0644 %{SOURCE5} .
 
+# Sparc and s390 arches need to use -fPIE/-fPIC
+%ifarch sparcv9 sparc64 s390 s390x
+for i in {client,relay,server,omapip}/Makefile.am; do
+        %{__sed} -i 's|fpie|fPIE|g' $i
+done
+for i in {common,omapip}/Makefile.am; do
+	%{__sed} -i 's|fpic|fPIC|g' $i
+%endif
+
 # Ensure we don't pick up Perl as a dependency from the scripts and modules
 # in the contrib directory (we copy this to /usr/share/doc in the final
 # package).
@@ -302,7 +311,7 @@ done
 %build
 autoreconf --verbose --force --install
 
-CFLAGS="%{optflags} -fno-strict-aliasing -fPIE -D_GNU_SOURCE" \
+CFLAGS="%{optflags} -fno-strict-aliasing -D_GNU_SOURCE" \
 %configure \
     --with-srv-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd.leases \
     --with-srv6-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd6.leases \
@@ -531,6 +540,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Oct 20 2010 Adam Tkac <atkac redhat com> - 12:4.2.0-13
+- improve PIE patch (build libraries with -fpic, not with -fpie)
+
 * Wed Oct 13 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-12
 - Server was ignoring client's
   Solicit (where client included address/prefix as a preference) (#634842)
