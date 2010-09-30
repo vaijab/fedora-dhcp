@@ -7,7 +7,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  7%{?dist}
+Release:  8%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -515,13 +515,17 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
-* Tue Sep 7 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-7
+* Thu Sep 30 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-8
+- Explicitly clear the ARP cache and flush all addresses & routes
+  instead of bringing the interface down (#574568)
+
+* Tue Sep 07 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-7
 - Hardening dhcpd/dhcrelay/dhclient by making them PIE & RELRO
 
-* Thu Sep 2 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-6
+* Thu Sep 02 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-6
 - Another fix for handling time values on 64-bit platforms (#628258)
 
-* Wed Sep 1 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-5
+* Wed Sep 01 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-5
 - Fix parsing of lease file dates & times on 64-bit platforms (#628258)
 
 * Tue Aug 31 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-4
