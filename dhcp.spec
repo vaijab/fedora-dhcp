@@ -7,7 +7,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  13%{?dist}
+Release:  14%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -57,6 +57,7 @@ Patch28:  dhcp-4.2.0-rfc3442-classless-static-routes.patch
 Patch29:  dhcp-4.2.0-PIE-RELRO.patch
 Patch30:  dhcp-4.2.0-honor-expired.patch
 Patch31:  dhcp-4.2.0-noprefixavail.patch
+Patch32:  dhcp420-rh637017.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -65,6 +66,7 @@ BuildRequires: groff
 BuildRequires: libtool
 BuildRequires: openldap-devel
 BuildRequires: libcap-ng-devel
+BuildRequires: bind-lite-devel
 
 Requires(post): chkconfig
 Requires(post): coreutils
@@ -122,6 +124,9 @@ libdhcpctl and libomapi static libraries are also included in this package.
 
 %prep
 %setup -q
+
+# Remove bundled BIND source
+rm bind/bind.tar.gz
 
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
@@ -249,6 +254,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 #    Without this patch server ignored client's Solicit in which the client was sending
 #    prefix in IA_PD (as a preference) and this prefix was not in any of server's pools.
 %patch31 -p1 -b .noprefixavail
+%patch32 -p1 -b .rh637017
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -323,7 +329,8 @@ CFLAGS="%{optflags} -fno-strict-aliasing -D_GNU_SOURCE" \
     --with-cli6-pid-file=%{_localstatedir}/run/dhclient6.pid \
     --with-relay-pid-file=%{_localstatedir}/run/dhcrelay.pid \
     --with-ldap \
-    --with-ldapcrypto
+    --with-ldapcrypto \
+    --with-libbind=%{_includedir} --with-libbind-libs=%{_libdir}
 %{__make} %{?_smp_mflags}
 
 %install
@@ -540,6 +547,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Oct 20 2010 Adam Tkac <atkac redhat com> - 12:4.2.0-14
+- fire away bundled BIND source
+
 * Wed Oct 20 2010 Adam Tkac <atkac redhat com> - 12:4.2.0-13
 - improve PIE patch (build libraries with -fpic, not with -fpie)
 
