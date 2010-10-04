@@ -307,10 +307,6 @@ dhconfig() {
            [ -n "${new_static_routes}" ]; then
             if [ -n "${new_classless_static_routes}" ]; then
                 IFS=', |' static_routes=(${new_classless_static_routes})
-
-                # If the DHCP server returns both a Classless Static Routes option and
-                # a Router option, the DHCP client MUST ignore the Router option. (RFC3442)
-                new_routers=""
             else
                 IFS=', |' static_routes=(${new_static_routes})
             fi
@@ -319,19 +315,26 @@ dhconfig() {
             for((i=0; i<${#static_routes[@]}; i+=2)); do
                 target=${static_routes[$i]}
                 if [ -n "${new_classless_static_routes}" ]; then
-                    prefix=$(echo ${target} | cut -d "." -f 1)
-                    target=$(echo ${target} | cut -d "." -f 2-)
-                    IFS="." target_arr=(${target})
-                    unset IFS
-                    ((pads=4-${#target_arr[@]}))
-                    for j in $(seq $pads); do
-                        target=${target}".0"
-                    done
+                    if [ ${target} = "0" ]; then
+                        # If the DHCP server returns both a Classless Static Routes option and
+                        # a Router option, the DHCP client MUST ignore the Router option. (RFC3442)
+                        new_routers=""
+                        prefix="0"
+                    else
+                        prefix=$(echo ${target} | cut -d "." -f 1)
+                        target=$(echo ${target} | cut -d "." -f 2-)
+                        IFS="." target_arr=(${target})
+                        unset IFS
+                        ((pads=4-${#target_arr[@]}))
+                        for j in $(seq $pads); do
+                            target=${target}".0"
+                        done
 
-                    # Client MUST zero any bits in the subnet number where the corresponding bit in the mask is zero.
-                    # In other words, the subnet number installed in the routing table is the logical AND of
-                    # the subnet number and subnet mask given in the Classless Static Routes option. (RFC3442)
-                    target="$(get_network_address ${target} ${prefix})"
+                        # Client MUST zero any bits in the subnet number where the corresponding bit in the mask is zero.
+                        # In other words, the subnet number installed in the routing table is the logical AND of
+                        # the subnet number and subnet mask given in the Classless Static Routes option. (RFC3442)
+                        target="$(get_network_address ${target} ${prefix})"
+                    fi
                 else
                     prefix=$(class_bits ${target})
                 fi
@@ -353,7 +356,7 @@ dhconfig() {
                 fi
 
                 if is_router_reachable ${gateway}; then
-                    ip -4 route replace ${target}/${prefix} via ${gateway} dev ${interface} ${metric}
+                    ip -4 route replace ${target}/${prefix} proto static via ${gateway} dev ${interface} ${metric}
 
                     if [ $? -ne 0 ]; then
                         logmessage "failed to create static route: ${target}/${prefix} via ${gateway} dev ${interface} ${metric}"
