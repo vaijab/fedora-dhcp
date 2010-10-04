@@ -7,7 +7,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  8%{?dist}
+Release:  9%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -515,6 +515,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Mon Oct 04 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-9
+- RFC 3442 - ignore Router option only if
+  Classless Static Routes option contains default router
+
 * Thu Sep 30 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-8
 - Explicitly clear the ARP cache and flush all addresses & routes
   instead of bringing the interface down (#574568)
