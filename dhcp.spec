@@ -7,7 +7,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  14%{?dist}
+Release:  15%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -58,6 +58,7 @@ Patch29:  dhcp-4.2.0-PIE-RELRO.patch
 Patch30:  dhcp-4.2.0-honor-expired.patch
 Patch31:  dhcp-4.2.0-noprefixavail.patch
 Patch32:  dhcp420-rh637017.patch
+Patch33:  dhcp420-sharedlib.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -110,13 +111,21 @@ To use DHCP on your network, install a DHCP service (or relay agent),
 and on clients run a DHCP client daemon.  The dhclient package
 provides the ISC DHCP client daemon.
 
+%package libs
+Summary: Shared libraries used by ISC dhcp client and server
+Group: System Environment/Base
+
+%description libs
+This package contains shared libraries used by ISC dhcp client and server
+
+
 %package devel
 Summary: Development headers and libraries for interfacing to the DHCP server
 Group: Development/Libraries
 Obsoletes: libdhcp4client-devel <= 12:4.0.0-34.fc10
 Obsoletes: libdhcp-devel <= 1.99.8-1
 Provides: %{name}-static = %{epoch}:%{version}-%{release}
-Requires: %{name} = %{epoch}:%{version}-%{release}
+Requires: %{name}-libs = %{epoch}:%{version}-%{release}
 
 %description devel
 Header files and API documentation for using the ISC DHCP libraries.  The
@@ -255,6 +264,7 @@ rm bind/bind.tar.gz
 #    prefix in IA_PD (as a preference) and this prefix was not in any of server's pools.
 %patch31 -p1 -b .noprefixavail
 %patch32 -p1 -b .rh637017
+%patch33 -p1 -b .sharedlib
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -315,6 +325,7 @@ for page in server/dhcpd.conf.5 server/dhcpd.leases.5 server/dhcpd.8 ; do
 done
 
 %build
+libtoolize --copy --force
 autoreconf --verbose --force --install
 
 CFLAGS="%{optflags} -fno-strict-aliasing -D_GNU_SOURCE" \
@@ -330,7 +341,8 @@ CFLAGS="%{optflags} -fno-strict-aliasing -D_GNU_SOURCE" \
     --with-relay-pid-file=%{_localstatedir}/run/dhcrelay.pid \
     --with-ldap \
     --with-ldapcrypto \
-    --with-libbind=%{_includedir} --with-libbind-libs=%{_libdir}
+    --with-libbind=%{_includedir} --with-libbind-libs=%{_libdir} \
+    --disable-static
 %{__make} %{?_smp_mflags}
 
 %install
@@ -423,6 +435,9 @@ EOF
 %{__mkdir} -p %{buildroot}%{_libdir}/pm-utils/sleep.d
 %{__install} -p -m 0755 %{SOURCE8} %{buildroot}%{_libdir}/pm-utils/sleep.d
 
+# Don't package libtool *.la files
+find ${RPM_BUILD_ROOT}/%{_libdir} -name '*.la' -exec '/bin/rm' '-f' '{}' ';';
+
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -484,6 +499,10 @@ if [ $1 -ge 1 ]; then
     /sbin/service dhcrelay condrestart >/dev/null 2>&1 || :
 fi
 
+%post libs -p /sbin/ldconfig
+
+%postun libs -p /sbin/ldconfig
+
 %files
 %defattr(-,root,root,-)
 %doc LICENSE README RELNOTES dhcpd.conf.sample dhcpd6.conf.sample
@@ -535,18 +554,26 @@ fi
 %attr(0644,root,root) %{_mandir}/man5/dhcp-options.5.gz
 %attr(0644,root,root) %{_mandir}/man5/dhcp-eval.5.gz
 
+%files libs
+%{_libdir}/libdhcpctl.so.*
+%{_libdir}/libomapi.so.*
+%{_libdir}/libdst.so.*
+
 %files devel
 %defattr(-,root,root,-)
 %{_includedir}/dhcpctl
 %{_includedir}/isc-dhcp
 %{_includedir}/omapip
-%{_libdir}/libdhcpctl.a
-%{_libdir}/libomapi.a
-%{_libdir}/libdst.a
+%{_libdir}/libdhcpctl.so
+%{_libdir}/libomapi.so
+%{_libdir}/libdst.so
 %attr(0644,root,root) %{_mandir}/man3/dhcpctl.3.gz
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Oct 20 2010 Adam Tkac <atkac redhat com> - 12:4.2.0-15
+- build dhcp's libraries as shared libs instead of static libs
+
 * Wed Oct 20 2010 Adam Tkac <atkac redhat com> - 12:4.2.0-14
 - fire away bundled BIND source
 
