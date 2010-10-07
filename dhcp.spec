@@ -7,7 +7,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  9%{?dist}
+Release:  10%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -55,6 +55,7 @@ Patch26:  dhcp-4.2.0-initialization-delay.patch
 Patch27:  dhcp-4.2.0-parse_date.patch
 Patch28:  dhcp-4.2.0-rfc3442-classless-static-routes.patch
 Patch29:  dhcp-4.2.0-PIE-RELRO.patch
+Patch30:  dhcp-4.2.0-honor-expired.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -233,6 +234,10 @@ libdhcpctl and libomapi static libraries are also included in this package.
 
 # hardening dhcpd/dhcrelay/dhclient by making them PIE & RELRO
 %patch29 -p1 -b .PIE-RELRO
+
+# check whether there is any unexpired address in previous lease
+# prior to confirming (INIT-REBOOT) the lease (#585418)
+%patch30 -p1 -b .honor-expired
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -515,6 +520,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Oct 07 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-10
+- Check whether there is any unexpired address in previous lease
+  prior to confirming (INIT-REBOOT) the lease (#585418)
+
 * Mon Oct 04 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-9
 - RFC 3442 - ignore Router option only if
   Classless Static Routes option contains default router
