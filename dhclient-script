@@ -497,7 +497,7 @@ add_ipv6_addr_with_DAD() {
 dh6config() {
     case "${reason}" in
         BOUND6)
-            if [ -z "${new_ip6_address}" ] &&
+            if [ -z "${new_ip6_address}" ] ||
                [ -z "${new_ip6_prefixlen}" ]; then
                 exit_with_hooks 2
             fi
@@ -508,9 +508,12 @@ dh6config() {
             ;;
 
         RENEW6|REBIND6)
-            if [ -n "${new_ip6_prefixlen}" ] &&
-               [ -n "${new_ip6_address}" ] &&
-               [  ! "${new_ip6_address}" = "${old_ip6_address}" ]; then
+            if [ -z "${new_ip6_address}" ] ||
+               [ -z "${new_ip6_prefixlen}" ]; then
+                exit_with_hooks 2
+            fi
+
+            if [  ! "${new_ip6_address}" = "${old_ip6_address}" ]; then
                 add_ipv6_addr_with_DAD
             fi
 
