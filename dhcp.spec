@@ -7,7 +7,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  11%{?dist}
+Release:  12%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -56,6 +56,7 @@ Patch27:  dhcp-4.2.0-parse_date.patch
 Patch28:  dhcp-4.2.0-rfc3442-classless-static-routes.patch
 Patch29:  dhcp-4.2.0-PIE-RELRO.patch
 Patch30:  dhcp-4.2.0-honor-expired.patch
+Patch31:  dhcp-4.2.0-noprefixavail.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -238,6 +239,16 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # check whether there is any unexpired address in previous lease
 # prior to confirming (INIT-REBOOT) the lease (#585418)
 %patch30 -p1 -b .honor-expired
+
+# 1) When server has empty pool of addresses/prefixes it must send Advertise with
+#    NoAddrsAvail/NoPrefixAvail status in response to clients Solicit.
+#    Without this patch server having empty pool of addresses/prefixes ignored
+#    client's' Solicit when client was also sending address in IA_NA or prefix in IA_PD as a preference.
+# 2) When client sends prefix in IA_NA as a preference and server doesn't have
+#    this prefix in any pool the server should offer other free prefix.
+#    Without this patch server ignored client's Solicit in which the client was sending
+#    prefix in IA_PD (as a preference) and this prefix was not in any of server's pools.
+%patch31 -p1 -b .noprefixavail
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -520,6 +531,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Oct 13 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-12
+- Server was ignoring client's
+  Solicit (where client included address/prefix as a preference) (#634842)
+
 * Thu Oct 07 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-11
 - Use ping instead of arping in dhclient-script to handle
   not-on-local-net gateway in ARP-less device (#524298)
