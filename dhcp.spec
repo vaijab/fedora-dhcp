@@ -15,7 +15,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.1
-Release:  26.%{patchver}%{?dist}
+Release:  27.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -64,6 +64,7 @@ Patch26:  %{name}-4.1.1-initialization-delay.patch
 Patch27:  %{name}-4.1.1-P1-parse_date.patch
 Patch28:  %{name}-4.1.1-P1-PIE-RELRO.patch
 Patch29:  %{name}-4.1.1-P1-noprefixavail.patch
+Patch30:  %{name}-4.1.1-P1-CVE-2010-3611.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -257,6 +258,9 @@ libdhcpctl and libomapi static libraries are also included in this package.
 #    Without this patch server ignored client's Solicit in which the client was sending
 #    prefix in IA_PD (as a preference) and this prefix was not in any of server's pools.
 %patch29 -p1 -b .noprefixavail
+
+# Server Crash with Empty Link-Address Field (CVE-2010-3611)
+%patch30 -p1 -b .CVE-2010-3611
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
@@ -543,6 +547,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Nov 04 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-27.P1
+- Fix for CVE-2010-3611 (#649880)
+
 * Wed Oct 13 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-26.P1
 - Server was ignoring client's
   Solicit (where client included address/prefix as a preference) (#634842)
