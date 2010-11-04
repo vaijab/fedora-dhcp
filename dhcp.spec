@@ -577,6 +577,8 @@ fi
 %changelog
 * Thu Nov 04 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-16.P1
 - 4.2.0-P1: fix for CVE-2010-3611 (#649880)
+- dhclient-script: when updating 'search' statement in resolv.conf,
+  add domain part of hostname if it's not already there (#637763)
 
 * Wed Oct 20 2010 Adam Tkac <atkac redhat com> - 12:4.2.0-15
 - build dhcp's libraries as shared libs instead of static libs
