@@ -4,10 +4,15 @@
 # Where dhcp configuration files are stored
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
+# Patch version
+%global patchver P1
+
+%global VERSION %{version}-%{patchver}
+
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  15%{?dist}
+Release:  16.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -16,7 +21,7 @@ Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
 URL:      http://isc.org/products/DHCP/
-Source0:  ftp://ftp.isc.org/isc/dhcp/dhcp-%{version}.tar.gz
+Source0:  ftp://ftp.isc.org/isc/dhcp/dhcp-%{VERSION}.tar.gz
 Source1:  dhcpd.init
 Source2:  dhcpd6.init
 Source3:  dhcrelay.init
@@ -124,15 +129,14 @@ Summary: Development headers and libraries for interfacing to the DHCP server
 Group: Development/Libraries
 Obsoletes: libdhcp4client-devel <= 12:4.0.0-34.fc10
 Obsoletes: libdhcp-devel <= 1.99.8-1
-Provides: %{name}-static = %{epoch}:%{version}-%{release}
-Requires: %{name}-libs = %{epoch}:%{version}-%{release}
+Requires: %{name}-libs = %{epoch}:%{VERSION}-%{release}
 
 %description devel
 Header files and API documentation for using the ISC DHCP libraries.  The
 libdhcpctl and libomapi static libraries are also included in this package.
 
 %prep
-%setup -q
+%setup -q -n dhcp-%{VERSION}
 
 # Remove bundled BIND source
 rm bind/bind.tar.gz
@@ -301,7 +305,7 @@ popd
 %{__perl_requires} \
 | %{__grep} -v 'perl('
 EOF
-%global __perl_requires %{_builddir}/dhcp-%{version}/dhcp-req
+%global __perl_requires %{_builddir}/dhcp-%{VERSION}/dhcp-req
 %{__chmod} +x %{__perl_requires}
 
 # Replace @PRODUCTNAME@
@@ -571,6 +575,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Nov 04 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-16.P1
+- 4.2.0-P1: fix for CVE-2010-3611 (#649880)
+
 * Wed Oct 20 2010 Adam Tkac <atkac redhat com> - 12:4.2.0-15
 - build dhcp's libraries as shared libs instead of static libs
 
