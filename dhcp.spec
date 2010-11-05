@@ -12,7 +12,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  13.%{patchver}%{?dist}
+Release:  14.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -118,8 +118,8 @@ Summary: Development headers and libraries for interfacing to the DHCP server
 Group: Development/Libraries
 Obsoletes: libdhcp4client-devel <= 12:4.0.0-34.fc10
 Obsoletes: libdhcp-devel <= 1.99.8-1
-Provides: %{name}-static = %{epoch}:%{VERSION}-%{release}
-Requires: %{name} = %{epoch}:%{VERSION}-%{release}
+Provides: %{name}-static = %{epoch}:%{version}-%{release}
+Requires: %{name} = %{epoch}:%{version}-%{release}
 
 %description devel
 Header files and API documentation for using the ISC DHCP libraries.  The
@@ -536,6 +536,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Nov 05 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-14.P1
+- fix broken dependencies
+
 * Thu Nov 04 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-13.P1
 - 4.2.0-P1: fix for CVE-2010-3611 (#649880)
 - dhclient-script: when updating 'search' statement in resolv.conf,
