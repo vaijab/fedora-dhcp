@@ -557,6 +557,12 @@ add_ipv6_addr_with_DAD() {
 }
 
 dh6config() {
+    if [ -n ${old_ip6_prefix} ] ||
+       [ -n ${new_ip6_prefix} ]; then
+        echo Prefix ${reason} old=${old_ip6_prefix} new=${new_ip6_prefix}
+        exit_with_hooks 0
+    fi
+
     case "${reason}" in
         BOUND6)
             if [ -z "${new_ip6_address}" ] ||

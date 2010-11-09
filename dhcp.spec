@@ -12,7 +12,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  17.%{patchver}%{?dist}
+Release:  18.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -64,6 +64,7 @@ Patch30:  dhcp-4.2.0-honor-expired.patch
 Patch31:  dhcp-4.2.0-noprefixavail.patch
 Patch32:  dhcp420-rh637017.patch
 Patch33:  dhcp420-sharedlib.patch
+Patch34:  dhcp-4.2.0-PPP.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -267,8 +268,12 @@ rm bind/bind.tar.gz
 #    Without this patch server ignored client's Solicit in which the client was sending
 #    prefix in IA_PD (as a preference) and this prefix was not in any of server's pools.
 %patch31 -p1 -b .noprefixavail
+
 %patch32 -p1 -b .rh637017
 %patch33 -p1 -b .sharedlib
+
+# DHCPv6 over PPP support (#626514)
+%patch34 -p1 -b .PPP
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -575,6 +580,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Tue Nov 09 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-18.P1
+- Applied Patrik Lahti's patch for DHCPv6 over PPP support (#626514)
+
 * Fri Nov 05 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-17.P1
 - fix broken dependencies
 
