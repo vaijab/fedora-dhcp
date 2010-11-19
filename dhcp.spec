@@ -12,7 +12,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  18.%{patchver}%{?dist}
+Release:  19.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -286,6 +286,7 @@ for i in {client,relay,server,omapip}/Makefile.am; do
 done
 for i in {common,omapip}/Makefile.am; do
 	%{__sed} -i 's|fpic|fPIC|g' $i
+done
 %endif
 
 # Ensure we don't pick up Perl as a dependency from the scripts and modules
@@ -580,6 +581,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Nov 19 2010 Dan Horák <dan[at]danny.cz> - 12:4.2.0-19.P1
+- fix build on sparc and s390
+
 * Tue Nov 09 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-18.P1
 - Applied Patrik Lahti's patch for DHCPv6 over PPP support (#626514)
 
