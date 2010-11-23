@@ -12,7 +12,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  19.%{patchver}%{?dist}
+Release:  20.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -80,7 +80,7 @@ Requires(post): coreutils
 Requires(preun): chkconfig
 Requires(preun): initscripts
 Requires(postun): initscripts
-Obsoletes: dhcpv6 <= 1.2.0-4
+Obsoletes: dhcpv6
 
 %description
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
@@ -97,13 +97,13 @@ the ISC DHCP service and relay agent.
 %package -n dhclient
 Summary: Provides the dhclient ISC DHCP client daemon and dhclient-script
 Group: System Environment/Base
-Requires: initscripts >= 6.75
+Requires: initscripts
 Requires(post): coreutils
 Requires(post): grep
 Obsoletes: dhcpcd <= 1.3.22pl1-7
-Obsoletes: libdhcp4client <= 12:4.0.0-34.fc10
-Obsoletes: libdhcp <= 1.99.8-1.fc10
-Obsoletes: dhcpv6-client <= 1.2.0-4
+Obsoletes: libdhcp4client
+Obsoletes: libdhcp
+Obsoletes: dhcpv6-client
 Provides: dhcpcd = 1.3.22pl1-8
 
 %description -n dhclient
@@ -128,8 +128,8 @@ This package contains shared libraries used by ISC dhcp client and server
 %package devel
 Summary: Development headers and libraries for interfacing to the DHCP server
 Group: Development/Libraries
-Obsoletes: libdhcp4client-devel <= 12:4.0.0-34.fc10
-Obsoletes: libdhcp-devel <= 1.99.8-1
+Obsoletes: libdhcp4client-devel
+Obsoletes: libdhcp-devel
 Requires: %{name}-libs = %{epoch}:%{version}-%{release}
 
 %description devel
@@ -581,6 +581,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Tue Nov 23 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-20.P1
+- Remove explicit Obsoletes (#656310)
+
 * Fri Nov 19 2010 Dan Horák <dan[at]danny.cz> - 12:4.2.0-19.P1
 - fix build on sparc and s390
 
