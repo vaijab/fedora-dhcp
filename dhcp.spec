@@ -12,7 +12,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  20.%{patchver}%{?dist}
+Release:  21.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -30,6 +30,10 @@ Source5:  README.dhclient.d
 Source6:  11-dhclient
 Source7:  12-dhcpd
 Source8:  56dhclient
+Source9:   dhcpd.service
+Source10:  dhcpd6.service
+Source11:  dhcrelay.service
+
 
 Patch0:   dhcp-4.2.0-errwarn-message.patch
 Patch1:   dhcp-4.2.0-options.patch
@@ -66,7 +70,6 @@ Patch32:  dhcp420-rh637017.patch
 Patch33:  dhcp420-sharedlib.patch
 Patch34:  dhcp-4.2.0-PPP.patch
 
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: groff
@@ -77,9 +80,13 @@ BuildRequires: bind-lite-devel
 
 Requires(post): chkconfig
 Requires(post): coreutils
+Requires(post): systemd-units
 Requires(preun): chkconfig
 Requires(preun): initscripts
+Requires(preun): systemd-units
 Requires(postun): initscripts
+Requires(postun): systemd-units
+
 Obsoletes: dhcpv6
 
 %description
@@ -285,7 +292,7 @@ for i in {client,relay,server,omapip}/Makefile.am; do
         %{__sed} -i 's|fpie|fPIE|g' $i
 done
 for i in {common,omapip}/Makefile.am; do
-	%{__sed} -i 's|fpic|fPIC|g' $i
+        %{__sed} -i 's|fpic|fPIC|g' $i
 done
 %endif
 
@@ -356,7 +363,6 @@ CFLAGS="%{optflags} -fno-strict-aliasing -D_GNU_SOURCE" \
 %{__make} %{?_smp_mflags}
 
 %install
-%{__rm} -rf %{buildroot}
 %{__make} install DESTDIR=%{buildroot}
 
 # Remove files we don't want
@@ -374,6 +380,12 @@ CFLAGS="%{optflags} -fno-strict-aliasing -D_GNU_SOURCE" \
 %{__install} -p -m 0755 %{SOURCE2} %{buildroot}%{_initddir}/dhcpd6
 %{__install} -p -m 0755 %{SOURCE3} %{buildroot}%{_initddir}/dhcrelay
 
+# install systemd initscripts
+mkdir -p %{buildroot}/lib/systemd/system/
+install -m 644 %{SOURCE9} %{buildroot}/lib/systemd/system/dhcpd.service
+install -m 644 %{SOURCE10} %{buildroot}/lib/systemd/system/dhcpd6.service
+install -m 644 %{SOURCE11} %{buildroot}/lib/systemd/system/dhcrelay.service
+
 # Start empty lease databases
 %{__mkdir} -p %{buildroot}%{_localstatedir}/lib/dhcpd/
 touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd.leases
@@ -385,21 +397,20 @@ touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd6.leases
 
 %{__cat} << EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcrelay
 # Command line options here
+#Example: DHCRELAYARGS="-4 -i eth0 192.168.0.1"
+#Example: DHCRELAYARGS="-6 -l eth1 -u eth0"
 DHCRELAYARGS=""
-# DHCPv4 only
-INTERFACES=""
-# DHCPv4 only
-DHCPSERVERS=""
+# Note: We don't use $INTERFACES and $DHCPSERVERS anymore (they were DHCPv4 only)
 EOF
 
 %{__cat} <<EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcpd
 # Command line options here
-DHCPDARGS=
+DHCPDARGS=""
 EOF
 
 %{__cat} <<EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcpd6
 # Command line options here
-DHCPDARGS=
+DHCPDARGS="-cf /etc/dhcp/dhcpd6.conf"
 EOF
 
 # Copy sample conf files into position (called by doc macro)
@@ -448,9 +459,6 @@ EOF
 # Don't package libtool *.la files
 find ${RPM_BUILD_ROOT}/%{_libdir} -name '*.la' -exec '/bin/rm' '-f' '{}' ';';
 
-%clean
-%{__rm} -rf %{buildroot}
-
 %post
 sampleconf="#
 # DHCP Server Configuration file.
@@ -475,6 +483,10 @@ fi
 /sbin/chkconfig --add dhcpd6
 /sbin/chkconfig --add dhcrelay || :
 
+# systemd
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+
+
 %post -n dhclient
 /bin/ls -1 %{_sysconfdir}/dhclient* >/dev/null 2>&1
 if [ $? = 0 ]; then
@@ -491,23 +503,38 @@ if [ $? = 0 ]; then
     done || :
 fi || :
 
+
 %preun
+# Package removal, not upgrade
 if [ $1 = 0 ]; then
     /sbin/service dhcpd stop >/dev/null 2>&1
     /sbin/service dhcpd6 stop >/dev/null 2>&1
     /sbin/service dhcrelay stop >/dev/null 2>&1
-
     /sbin/chkconfig --del dhcpd
     /sbin/chkconfig --del dhcpd6
     /sbin/chkconfig --del dhcrelay || :
+
+    /bin/systemctl stop dhcpd.service > /dev/null 2>&1 || :
+    /bin/systemctl stop dhcpd6.service > /dev/null 2>&1 || :
+    /bin/systemctl stop dhcrelay.service > /dev/null 2>&1 || :
+    /bin/systemctl disable dhcpd.service > /dev/null 2>&1 || :
+    /bin/systemctl disable dhcpd6.service > /dev/null 2>&1 || :
+    /bin/systemctl disable dhcrelay.service > /dev/null 2>&1 || :
 fi
 
 %postun
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+# Package upgrade, not uninstall
 if [ $1 -ge 1 ]; then
     /sbin/service dhcpd condrestart >/dev/null 2>&1
     /sbin/service dhcpd6 condrestart >/dev/null 2>&1
     /sbin/service dhcrelay condrestart >/dev/null 2>&1 || :
+
+    /bin/systemctl try-restart dhcpd.service >/dev/null 2>&1 || :
+    /bin/systemctl try-restart dhcpd6.service >/dev/null 2>&1 || :
+    /bin/systemctl try-restart dhcrelay.service >/dev/null 2>&1 || :
 fi
+
 
 %post libs -p /sbin/ldconfig
 
@@ -534,6 +561,9 @@ fi
 %{_initddir}/dhcpd
 %{_initddir}/dhcpd6
 %{_initddir}/dhcrelay
+%attr(0644,root,root)	/lib/systemd/system/dhcpd.service
+%attr(0644,root,root)	/lib/systemd/system/dhcpd6.service
+%attr(0644,root,root)	/lib/systemd/system/dhcrelay.service
 %{_bindir}/omshell
 %{_sbindir}/dhcpd
 %{_sbindir}/dhcrelay
@@ -581,6 +611,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Tue Dec 07 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-21.P1
+- Porting dhcpd/dhcpd6/dhcrelay services from SysV to Systemd
+
 * Tue Nov 23 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-20.P1
 - Remove explicit Obsoletes (#656310)
 
