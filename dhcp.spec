@@ -5,14 +5,14 @@
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
 # Patch version
-%global patchver P1
+%global patchver P2
 
 %global VERSION %{version}-%{patchver}
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  15.%{patchver}%{?dist}
+Release:  16.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -49,7 +49,7 @@ Patch15:  dhcp-4.2.0-invalid-dhclient-conf.patch
 Patch16:  dhcp-4.2.0-missing-ipv6-not-fatal.patch
 Patch17:  dhcp-4.2.0-IFNAMSIZ.patch
 Patch18:  dhcp-4.2.0-add_timeout_when_NULL.patch
-Patch19:  dhcp-4.2.0-64_bit_lease_parse.patch
+Patch19:  dhcp-4.2.0-P1-64_bit_lease_parse.patch
 Patch20:  dhcp-4.2.0-capability.patch
 Patch21:  dhcp-4.2.0-logpid.patch
 Patch22:  dhcp-4.2.0-UseMulticast.patch
@@ -197,7 +197,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19867])
 %patch18 -p1 -b .dracut
 
-# Ensure 64-bit platforms parse lease file dates & times correctly (#448615)
+# Ensure 64-bit platforms parse lease file dates & times correctly (#448615, #628258)
 # (Partly submitted to dhcp-bugs@isc.org - [ISC-Bugs #22033])
 %patch19 -p1 -b .64-bit_lease_parse
 
@@ -244,16 +244,18 @@ libdhcpctl and libomapi static libraries are also included in this package.
 
 # check whether there is any unexpired address in previous lease
 # prior to confirming (INIT-REBOOT) the lease (#585418)
+# (Submitted to dhcp-suggest@isc.org - [ISC-Bugs #22675])
 %patch30 -p1 -b .honor-expired
 
 # 1) When server has empty pool of addresses/prefixes it must send Advertise with
 #    NoAddrsAvail/NoPrefixAvail status in response to clients Solicit.
-#    Without this patch server having empty pool of addresses/prefixes ignored
+#    Without this patch server having empty pool of addresses/prefixes was ignoring
 #    client's' Solicit when client was also sending address in IA_NA or prefix in IA_PD as a preference.
-# 2) When client sends prefix in IA_NA as a preference and server doesn't have
+# 2) When client sends prefix in IA_PD as a preference and server doesn't have
 #    this prefix in any pool the server should offer other free prefix.
 #    Without this patch server ignored client's Solicit in which the client was sending
 #    prefix in IA_PD (as a preference) and this prefix was not in any of server's pools.
+#   (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #22676])
 %patch31 -p1 -b .noprefixavail
 
 # DHCPv6 over PPP support (#626514)
@@ -540,6 +542,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Mon Dec 13 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-16.P2
+- 4.2.0-P2: fix for CVE-2010-3616 (#662326)
+- Use upstream fix for #628258
+
 * Tue Nov 09 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-15.P1
 - Applied Patrik Lahti's patch for DHCPv6 over PPP support (#626514)
 
