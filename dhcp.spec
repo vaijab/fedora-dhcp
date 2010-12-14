@@ -5,17 +5,17 @@
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
 # Patch version
-%global patchver P1
+%global patchver ESV
 
-%global VERSION %{version}-%{patchver}
+%global VERSION 4.1-%{patchver}
 
 # LDAP patch version
-%global ldappatchver %{version}-2
+%global ldappatchver 4.1.1-2
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
-Version:  4.1.1
-Release:  27.%{patchver}%{?dist}
+Version:  4.1.2
+Release:  1.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -44,27 +44,23 @@ Patch6:   %{name}-4.1.1-dhclient-usage.patch
 Patch7:   %{name}-4.1.1-default-requested-options.patch
 Patch8:   %{name}-4.1.1-xen-checksum.patch
 Patch9:   %{name}-4.1.1-dhclient-anycast.patch
-Patch10:  %{name}-4.1.1-manpages.patch
+Patch10:  %{name}-4.1-ESV-manpages.patch
 Patch11:  %{name}-4.1.1-paths.patch
 Patch12:  %{name}-4.1.1-CLOEXEC.patch
 Patch13:  %{name}-4.1.1-inherit-leases.patch
 Patch14:  %{name}-4.1.1-garbage-chars.patch
-Patch15:  %{name}-4.1.1-invalid-dhclient-conf.patch
-Patch16:  %{name}-4.1.1-missing-ipv6-not-fatal.patch
-Patch17:  %{name}-4.1.1-IFNAMSIZ.patch
-Patch18:  %{name}-4.1.1-add_timeout_when_NULL.patch
-Patch19:  %{name}-4.1.1-64_bit_lease_parse.patch
-Patch20:  %{name}-4.1.1-capability.patch
-Patch21:  %{name}-4.1.1-logpid.patch
-Patch22:  %{name}-4.1.1-UseMulticast.patch
-Patch23:  %{name}-4.1.1-sendDecline.patch
-Patch24:  %{name}-4.1.1-retransmission.patch
-Patch25:  %{name}-4.1.1-release6-elapsed.patch
-Patch26:  %{name}-4.1.1-initialization-delay.patch
-Patch27:  %{name}-4.1.1-P1-parse_date.patch
-Patch28:  %{name}-4.1.1-P1-PIE-RELRO.patch
-Patch29:  %{name}-4.1.1-P1-noprefixavail.patch
-Patch30:  %{name}-4.1.1-P1-CVE-2010-3611.patch
+Patch15:  %{name}-4.1.1-missing-ipv6-not-fatal.patch
+Patch16:  %{name}-4.1.1-IFNAMSIZ.patch
+Patch17:  %{name}-4.1.1-add_timeout_when_NULL.patch
+Patch18:  %{name}-4.1-ESV-64_bit_lease_parse.patch
+Patch19:  %{name}-4.1-ESV-capability.patch
+Patch20:  %{name}-4.1.1-logpid.patch
+Patch21:  %{name}-4.1.1-UseMulticast.patch
+Patch22:  %{name}-4.1.1-sendDecline.patch
+Patch23:  %{name}-4.1-ESV-retransmission.patch
+Patch24:  %{name}-4.1.1-initialization-delay.patch
+Patch25:  %{name}-4.1.1-P1-PIE-RELRO.patch
+Patch26:  %{name}-4.1.1-P1-noprefixavail.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -132,7 +128,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 %setup -T -D -a 1 -n dhcp-%{VERSION}
 
 # Add in LDAP support
-%{__patch} -p1 < ldap-for-dhcp-%{ldappatchver}/dhcp-%{version}-ldap.patch
+%{__patch} -p1 < ldap-for-dhcp-%{ldappatchver}/dhcp-4.1.1-ldap.patch
 
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
@@ -192,62 +188,50 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # Fix 'garbage in format string' error (#450042)
 %patch14 -p1 -b .garbage
 
-# The sample dhclient.conf should say 'supersede domain-search' (#467955)
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19147])
-%patch15 -p1 -b .supersede
-
 # If the ipv6 kernel module is missing, do not segfault
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19367])
-%patch16 -p1 -b .noipv6
+%patch15 -p1 -b .noipv6
 
 # Read only up to IFNAMSIZ characters for the interface name in dhcpd (#441524)
-%patch17 -p1 -b .ifnamsiz
+%patch16 -p1 -b .ifnamsiz
 
 # Handle cases in add_timeout() where the function is called with a NULL
 # value for the 'when' parameter
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19867])
-%patch18 -p1 -b .dracut
+%patch17 -p1 -b .dracut
 
 # Ensure 64-bit platforms parse lease file dates & times correctly (#448615)
-%patch19 -p1 -b .64-bit_lease_parse
+%patch18 -p1 -b .64-bit_lease_parse
 
 # Drop unnecessary capabilities in dhclient (#517649, #546765)
-%patch20 -p1 -b .capability
+%patch19 -p1 -b .capability
 
 # dhclient logs its pid to make troubleshooting NM managed systems
 # with multiple dhclients running easier (#546792)
-%patch21 -p1 -b .logpid
+%patch20 -p1 -b .logpid
 
 # Discard unicast Request/Renew/Release/Decline message
 # (unless we set unicast option) and respond with Reply
 # with UseMulticast Status Code option (#573090)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21235])
-%patch22 -p1 -b .UseMulticast
+%patch21 -p1 -b .UseMulticast
 
 # If any of the bound addresses are found to be in use on the link,
 # the dhcpv6 client sends a Decline message to the server
 # as described in section 18.1.7 of RFC-3315 (#559147)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21237])
-%patch23 -p1 -b .sendDecline
+%patch22 -p1 -b .sendDecline
 
 # In client initiated message exchanges stop retransmission
 # upon reaching the MRD rather than at some point after it (#559153)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21238])
-%patch24 -p1 -b .retransmission
-
-# Fill in Elapsed Time Option in Release message (#582939)
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21171])
-%patch25 -p1 -b .release6-elapsed
+%patch23 -p1 -b .retransmission
 
 # Cut down the 0-4 second delay before sending first DHCPDISCOVER (#587070)
-%patch26 -p1 -b .initialization-delay
-
-# Fix parsing of date (#514828)
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21501])
-%patch27 -p1 -b .parse_date
+%patch24 -p1 -b .initialization-delay
 
 # Make dhcpd/dhcrelay/dhclient PIE and RELRO
-%patch28 -p1 -b .PIE-RELRO
+%patch25 -p1 -b .PIE-RELRO
 
 # 1) When server has empty pool of addresses/prefixes it must send Advertise with
 #    NoAddrsAvail/NoPrefixAvail status in response to clients Solicit.
@@ -257,10 +241,7 @@ libdhcpctl and libomapi static libraries are also included in this package.
 #    this prefix in any pool the server should offer other free prefix.
 #    Without this patch server ignored client's Solicit in which the client was sending
 #    prefix in IA_PD (as a preference) and this prefix was not in any of server's pools.
-%patch29 -p1 -b .noprefixavail
-
-# Server Crash with Empty Link-Address Field (CVE-2010-3611)
-%patch30 -p1 -b .CVE-2010-3611
+%patch26 -p1 -b .noprefixavail
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
@@ -547,6 +528,13 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Nov 04 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.2-1.ESV
+- 4.1-ESV, extended support release.
+- We need to be able to upgrade from 4.1.1 so I called it 4.1.2-ESV,
+  because it's actually 4.1.2 with small number of bug fixes.
+- No longer need: invalid-dhclient-conf.patch, release6-elapsed.patch,
+                  parse_date.patch, CVE-2010-3611.patch
+
 * Thu Nov 04 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-27.P1
 - Fix for CVE-2010-3611 (#649880)
 

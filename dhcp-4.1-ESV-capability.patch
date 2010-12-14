@@ -1,18 +1,18 @@
-diff -up dhcp-4.1.1/client/dhclient.8.capability dhcp-4.1.1/client/dhclient.8
---- dhcp-4.1.1/client/dhclient.8.capability	2010-02-03 11:19:39.854958099 -0500
-+++ dhcp-4.1.1/client/dhclient.8	2010-02-03 11:44:57.949895909 -0500
-@@ -105,6 +105,9 @@ relay
- .B -n
+diff -up dhcp-4.1-ESV/client/dhclient.8.capability dhcp-4.1-ESV/client/dhclient.8
+--- dhcp-4.1-ESV/client/dhclient.8.capability	2010-12-14 12:44:49.000000000 +0100
++++ dhcp-4.1-ESV/client/dhclient.8	2010-12-14 12:49:50.000000000 +0100
+@@ -94,6 +94,9 @@ dhclient - Dynamic Host Configuration Pr
+ .I script-file
  ]
  [
 +.B -nc
 +]
 +[
- .B -nw
+ .B -s
+ .I server
  ]
- [
-@@ -381,6 +384,32 @@ Do not configure any interfaces.  Most u
- option.
+@@ -404,6 +407,32 @@ when it gets a lease.  If unspecified, t
+ is used.  See \fBdhclient-script(8)\fR for a description of this file.
  
  .TP
 +.BI \-nc
@@ -41,12 +41,12 @@ diff -up dhcp-4.1.1/client/dhclient.8.capability dhcp-4.1.1/client/dhclient.8
 +was not compiled with libcap-ng support.
 +
 +.TP
- .BI \-nw
- Become a daemon process immediately (nowait) rather than waiting until an IP
- address has been acquired.
-diff -up dhcp-4.1.1/client/dhclient.c.capability dhcp-4.1.1/client/dhclient.c
---- dhcp-4.1.1/client/dhclient.c.capability	2010-02-03 11:19:39.876957973 -0500
-+++ dhcp-4.1.1/client/dhclient.c	2010-02-03 11:46:14.665957658 -0500
+ .BI \-B
+ Set the BOOTP broadcast flag in request packets so servers will always
+ broadcast replies.
+diff -up dhcp-4.1-ESV/client/dhclient.c.capability dhcp-4.1-ESV/client/dhclient.c
+--- dhcp-4.1-ESV/client/dhclient.c.capability	2010-12-14 12:44:49.000000000 +0100
++++ dhcp-4.1-ESV/client/dhclient.c	2010-12-14 12:44:49.000000000 +0100
 @@ -37,6 +37,9 @@
  #include <sys/time.h>
  #include <sys/wait.h>
@@ -67,7 +67,7 @@ diff -up dhcp-4.1.1/client/dhclient.c.capability dhcp-4.1.1/client/dhclient.c
  
  extern u_int32_t default_requested_options[];
  
-@@ -376,6 +382,10 @@ main(int argc, char **argv) {
+@@ -384,6 +390,10 @@ main(int argc, char **argv) {
  			}
  
  			dhclient_request_options = argv[i];
@@ -78,7 +78,7 @@ diff -up dhcp-4.1.1/client/dhclient.c.capability dhcp-4.1.1/client/dhclient.c
  		} else if (argv[i][0] == '-') {
  		    usage();
  		} else if (interfaces_requested < 0) {
-@@ -424,6 +434,19 @@ main(int argc, char **argv) {
+@@ -432,6 +442,19 @@ main(int argc, char **argv) {
  		path_dhclient_script = s;
  	}
  
@@ -98,9 +98,9 @@ diff -up dhcp-4.1.1/client/dhclient.c.capability dhcp-4.1.1/client/dhclient.c
  	/* Set up the initial dhcp option universe. */
  	initialize_common_option_spaces();
  
-diff -up dhcp-4.1.1/client/dhclient-script.8.capability dhcp-4.1.1/client/dhclient-script.8
---- dhcp-4.1.1/client/dhclient-script.8.capability	2010-05-28 15:47:36.000000000 +0200
-+++ dhcp-4.1.1/client/dhclient-script.8	2010-05-28 15:53:21.000000000 +0200
+diff -up dhcp-4.1-ESV/client/dhclient-script.8.capability dhcp-4.1-ESV/client/dhclient-script.8
+--- dhcp-4.1-ESV/client/dhclient-script.8.capability	2010-12-14 12:44:49.000000000 +0100
++++ dhcp-4.1-ESV/client/dhclient-script.8	2010-12-14 12:44:49.000000000 +0100
 @@ -239,6 +239,16 @@ repeatedly initialized to the values pro
  the other.   Assuming the information provided by both servers is
  valid, this shouldn't cause any real problems, but it could be
@@ -118,9 +118,9 @@ diff -up dhcp-4.1.1/client/dhclient-script.8.capability dhcp-4.1.1/client/dhclie
  .SH SEE ALSO
  dhclient(8), dhcpd(8), dhcrelay(8), dhclient.conf(5) and
  dhclient.leases(5).
-diff -up dhcp-4.1.1/client/Makefile.am.capability dhcp-4.1.1/client/Makefile.am
---- dhcp-4.1.1/client/Makefile.am.capability	2008-11-18 17:33:22.000000000 -0500
-+++ dhcp-4.1.1/client/Makefile.am	2010-02-03 11:19:39.895958083 -0500
+diff -up dhcp-4.1-ESV/client/Makefile.am.capability dhcp-4.1-ESV/client/Makefile.am
+--- dhcp-4.1-ESV/client/Makefile.am.capability	2010-09-15 00:49:47.000000000 +0200
++++ dhcp-4.1-ESV/client/Makefile.am	2010-12-14 12:44:49.000000000 +0100
 @@ -5,7 +5,7 @@ dhclient_SOURCES = clparse.c dhclient.c 
  		   scripts/netbsd scripts/nextstep scripts/openbsd \
  		   scripts/solaris scripts/openwrt
@@ -130,10 +130,10 @@ diff -up dhcp-4.1.1/client/Makefile.am.capability dhcp-4.1.1/client/Makefile.am
  man_MANS = dhclient.8 dhclient-script.8 dhclient.conf.5 dhclient.leases.5
  EXTRA_DIST = $(man_MANS)
  
-diff -up dhcp-4.1.1/configure.ac.capability dhcp-4.1.1/configure.ac
---- dhcp-4.1.1/configure.ac.capability	2010-02-03 11:19:39.806895971 -0500
-+++ dhcp-4.1.1/configure.ac	2010-02-03 11:19:39.895958083 -0500
-@@ -419,6 +419,41 @@ AC_TRY_LINK(
+diff -up dhcp-4.1-ESV/configure.ac.capability dhcp-4.1-ESV/configure.ac
+--- dhcp-4.1-ESV/configure.ac.capability	2010-12-14 12:44:49.000000000 +0100
++++ dhcp-4.1-ESV/configure.ac	2010-12-14 12:51:42.000000000 +0100
+@@ -425,6 +425,41 @@ AC_TRY_LINK(
  # Look for optional headers.
  AC_CHECK_HEADERS(sys/socket.h net/if_dl.h net/if6.h regex.h)
  
@@ -172,6 +172,6 @@ diff -up dhcp-4.1.1/configure.ac.capability dhcp-4.1.1/configure.ac
 +    AC_MSG_RESULT(no)
 +fi
 +
- # find an MD5 library
- AC_SEARCH_LIBS(MD5_Init, [crypto])
- AC_SEARCH_LIBS(MD5Init, [crypto])
+ # Solaris needs some libraries for functions
+ AC_SEARCH_LIBS(socket, [socket])
+ AC_SEARCH_LIBS(inet_ntoa, [nsl])
