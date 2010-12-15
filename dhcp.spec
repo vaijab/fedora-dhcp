@@ -12,7 +12,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  22.%{patchver}%{?dist}
+Release:  23.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -78,6 +78,7 @@ BuildRequires: openldap-devel
 BuildRequires: libcap-ng-devel
 BuildRequires: bind-lite-devel
 
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Requires(post): chkconfig
 Requires(post): coreutils
 Requires(post): systemd-units
@@ -106,6 +107,7 @@ the ISC DHCP service and relay agent.
 Summary: Provides the dhclient ISC DHCP client daemon and dhclient-script
 Group: System Environment/Base
 Requires: initscripts
+Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Requires(post): coreutils
 Requires(post): grep
 Obsoletes: dhcpcd <= 1.3.22pl1-7
@@ -127,6 +129,19 @@ easier to administer a large network.
 To use DHCP on your network, install a DHCP service (or relay agent),
 and on clients run a DHCP client daemon.  The dhclient package
 provides the ISC DHCP client daemon.
+
+%package common
+Summary: Common files used by ISC dhcp client and server
+Group: System Environment/Base
+
+%description common
+DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
+individual devices on an IP network to get their own network
+configuration information (IP address, subnetmask, broadcast address,
+etc.) from a DHCP server. The overall purpose of DHCP is to make it
+easier to administer a large network.
+
+This package provides common files used by dhcp and dhclient package.
 
 %package libs
 Summary: Shared libraries used by ISC dhcp client and server
@@ -550,8 +565,7 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%doc LICENSE README RELNOTES dhcpd.conf.sample dhcpd6.conf.sample
-%doc doc/IANA-arp-parameters doc/api+protocol doc/References.txt
+%doc dhcpd.conf.sample dhcpd6.conf.sample
 %doc __fedora_contrib/*
 %dir %{_localstatedir}/lib/dhcpd
 %attr(0750,root,root) %dir %{dhcpconfdir}
@@ -572,20 +586,16 @@ fi
 %attr(0644,root,root)   /lib/systemd/system/dhcpd.service
 %attr(0644,root,root)   /lib/systemd/system/dhcpd6.service
 %attr(0644,root,root)   /lib/systemd/system/dhcrelay.service
-%{_bindir}/omshell
 %{_sbindir}/dhcpd
 %{_sbindir}/dhcrelay
-%attr(0644,root,root) %{_mandir}/man1/omshell.1.gz
 %attr(0644,root,root) %{_mandir}/man5/dhcpd.conf.5.gz
 %attr(0644,root,root) %{_mandir}/man5/dhcpd.leases.5.gz
 %attr(0644,root,root) %{_mandir}/man8/dhcpd.8.gz
 %attr(0644,root,root) %{_mandir}/man8/dhcrelay.8.gz
-%attr(0644,root,root) %{_mandir}/man5/dhcp-options.5.gz
-%attr(0644,root,root) %{_mandir}/man5/dhcp-eval.5.gz
 
 %files -n dhclient
 %defattr(-,root,root,-)
-%doc LICENSE RELNOTES dhclient.conf.sample dhclient6.conf.sample README.dhclient.d
+%doc dhclient.conf.sample dhclient6.conf.sample README.dhclient.d
 %attr(0750,root,root) %dir %{dhcpconfdir}
 %dir %{dhcpconfdir}/dhclient.d
 %dir %{_localstatedir}/lib/dhclient
@@ -599,16 +609,24 @@ fi
 %attr(0644,root,root) %{_mandir}/man5/dhclient.leases.5.gz
 %attr(0644,root,root) %{_mandir}/man8/dhclient.8.gz
 %attr(0644,root,root) %{_mandir}/man8/dhclient-script.8.gz
+
+%files common
+%defattr(-,root,root,-)
+%doc LICENSE README RELNOTES doc/References.txt
+%{_bindir}/omshell
+%attr(0644,root,root) %{_mandir}/man1/omshell.1.gz
 %attr(0644,root,root) %{_mandir}/man5/dhcp-options.5.gz
 %attr(0644,root,root) %{_mandir}/man5/dhcp-eval.5.gz
 
 %files libs
+%defattr(-,root,root,-)
 %{_libdir}/libdhcpctl.so.*
 %{_libdir}/libomapi.so.*
 %{_libdir}/libdst.so.*
 
 %files devel
 %defattr(-,root,root,-)
+%doc doc/IANA-arp-parameters doc/api+protocol
 %{_includedir}/dhcpctl
 %{_includedir}/isc-dhcp
 %{_includedir}/omapip
@@ -619,6 +637,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Dec 15 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-23.P2
+- Add dhcp-common subpackage (#634673)
+
 * Mon Dec 13 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-22.P2
 - 4.2.0-P2: fix for CVE-2010-3616 (#662326)
 - Use upstream fix for #628258
