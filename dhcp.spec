@@ -12,7 +12,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  23.%{patchver}%{?dist}
+Release:  24.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -448,18 +448,32 @@ EOF
 #
 # DHCP Server Configuration file.
 #   see /usr/share/doc/dhcp*/dhcpd.conf.sample
-#   see 'man 5 dhcpd.conf'
+#   see dhcpd.conf(5) man page
 #
 EOF
 
 # Install default (empty) dhcpd6.conf:
 %{__cat} << EOF > %{buildroot}%{dhcpconfdir}/dhcpd6.conf
 #
-# DHCP for IPv6 Server Configuration file.
+# DHCPv6 Server Configuration file.
 #   see /usr/share/doc/dhcp*/dhcpd6.conf.sample
-#   see 'man 5 dhcpd.conf'
+#   see dhcpd.conf(5) man page
 #   run 'service dhcpd6 start' or 'dhcpd -6 -cf /etc/dhcp/dhcpd6.conf'
 #
+EOF
+
+# Install default (empty) dhclient.conf:
+%{__mkdir} -p %{buildroot}%{dhcpconfdir}
+%{__cat} << EOF > %{buildroot}%{dhcpconfdir}/dhclient.conf
+#
+# DHCP Client Configuration file.
+#   see /usr/share/doc/dhclient-*/dhclient.conf.sample
+#   see dhclient.conf(5) man page
+#
+# Send client identifier as "hardware type.link-layer address" (e.g. "1.c2.23.7d.c3.52.2c")
+# Required in environments where a bridge might be clobbering the forwarded
+# packet's MAC address (common in Wifi, Docsis, or ADSL bridging scenarios)
+send dhcp-client-identifier = hardware;
 EOF
 
 # Install dhcp.schema for LDAP configuration
@@ -597,6 +611,7 @@ fi
 %defattr(-,root,root,-)
 %doc dhclient.conf.sample dhclient6.conf.sample README.dhclient.d
 %attr(0750,root,root) %dir %{dhcpconfdir}
+%config(noreplace) %{dhcpconfdir}/dhclient.conf
 %dir %{dhcpconfdir}/dhclient.d
 %dir %{_localstatedir}/lib/dhclient
 %dir %{_sysconfdir}/NetworkManager
@@ -637,6 +652,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Tue Dec 21 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-24.P2
+- Provide default /etc/dhcp/dhclient.conf
+- Client always sends dhcp-client-identifier (#560361)
+
 * Wed Dec 15 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-23.P2
 - Add dhcp-common subpackage (#634673)
 
