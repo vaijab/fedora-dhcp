@@ -389,7 +389,7 @@ dhconfig() {
                         unset IFS
                         ((pads=4-${#target_arr[@]}))
                         for j in $(seq $pads); do
-                            target=${target}".0"
+                            target="${target}.0"
                         done
 
                         # Client MUST zero any bits in the subnet number where the corresponding bit in the mask is zero.
@@ -557,8 +557,8 @@ add_ipv6_addr_with_DAD() {
 }
 
 dh6config() {
-    if [ -n ${old_ip6_prefix} ] ||
-       [ -n ${new_ip6_prefix} ]; then
+    if [ -n "${old_ip6_prefix}" ] ||
+       [ -n "${new_ip6_prefix}" ]; then
         echo Prefix ${reason} old=${old_ip6_prefix} new=${new_ip6_prefix}
         exit_with_hooks 0
     fi
