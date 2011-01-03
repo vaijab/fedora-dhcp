@@ -12,7 +12,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  24.%{patchver}%{?dist}
+Release:  25.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -69,6 +69,7 @@ Patch31:  dhcp-4.2.0-noprefixavail.patch
 Patch32:  dhcp420-rh637017.patch
 Patch33:  dhcp420-sharedlib.patch
 Patch34:  dhcp-4.2.0-PPP.patch
+Patch35:  dhcp-4.2.0-P2-omapi.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -299,11 +300,16 @@ rm bind/bind.tar.gz
 #   (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #22676])
 %patch31 -p1 -b .noprefixavail
 
+# Fire away bundled BIND source.
 %patch32 -p1 -b .rh637017
+#Build dhcp's libraries as shared libs instead of static libs.
 %patch33 -p1 -b .sharedlib
 
 # DHCPv6 over PPP support (#626514)
 %patch34 -p1 -b .PPP
+
+# Fix OMAPI (#666441)
+%patch35 -p1 -b .omapi
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -652,6 +658,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Mon Jan 03 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-25.P2
+- Fix OMAPI (#666441)
+
 * Tue Dec 21 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-24.P2
 - Provide default /etc/dhcp/dhclient.conf
 - Client always sends dhcp-client-identifier (#560361)
