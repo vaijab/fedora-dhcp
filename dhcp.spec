@@ -12,7 +12,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  25.%{patchver}%{?dist}
+Release:  26.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -70,6 +70,7 @@ Patch32:  dhcp420-rh637017.patch
 Patch33:  dhcp420-sharedlib.patch
 Patch34:  dhcp-4.2.0-PPP.patch
 Patch35:  dhcp-4.2.0-P2-omapi.patch
+Patch36:  dhcp-4.2.0-P2-ldap-configuration.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -310,6 +311,9 @@ rm bind/bind.tar.gz
 
 # Fix OMAPI (#666441)
 %patch35 -p1 -b .omapi
+
+# Fix loading of configuration when LDAP is used (#668276)
+%patch36 -p1 -b .ldap-configuration
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -658,6 +662,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Jan 13 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-26.P2
+- Fix loading of configuration when LDAP is used (#668276)
+
 * Mon Jan 03 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-25.P2
 - Fix OMAPI (#666441)
 
