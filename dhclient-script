@@ -750,7 +750,7 @@ case "${reason}" in
         dhclient_script_PID="$$"
         dhclient_PID="${PPID}"
         any_other_clients=$(ps -eo pid,ppid,comm | grep dhclient | grep -v -E "${dhclient_script_PID}|${dhclient_PID}")
-        if [ -n "${any_other_clients}" ]; then
+        if [ -z "${any_other_clients}" ]; then
             if [ -f ${SAVEDIR}/resolv.conf.predhclient.${interface} ]; then
                 change_resolv_conf ${SAVEDIR}/resolv.conf.predhclient.${interface}
                 rm -f ${SAVEDIR}/resolv.conf.predhclient.${interface}

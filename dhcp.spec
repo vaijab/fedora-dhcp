@@ -313,6 +313,7 @@ rm bind/bind.tar.gz
 %patch35 -p1 -b .omapi
 
 # Fix loading of configuration when LDAP is used (#668276)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #22888])
 %patch36 -p1 -b .ldap-configuration
 
 # Copy in the Fedora/RHEL dhclient script
