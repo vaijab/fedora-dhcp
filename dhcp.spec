@@ -5,9 +5,9 @@
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
 # Patch version
-%global patchver ESV
+%global patchver R1
 
-%global VERSION 4.1-%{patchver}
+%global VERSION 4.1-ESV-%{patchver}
 
 # LDAP patch version
 %global ldappatchver 4.1.1-2
@@ -15,7 +15,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.2
-Release:  1.%{patchver}%{?dist}
+Release:  2.ESV.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -528,6 +528,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Jan 27 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.2-2.ESV.R1
+- 4.1-ESV-R1: fix for CVE-2011-0413 (#672996)
+
 * Thu Nov 04 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.2-1.ESV
 - 4.1-ESV, extended support release.
 - We need to be able to upgrade from 4.1.1 so I called it 4.1.2-ESV,
