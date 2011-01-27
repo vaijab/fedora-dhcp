@@ -4,15 +4,18 @@
 # Where dhcp configuration files are stored
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
-# Patch version
-%global patchver P2
+# Patch version 
+#%global patchver P2
+# Pre-Release version
+%global prever b1
 
-%global VERSION %{version}-%{patchver}
+#%define VERSION %{version}-%{patchver}
+%global VERSION %{version}%{prever}
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
-Version:  4.2.0
-Release:  26.%{patchver}%{?dist}
+Version:  4.2.1
+Release:  0.1.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -34,7 +37,6 @@ Source9:   dhcpd.service
 Source10:  dhcpd6.service
 Source11:  dhcrelay.service
 
-
 Patch0:   dhcp-4.2.0-errwarn-message.patch
 Patch1:   dhcp-4.2.0-options.patch
 Patch2:   dhcp-4.2.0-release-by-ifup.patch
@@ -44,33 +46,30 @@ Patch5:   dhcp-4.2.0-ldap.patch
 Patch6:   dhcp-4.2.0-dhclient-usage.patch
 Patch7:   dhcp-4.2.0-default-requested-options.patch
 Patch8:   dhcp-4.2.0-xen-checksum.patch
-Patch10:  dhcp-4.2.0-manpages.patch
+Patch10:  dhcp-4.2.1-manpages.patch
 Patch11:  dhcp-4.2.0-paths.patch
 Patch12:  dhcp-4.2.0-CLOEXEC.patch
 Patch13:  dhcp-4.2.0-inherit-leases.patch
 Patch14:  dhcp-4.2.0-garbage-chars.patch
-Patch15:  dhcp-4.2.0-invalid-dhclient-conf.patch
-Patch16:  dhcp-4.2.0-missing-ipv6-not-fatal.patch
-Patch17:  dhcp-4.2.0-IFNAMSIZ.patch
-Patch18:  dhcp-4.2.0-add_timeout_when_NULL.patch
-Patch19:  dhcp-4.2.0-P1-64_bit_lease_parse.patch
-Patch20:  dhcp-4.2.0-capability.patch
-Patch21:  dhcp-4.2.0-logpid.patch
-Patch22:  dhcp-4.2.0-UseMulticast.patch
-Patch23:  dhcp-4.2.0-sendDecline.patch
-Patch24:  dhcp-4.2.0-retransmission.patch
-Patch25:  dhcp-4.2.0-release6-elapsed.patch
-Patch26:  dhcp-4.2.0-initialization-delay.patch
-Patch27:  dhcp-4.2.0-parse_date.patch
-Patch28:  dhcp-4.2.0-rfc3442-classless-static-routes.patch
-Patch29:  dhcp-4.2.0-PIE-RELRO.patch
-Patch30:  dhcp-4.2.0-honor-expired.patch
-Patch31:  dhcp-4.2.0-noprefixavail.patch
-Patch32:  dhcp420-rh637017.patch
-Patch33:  dhcp420-sharedlib.patch
-Patch34:  dhcp-4.2.0-PPP.patch
-Patch35:  dhcp-4.2.0-P2-omapi.patch
-Patch36:  dhcp-4.2.0-P2-ldap-configuration.patch
+Patch15:  dhcp-4.2.0-missing-ipv6-not-fatal.patch
+Patch16:  dhcp-4.2.0-IFNAMSIZ.patch
+Patch17:  dhcp-4.2.0-add_timeout_when_NULL.patch
+Patch18:  dhcp-4.2.1-64_bit_lease_parse.patch
+Patch19:  dhcp-4.2.1-capability.patch
+Patch20:  dhcp-4.2.0-logpid.patch
+Patch21:  dhcp-4.2.0-UseMulticast.patch
+Patch22:  dhcp-4.2.0-sendDecline.patch
+Patch23:  dhcp-4.2.1-retransmission.patch
+Patch24:  dhcp-4.2.0-initialization-delay.patch
+Patch25:  dhcp-4.2.0-rfc3442-classless-static-routes.patch
+Patch26:  dhcp-4.2.1-PIE-RELRO.patch
+Patch27:  dhcp-4.2.0-honor-expired.patch
+Patch28:  dhcp-4.2.0-noprefixavail.patch
+Patch29:  dhcp420-rh637017.patch
+Patch30:  dhcp420-sharedlib.patch
+Patch31:  dhcp-4.2.0-PPP.patch
+Patch32:  dhcp-4.2.0-P2-omapi.patch
+Patch33:  dhcp-4.2.0-P2-ldap-configuration.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -223,72 +222,60 @@ rm bind/bind.tar.gz
 # Fix 'garbage in format string' error (#450042)
 %patch14 -p1 -b .garbage
 
-# The sample dhclient.conf should say 'supersede domain-search' (#467955)
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19147])
-%patch15 -p1 -b .supersede
-
 # If the ipv6 kernel module is missing, do not segfault
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19367])
-%patch16 -p1 -b .noipv6
+%patch15 -p1 -b .noipv6
 
 # Read only up to IFNAMSIZ characters for the interface name in dhcpd (#441524)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19617])
-%patch17 -p1 -b .ifnamsiz
+%patch16 -p1 -b .ifnamsiz
 
 # Handle cases in add_timeout() where the function is called with a NULL
 # value for the 'when' parameter
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19867])
-%patch18 -p1 -b .dracut
+%patch17 -p1 -b .dracut
 
 # Ensure 64-bit platforms parse lease file dates & times correctly (#448615, #628258)
 # (Partly submitted to dhcp-bugs@isc.org - [ISC-Bugs #22033])
-%patch19 -p1 -b .64-bit_lease_parse
+%patch18 -p1 -b .64-bit_lease_parse
 
 # Drop unnecessary capabilities in dhclient (#517649, #546765)
-%patch20 -p1 -b .capability
+%patch19 -p1 -b .capability
 
 # dhclient logs its pid to make troubleshooting NM managed systems
 # with multiple dhclients running easier (#546792)
-%patch21 -p1 -b .logpid
+%patch20 -p1 -b .logpid
 
 # Discard unicast Request/Renew/Release/Decline message
 # (unless we set unicast option) and respond with Reply
 # with UseMulticast Status Code option (#573090)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21235])
-%patch22 -p1 -b .UseMulticast
+%patch21 -p1 -b .UseMulticast
 
 # If any of the bound addresses are found to be in use on the link,
 # the dhcpv6 client sends a Decline message to the server
 # as described in section 18.1.7 of RFC-3315 (#559147)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21237])
-%patch23 -p1 -b .sendDecline
+%patch22 -p1 -b .sendDecline
 
 # In client initiated message exchanges stop retransmission
 # upon reaching the MRD rather than at some point after it (#559153)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21238])
-%patch24 -p1 -b .retransmission
-
-# Fill in Elapsed Time Option in Release message (#582939)
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21171])
-%patch25 -p1 -b .release6-elapsed
+%patch23 -p1 -b .retransmission
 
 # Cut down the 0-4 second delay before sending first DHCPDISCOVER (#587070)
-%patch26 -p1 -b .initialization-delay
-
-# Fix parsing of date (#514828)
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21501])
-%patch27 -p1 -b .parse_date
+%patch24 -p1 -b .initialization-delay
 
 # RFC 3442 - Classless Static Route Option for DHCPv4 (#516325)
-%patch28 -p1 -b .rfc3442
+%patch25 -p1 -b .rfc3442
 
 # hardening dhcpd/dhcrelay/dhclient by making them PIE & RELRO
-%patch29 -p1 -b .PIE-RELRO
+%patch26 -p1 -b .PIE-RELRO
 
 # check whether there is any unexpired address in previous lease
 # prior to confirming (INIT-REBOOT) the lease (#585418)
 # (Submitted to dhcp-suggest@isc.org - [ISC-Bugs #22675])
-%patch30 -p1 -b .honor-expired
+%patch27 -p1 -b .honor-expired
 
 # 1) When server has empty pool of addresses/prefixes it must send Advertise with
 #    NoAddrsAvail/NoPrefixAvail status in response to clients Solicit.
@@ -299,22 +286,22 @@ rm bind/bind.tar.gz
 #    Without this patch server ignored client's Solicit in which the client was sending
 #    prefix in IA_PD (as a preference) and this prefix was not in any of server's pools.
 #   (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #22676])
-%patch31 -p1 -b .noprefixavail
+%patch28 -p1 -b .noprefixavail
 
 # Fire away bundled BIND source.
-%patch32 -p1 -b .rh637017
+%patch29 -p1 -b .rh637017
 #Build dhcp's libraries as shared libs instead of static libs.
-%patch33 -p1 -b .sharedlib
+%patch30 -p1 -b .sharedlib
 
 # DHCPv6 over PPP support (#626514)
-%patch34 -p1 -b .PPP
+%patch31 -p1 -b .PPP
 
 # Fix OMAPI (#666441)
-%patch35 -p1 -b .omapi
+%patch32 -p1 -b .omapi
 
 # Fix loading of configuration when LDAP is used (#668276)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #22888])
-%patch36 -p1 -b .ldap-configuration
+%patch33 -p1 -b .ldap-configuration
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -663,6 +650,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Thu Jan 27 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-0.1.b1
+- 4.2.1b1: fix for CVE-2011-0413 (#672996)
+- No longer need invalid-dhclient-conf, parse_date and release6-elapsed patches
+
 * Thu Jan 13 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-26.P2
 - Fix loading of configuration when LDAP is used (#668276)
 
