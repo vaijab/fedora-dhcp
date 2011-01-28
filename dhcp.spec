@@ -15,7 +15,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.1
-Release:  0.1.%{prever}%{?dist}
+Release:  0.2.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -650,6 +650,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Fri Jan 28 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-0.2.b1
+- dhclient-script improvements, thanks to Ville Skyttä (#672279)
+
 * Thu Jan 27 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-0.1.b1
 - 4.2.1b1: fix for CVE-2011-0413 (#672996)
 - No longer need invalid-dhclient-conf, parse_date and release6-elapsed patches
