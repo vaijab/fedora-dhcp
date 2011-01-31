@@ -92,6 +92,12 @@ Requires(postun): systemd-units
 Obsoletes: dhcpv6 <= 2.0.0alpha4-1
 Provides:  dhcpv6  = 2.0.0alpha4-2
 
+# In _docdir we ship some perl scripts and module from contrib subdirectory.
+# Because nothing under _docdir is allowed to "require" anything,
+# preventing anything under _docdir from being scanned. (#674058)
+%filter_requires_in %{_docdir}
+%filter_setup
+
 %description
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
 individual devices on an IP network to get their own network
@@ -317,30 +323,16 @@ for i in {common,omapip}/Makefile.am; do
 done
 %endif
 
-# Ensure we don't pick up Perl as a dependency from the scripts and modules
-# in the contrib directory (we copy this to /usr/share/doc in the final
-# package).
-%{__cp} -pR contrib __fedora_contrib
-pushd __fedora_contrib
+pushd contrib
 %{__chmod} -x 3.0b1-lease-convert dhclient-tz-exithook.sh ldap/dhcpd-conf-to-ldap
 %{__chmod} -x sethostname.sh solaris.init
-%{__mv} ms2isc/Registry.pm ms2isc/Registry.perlmodule
 %{__rm} -f dhcp.spec
 
 # We want UNIX-style line endings
 %{__sed} -i -e 's/\r//' ms2isc/readme.txt
-%{__sed} -i -e 's/\r//' ms2isc/Registry.perlmodule
+%{__sed} -i -e 's/\r//' ms2isc/Registry.pm
 %{__sed} -i -e 's/\r//' ms2isc/ms2isc.pl
 popd
-
-# Filter false positive perl requires (all of them)
-%{__cat} << EOF > dhcp-req
-#!/bin/sh
-%{__perl_requires} \
-| %{__grep} -v 'perl('
-EOF
-%global __perl_requires %{_builddir}/dhcp-%{VERSION}/dhcp-req
-%{__chmod} +x %{__perl_requires}
 
 # Replace @PRODUCTNAME@
 %{__sed} -i -e 's|@PRODUCTNAME@|%{vvendor}|g' common/dhcp-options.5
@@ -578,7 +570,7 @@ fi
 %files
 %defattr(-,root,root,-)
 %doc dhcpd.conf.sample dhcpd6.conf.sample
-%doc __fedora_contrib/*
+%doc contrib/*
 %dir %{_localstatedir}/lib/dhcpd
 %attr(0750,root,root) %dir %{dhcpconfdir}
 %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
@@ -650,6 +642,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Mon Jan 31 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-0.3.b1
+- Prevent anything under _docdir from being scanned. (#674058)
+
 * Fri Jan 28 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-0.2.b1
 - dhclient-script improvements, thanks to Ville Skyttä (#672279)
 
