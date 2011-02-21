@@ -15,7 +15,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.1
-Release:  0.4.%{prever}%{?dist}
+Release:  0.5.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -642,6 +642,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Mon Feb 21 2011 Adam Tkac <atkac redhat com> - 12:4.2.1-0.5.b1
+- rebuild against new bind-libs-lite
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 12:4.2.1-0.4.b1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
