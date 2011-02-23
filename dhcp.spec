@@ -7,7 +7,7 @@
 # Patch version 
 #%global patchver P2
 # Pre-Release version
-%global prever b1
+%global prever rc1
 
 #%define VERSION %{version}-%{patchver}
 %global VERSION %{version}%{prever}
@@ -15,7 +15,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.1
-Release:  0.5.%{prever}%{?dist}
+Release:  0.6.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -42,7 +42,6 @@ Patch1:   dhcp-4.2.0-options.patch
 Patch2:   dhcp-4.2.0-release-by-ifup.patch
 Patch3:   dhcp-4.2.0-dhclient-decline-backoff.patch
 Patch4:   dhcp-4.2.0-unicast-bootp.patch
-Patch5:   dhcp-4.2.0-ldap.patch
 Patch6:   dhcp-4.2.0-dhclient-usage.patch
 Patch7:   dhcp-4.2.0-default-requested-options.patch
 Patch8:   dhcp-4.2.0-xen-checksum.patch
@@ -68,8 +67,6 @@ Patch28:  dhcp-4.2.0-noprefixavail.patch
 Patch29:  dhcp420-rh637017.patch
 Patch30:  dhcp420-sharedlib.patch
 Patch31:  dhcp-4.2.0-PPP.patch
-Patch32:  dhcp-4.2.0-P2-omapi.patch
-Patch33:  dhcp-4.2.0-P2-ldap-configuration.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -94,7 +91,7 @@ Provides:  dhcpv6  = 2.0.0alpha4-2
 
 # In _docdir we ship some perl scripts and module from contrib subdirectory.
 # Because nothing under _docdir is allowed to "require" anything,
-# preventing anything under _docdir from being scanned. (#674058)
+# prevent _docdir from being scanned. (#674058)
 %filter_requires_in %{_docdir}
 %filter_setup
 
@@ -197,9 +194,6 @@ rm bind/bind.tar.gz
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19146])
 %patch4 -p1 -b .unicast
 
-# Search for liblber in configure.ac (#564810)
-%patch5 -p1 -b .ldap
-
 # Update the usage screen for dhclient(8) indicating new options
 # Use printf() rather than log_info() to display the information
 # Also, return EXIT_FAILURE when the usage() screen is displayed (stop parsing)
@@ -301,13 +295,6 @@ rm bind/bind.tar.gz
 
 # DHCPv6 over PPP support (#626514)
 %patch31 -p1 -b .PPP
-
-# Fix OMAPI (#666441)
-%patch32 -p1 -b .omapi
-
-# Fix loading of configuration when LDAP is used (#668276)
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #22888])
-%patch33 -p1 -b .ldap-configuration
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -642,6 +629,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Feb 23 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-0.6.rc1
+- 4.2.1rc1
+- Fixed typo in dhclient.leases(5) (#676284)
+
 * Mon Feb 21 2011 Adam Tkac <atkac redhat com> - 12:4.2.1-0.5.b1
 - rebuild against new bind-libs-lite
 
