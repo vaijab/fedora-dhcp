@@ -145,18 +145,6 @@ diff -up dhcp-4.2.1b1/client/dhclient.conf.5.man dhcp-4.2.1b1/client/dhclient.co
      require subnet-mask, domain-name-servers;
      script "CLIENTBINDIR/dhclient-script";
      media "media 10baseT/UTP", "media 10base2/BNC";
-diff -up dhcp-4.2.1b1/client/dhclient.leases.5.man dhcp-4.2.1b1/client/dhclient.leases.5
---- dhcp-4.2.1b1/client/dhclient.leases.5.man	2010-07-06 21:03:11.000000000 +0200
-+++ dhcp-4.2.1b1/client/dhclient.leases.5	2011-02-09 12:01:48.000000000 +0100
-@@ -39,7 +39,7 @@ database of leases that it has acquired 
- database is a free-form ASCII file containing one valid declaration
- per lease.   If more than one declaration appears for a given lease,
- the last one in the file is used.   The file is written as a log, so
--this is not an unusual occurrance.
-+this is not an unusual occurrence.
- .PP
- The format of the lease declarations is described in
- .B dhclient.conf(5).
 diff -up dhcp-4.2.1b1/client/dhclient-script.8.man dhcp-4.2.1b1/client/dhclient-script.8
 --- dhcp-4.2.1b1/client/dhclient-script.8.man	2010-07-06 21:03:11.000000000 +0200
 +++ dhcp-4.2.1b1/client/dhclient-script.8	2011-01-27 18:24:44.000000000 +0100

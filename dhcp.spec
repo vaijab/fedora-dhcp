@@ -7,15 +7,16 @@
 # Patch version 
 #%global patchver P2
 # Pre-Release version
-%global prever rc1
+#%global prever rc1
 
-#%define VERSION %{version}-%{patchver}
-%global VERSION %{version}%{prever}
+#%global VERSION %{version}-%{patchver}
+#%global VERSION %{version}%{prever}
+%global VERSION %{version}
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.1
-Release:  0.5.%{prever}%{?dist}
+Release:  1%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -629,6 +630,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Mar 02 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-1
+- 4.2.1
+
 * Wed Feb 23 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-0.5.rc1
 - 4.2.1rc1
 - Fixed typo in dhclient.leases(5) (#676284)
