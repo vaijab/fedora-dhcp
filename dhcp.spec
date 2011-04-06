@@ -12,7 +12,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  19.%{patchver}%{?dist}
+Release:  20.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -66,6 +66,7 @@ Patch32:  dhcp-4.2.0-PPP.patch
 Patch33:  dhcp-4.2.0-P2-omapi.patch
 Patch34:  dhcp-4.2.0-P2-ldap-configuration.patch
 Patch35:  dhcp-4.2.0-P2-CVE-2011-0413.patch
+Patch36:  dhcp-4.2.0-P2-CVE-2011-0997.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -272,6 +273,10 @@ libdhcpctl and libomapi static libraries are also included in this package.
 
 # CVE-2011-0413: Unexpected abort caused by a DHCPv6 decline message (#672996)
 %patch35 -p1 -b .CVE-2011-0413
+
+# CVE-2011-0997
+# dhclient: insufficient sanitization of certain DHCP response values (#694005)
+%patch36 -p1 -b .CVE-2011-0997
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -554,6 +559,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Apr 06 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-20.P2
+- CVE-2011-0997
+  dhclient: insufficient sanitization of certain DHCP response values (#694005)
+
 * Thu Jan 27 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-19.P2
 - CVE-2011-0413: Unexpected abort caused by a DHCPv6 decline message (#672996)
 
