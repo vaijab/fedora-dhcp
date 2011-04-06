@@ -9,9 +9,9 @@
 # Pre-Release version
 #%global prever rc1
 
-%global VERSION %{version}-%{patchver}
 #%global VERSION %{version}%{prever}
 #%global VERSION %{version}
+%global VERSION %{version}-%{patchver}
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
