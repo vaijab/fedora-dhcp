@@ -5,18 +5,18 @@
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
 # Patch version 
-#%global patchver P2
+%global patchver P1
 # Pre-Release version
 #%global prever rc1
 
-#%global VERSION %{version}-%{patchver}
+%global VERSION %{version}-%{patchver}
 #%global VERSION %{version}%{prever}
-%global VERSION %{version}
+#%global VERSION %{version}
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.1
-Release:  2.1%{?dist}
+Release:  3.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -630,6 +630,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Apr 06 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-3.P1
+- 4.2.1-P1: fix for CVE-2011-0997 (#694005)
+
 * Thu Mar 17 2011 Karsten Hopp <karsten@redhat.com> 4.2.1-2.1
 - bump release and rebuild on PPC, it was built with old bind-libs there
 
