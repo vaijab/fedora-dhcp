@@ -15,7 +15,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.1.2
-Release:  3.ESV.%{patchver}%{?dist}
+Release:  4.ESV.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -61,6 +61,7 @@ Patch23:  %{name}-4.1-ESV-retransmission.patch
 Patch24:  %{name}-4.1.1-initialization-delay.patch
 Patch25:  %{name}-4.1.1-P1-PIE-RELRO.patch
 Patch26:  %{name}-4.1.1-P1-noprefixavail.patch
+Patch27:  %{name}-4.1-ESV-CVE-2011-0997.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -242,6 +243,9 @@ libdhcpctl and libomapi static libraries are also included in this package.
 #    Without this patch server ignored client's Solicit in which the client was sending
 #    prefix in IA_PD (as a preference) and this prefix was not in any of server's pools.
 %patch26 -p1 -b .noprefixavail
+
+# Better fix for CVE-2011-0997: making domain-name check more lenient (#694005)
+%patch27 -p1 -b .CVE-2011-0997
 
 # Copy in documentation and example scripts for LDAP patch to dhcpd
 %{__install} -p -m 0755 ldap-for-dhcp-%{ldappatchver}/dhcpd-conf-to-ldap contrib/
@@ -528,6 +532,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Wed Apr 06 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.2-4.ESV.R2
+- Better fix for CVE-2011-0997: making domain-name check more lenient (#694005)
+
 * Wed Apr 06 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.2-3.ESV.R2
 - 4.1-ESV-R2: fix for CVE-2011-0997 (#694005)
 
