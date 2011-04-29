@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.1
-Release:  5.%{patchver}%{?dist}
+Release:  6.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -82,6 +82,8 @@ Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Requires(post): chkconfig
 Requires(post): coreutils
 Requires(post): systemd-units
+# This is actually needed for the %%triggerun script but Requires(triggerun) is not valid.
+Requires(post): systemd-sysv
 Requires(preun): chkconfig
 Requires(preun): initscripts
 Requires(preun): systemd-units
@@ -169,6 +171,14 @@ Requires: %{name}-libs = %{epoch}:%{version}-%{release}
 %description devel
 Header files and API documentation for using the ISC DHCP libraries.  The
 libdhcpctl and libomapi static libraries are also included in this package.
+
+%package sysvinit
+Summary: Legacy SysV initscripts for DHCP server and relay agent
+Group: System Environment/Base
+
+%description sysvinit
+Legacy SysV initscripts for init mechanisms such as upstart
+which do not support the systemd unit file format.
 
 %prep
 %setup -q -n dhcp-%{VERSION}
@@ -498,12 +508,10 @@ if [ ! -z "${prevconf}" ]; then
     fi
 fi
 
-/sbin/chkconfig --add dhcpd
-/sbin/chkconfig --add dhcpd6
-/sbin/chkconfig --add dhcrelay || :
-
-# systemd
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+# Initial installation 
+if [ $1 -eq 1 ] ; then 
+    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+fi
 
 
 %post -n dhclient
@@ -525,30 +533,20 @@ fi || :
 
 %preun
 # Package removal, not upgrade
-if [ $1 = 0 ]; then
-    /sbin/service dhcpd stop >/dev/null 2>&1
-    /sbin/service dhcpd6 stop >/dev/null 2>&1
-    /sbin/service dhcrelay stop >/dev/null 2>&1
-    /sbin/chkconfig --del dhcpd
-    /sbin/chkconfig --del dhcpd6
-    /sbin/chkconfig --del dhcrelay || :
-
+if [ $1 -eq 0 ] ; then
+    /bin/systemctl --no-reload disable dhcpd.service > /dev/null 2>&1 || :
+    /bin/systemctl --no-reload disable dhcpd6.service > /dev/null 2>&1 || :
+    /bin/systemctl --no-reload disable dhcrelay.service > /dev/null 2>&1 || :
     /bin/systemctl stop dhcpd.service > /dev/null 2>&1 || :
     /bin/systemctl stop dhcpd6.service > /dev/null 2>&1 || :
     /bin/systemctl stop dhcrelay.service > /dev/null 2>&1 || :
-    /bin/systemctl disable dhcpd.service > /dev/null 2>&1 || :
-    /bin/systemctl disable dhcpd6.service > /dev/null 2>&1 || :
-    /bin/systemctl disable dhcrelay.service > /dev/null 2>&1 || :
 fi
+
 
 %postun
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 # Package upgrade, not uninstall
 if [ $1 -ge 1 ]; then
-    /sbin/service dhcpd condrestart >/dev/null 2>&1
-    /sbin/service dhcpd6 condrestart >/dev/null 2>&1
-    /sbin/service dhcrelay condrestart >/dev/null 2>&1 || :
-
     /bin/systemctl try-restart dhcpd.service >/dev/null 2>&1 || :
     /bin/systemctl try-restart dhcpd6.service >/dev/null 2>&1 || :
     /bin/systemctl try-restart dhcrelay.service >/dev/null 2>&1 || :
@@ -559,8 +557,25 @@ fi
 
 %postun libs -p /sbin/ldconfig
 
+#https://fedoraproject.org/wiki/Packaging:ScriptletSnippets#Systemd
+%triggerun -- dhcp < 12:4.2.0-21.P1
+# Save the current service runlevel info
+# User must manually run systemd-sysv-convert --apply httpd
+# to migrate them to systemd targets
+/usr/bin/systemd-sysv-convert --save dhpd
+/usr/bin/systemd-sysv-convert --save dhpd6
+/usr/bin/systemd-sysv-convert --save dhcrelay
+# Run these because the SysV package being removed won't do them
+/sbin/chkconfig --del dhcpd >/dev/null 2>&1 || :
+/sbin/chkconfig --del dhcpd6 >/dev/null 2>&1 || :
+/sbin/chkconfig --del dhcrelay >/dev/null 2>&1 || :
+/bin/systemctl try-restart dhcpd.service >/dev/null 2>&1 || :
+/bin/systemctl try-restart dhcpd6.service >/dev/null 2>&1 || :
+/bin/systemctl try-restart dhcrelay.service >/dev/null 2>&1 || :
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+
+
 %files
-%defattr(-,root,root,-)
 %doc dhcpd.conf.sample dhcpd6.conf.sample
 %doc contrib/*
 %dir %{_localstatedir}/lib/dhcpd
@@ -576,12 +591,9 @@ fi
 %dir %{_sysconfdir}/NetworkManager
 %dir %{_sysconfdir}/NetworkManager/dispatcher.d
 %{_sysconfdir}/NetworkManager/dispatcher.d/12-dhcpd
-%{_initddir}/dhcpd
-%{_initddir}/dhcpd6
-%{_initddir}/dhcrelay
-%attr(0644,root,root)   /lib/systemd/system/dhcpd.service
-%attr(0644,root,root)   /lib/systemd/system/dhcpd6.service
-%attr(0644,root,root)   /lib/systemd/system/dhcrelay.service
+%attr(0644,root,root)   %{_unitdir}/dhcpd.service
+%attr(0644,root,root)   %{_unitdir}/dhcpd6.service
+%attr(0644,root,root)   %{_unitdir}/dhcrelay.service
 %{_sbindir}/dhcpd
 %{_sbindir}/dhcrelay
 %attr(0644,root,root) %{_mandir}/man5/dhcpd.conf.5.gz
@@ -590,7 +602,6 @@ fi
 %attr(0644,root,root) %{_mandir}/man8/dhcrelay.8.gz
 
 %files -n dhclient
-%defattr(-,root,root,-)
 %doc dhclient.conf.sample dhclient6.conf.sample README.dhclient.d
 %attr(0750,root,root) %dir %{dhcpconfdir}
 %config(noreplace) %{dhcpconfdir}/dhclient.conf
@@ -608,7 +619,6 @@ fi
 %attr(0644,root,root) %{_mandir}/man8/dhclient-script.8.gz
 
 %files common
-%defattr(-,root,root,-)
 %doc LICENSE README RELNOTES doc/References.txt
 %{_bindir}/omshell
 %attr(0644,root,root) %{_mandir}/man1/omshell.1.gz
@@ -616,13 +626,11 @@ fi
 %attr(0644,root,root) %{_mandir}/man5/dhcp-eval.5.gz
 
 %files libs
-%defattr(-,root,root,-)
 %{_libdir}/libdhcpctl.so.*
 %{_libdir}/libomapi.so.*
 %{_libdir}/libdst.so.*
 
 %files devel
-%defattr(-,root,root,-)
 %doc doc/IANA-arp-parameters doc/api+protocol
 %{_includedir}/dhcpctl
 %{_includedir}/isc-dhcp
@@ -633,7 +641,15 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/dhcpctl.3.gz
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
+%files sysvinit
+%{_initddir}/dhcpd
+%{_initddir}/dhcpd6
+%{_initddir}/dhcrelay
+
 %changelog
+* Fri Apr 29 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-6.P1
+- Comply with guidelines for systemd services
+
 * Wed Apr 27 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-5.P1
 - Fix NetworkManager dispatcher script for dhcpd to support arbitrary interface names
 
