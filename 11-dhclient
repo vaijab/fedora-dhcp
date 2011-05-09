@@ -12,7 +12,8 @@ declare | LC_ALL=C grep '^DHCP4_[A-Z_]*=' | while read opt; do
     optname=${optname,,}
     optname=new_${optname#dhcp4_}
     optvalue=${opt#*=}
-    echo "$optname=$optvalue"
+    echo "export $optname=$optvalue"
+
 done
 )"
 

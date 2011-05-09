@@ -12,7 +12,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  21.%{patchver}%{?dist}
+Release:  22.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -559,6 +559,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
+* Mon May 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-22.P1
+- Fix 11-dhclient to export variables (#702735)
+
 * Wed Apr 06 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-21.P2
 - Better fix for CVE-2011-0997: making domain-name check more lenient (#694005)
 
