@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.1
-Release:  7.%{patchver}%{?dist}
+Release:  8.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -647,6 +647,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Mon May 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-8.P1
+- Fix 11-dhclient to export variables (#702735)
+
 * Fri Apr 29 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-7.P1
 - Comply with guidelines for systemd services
 
