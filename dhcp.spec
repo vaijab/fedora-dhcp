@@ -557,10 +557,11 @@ fi
 
 %postun libs -p /sbin/ldconfig
 
-#https://fedoraproject.org/wiki/Packaging:ScriptletSnippets#Systemd
+
 %triggerun -- dhcp < 12:4.2.0-21.P1
+# https://fedoraproject.org/wiki/Packaging:ScriptletSnippets#Systemd
 # Save the current service runlevel info
-# User must manually run systemd-sysv-convert --apply httpd
+# User must manually run systemd-sysv-convert --apply dhcpd
 # to migrate them to systemd targets
 /usr/bin/systemd-sysv-convert --save dhpd
 /usr/bin/systemd-sysv-convert --save dhpd6
@@ -572,7 +573,6 @@ fi
 /bin/systemctl try-restart dhcpd.service >/dev/null 2>&1 || :
 /bin/systemctl try-restart dhcpd6.service >/dev/null 2>&1 || :
 /bin/systemctl try-restart dhcrelay.service >/dev/null 2>&1 || :
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 
 
 %files
