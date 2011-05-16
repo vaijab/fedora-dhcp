@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.1
-Release:  7.%{patchver}%{?dist}
+Release:  8.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -79,6 +79,7 @@ BuildRequires: libcap-ng-devel
 BuildRequires: bind-lite-devel
 
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
+Requires: %{name}-libs = %{epoch}:%{version}-%{release}
 Requires(post): chkconfig
 Requires(post): coreutils
 Requires(post): systemd-units
@@ -112,10 +113,11 @@ and on clients run a DHCP client daemon.  The dhcp package provides
 the ISC DHCP service and relay agent.
 
 %package -n dhclient
-Summary: Provides the dhclient ISC DHCP client daemon and dhclient-script
+Summary: Provides the ISC DHCP client daemon and dhclient-script
 Group: System Environment/Base
 Requires: initscripts
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
+Requires: %{name}-libs = %{epoch}:%{version}-%{release}
 Requires(post): coreutils
 Requires(post): grep
 Obsoletes: dhcpcd <= 1.3.22pl1-7
@@ -141,6 +143,7 @@ provides the ISC DHCP client daemon.
 %package common
 Summary: Common files used by ISC dhcp client and server
 Group: System Environment/Base
+Requires: %{name}-libs = %{epoch}:%{version}-%{release}
 
 %description common
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
@@ -647,6 +650,11 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Mon May 16 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-8.P1
+- Packages dhcp/dhclient/dhcp-common explicitly require the libs sub-package
+  with the same version and release (bug #705037).
+- Fix triggerun scriptlet
+
 * Mon May 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-7.P1
 - Fix 11-dhclient to export variables (#702735)
 
