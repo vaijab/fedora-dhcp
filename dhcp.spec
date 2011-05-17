@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.1
-Release:  9.%{patchver}%{?dist}
+Release:  10.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -566,9 +566,9 @@ fi
 # Save the current service runlevel info
 # User must manually run systemd-sysv-convert --apply dhcpd
 # to migrate them to systemd targets
-/usr/bin/systemd-sysv-convert --save dhpd
-/usr/bin/systemd-sysv-convert --save dhpd6
-/usr/bin/systemd-sysv-convert --save dhcrelay
+/usr/bin/systemd-sysv-convert --save dhcpd >/dev/null 2>&1 ||:
+/usr/bin/systemd-sysv-convert --save dhcpd6 >/dev/null 2>&1 ||:
+/usr/bin/systemd-sysv-convert --save dhcrelay >/dev/null 2>&1 ||:
 # Run these because the SysV package being removed won't do them
 /sbin/chkconfig --del dhcpd >/dev/null 2>&1 || :
 /sbin/chkconfig --del dhcpd6 >/dev/null 2>&1 || :
@@ -650,6 +650,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Tue May 17 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-10.P1
+- Fix typo in triggerun scriptlet (#705417)
+
 * Mon May 16 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-9.P1
 - Packages dhcp/dhclient/dhcp-common explicitly require the libs sub-package
   with the same version and release (bug #705037).
