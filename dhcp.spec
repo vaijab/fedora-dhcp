@@ -189,6 +189,9 @@ which do not support the systemd unit file format.
 # Remove bundled BIND source
 rm bind/bind.tar.gz
 
+# Fire away bundled BIND source.
+%patch29 -p1 -b .rh637017 %{?_rawbuild}
+
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
 # reported through bugzilla.redhat.com
@@ -303,8 +306,6 @@ rm bind/bind.tar.gz
 #   (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #22676])
 %patch28 -p1 -b .noprefixavail
 
-# Fire away bundled BIND source.
-%patch29 -p1 -b .rh637017
 #Build dhcp's libraries as shared libs instead of static libs.
 %patch30 -p1 -b .sharedlib
 

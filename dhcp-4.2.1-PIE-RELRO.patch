@@ -20,7 +20,7 @@ diff -up dhcp-4.2.1rc1/client/Makefile.am.PIE-RELRO dhcp-4.2.1rc1/client/Makefil
 +dhclient_CPPFLAGS = -DCLIENT_PATH='"$(sbindir)"' -DLOCALSTATEDIR='"$(localstatedir)"'
 +dhclient_CFLAGS = -fpie
  dhclient_LDADD = ../common/libdhcp.a ../omapip/libomapi.a \
- 		 ../bind/lib/libdns.a ../bind/lib/libisc.a $(CAPNG_LDADD)
+ 		 $(BIND9_LIBDIR) -ldns-export -lisc-export $(CAPNG_LDADD)
 +dhclient_LDFLAGS = -pie -Wl,-z,relro -Wl,-z,now
 +
  man_MANS = dhclient.8 dhclient-script.8 dhclient.conf.5 dhclient.leases.5
@@ -57,7 +57,7 @@ diff -up dhcp-4.2.1rc1/omapip/Makefile.am.PIE-RELRO dhcp-4.2.1rc1/omapip/Makefil
  
  svtest_SOURCES = test.c
 +svtest_CFLAGS = -fpie
- svtest_LDADD = libomapi.a ../bind/lib/libdns.a ../bind/lib/libisc.a
+ svtest_LDADD = libomapi.a $(BIND9_LIBDIR) -ldns-export -lisc-export
  
 diff -up dhcp-4.2.1rc1/relay/Makefile.am.PIE-RELRO dhcp-4.2.1rc1/relay/Makefile.am
 --- dhcp-4.2.1rc1/relay/Makefile.am.PIE-RELRO	2009-10-28 05:12:30.000000000 +0100
@@ -68,7 +68,7 @@ diff -up dhcp-4.2.1rc1/relay/Makefile.am.PIE-RELRO dhcp-4.2.1rc1/relay/Makefile.
  dhcrelay_SOURCES = dhcrelay.c
 +dhcrelay_CFLAGS = -fpie
  dhcrelay_LDADD = ../common/libdhcp.a ../omapip/libomapi.a \
- 		 ../bind/lib/libdns.a ../bind/lib/libisc.a
+ 		 $(BIND9_LIBDIR) -ldns-export -lisc-export
 +dhcrelay_LDFLAGS = -pie -Wl,-z,relro -Wl,-z,now
 +
  man_MANS = dhcrelay.8
@@ -77,15 +77,14 @@ diff -up dhcp-4.2.1rc1/relay/Makefile.am.PIE-RELRO dhcp-4.2.1rc1/relay/Makefile.
 diff -up dhcp-4.2.1rc1/server/Makefile.am.PIE-RELRO dhcp-4.2.1rc1/server/Makefile.am
 --- dhcp-4.2.1rc1/server/Makefile.am.PIE-RELRO	2010-03-24 22:49:47.000000000 +0100
 +++ dhcp-4.2.1rc1/server/Makefile.am	2011-02-23 10:56:35.000000000 +0100
-@@ -6,10 +6,11 @@ dhcpd_SOURCES = dhcpd.c dhcp.c bootp.c c
+@@ -6,9 +6,10 @@ dhcpd_SOURCES = dhcpd.c dhcp.c bootp.c confpars.c db.c class.c failover.c \
  		omapi.c mdb.c stables.c salloc.c ddns.c dhcpleasequery.c \
  		dhcpv6.c mdb6.c ldap.c ldap_casa.c
  
 -dhcpd_CFLAGS = $(LDAP_CFLAGS)
 +dhcpd_CFLAGS = $(LDAP_CFLAGS) -fpie
  dhcpd_LDADD = ../common/libdhcp.a ../omapip/libomapi.a \
- 	      ../dhcpctl/libdhcpctl.a ../bind/lib/libdns.a \
- 	      ../bind/lib/libisc.a
+ 	      ../dhcpctl/libdhcpctl.a $(BIND9_LIBDIR) -ldns-export -lisc-export
 +dhcpd_LDFLAGS = -pie -Wl,-z,relro -Wl,-z,now
  
  man_MANS = dhcpd.8 dhcpd.conf.5 dhcpd.leases.5
