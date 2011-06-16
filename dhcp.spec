@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.1
-Release:  10.%{patchver}%{?dist}
+Release:  11.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -578,6 +578,11 @@ fi
 /bin/systemctl try-restart dhcpd6.service >/dev/null 2>&1 || :
 /bin/systemctl try-restart dhcrelay.service >/dev/null 2>&1 || :
 
+%triggerpostun -n dhcp-sysvinit -- dhcp < 12:4.2.0-21.P1
+# https://fedoraproject.org/wiki/Packaging:SysVInitScript#Initscripts_in_addition_to_systemd_unit_files
+/sbin/chkconfig --add dhcpd >/dev/null 2>&1 || :
+/sbin/chkconfig --add dhcpd6 >/dev/null 2>&1 || :
+/sbin/chkconfig --add dhcrelay >/dev/null 2>&1 || :
 
 %files
 %doc dhcpd.conf.sample dhcpd6.conf.sample
@@ -651,6 +656,10 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Thu Jun 16 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-11.P1
+- Add triggerpostun scriptlet tied to dhcp-sysvinit
+- Make it possible to build without downstream patches (Kamil Dudka)
+
 * Tue May 17 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-10.P1
 - Fix typo in triggerun scriptlet (#705417)
 
