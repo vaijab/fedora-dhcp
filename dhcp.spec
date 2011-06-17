@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.1
-Release:  11.%{patchver}%{?dist}
+Release:  12.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -45,20 +45,19 @@ Patch3:   dhcp-4.2.0-dhclient-decline-backoff.patch
 Patch4:   dhcp-4.2.0-unicast-bootp.patch
 Patch6:   dhcp-4.2.0-dhclient-usage.patch
 Patch7:   dhcp-4.2.0-default-requested-options.patch
-Patch8:   dhcp-4.2.0-xen-checksum.patch
+Patch8:   dhcp-4.2.1-xen-checksum.patch
 Patch10:  dhcp-4.2.1-manpages.patch
 Patch11:  dhcp-4.2.0-paths.patch
 Patch12:  dhcp-4.2.0-CLOEXEC.patch
 Patch13:  dhcp-4.2.0-inherit-leases.patch
 Patch14:  dhcp-4.2.0-garbage-chars.patch
 Patch15:  dhcp-4.2.0-missing-ipv6-not-fatal.patch
-Patch16:  dhcp-4.2.0-IFNAMSIZ.patch
 Patch17:  dhcp-4.2.0-add_timeout_when_NULL.patch
 Patch18:  dhcp-4.2.1-64_bit_lease_parse.patch
 Patch19:  dhcp-4.2.1-capability.patch
 Patch20:  dhcp-4.2.0-logpid.patch
 Patch21:  dhcp-4.2.0-UseMulticast.patch
-Patch22:  dhcp-4.2.0-sendDecline.patch
+Patch22:  dhcp-4.2.1-sendDecline.patch
 Patch23:  dhcp-4.2.1-retransmission.patch
 Patch24:  dhcp-4.2.0-initialization-delay.patch
 Patch25:  dhcp-4.2.0-rfc3442-classless-static-routes.patch
@@ -244,10 +243,6 @@ rm bind/bind.tar.gz
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19367])
 %patch15 -p1 -b .noipv6
 
-# Read only up to IFNAMSIZ characters for the interface name in dhcpd (#441524)
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19617])
-%patch16 -p1 -b .ifnamsiz
-
 # Handle cases in add_timeout() where the function is called with a NULL
 # value for the 'when' parameter
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19867])
@@ -393,17 +388,17 @@ CFLAGS="%{optflags} -fno-strict-aliasing -D_GNU_SOURCE" \
 %{__mv} %{buildroot}%{_sbindir}/dhclient %{buildroot}/sbin/dhclient
 %{__install} -p -m 0755 client/scripts/linux %{buildroot}/sbin/dhclient-script
 
-# Install init scripts
+# Install legacy SysV initscripts
 %{__mkdir} -p %{buildroot}%{_initddir}
 %{__install} -p -m 0755 %{SOURCE1} %{buildroot}%{_initddir}/dhcpd
 %{__install} -p -m 0755 %{SOURCE2} %{buildroot}%{_initddir}/dhcpd6
 %{__install} -p -m 0755 %{SOURCE3} %{buildroot}%{_initddir}/dhcrelay
 
-# install systemd initscripts
-mkdir -p %{buildroot}/lib/systemd/system/
-install -m 644 %{SOURCE9} %{buildroot}/lib/systemd/system/dhcpd.service
-install -m 644 %{SOURCE10} %{buildroot}/lib/systemd/system/dhcpd6.service
-install -m 644 %{SOURCE11} %{buildroot}/lib/systemd/system/dhcrelay.service
+# Install systemd unit files
+mkdir -p %{buildroot}%{_unitdir}
+install -m 644 %{SOURCE9} %{buildroot}%{_unitdir}
+install -m 644 %{SOURCE10} %{buildroot}%{_unitdir}
+install -m 644 %{SOURCE11} %{buildroot}%{_unitdir}
 
 # Start empty lease databases
 %{__mkdir} -p %{buildroot}%{_localstatedir}/lib/dhcpd/
@@ -656,6 +651,10 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Fri Jun 17 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-12.P1
+- Removed upstream-merged IFNAMSIZ.patch
+- Polished patches according to results from static analysis of code.
+
 * Thu Jun 16 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-11.P1
 - Add triggerpostun scriptlet tied to dhcp-sysvinit
 - Make it possible to build without downstream patches (Kamil Dudka)
