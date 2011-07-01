@@ -54,7 +54,7 @@ Patch14:  dhcp-4.2.0-garbage-chars.patch
 Patch15:  dhcp-4.2.0-missing-ipv6-not-fatal.patch
 Patch17:  dhcp-4.2.0-add_timeout_when_NULL.patch
 Patch18:  dhcp-4.2.1-64_bit_lease_parse.patch
-Patch19:  dhcp-4.2.1-capability.patch
+Patch19:  dhcp-4.2.2-capability.patch
 Patch20:  dhcp-4.2.0-logpid.patch
 Patch21:  dhcp-4.2.0-UseMulticast.patch
 Patch22:  dhcp-4.2.1-sendDecline.patch
@@ -251,7 +251,8 @@ rm bind/bind.tar.gz
 # (Partly submitted to dhcp-bugs@isc.org - [ISC-Bugs #22033])
 %patch18 -p1 -b .64-bit_lease_parse
 
-# Drop unnecessary capabilities in dhclient (#517649, #546765)
+# Drop unnecessary capabilities in
+# dhclient (#517649, #546765), dhcpd/dhcrelay (#699713)
 %patch19 -p1 -b .capability
 
 # dhclient logs its pid to make troubleshooting NM managed systems
@@ -649,6 +650,7 @@ fi
 %changelog
 * Fri Jul 01 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-0.1.b1
 - 4.2.2b1: upstream merged initialization-delay.patch
+- Drop all capabilities in dhcpd/dhcrelay (#699713)
 
 * Fri Jun 17 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-12.P1
 - Removed upstream-merged IFNAMSIZ.patch
