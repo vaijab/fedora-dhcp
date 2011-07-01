@@ -5,18 +5,18 @@
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
 # Patch version 
-%global patchver P1
+#%global patchver P1
 # Pre-Release version
-#%global prever rc1
+%global prever b1
 
-#%global VERSION %{version}%{prever}
 #%global VERSION %{version}
-%global VERSION %{version}-%{patchver}
+#%global VERSION %{version}-%{patchver}
+%global VERSION %{version}%{prever}
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
-Version:  4.2.1
-Release:  12.%{patchver}%{?dist}
+Version:  4.2.2
+Release:  0.1.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -39,16 +39,16 @@ Source10:  dhcpd6.service
 Source11:  dhcrelay.service
 
 Patch0:   dhcp-4.2.0-errwarn-message.patch
-Patch1:   dhcp-4.2.0-options.patch
+Patch1:   dhcp-4.2.2-options.patch
 Patch2:   dhcp-4.2.0-release-by-ifup.patch
 Patch3:   dhcp-4.2.0-dhclient-decline-backoff.patch
 Patch4:   dhcp-4.2.0-unicast-bootp.patch
-Patch6:   dhcp-4.2.0-dhclient-usage.patch
+Patch6:   dhcp-4.2.2-dhclient-usage.patch
 Patch7:   dhcp-4.2.0-default-requested-options.patch
-Patch8:   dhcp-4.2.1-xen-checksum.patch
+Patch8:   dhcp-4.2.2-xen-checksum.patch
 Patch10:  dhcp-4.2.1-manpages.patch
 Patch11:  dhcp-4.2.0-paths.patch
-Patch12:  dhcp-4.2.0-CLOEXEC.patch
+Patch12:  dhcp-4.2.2-CLOEXEC.patch
 Patch13:  dhcp-4.2.0-inherit-leases.patch
 Patch14:  dhcp-4.2.0-garbage-chars.patch
 Patch15:  dhcp-4.2.0-missing-ipv6-not-fatal.patch
@@ -59,9 +59,8 @@ Patch20:  dhcp-4.2.0-logpid.patch
 Patch21:  dhcp-4.2.0-UseMulticast.patch
 Patch22:  dhcp-4.2.1-sendDecline.patch
 Patch23:  dhcp-4.2.1-retransmission.patch
-Patch24:  dhcp-4.2.0-initialization-delay.patch
-Patch25:  dhcp-4.2.0-rfc3442-classless-static-routes.patch
-Patch26:  dhcp-4.2.1-PIE-RELRO.patch
+Patch25:  dhcp-4.2.2-rfc3442-classless-static-routes.patch
+Patch26:  dhcp-4.2.2-PIE-RELRO.patch
 Patch27:  dhcp-4.2.0-honor-expired.patch
 Patch28:  dhcp-4.2.0-noprefixavail.patch
 Patch29:  dhcp420-rh637017.patch
@@ -275,9 +274,6 @@ rm bind/bind.tar.gz
 # upon reaching the MRD rather than at some point after it (#559153)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21238])
 %patch23 -p1 -b .retransmission
-
-# Cut down the 0-4 second delay before sending first DHCPDISCOVER (#587070)
-%patch24 -p1 -b .initialization-delay
 
 # RFC 3442 - Classless Static Route Option for DHCPv4 (#516325)
 %patch25 -p1 -b .rfc3442
@@ -651,6 +647,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Fri Jul 01 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-0.1.b1
+- 4.2.2b1: upstream merged initialization-delay.patch
+
 * Fri Jun 17 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-12.P1
 - Removed upstream-merged IFNAMSIZ.patch
 - Polished patches according to results from static analysis of code.
