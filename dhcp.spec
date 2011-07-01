@@ -411,7 +411,7 @@ touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd6.leases
 #Example: DHCRELAYARGS="-4 -i eth0 192.168.0.1"
 #Example: DHCRELAYARGS="-6 -l eth1 -u eth0"
 DHCRELAYARGS=""
-# Note: We don't use $INTERFACES and $DHCPSERVERS anymore (they were DHCPv4 only)
+# Note: We don't use INTERFACES and DHCPSERVERS anymore (they were DHCPv4 only)
 EOF
 
 %{__cat} <<EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcpd
