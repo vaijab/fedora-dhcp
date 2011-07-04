@@ -213,7 +213,7 @@ diff -up dhcp-4.2.2b1/relay/dhcrelay.c.capability dhcp-4.2.2b1/relay/dhcrelay.c
 +		capng_updatev(CAPNG_ADD, CAPNG_EFFECTIVE|CAPNG_PERMITTED,
 +				CAP_NET_RAW, CAP_NET_BIND_SERVICE, -1);
 +		capng_apply(CAPNG_SELECT_BOTH);
-+		log_debug ("Dropped all unnecessary capabilities.");
++		log_info ("Dropped all unnecessary capabilities.");
 +	}
 +#endif
 +
@@ -229,7 +229,7 @@ diff -up dhcp-4.2.2b1/relay/dhcrelay.c.capability dhcp-4.2.2b1/relay/dhcrelay.c
 +	if (!keep_capabilities) {
 +		capng_clear(CAPNG_SELECT_BOTH);
 +		capng_apply(CAPNG_SELECT_BOTH);
-+		log_debug ("Dropped all capabilities.");
++		log_info ("Dropped all capabilities.");
 +	}
 +#endif
 +
@@ -285,7 +285,7 @@ diff -up dhcp-4.2.2b1/server/dhcpd.c.capability dhcp-4.2.2b1/server/dhcpd.c
 +		capng_updatev(CAPNG_ADD, CAPNG_EFFECTIVE|CAPNG_PERMITTED,
 +				CAP_NET_RAW, CAP_NET_BIND_SERVICE, -1);
 +		capng_apply(CAPNG_SELECT_BOTH);
-+		log_debug ("Dropped all unnecessary capabilities.");
++		log_info ("Dropped all unnecessary capabilities.");
 +	}
 +#endif
 +
@@ -301,7 +301,7 @@ diff -up dhcp-4.2.2b1/server/dhcpd.c.capability dhcp-4.2.2b1/server/dhcpd.c
 +	if (!keep_capabilities) {
 +		capng_clear(CAPNG_SELECT_BOTH);
 +		capng_apply(CAPNG_SELECT_BOTH);
-+		log_debug ("Dropped all capabilities.");
++		log_info ("Dropped all capabilities.");
 +	}
 +#endif
 +
