@@ -4,7 +4,7 @@ After=syslog.target network.target
 
 [Service]
 EnvironmentFile=/etc/sysconfig/dhcpd6
-ExecStart=/usr/sbin/dhcpd -6 -d $DHCPDARGS
+ExecStart=/usr/sbin/dhcpd -6 -d --no-pid $DHCPDARGS
 
 [Install]
 WantedBy=multi-user.target

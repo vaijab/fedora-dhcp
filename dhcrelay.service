@@ -4,7 +4,7 @@ After=syslog.target network.target
 
 [Service]
 EnvironmentFile=/etc/sysconfig/dhcrelay
-ExecStart=/usr/sbin/dhcrelay -d $DHCRELAYARGS
+ExecStart=/usr/sbin/dhcrelay -d --no-pid $DHCRELAYARGS
 
 [Install]
 WantedBy=multi-user.target
