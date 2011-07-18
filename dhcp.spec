@@ -7,7 +7,7 @@
 # Patch version 
 #%global patchver P1
 # Pre-Release version
-%global prever b1
+%global prever rc1
 
 #%global VERSION %{version}
 #%global VERSION %{version}-%{patchver}
@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.2
-Release:  0.1.%{prever}%{?dist}
+Release:  0.2.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -66,7 +66,6 @@ Patch28:  dhcp-4.2.0-noprefixavail.patch
 Patch29:  dhcp420-rh637017.patch
 Patch30:  dhcp420-sharedlib.patch
 Patch31:  dhcp-4.2.0-PPP.patch
-Patch32:  dhcp-4.2.1-P1-CVE-2011-0997.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -303,9 +302,6 @@ rm bind/bind.tar.gz
 
 # DHCPv6 over PPP support (#626514)
 %patch31 -p1 -b .PPP
-
-# Better fix for CVE-2011-0997: making domain-name check more lenient (#694005)
-%patch32 -p1 -b .CVE-2011-0997
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -648,6 +644,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Mon Jul 18 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-0.2.rc1
+- 4.2.2rc1
+
 * Fri Jul 01 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-0.1.b1
 - 4.2.2b1: upstream merged initialization-delay.patch
 - Drop all capabilities in dhcpd/dhcrelay (#699713)
