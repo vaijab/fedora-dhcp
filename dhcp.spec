@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.2
-Release:  0.2.%{prever}%{?dist}
+Release:  0.3.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -644,6 +644,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Mon Jul 25 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-0.3.rc1
+- Improve capabilities patch to be able to run with PARANOIA & EARLY_CHROOT (#699713)
+
 * Mon Jul 18 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-0.2.rc1
 - 4.2.2rc1
 
