@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.2
-Release:  0.3.%{prever}%{?dist}
+Release:  0.4.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -446,20 +446,6 @@ EOF
 #
 EOF
 
-# Install default (empty) dhclient.conf:
-%{__mkdir} -p %{buildroot}%{dhcpconfdir}
-%{__cat} << EOF > %{buildroot}%{dhcpconfdir}/dhclient.conf
-#
-# DHCP Client Configuration file.
-#   see /usr/share/doc/dhclient-*/dhclient.conf.sample
-#   see dhclient.conf(5) man page
-#
-# Send client identifier as "hardware type.link-layer address" (e.g. "1.c2.23.7d.c3.52.2c")
-# Required in environments where a bridge might be clobbering the forwarded
-# packet's MAC address (common in Wifi, Docsis, or ADSL bridging scenarios)
-send dhcp-client-identifier = hardware;
-EOF
-
 # Install dhcp.schema for LDAP configuration
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/openldap/schema
 %{__install} -p -m 0644 -D contrib/ldap/dhcp.schema \
@@ -601,7 +587,6 @@ fi
 %files -n dhclient
 %doc dhclient.conf.sample dhclient6.conf.sample README.dhclient.d
 %attr(0750,root,root) %dir %{dhcpconfdir}
-%config(noreplace) %{dhcpconfdir}/dhclient.conf
 %dir %{dhcpconfdir}/dhclient.d
 %dir %{_localstatedir}/lib/dhclient
 %dir %{_sysconfdir}/NetworkManager
@@ -644,6 +629,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Wed Aug 10 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-0.4.rc1
+- Do not ship default /etc/dhcp/dhclient.conf (#560361,c#9)
+
 * Mon Jul 25 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-0.3.rc1
 - Improve capabilities patch to be able to run with PARANOIA & EARLY_CHROOT (#699713)
 
