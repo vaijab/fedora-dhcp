@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.1
-Release:  9.%{patchver}%{?dist}
+Release:  10.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -69,6 +69,7 @@ Patch29:  dhcp420-rh637017.patch
 Patch30:  dhcp420-sharedlib.patch
 Patch31:  dhcp-4.2.0-PPP.patch
 Patch32:  dhcp-4.2.1-P1-CVE-2011-0997.patch
+Patch33:  dhcp-4.2.1-P1-CVE-2011-2748-2749.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -313,6 +314,10 @@ rm bind/bind.tar.gz
 
 # Better fix for CVE-2011-0997: making domain-name check more lenient (#694005)
 %patch32 -p1 -b .CVE-2011-0997
+
+# A pair of defects cause the server to halt upon processing certain packets
+# CVE-2011-2748, CVE-2011-2749, #729850
+%patch33 -p1 -b .CVE-2011-2748-2749
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -650,6 +655,10 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Thu Aug 11 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-10.P1
+- A pair of defects cause the server to halt upon processing certain packets
+  (CVE-2011-2748, CVE-2011-2749, #729850)
+
 * Tue May 17 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-9.P1
 - Fix typo in triggerun scriptlet (#705417)
 
