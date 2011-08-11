@@ -12,7 +12,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.0
-Release:  22.%{patchver}%{?dist}
+Release:  23.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -67,6 +67,7 @@ Patch33:  dhcp-4.2.0-P2-omapi.patch
 Patch34:  dhcp-4.2.0-P2-ldap-configuration.patch
 Patch35:  dhcp-4.2.0-P2-CVE-2011-0413.patch
 Patch36:  dhcp-4.2.0-P2-CVE-2011-0997.patch
+Patch37:  dhcp-4.2.0-P2-CVE-2011-2748-2749.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
@@ -277,6 +278,10 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # CVE-2011-0997
 # dhclient: insufficient sanitization of certain DHCP response values (#694005)
 %patch36 -p1 -b .CVE-2011-0997
+
+# A pair of defects cause the server to halt upon processing certain packets
+# CVE-2011-2748, CVE-2011-2749, #729850
+%patch37 -p1 -b .CVE-2011-2748-2749
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -559,7 +564,11 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 %changelog
-* Mon May 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-22.P1
+* Thu Aug 11 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-23.P2
+- A pair of defects cause the server to halt upon processing certain packets
+  (CVE-2011-2748, CVE-2011-2749, #729850)
+
+* Mon May 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-22.P2
 - Fix 11-dhclient to export variables (#702735)
 
 * Wed Apr 06 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.0-21.P2
