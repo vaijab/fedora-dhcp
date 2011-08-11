@@ -63,8 +63,8 @@ Patch25:  dhcp-4.2.2-rfc3442-classless-static-routes.patch
 Patch26:  dhcp-4.2.2-PIE-RELRO.patch
 Patch27:  dhcp-4.2.0-honor-expired.patch
 Patch28:  dhcp-4.2.0-noprefixavail.patch
-Patch29:  dhcp420-rh637017.patch
-Patch30:  dhcp420-sharedlib.patch
+Patch29:  dhcp-4.2.2-remove-bind.patch
+Patch30:  dhcp-4.2.2-sharedlib.patch
 Patch31:  dhcp-4.2.0-PPP.patch
 
 BuildRequires: autoconf
@@ -187,7 +187,7 @@ which do not support the systemd unit file format.
 rm bind/bind.tar.gz
 
 # Fire away bundled BIND source.
-%patch29 -p1 -b .rh637017 %{?_rawbuild}
+%patch29 -p1 -b .remove-bind %{?_rawbuild}
 
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be

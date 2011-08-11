@@ -1,7 +1,7 @@
-diff -up dhcp-4.2.0/client/Makefile.am.rh637017 dhcp-4.2.0/client/Makefile.am
---- dhcp-4.2.0/client/Makefile.am.rh637017	2010-10-01 13:41:16.320002774 +0200
-+++ dhcp-4.2.0/client/Makefile.am	2010-10-01 13:41:16.320002774 +0200
-@@ -5,7 +5,7 @@ dhclient_SOURCES = clparse.c dhclient.c dhc6.c \
+diff -up dhcp-4.2.2/client/Makefile.am.rh637017 dhcp-4.2.2/client/Makefile.am
+--- dhcp-4.2.2/client/Makefile.am.rh637017	2010-09-15 00:32:36.000000000 +0200
++++ dhcp-4.2.2/client/Makefile.am	2011-08-11 17:28:58.923897561 +0200
+@@ -5,7 +5,7 @@ dhclient_SOURCES = clparse.c dhclient.c 
  		   scripts/netbsd scripts/nextstep scripts/openbsd \
  		   scripts/solaris scripts/openwrt
  dhclient_LDADD = ../common/libdhcp.a ../omapip/libomapi.a \
@@ -10,11 +10,22 @@ diff -up dhcp-4.2.0/client/Makefile.am.rh637017 dhcp-4.2.0/client/Makefile.am
  man_MANS = dhclient.8 dhclient-script.8 dhclient.conf.5 dhclient.leases.5
  EXTRA_DIST = $(man_MANS)
  
- man_MANS = dhclient.8 dhclient-script.8 dhclient.conf.5 dhclient.leases.5
-diff -up dhcp-4.2.0/configure.ac.rh637017 dhcp-4.2.0/configure.ac
---- dhcp-4.2.0/configure.ac.rh637017	2010-10-01 13:41:16.280002774 +0200
-+++ dhcp-4.2.0/configure.ac	2010-10-01 13:44:24.790002776 +0200
-@@ -488,20 +488,37 @@ AC_CHECK_MEMBER(struct msghdr.msg_control,,
+diff -up dhcp-4.2.2/common/tests/Makefile.am.rh637017 dhcp-4.2.2/common/tests/Makefile.am
+--- dhcp-4.2.2/common/tests/Makefile.am.rh637017	2009-10-28 05:12:30.000000000 +0100
++++ dhcp-4.2.2/common/tests/Makefile.am	2011-08-11 17:33:45.258637236 +0200
+@@ -6,6 +6,5 @@ TESTS = test_alloc
+ 
+ test_alloc_SOURCES = test_alloc.c
+ test_alloc_LDADD = ../libdhcp.a ../../tests/libt_api.a \
+-	../../omapip/libomapi.a ../../bind/lib/libdns.a \
+-        ../../bind/lib/libisc.a
+-
++	../../omapip/libomapi.a \
++	 $(BIND9_LIBDIR) -ldns-export -lisc-export
+diff -up dhcp-4.2.2/configure.ac.rh637017 dhcp-4.2.2/configure.ac
+--- dhcp-4.2.2/configure.ac.rh637017	2011-07-20 02:32:18.000000000 +0200
++++ dhcp-4.2.2/configure.ac	2011-08-11 17:28:58.924897535 +0200
+@@ -512,20 +512,37 @@ AC_CHECK_MEMBER(struct msghdr.msg_contro
  libbind=
  AC_ARG_WITH(libbind,
  	AC_HELP_STRING([--with-libbind=PATH],
@@ -57,7 +68,7 @@ diff -up dhcp-4.2.0/configure.ac.rh637017 dhcp-4.2.0/configure.ac
  
  # OpenLDAP support.
  AC_ARG_WITH(ldap,
-@@ -538,7 +555,7 @@ fi
+@@ -562,7 +579,7 @@ fi
  CFLAGS="$CFLAGS $STD_CWARNINGS"
  
  # Try to add the bind include directory
@@ -66,9 +77,9 @@ diff -up dhcp-4.2.0/configure.ac.rh637017 dhcp-4.2.0/configure.ac
  
  AC_C_FLEXIBLE_ARRAY_MEMBER
  
-diff -up dhcp-4.2.0/dhcpctl/Makefile.am.rh637017 dhcp-4.2.0/dhcpctl/Makefile.am
---- dhcp-4.2.0/dhcpctl/Makefile.am.rh637017	2009-10-28 05:12:30.000000000 +0100
-+++ dhcp-4.2.0/dhcpctl/Makefile.am	2010-10-01 13:41:16.320002774 +0200
+diff -up dhcp-4.2.2/dhcpctl/Makefile.am.rh637017 dhcp-4.2.2/dhcpctl/Makefile.am
+--- dhcp-4.2.2/dhcpctl/Makefile.am.rh637017	2009-10-28 05:12:30.000000000 +0100
++++ dhcp-4.2.2/dhcpctl/Makefile.am	2011-08-11 17:28:58.924897535 +0200
 @@ -6,10 +6,10 @@ EXTRA_DIST = $(man_MANS)
  
  omshell_SOURCES = omshell.c
@@ -83,9 +94,9 @@ diff -up dhcp-4.2.0/dhcpctl/Makefile.am.rh637017 dhcp-4.2.0/dhcpctl/Makefile.am
 -	       ../bind/lib/libdns.a ../bind/lib/libisc.a
 \ No newline at end of file
 +	       $(BIND9_LIBDIR) -ldns-export -lisc-export
-diff -up dhcp-4.2.0/Makefile.am.rh637017 dhcp-4.2.0/Makefile.am
---- dhcp-4.2.0/Makefile.am.rh637017	2010-03-25 00:30:38.000000000 +0100
-+++ dhcp-4.2.0/Makefile.am	2010-10-01 13:41:16.320002774 +0200
+diff -up dhcp-4.2.2/Makefile.am.rh637017 dhcp-4.2.2/Makefile.am
+--- dhcp-4.2.2/Makefile.am.rh637017	2010-03-25 00:30:38.000000000 +0100
++++ dhcp-4.2.2/Makefile.am	2011-08-11 17:28:58.925897509 +0200
 @@ -21,7 +21,13 @@ EXTRA_DIST = RELNOTES LICENSE \
  	     util/bindvar.sh \
  	     bind/Makefile bind/bind.tar.gz bind/version.tmp 
@@ -101,9 +112,9 @@ diff -up dhcp-4.2.0/Makefile.am.rh637017 dhcp-4.2.0/Makefile.am
  
  nobase_include_HEADERS = dhcpctl/dhcpctl.h
  
-diff -up dhcp-4.2.0/omapip/Makefile.am.rh637017 dhcp-4.2.0/omapip/Makefile.am
---- dhcp-4.2.0/omapip/Makefile.am.rh637017	2010-10-01 13:41:16.320002774 +0200
-+++ dhcp-4.2.0/omapip/Makefile.am	2010-10-01 13:41:16.320002774 +0200
+diff -up dhcp-4.2.2/omapip/Makefile.am.rh637017 dhcp-4.2.2/omapip/Makefile.am
+--- dhcp-4.2.2/omapip/Makefile.am.rh637017	2010-02-12 01:13:54.000000000 +0100
++++ dhcp-4.2.2/omapip/Makefile.am	2011-08-11 17:28:58.939897149 +0200
 @@ -10,5 +10,5 @@ man_MANS = omapi.3
  EXTRA_DIST = $(man_MANS)
  
@@ -111,10 +122,10 @@ diff -up dhcp-4.2.0/omapip/Makefile.am.rh637017 dhcp-4.2.0/omapip/Makefile.am
 -svtest_LDADD = libomapi.a ../bind/lib/libdns.a ../bind/lib/libisc.a
 +svtest_LDADD = libomapi.a $(BIND9_LIBDIR) -ldns-export -lisc-export
  
-diff -up dhcp-4.2.0/relay/Makefile.am.rh637017 dhcp-4.2.0/relay/Makefile.am
---- dhcp-4.2.0/relay/Makefile.am.rh637017	2010-10-01 13:41:16.320002774 +0200
-+++ dhcp-4.2.0/relay/Makefile.am	2010-10-01 13:41:16.320002774 +0200
-@@ -3,7 +3,7 @@ AM_CPPFLAGS = -DLOCALSTATEDIR='"@localstatedir@"'
+diff -up dhcp-4.2.2/relay/Makefile.am.rh637017 dhcp-4.2.2/relay/Makefile.am
+--- dhcp-4.2.2/relay/Makefile.am.rh637017	2009-10-28 05:12:30.000000000 +0100
++++ dhcp-4.2.2/relay/Makefile.am	2011-08-11 17:28:58.940897123 +0200
+@@ -3,7 +3,7 @@ AM_CPPFLAGS = -DLOCALSTATEDIR='"@localst
  sbin_PROGRAMS = dhcrelay
  dhcrelay_SOURCES = dhcrelay.c
  dhcrelay_LDADD = ../common/libdhcp.a ../omapip/libomapi.a \
@@ -123,10 +134,9 @@ diff -up dhcp-4.2.0/relay/Makefile.am.rh637017 dhcp-4.2.0/relay/Makefile.am
  man_MANS = dhcrelay.8
  EXTRA_DIST = $(man_MANS)
  
- man_MANS = dhcrelay.8
-diff -up dhcp-4.2.0/server/Makefile.am.rh637017 dhcp-4.2.0/server/Makefile.am
---- dhcp-4.2.0/server/Makefile.am.rh637017	2010-10-01 13:41:16.320002774 +0200
-+++ dhcp-4.2.0/server/Makefile.am	2010-10-01 13:41:16.320002774 +0200
+diff -up dhcp-4.2.2/server/Makefile.am.rh637017 dhcp-4.2.2/server/Makefile.am
+--- dhcp-4.2.2/server/Makefile.am.rh637017	2010-03-24 22:49:47.000000000 +0100
++++ dhcp-4.2.2/server/Makefile.am	2011-08-11 17:28:58.944897021 +0200
 @@ -8,8 +8,7 @@ dhcpd_SOURCES = dhcpd.c dhcp.c bootp.c c
  
  dhcpd_CFLAGS = $(LDAP_CFLAGS)
