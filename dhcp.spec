@@ -7,16 +7,16 @@
 # Patch version 
 #%global patchver P1
 # Pre-Release version
-%global prever rc1
+#%global prever rc1
 
-#%global VERSION %{version}
 #%global VERSION %{version}-%{patchver}
-%global VERSION %{version}%{prever}
+#%global VERSION %{version}%{prever}
+%global VERSION %{version}
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.2
-Release:  0.4.%{prever}%{?dist}
+Release:  1%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -629,6 +629,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Thu Aug 11 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-1
+- 4.2.2: fix for CVE-2011-2748, CVE-2011-2749 (#729850)
+
 * Wed Aug 10 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-0.4.rc1
 - Do not ship default /etc/dhcp/dhclient.conf (#560361,c#9)
 
