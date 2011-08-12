@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.2
-Release:  1%{?dist}
+Release:  2%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -366,7 +366,8 @@ CFLAGS="%{optflags} -fno-strict-aliasing -D_GNU_SOURCE" \
     --with-ldap \
     --with-ldapcrypto \
     --with-libbind=%{_includedir} --with-libbind-libs=%{_libdir} \
-    --disable-static
+    --disable-static \
+    --enable-paranoia --enable-early-chroot
 %{__make} %{?_smp_mflags}
 
 %install
@@ -488,6 +489,9 @@ fi
 
 # Initial installation 
 if [ $1 -eq 1 ] ; then 
+#   create system user/group dhcpd
+    useradd --system dhcpd
+
     /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
 
@@ -528,6 +532,12 @@ if [ $1 -ge 1 ]; then
     /bin/systemctl try-restart dhcpd.service >/dev/null 2>&1 || :
     /bin/systemctl try-restart dhcpd6.service >/dev/null 2>&1 || :
     /bin/systemctl try-restart dhcrelay.service >/dev/null 2>&1 || :
+fi
+
+# uninstall
+if [ $1 -eq 0 ]; then
+#   delete user/group dhcpd
+    userdel dhcpd
 fi
 
 
@@ -629,6 +639,12 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Fri Aug 12 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-2
+- #699713:
+  - Use '--enable-paranoia --enable-early-chroot' configure flags
+  - Create/delete dhcpd user in %%post/%%postun
+  - Run dhcpd/dhcpd6 services with '-user dhcpd -group dhcpd'
+
 * Thu Aug 11 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-1
 - 4.2.2: fix for CVE-2011-2748, CVE-2011-2749 (#729850)
 
