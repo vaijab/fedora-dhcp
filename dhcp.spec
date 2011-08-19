@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.2
-Release:  2%{?dist}
+Release:  3%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -76,7 +76,7 @@ BuildRequires: libcap-ng-devel
 BuildRequires: bind-lite-devel
 
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
-Requires: %{name}-libs = %{epoch}:%{version}-%{release}
+Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
 Requires(post): chkconfig
 Requires(post): coreutils
 Requires(post): systemd-units
@@ -114,7 +114,7 @@ Summary: Provides the ISC DHCP client daemon and dhclient-script
 Group: System Environment/Base
 Requires: initscripts
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
-Requires: %{name}-libs = %{epoch}:%{version}-%{release}
+Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
 Requires(post): coreutils
 Requires(post): grep
 Obsoletes: dhcpcd <= 1.3.22pl1-7
@@ -140,7 +140,7 @@ provides the ISC DHCP client daemon.
 %package common
 Summary: Common files used by ISC dhcp client and server
 Group: System Environment/Base
-Requires: %{name}-libs = %{epoch}:%{version}-%{release}
+Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
 
 %description common
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
@@ -166,7 +166,7 @@ Obsoletes: libdhcp4client-devel <= 12:4.0.0-34
 Provides:  libdhcp4client-devel  = 12:4.0.0-35
 Obsoletes: libdhcp-devel <= 1.99.8-1
 Provides:  libdhcp-devel  = 1.99.8-2
-Requires: %{name}-libs = %{epoch}:%{version}-%{release}
+Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
 
 %description devel
 Header files and API documentation for using the ISC DHCP libraries.  The
@@ -639,6 +639,10 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Fri Aug 19 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-3
+- Tighten explicit libs sub-package requirement so that it includes
+  the correct architecture as well.
+
 * Fri Aug 12 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-2
 - #699713:
   - Use '--enable-paranoia --enable-early-chroot' configure flags
