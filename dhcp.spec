@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.2
-Release:  3%{?dist}
+Release:  4%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -77,6 +77,7 @@ BuildRequires: bind-lite-devel
 
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
+Requires(pre): shadow-utils
 Requires(post): chkconfig
 Requires(post): coreutils
 Requires(post): systemd-units
@@ -467,6 +468,16 @@ EOF
 # Don't package libtool *.la files
 find ${RPM_BUILD_ROOT}/%{_libdir} -name '*.la' -exec '/bin/rm' '-f' '{}' ';';
 
+%pre
+# /usr/share/doc/setup/uidgid
+getent group dhcpd >/dev/null || groupadd --gid 177 --system dhcpd
+getent passwd dhcpd >/dev/null || \
+    useradd --system \
+            --uid 177 --gid dhcpd \
+            --home /var/lib/dhcpd --shell /sbin/nologin \
+            --comment "DHCP server" dhcpd
+exit 0
+
 %post
 sampleconf="#
 # DHCP Server Configuration file.
@@ -489,9 +500,6 @@ fi
 
 # Initial installation 
 if [ $1 -eq 1 ] ; then 
-#   create system user/group dhcpd
-    useradd --system dhcpd
-
     /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
 
@@ -532,12 +540,6 @@ if [ $1 -ge 1 ]; then
     /bin/systemctl try-restart dhcpd.service >/dev/null 2>&1 || :
     /bin/systemctl try-restart dhcpd6.service >/dev/null 2>&1 || :
     /bin/systemctl try-restart dhcrelay.service >/dev/null 2>&1 || :
-fi
-
-# uninstall
-if [ $1 -eq 0 ]; then
-#   delete user/group dhcpd
-    userdel dhcpd
 fi
 
 
@@ -639,6 +641,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Fri Aug 26 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-4
+- Fix adding of user and group (#699713)
+
 * Fri Aug 19 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-3
 - Tighten explicit libs sub-package requirement so that it includes
   the correct architecture as well.
