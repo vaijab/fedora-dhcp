@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.2
-Release:  5%{?dist}
+Release:  6%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -60,7 +60,6 @@ Patch21:  dhcp-4.2.0-UseMulticast.patch
 Patch22:  dhcp-4.2.1-sendDecline.patch
 Patch23:  dhcp-4.2.1-retransmission.patch
 Patch25:  dhcp-4.2.2-rfc3442-classless-static-routes.patch
-Patch26:  dhcp-4.2.2-PIE-RELRO.patch
 Patch27:  dhcp-4.2.0-honor-expired.patch
 Patch28:  dhcp-4.2.0-noprefixavail.patch
 Patch29:  dhcp-4.2.2-remove-bind.patch
@@ -279,9 +278,6 @@ rm bind/bind.tar.gz
 # RFC 3442 - Classless Static Route Option for DHCPv4 (#516325)
 %patch25 -p1 -b .rfc3442
 
-# hardening dhcpd/dhcrelay/dhclient by making them PIE & RELRO
-%patch26 -p1 -b .PIE-RELRO
-
 # check whether there is any unexpired address in previous lease
 # prior to confirming (INIT-REBOOT) the lease (#585418)
 # (Submitted to dhcp-suggest@isc.org - [ISC-Bugs #22675])
@@ -307,16 +303,6 @@ rm bind/bind.tar.gz
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
 %{__install} -p -m 0644 %{SOURCE5} .
-
-# Sparc and s390 arches need to use -fPIE/-fPIC
-%ifarch sparcv9 sparc64 s390 s390x
-for i in {client,relay,server,omapip}/Makefile.am; do
-        %{__sed} -i 's|fpie|fPIE|g' $i
-done
-for i in {common,omapip}/Makefile.am; do
-        %{__sed} -i 's|fpic|fPIC|g' $i
-done
-%endif
 
 pushd contrib
 %{__chmod} -x 3.0b1-lease-convert dhclient-tz-exithook.sh ldap/dhcpd-conf-to-ldap
@@ -641,6 +627,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Fri Sep 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-6
+- PIE-RELRO.patch is not needed anymore, defining _hardened_build does the same
+
 * Fri Sep 09 2011 Adam Tkac <atkac redhat com> - 12:4.2.2-5
 - rebuild against new bind
 
