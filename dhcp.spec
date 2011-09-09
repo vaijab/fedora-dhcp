@@ -456,12 +456,20 @@ find ${RPM_BUILD_ROOT}/%{_libdir} -name '*.la' -exec '/bin/rm' '-f' '{}' ';';
 
 %pre
 # /usr/share/doc/setup/uidgid
-getent group dhcpd >/dev/null || groupadd --gid 177 --system dhcpd
-getent passwd dhcpd >/dev/null || \
-    useradd --system \
-            --uid 177 --gid dhcpd \
-            --home /var/lib/dhcpd --shell /sbin/nologin \
-            --comment "DHCP server" dhcpd
+if ! getent group dhcpd >/dev/null ; then
+  if ! getent group 177 >/dev/null ; then
+    groupadd --system --gid 177 dhcpd
+  else
+    groupadd --system dhcpd
+  fi
+fi
+if ! getent passwd dhcpd >/dev/null ; then
+    if ! getent passwd 177 >/dev/null ; then
+      useradd --system --uid 177 --gid dhcpd --home / --shell /sbin/nologin --comment "DHCP server" dhcpd
+    else
+      useradd --system --gid dhcpd --home / --shell /sbin/nologin --comment "DHCP server" dhcpd
+    fi
+fi
 exit 0
 
 %post
@@ -629,6 +637,7 @@ fi
 %changelog
 * Fri Sep 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-6
 - PIE-RELRO.patch is not needed anymore, defining _hardened_build does the same
+- One more tweak of adding of user and group (#699713)
 
 * Fri Sep 09 2011 Adam Tkac <atkac redhat com> - 12:4.2.2-5
 - rebuild against new bind
