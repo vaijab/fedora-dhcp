@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.1
-Release:  10.%{patchver}%{?dist}
+Release:  11.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -655,6 +655,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Fri Sep 09 2011 Adam Tkac <atkac redhat com> - 12:4.2.1-11.P1
+- rebuild against new bind
+
 * Thu Aug 11 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-10.P1
 - A pair of defects cause the server to halt upon processing certain packets
   (CVE-2011-2748, CVE-2011-2749, #729850)
