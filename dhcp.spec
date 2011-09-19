@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.2
-Release:  6%{?dist}
+Release:  7%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -65,6 +65,9 @@ Patch28:  dhcp-4.2.0-noprefixavail.patch
 Patch29:  dhcp-4.2.2-remove-bind.patch
 Patch30:  dhcp-4.2.2-sharedlib.patch
 Patch31:  dhcp-4.2.0-PPP.patch
+Patch32:  dhcp-4.2.2-lpf-ib.patch
+Patch33:  dhcp-4.2.2-improved-xid.patch
+Patch34:  dhcp-4.2.2-gpxe-cid.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -300,6 +303,12 @@ rm bind/bind.tar.gz
 # DHCPv6 over PPP support (#626514)
 %patch31 -p1 -b .PPP
 
+# IPoIB support (#660681)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #24249])
+%patch32 -p1 -b .lpf-ib
+%patch33 -p1 -b .improved-xid
+%patch34 -p1 -b .gpxe-cid
+
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
 %{__install} -p -m 0644 %{SOURCE5} .
@@ -456,16 +465,11 @@ find ${RPM_BUILD_ROOT}/%{_libdir} -name '*.la' -exec '/bin/rm' '-f' '{}' ';';
 
 %pre
 # /usr/share/doc/setup/uidgid
-if ! getent group dhcpd >/dev/null ; then
-  if ! getent group 177 >/dev/null ; then
-    groupadd --system --gid 177 dhcpd
-  else
-    groupadd --system dhcpd
-  fi
-fi
+%global gid_uid 177
+getent group dhcpd >/dev/null || groupadd --force --gid %{gid_uid} --system dhcpd
 if ! getent passwd dhcpd >/dev/null ; then
-    if ! getent passwd 177 >/dev/null ; then
-      useradd --system --uid 177 --gid dhcpd --home / --shell /sbin/nologin --comment "DHCP server" dhcpd
+    if ! getent passwd %{gid_uid} >/dev/null ; then
+      useradd --system --uid %{gid_uid} --gid dhcpd --home / --shell /sbin/nologin --comment "DHCP server" dhcpd
     else
       useradd --system --gid dhcpd --home / --shell /sbin/nologin --comment "DHCP server" dhcpd
     fi
@@ -635,6 +639,10 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Mon Sep 19 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-7
+- Support for IPoIB (IP over InfiniBand) interfaces (#660681)
+- Hopefully last tweak of adding of user and group (#699713)
+
 * Fri Sep 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-6
 - PIE-RELRO.patch is not needed anymore, defining _hardened_build does the same
 - One more tweak of adding of user and group (#699713)
