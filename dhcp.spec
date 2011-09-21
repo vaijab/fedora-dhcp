@@ -1,3 +1,6 @@
+# SystemTap support is enabled by default
+%{!?sdt:%global sdt 1}
+
 # vendor string (e.g., Fedora, EL)
 %global vvendor Fedora
 
@@ -16,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.2
-Release:  7%{?dist}
+Release:  8%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -68,6 +71,7 @@ Patch31:  dhcp-4.2.0-PPP.patch
 Patch32:  dhcp-4.2.2-lpf-ib.patch
 Patch33:  dhcp-4.2.2-improved-xid.patch
 Patch34:  dhcp-4.2.2-gpxe-cid.patch
+Patch35:  dhcp-4.2.2-systemtap.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -76,6 +80,10 @@ BuildRequires: libtool
 BuildRequires: openldap-devel
 BuildRequires: libcap-ng-devel
 BuildRequires: bind-lite-devel
+%if %sdt
+BuildRequires: systemtap-sdt-devel
+%global tapsetdir    /usr/share/systemtap/tapset
+%endif
 
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
@@ -309,6 +317,9 @@ rm bind/bind.tar.gz
 %patch33 -p1 -b .improved-xid
 %patch34 -p1 -b .gpxe-cid
 
+# http://sourceware.org/systemtap/wiki/SystemTap
+%patch35 -p1 -b .systemtap
+
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
 %{__install} -p -m 0644 %{SOURCE5} .
@@ -363,6 +374,10 @@ CFLAGS="%{optflags} -fno-strict-aliasing -D_GNU_SOURCE" \
     --with-ldapcrypto \
     --with-libbind=%{_includedir} --with-libbind-libs=%{_libdir} \
     --disable-static \
+%if %sdt
+    --enable-systemtap \
+    --with-tapset-install-dir=%{tapsetdir} \
+%endif
     --enable-paranoia --enable-early-chroot
 %{__make} %{?_smp_mflags}
 
@@ -593,6 +608,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man5/dhcpd.leases.5.gz
 %attr(0644,root,root) %{_mandir}/man8/dhcpd.8.gz
 %attr(0644,root,root) %{_mandir}/man8/dhcrelay.8.gz
+%if %sdt
+%{tapsetdir}/*.stp
+%endif
 
 %files -n dhclient
 %doc dhclient.conf.sample dhclient6.conf.sample README.dhclient.d
@@ -639,6 +657,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Wed Sep 21 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-8
+- SystemTap support: spec file change, some dummy probes, tapset, simple script
+
 * Mon Sep 19 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-7
 - Support for IPoIB (IP over InfiniBand) interfaces (#660681)
 - Hopefully last tweak of adding of user and group (#699713)
