@@ -19,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.2
-Release:  9%{?dist}
+Release:  10%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -657,6 +657,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Thu Sep 29 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-10
+- dhclient-script: address alias handling fixes from Scott Shambarger (#741786)
+
 * Thu Sep 22 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-9
 - dhclient-script: do not backup&restore /etc/resolv.conf and /etc/localtime.
 
