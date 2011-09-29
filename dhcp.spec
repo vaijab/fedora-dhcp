@@ -463,11 +463,15 @@ EOF
 find ${RPM_BUILD_ROOT}/%{_libdir} -name '*.la' -exec '/bin/rm' '-f' '{}' ';';
 
 %pre
-getent group dhcpd >/dev/null || groupadd --system dhcpd
-getent passwd dhcpd >/dev/null || \
-    useradd --system --gid dhcpd \
-            --home / --shell /sbin/nologin \
-            --comment "DHCP server" dhcpd
+%global gid_uid 177
+getent group dhcpd >/dev/null || groupadd --force --gid %{gid_uid} --system dhcpd
+if ! getent passwd dhcpd >/dev/null ; then
+    if ! getent passwd %{gid_uid} >/dev/null ; then
+      useradd --system --uid %{gid_uid} --gid dhcpd --home / --shell /sbin/nologin --comment "DHCP server" dhcpd
+    else
+      useradd --system --gid dhcpd --home / --shell /sbin/nologin --comment "DHCP server" dhcpd
+    fi
+fi
 exit 0
 
 %post
@@ -635,6 +639,7 @@ fi
 %changelog
 * Thu Sep 29 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-8
 - dhclient-script: address alias handling fixes from Scott Shambarger (#741786)
+- Hopefully last tweak of adding of user and group (#699713)
 
 * Fri Sep 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-7
 - Move changing of the effective user/group ID after writing new PID file.
