@@ -345,7 +345,7 @@ dhconfig() {
     if [ -n "${old_ip_address}" ] && [ -n "${alias_ip_address}" ] &&
        [ ! "${alias_ip_address}" = "${old_ip_address}" ]; then
         # possible new alias, remove old alias first
-        ip -4 addr del ${old_ip_address} dev ${interface}:0
+        ip -4 addr del ${old_ip_address} dev ${interface} label ${interface}:0
     fi
 
     if [ -n "${old_ip_address}" ] &&
@@ -491,9 +491,10 @@ dhconfig() {
 
     if [ ! "${new_ip_address}" = "${alias_ip_address}" ] &&
        [ -n "${alias_ip_address}" ]; then
-        ip -4 addr flush dev ${interface}:0 >/dev/null 2>&1
-        ip -4 addr add ${alias_ip_address}/${alias_prefix} dev ${interface}:0
-        ip -4 route replace ${alias_ip_address}/32 dev ${interface}:0
+        # Reset the alias address (fix: this should really only do this on changes)
+        ip -4 addr flush dev ${interface} label ${interface}:0 >/dev/null 2>&1
+        ip -4 addr add ${alias_ip_address}/${alias_prefix} broadcast ${alias_broadcast_address} dev ${interface} label ${interface}:0
+        ip -4 route replace ${alias_ip_address}/32 dev ${interface}
     fi
 
     make_resolv_conf
@@ -661,8 +662,8 @@ case "${reason}" in
 
     PREINIT)
         if [ -n "${alias_ip_address}" ]; then
-            # Bring down alias interface, its routes will disappear too.
-            ip link set ${interface}:0 down
+            # Flush alias, its routes will disappear too.
+            ip -4 addr flush dev ${interface} label ${interface}:0 >/dev/null 2>&1
         fi
 
         if [ "${keep_old_ip}" = "yes" ]; then
@@ -759,8 +760,8 @@ case "${reason}" in
         fi
 
         if [ -n "${alias_ip_address}" ]; then
-            # Turn off alias interface
-            ip link set ${interface}:0 down
+            # Flush alias
+            ip -4 addr flush dev ${interface} label ${interface}:0 >/dev/null 2>&1
         fi
 
         if [ -n "${old_ip_address}" ]; then
@@ -769,8 +770,8 @@ case "${reason}" in
         fi
 
         if [ -n "${alias_ip_address}" ]; then
-            ip -4 addr add ${alias_ip_address}/${alias_prefix} dev ${interface}:0
-            ip -4 route replace ${alias_ip_address}/32 ${interface}:0
+            ip -4 addr add ${alias_ip_address}/${alias_prefix} broadcast ${alias_broadcast_address} dev ${interface} label ${interface}:0
+            ip -4 route replace ${alias_ip_address}/32 dev ${interface}
         fi
 
         exit_with_hooks 0
@@ -779,7 +780,7 @@ case "${reason}" in
     TIMEOUT)
         if [ -n "${new_routers}" ]; then
             if [ -n "${alias_ip_address}" ]; then
-                ip -4 addr flush dev ${interface}:0 >/dev/null 2>&1
+                ip -4 addr flush dev ${interface} label ${interface}:0 >/dev/null 2>&1
             fi
 
             ip -4 addr add ${new_ip_address}/${new_prefix} broadcast ${new_broadcast_address} dev ${interface}

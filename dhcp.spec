@@ -16,7 +16,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.1
-Release:  11.%{patchver}%{?dist}
+Release:  12.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -655,6 +655,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Thu Sep 29 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.1-12.P1
+- dhclient-script: address alias handling fixes from Scott Shambarger (#741786)
+
 * Fri Sep 09 2011 Adam Tkac <atkac redhat com> - 12:4.2.1-11.P1
 - rebuild against new bind
 
