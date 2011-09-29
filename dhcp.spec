@@ -19,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.2
-Release:  7%{?dist}
+Release:  8%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -633,6 +633,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Thu Sep 29 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-8
+- dhclient-script: address alias handling fixes from Scott Shambarger (#741786)
+
 * Fri Sep 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-7
 - Move changing of the effective user/group ID after writing new PID file.
 
