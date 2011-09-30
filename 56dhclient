@@ -21,7 +21,7 @@ suspend_dhclient() {
         NM_CONTROLLED=
         BOOTPROTO=
 
-        . ./${ifcfg}
+        . ./"${ifcfg}"
 
         if [ "${NM_CONTROLLED}" = "no" ] || [ "${NM_CONTROLLED}" = "n" ] || [ "${NM_CONTROLLED}" = "false" ]; then
             if [ "${BOOTPROTO}" = "bootp" ] || [ "${BOOTPROTO}" = "dhcp" ] || [ -z "${BOOTPROTO}" ]; then
