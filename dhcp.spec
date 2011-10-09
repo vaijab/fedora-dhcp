@@ -19,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.2
-Release:  11%{?dist}
+Release:  12%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -516,6 +516,11 @@ if [ $1 -eq 1 ] ; then
     /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
 
+# Update
+if [ $1 -gt 1 ] ; then
+  chown -R dhcpd:dhcpd %{_localstatedir}/lib/dhcpd/
+fi
+
 
 %post -n dhclient
 /bin/ls -1 %{_sysconfdir}/dhclient* >/dev/null 2>&1
@@ -586,10 +591,10 @@ fi
 %files
 %doc dhcpd.conf.sample dhcpd6.conf.sample
 %doc contrib/*
-%dir %{_localstatedir}/lib/dhcpd
 %attr(0750,root,root) %dir %{dhcpconfdir}
-%verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
-%verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd6.leases
+%attr(0755,dhcpd,dhcpd) %dir %{_localstatedir}/lib/dhcpd
+%attr(0644,dhcpd,dhcpd) %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
+%attr(0644,dhcpd,dhcpd) %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd6.leases
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcpd6
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
@@ -657,6 +662,10 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Sun Oct 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-12
+- change ownership of /var/lib/dhcpd/ to dhcpd:dhcpd (#744292)
+- no need to drop capabilies in dhcpd since it's been running as regular user
+
 * Fri Sep 30 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-11
 - 56dhclient: ifcfg file was not sourced (#742482)
 
