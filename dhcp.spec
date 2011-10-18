@@ -10,16 +10,16 @@
 # Patch version 
 #%global patchver P1
 # Pre-Release version
-#%global prever rc1
+%global prever rc1
 
 #%global VERSION %{version}-%{patchver}
-#%global VERSION %{version}%{prever}
-%global VERSION %{version}
+#%global VERSION %{version}
+%global VERSION %{version}%{prever}
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
-Version:  4.2.2
-Release:  12%{?dist}
+Version:  4.2.3
+Release:  0.1.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -42,7 +42,7 @@ Source10:  dhcpd6.service
 Source11:  dhcrelay.service
 
 Patch0:   dhcp-4.2.0-errwarn-message.patch
-Patch1:   dhcp-4.2.2-options.patch
+Patch1:   dhcp-4.2.3-options.patch
 Patch2:   dhcp-4.2.0-release-by-ifup.patch
 Patch3:   dhcp-4.2.0-dhclient-decline-backoff.patch
 Patch4:   dhcp-4.2.0-unicast-bootp.patch
@@ -62,7 +62,7 @@ Patch20:  dhcp-4.2.0-logpid.patch
 Patch21:  dhcp-4.2.0-UseMulticast.patch
 Patch22:  dhcp-4.2.1-sendDecline.patch
 Patch23:  dhcp-4.2.1-retransmission.patch
-Patch25:  dhcp-4.2.2-rfc3442-classless-static-routes.patch
+Patch25:  dhcp-4.2.3-rfc3442-classless-static-routes.patch
 Patch27:  dhcp-4.2.0-honor-expired.patch
 Patch28:  dhcp-4.2.0-noprefixavail.patch
 Patch29:  dhcp-4.2.2-remove-bind.patch
@@ -662,6 +662,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Tue Oct 18 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-0.1.rc1
+- 4.2.3rc1
+
 * Sun Oct 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-12
 - change ownership of /var/lib/dhcpd/ to dhcpd:dhcpd (#744292)
 - no need to drop capabilies in dhcpd since it's been running as regular user
