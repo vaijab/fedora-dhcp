@@ -4,6 +4,9 @@
 # vendor string (e.g., Fedora, EL)
 %global vvendor Fedora
 
+#http://lists.fedoraproject.org/pipermail/devel/2011-August/155358.html
+%global _hardened_build 1
+
 # Where dhcp configuration files are stored
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
@@ -19,7 +22,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  1%{?dist}
+Release:  2%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -68,10 +71,11 @@ Patch28:  dhcp-4.2.0-noprefixavail.patch
 Patch29:  dhcp-4.2.2-remove-bind.patch
 Patch30:  dhcp-4.2.2-sharedlib.patch
 Patch31:  dhcp-4.2.0-PPP.patch
-Patch32:  dhcp-4.2.2-lpf-ib.patch
-Patch33:  dhcp-4.2.2-improved-xid.patch
-Patch34:  dhcp-4.2.2-gpxe-cid.patch
-Patch35:  dhcp-4.2.2-systemtap.patch
+Patch32:  dhcp-4.2.2-paranoia-pid.patch
+Patch33:  dhcp-4.2.2-lpf-ib.patch
+Patch34:  dhcp-4.2.2-improved-xid.patch
+Patch35:  dhcp-4.2.2-gpxe-cid.patch
+Patch36:  dhcp-4.2.2-systemtap.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -311,14 +315,18 @@ rm bind/bind.tar.gz
 # DHCPv6 over PPP support (#626514)
 %patch31 -p1 -b .PPP
 
+# Move changing of the effective user/group ID after writing new PID file.
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #25806])
+%patch32 -p1 -b .paranoia-pid
+
 # IPoIB support (#660681)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #24249])
-%patch32 -p1 -b .lpf-ib
-%patch33 -p1 -b .improved-xid
-%patch34 -p1 -b .gpxe-cid
+%patch33 -p1 -b .lpf-ib
+%patch34 -p1 -b .improved-xid
+%patch35 -p1 -b .gpxe-cid
 
 # http://sourceware.org/systemtap/wiki/SystemTap
-%patch35 -p1 -b .systemtap
+%patch36 -p1 -b .systemtap
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -662,6 +670,10 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Thu Oct 20 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-2
+- Move changing of the effective user/group ID after writing new PID file.
+- Really define _hardened_build this time
+
 * Thu Oct 20 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-1
 - 4.2.3
 
