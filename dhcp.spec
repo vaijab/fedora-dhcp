@@ -10,16 +10,16 @@
 # Patch version 
 #%global patchver P1
 # Pre-Release version
-%global prever rc1
+#%global prever rc1
 
 #%global VERSION %{version}-%{patchver}
-#%global VERSION %{version}
-%global VERSION %{version}%{prever}
+#%global VERSION %{version}%{prever}
+%global VERSION %{version}
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  0.1.%{prever}%{?dist}
+Release:  1%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -662,6 +662,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Thu Oct 20 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-1
+- 4.2.3
+
 * Tue Oct 18 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-0.1.rc1
 - 4.2.3rc1
 
