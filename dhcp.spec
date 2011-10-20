@@ -18,8 +18,8 @@
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
-Version:  4.2.2
-Release:  10%{?dist}
+Version:  4.2.3
+Release:  1%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -42,7 +42,7 @@ Source10:  dhcpd6.service
 Source11:  dhcrelay.service
 
 Patch0:   dhcp-4.2.0-errwarn-message.patch
-Patch1:   dhcp-4.2.2-options.patch
+Patch1:   dhcp-4.2.3-options.patch
 Patch2:   dhcp-4.2.0-release-by-ifup.patch
 Patch3:   dhcp-4.2.0-dhclient-decline-backoff.patch
 Patch4:   dhcp-4.2.0-unicast-bootp.patch
@@ -62,11 +62,11 @@ Patch20:  dhcp-4.2.0-logpid.patch
 Patch21:  dhcp-4.2.0-UseMulticast.patch
 Patch22:  dhcp-4.2.1-sendDecline.patch
 Patch23:  dhcp-4.2.1-retransmission.patch
-Patch25:  dhcp-4.2.2-rfc3442-classless-static-routes.patch
+Patch25:  dhcp-4.2.3-rfc3442-classless-static-routes.patch
 Patch27:  dhcp-4.2.0-honor-expired.patch
 Patch28:  dhcp-4.2.0-noprefixavail.patch
-Patch29:  dhcp420-rh637017.patch
-Patch30:  dhcp420-sharedlib.patch
+Patch29:  dhcp-4.2.2-remove-bind.patch
+Patch30:  dhcp-4.2.2-sharedlib.patch
 Patch31:  dhcp-4.2.0-PPP.patch
 Patch32:  dhcp-4.2.2-paranoia-pid.patch
 
@@ -191,7 +191,7 @@ which do not support the systemd unit file format.
 rm bind/bind.tar.gz
 
 # Fire away bundled BIND source.
-%patch29 -p1 -b .rh637017 %{?_rawbuild}
+%patch29 -p1 -b .remove-bind %{?_rawbuild}
 
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
@@ -642,6 +642,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Thu Oct 20 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-1
+- 4.2.3
+
 * Sun Oct 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-10
 - change ownership of /var/lib/dhcpd/ to dhcpd:dhcpd (#744292)
 - no need to drop capabilies in dhcpd since it's been running as regular user
