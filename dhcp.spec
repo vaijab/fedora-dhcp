@@ -19,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  1%{?dist}
+Release:  2%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -68,7 +68,7 @@ Patch28:  dhcp-4.2.0-noprefixavail.patch
 Patch29:  dhcp-4.2.2-remove-bind.patch
 Patch30:  dhcp-4.2.2-sharedlib.patch
 Patch31:  dhcp-4.2.0-PPP.patch
-Patch32:  dhcp-4.2.2-paranoia-pid.patch
+Patch32:  dhcp-4.2.3-paranoia.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -106,8 +106,7 @@ DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
 individual devices on an IP network to get their own network
 configuration information (IP address, subnetmask, broadcast address,
 etc.) from a DHCP server. The overall purpose of DHCP is to make it
-easier to administer a large network.  The dhcp package includes the
-ISC DHCP service and relay agent.
+easier to administer a large network.
 
 To use DHCP on your network, install a DHCP service (or relay agent),
 and on clients run a DHCP client daemon.  The dhcp package provides
@@ -304,9 +303,10 @@ rm bind/bind.tar.gz
 # DHCPv6 over PPP support (#626514)
 %patch31 -p1 -b .PPP
 
-# Move changing of the effective user/group ID after writing new PID file.
+# Write PID file BEFORE changing of the effective user/group ID.
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #25806])
-%patch32 -p1 -b .paranoia-pid
+# Write lease file AFTER changing of the effective user/group ID.
+%patch32 -p1 -b .paranoia
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -438,7 +438,6 @@ EOF
 # DHCPv6 Server Configuration file.
 #   see /usr/share/doc/dhcp*/dhcpd6.conf.sample
 #   see dhcpd.conf(5) man page
-#   run 'service dhcpd6 start' or 'dhcpd -6 -cf /etc/dhcp/dhcpd6.conf'
 #
 EOF
 
@@ -642,6 +641,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Wed Oct 26 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-2
+- Write lease file AFTER changing of the effective user/group ID.
+
 * Thu Oct 20 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-1
 - 4.2.3
 
@@ -657,7 +659,7 @@ fi
 - Hopefully last tweak of adding of user and group (#699713)
 
 * Fri Sep 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-7
-- Move changing of the effective user/group ID after writing new PID file.
+- Write PID file BEFORE changing of the effective user/group ID.
 
 * Fri Sep 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.2-6
 - PIE-RELRO.patch is not needed anymore, defining _hardened_build does the same
