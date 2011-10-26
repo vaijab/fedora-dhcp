@@ -22,7 +22,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  2%{?dist}
+Release:  3%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -71,7 +71,7 @@ Patch28:  dhcp-4.2.0-noprefixavail.patch
 Patch29:  dhcp-4.2.2-remove-bind.patch
 Patch30:  dhcp-4.2.2-sharedlib.patch
 Patch31:  dhcp-4.2.0-PPP.patch
-Patch32:  dhcp-4.2.2-paranoia-pid.patch
+Patch32:  dhcp-4.2.3-paranoia.patch
 Patch33:  dhcp-4.2.2-lpf-ib.patch
 Patch34:  dhcp-4.2.2-improved-xid.patch
 Patch35:  dhcp-4.2.2-gpxe-cid.patch
@@ -117,8 +117,7 @@ DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
 individual devices on an IP network to get their own network
 configuration information (IP address, subnetmask, broadcast address,
 etc.) from a DHCP server. The overall purpose of DHCP is to make it
-easier to administer a large network.  The dhcp package includes the
-ISC DHCP service and relay agent.
+easier to administer a large network.
 
 To use DHCP on your network, install a DHCP service (or relay agent),
 and on clients run a DHCP client daemon.  The dhcp package provides
@@ -315,9 +314,10 @@ rm bind/bind.tar.gz
 # DHCPv6 over PPP support (#626514)
 %patch31 -p1 -b .PPP
 
-# Move changing of the effective user/group ID after writing new PID file.
+# Write PID file BEFORE changing of the effective user/group ID.
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #25806])
-%patch32 -p1 -b .paranoia-pid
+# Write lease file AFTER changing of the effective user/group ID.
+%patch32 -p1 -b .paranoia
 
 # IPoIB support (#660681)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #24249])
@@ -364,7 +364,7 @@ for page in server/dhcpd.conf.5 server/dhcpd.leases.5 server/dhcpd.8 ; do
 done
 
 %build
-libtoolize --copy --force
+#libtoolize --copy --force
 autoreconf --verbose --force --install
 
 CFLAGS="%{optflags} -fno-strict-aliasing -D_GNU_SOURCE" \
@@ -462,7 +462,6 @@ EOF
 # DHCPv6 Server Configuration file.
 #   see /usr/share/doc/dhcp*/dhcpd6.conf.sample
 #   see dhcpd.conf(5) man page
-#   run 'service dhcpd6 start' or 'dhcpd -6 -cf /etc/dhcp/dhcpd6.conf'
 #
 EOF
 
@@ -617,6 +616,8 @@ fi
 %attr(0644,root,root)   %{_unitdir}/dhcrelay.service
 %{_sbindir}/dhcpd
 %{_sbindir}/dhcrelay
+%{_bindir}/omshell
+%attr(0644,root,root) %{_mandir}/man1/omshell.1.gz
 %attr(0644,root,root) %{_mandir}/man5/dhcpd.conf.5.gz
 %attr(0644,root,root) %{_mandir}/man5/dhcpd.leases.5.gz
 %attr(0644,root,root) %{_mandir}/man8/dhcpd.8.gz
@@ -643,8 +644,6 @@ fi
 
 %files common
 %doc LICENSE README RELNOTES doc/References.txt
-%{_bindir}/omshell
-%attr(0644,root,root) %{_mandir}/man1/omshell.1.gz
 %attr(0644,root,root) %{_mandir}/man5/dhcp-options.5.gz
 %attr(0644,root,root) %{_mandir}/man5/dhcp-eval.5.gz
 
@@ -670,8 +669,12 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Wed Oct 26 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-3
+- Write lease file AFTER changing of the effective user/group ID.
+- Move omshell from dhcp-common to main package (where it originally was).
+
 * Thu Oct 20 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-2
-- Move changing of the effective user/group ID after writing new PID file.
+- Write PID file BEFORE changing of the effective user/group ID.
 - Really define _hardened_build this time
 
 * Thu Oct 20 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-1
