@@ -642,8 +642,8 @@ old_prefix="$(get_prefix ${old_ip_address} ${old_subnet_mask})"
 alias_prefix="$(get_prefix ${alias_ip_address} ${alias_subnet_mask})"
 
 case "${reason}" in
-    MEDIUM)
-        # Linux doesn't handle mediums (media)
+    MEDIUM|ARPCHECK|ARPSEND)
+        # Do nothing
         exit_with_hooks 0
         ;;
 
@@ -677,18 +677,17 @@ case "${reason}" in
         exit_with_hooks 0
         ;;
 
-    ARPCHECK|ARPSEND)
-        if [ -z "${new_ip_address}" ] || [ -z "${interface}" ] ||
-           arping -q -f -c 2 -w 3 -D -I ${interface} ${new_ip_address}; then
+    BOUND|RENEW|REBIND|REBOOT)
+        if [ -z "${interface}" ] || [ -z "${new_ip_address}" ]; then
+            exit_with_hooks 2
+        fi
+        if arping -D -q -c2 -I ${interface} ${new_ip_address}; then
+            dhconfig
             exit_with_hooks 0
         else
+            # DAD failed, i.e. address is already in use
             exit_with_hooks 1
         fi
-        ;;
-
-    BOUND|RENEW|REBIND|REBOOT)
-        dhconfig
-        exit_with_hooks 0
         ;;
 
     BOUND6|RENEW6|REBIND6|DEPREF6)
