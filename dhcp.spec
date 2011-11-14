@@ -22,7 +22,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  5%{?dist}
+Release:  6%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -669,6 +669,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Mon Nov 14 2011 Adam Tkac <atkac redhat com> - 12:4.2.3-6
+- rebuild against new bind
+
 * Fri Nov 11 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-5
 - dhclient-script: arping address in BOUND|RENEW|REBIND|REBOOT (#752116)
 
