@@ -22,7 +22,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  6%{?dist}
+Release:  7%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -76,6 +76,7 @@ Patch33:  dhcp-4.2.2-lpf-ib.patch
 Patch34:  dhcp-4.2.2-improved-xid.patch
 Patch35:  dhcp-4.2.2-gpxe-cid.patch
 Patch36:  dhcp-4.2.2-systemtap.patch
+Patch37:  dhcp-4.2.3-dhclient-decline-onetry.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -328,6 +329,11 @@ rm bind/bind.tar.gz
 # http://sourceware.org/systemtap/wiki/SystemTap
 %patch36 -p1 -b .systemtap
 
+# Send DHCPDECLINE and exit(2) when duplicate address was detected and
+# dhclient had been started with '-1' (#756759).
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #26735])
+%patch37 -p1 -b .decline-onetry
+
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
 %{__install} -p -m 0644 %{SOURCE5} .
@@ -367,7 +373,7 @@ done
 #libtoolize --copy --force
 autoreconf --verbose --force --install
 
-CFLAGS="%{optflags} -fno-strict-aliasing -D_GNU_SOURCE" \
+CFLAGS="%{optflags} -fno-strict-aliasing" \
 %configure \
     --with-srv-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd.leases \
     --with-srv6-lease-file=%{_localstatedir}/lib/dhcpd/dhcpd6.leases \
@@ -669,6 +675,11 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Thu Nov 24 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-7
+- Send DHCPDECLINE and exit(2) when duplicate address was detected and
+  dhclient had been started with '-1' (#756759).
+- Don't build with -D_GNU_SOURCE, configure.ac uses AC_USE_SYSTEM_EXTENSIONS
+
 * Mon Nov 14 2011 Adam Tkac <atkac redhat com> - 12:4.2.3-6
 - rebuild against new bind
 
