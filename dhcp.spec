@@ -11,18 +11,18 @@
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
 # Patch version 
-#%global patchver P1
+%global patchver P1
 # Pre-Release version
-#%global prever rc1
+#%%global prever rc1
 
-#%global VERSION %{version}-%{patchver}
-#%global VERSION %{version}%{prever}
-%global VERSION %{version}
+#%%global VERSION %{version}%{prever}
+#%%global VERSION %{version}
+%global VERSION %{version}-%{patchver}
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  7%{?dist}
+Release:  8.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -675,6 +675,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Fri Dec 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-8.P1
+- 4.2.3-P1: fix for CVE-2011-4539 (#765681)
+
 * Thu Nov 24 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-7
 - Send DHCPDECLINE and exit(2) when duplicate address was detected and
   dhclient had been started with '-1' (#756759).
