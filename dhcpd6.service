@@ -4,7 +4,10 @@ After=syslog.target network.target
 
 [Service]
 EnvironmentFile=/etc/sysconfig/dhcpd6
-ExecStart=/usr/sbin/dhcpd -d -6 -user dhcpd -group dhcpd --no-pid $DHCPDARGS
+# For the case where /var/lib/dhcpd/dhcpd6.leases is owned by root:root as a
+# consequence of running dhcpd without '-user dhcpd -group dhcpd'
+ExecStartPre=/bin/chown -R dhcpd:dhcpd /var/lib/dhcpd/
+ExecStart=/usr/sbin/dhcpd -d -6 -cf /etc/dhcp/dhcpd6.conf -user dhcpd -group dhcpd --no-pid $DHCPDARGS
 
 [Install]
 WantedBy=multi-user.target

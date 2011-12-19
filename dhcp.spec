@@ -22,7 +22,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  8.%{patchver}%{?dist}
+Release:  9.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -32,9 +32,6 @@ License:  ISC
 Group:    System Environment/Daemons
 URL:      http://isc.org/products/DHCP/
 Source0:  ftp://ftp.isc.org/isc/dhcp/dhcp-%{VERSION}.tar.gz
-Source1:  dhcpd.init
-Source2:  dhcpd6.init
-Source3:  dhcrelay.init
 Source4:  dhclient-script
 Source5:  README.dhclient.d
 Source6:  11-dhclient
@@ -407,12 +404,6 @@ CFLAGS="%{optflags} -fno-strict-aliasing" \
 %{__mv} %{buildroot}%{_sbindir}/dhclient %{buildroot}/sbin/dhclient
 %{__install} -p -m 0755 client/scripts/linux %{buildroot}/sbin/dhclient-script
 
-# Install legacy SysV initscripts
-%{__mkdir} -p %{buildroot}%{_initddir}
-%{__install} -p -m 0755 %{SOURCE1} %{buildroot}%{_initddir}/dhcpd
-%{__install} -p -m 0755 %{SOURCE2} %{buildroot}%{_initddir}/dhcpd6
-%{__install} -p -m 0755 %{SOURCE3} %{buildroot}%{_initddir}/dhcrelay
-
 # Install systemd unit files
 mkdir -p %{buildroot}%{_unitdir}
 install -m 644 %{SOURCE9} %{buildroot}%{_unitdir}
@@ -443,7 +434,7 @@ EOF
 
 %{__cat} <<EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcpd6
 # Command line options here
-DHCPDARGS="-cf /etc/dhcp/dhcpd6.conf"
+DHCPDARGS=""
 EOF
 
 # Copy sample conf files into position (called by doc macro)
@@ -669,12 +660,15 @@ fi
 %attr(0644,root,root) %{_mandir}/man3/dhcpctl.3.gz
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
-%files sysvinit
-%{_initddir}/dhcpd
-%{_initddir}/dhcpd6
-%{_initddir}/dhcrelay
 
 %changelog
+* Mon Dec 19 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-9.P1
+- don't ship legacy SysV initscripts
+- dhcpd6: move '-cf /etc/dhcp/dhcpd6.conf' from sysconfig/dhcpd6 to dhcpd6.service
+- run 'chown -R dhcpd:dhcpd /var/lib/dhcpd/' before starting dhcpd/dhcpd6 service
+  for the case where leases file is owned by root:root as a
+  consequence of running dhcpd without '-user dhcpd -group dhcpd' (#744292)
+
 * Fri Dec 09 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-8.P1
 - 4.2.3-P1: fix for CVE-2011-4539 (#765681)
 
