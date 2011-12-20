@@ -4,9 +4,6 @@ After=syslog.target network.target
 
 [Service]
 EnvironmentFile=/etc/sysconfig/dhcpd
-# For the case where /var/lib/dhcpd/dhcpd.leases is owned by root:root as a
-# consequence of running dhcpd without '-user dhcpd -group dhcpd'
-ExecStartPre=/bin/chown -R dhcpd:dhcpd /var/lib/dhcpd/
 ExecStart=/usr/sbin/dhcpd -d -user dhcpd -group dhcpd --no-pid $DHCPDARGS
 
 [Install]

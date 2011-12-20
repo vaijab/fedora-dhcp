@@ -22,7 +22,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  10.%{patchver}%{?dist}
+Release:  11.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -313,7 +313,6 @@ rm bind/bind.tar.gz
 
 # Write PID file BEFORE changing of the effective user/group ID.
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #25806])
-# Write lease file AFTER changing of the effective user/group ID.
 %patch32 -p1 -b .paranoia
 
 # IPoIB support (#660681)
@@ -659,6 +658,13 @@ fi
 
 
 %changelog
+* Wed Dec 21 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-11.P1
+- revert change made in 4.2.3-3 because of failing failover inicialization (#765967)
+  the procedure is now:
+  init lease file, init failover, init PID file, change effective user/group ID
+- don't need to fix lease files ownership before starting service
+- dhclient-script: allow static route with a 0.0.0.0 next-hop address (#769463)
+
 * Tue Dec 20 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-10.P1
 - hopefully we don't need 12-dhcpd anymore as 'After=network.target'
   in dhcpd[6].service should take care of the original problem (#565921)
