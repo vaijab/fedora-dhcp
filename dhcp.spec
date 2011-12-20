@@ -22,7 +22,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  9.%{patchver}%{?dist}
+Release:  10.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -32,14 +32,13 @@ License:  ISC
 Group:    System Environment/Daemons
 URL:      http://isc.org/products/DHCP/
 Source0:  ftp://ftp.isc.org/isc/dhcp/dhcp-%{VERSION}.tar.gz
-Source4:  dhclient-script
-Source5:  README.dhclient.d
-Source6:  11-dhclient
-Source7:  12-dhcpd
-Source8:  56dhclient
-Source9:   dhcpd.service
-Source10:  dhcpd6.service
-Source11:  dhcrelay.service
+Source1:  dhclient-script
+Source2:  README.dhclient.d
+Source3:  11-dhclient
+Source4:  56dhclient
+Source5:  dhcpd.service
+Source6:  dhcpd6.service
+Source7:  dhcrelay.service
 
 Patch0:   dhcp-4.2.0-errwarn-message.patch
 Patch1:   dhcp-4.2.3-options.patch
@@ -332,8 +331,8 @@ rm bind/bind.tar.gz
 %patch37 -p1 -b .decline-onetry
 
 # Copy in the Fedora/RHEL dhclient script
-%{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
-%{__install} -p -m 0644 %{SOURCE5} .
+%{__install} -p -m 0755 %{SOURCE1} client/scripts/linux
+%{__install} -p -m 0644 %{SOURCE2} .
 
 pushd contrib
 %{__chmod} -x 3.0b1-lease-convert dhclient-tz-exithook.sh ldap/dhcpd-conf-to-ldap
@@ -406,9 +405,9 @@ CFLAGS="%{optflags} -fno-strict-aliasing" \
 
 # Install systemd unit files
 mkdir -p %{buildroot}%{_unitdir}
-install -m 644 %{SOURCE9} %{buildroot}%{_unitdir}
-install -m 644 %{SOURCE10} %{buildroot}%{_unitdir}
-install -m 644 %{SOURCE11} %{buildroot}%{_unitdir}
+install -m 644 %{SOURCE5} %{buildroot}%{_unitdir}
+install -m 644 %{SOURCE6} %{buildroot}%{_unitdir}
+install -m 644 %{SOURCE7} %{buildroot}%{_unitdir}
 
 # Start empty lease databases
 %{__mkdir} -p %{buildroot}%{_localstatedir}/lib/dhcpd/
@@ -472,12 +471,11 @@ EOF
 
 # Install NetworkManager dispatcher script
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
-%{__install} -p -m 0755 %{SOURCE6} %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
-%{__install} -p -m 0755 %{SOURCE7} %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
+%{__install} -p -m 0755 %{SOURCE3} %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
 
 # Install pm-utils script to handle suspend/resume and dhclient leases
 %{__mkdir} -p %{buildroot}%{_libdir}/pm-utils/sleep.d
-%{__install} -p -m 0755 %{SOURCE8} %{buildroot}%{_libdir}/pm-utils/sleep.d
+%{__install} -p -m 0755 %{SOURCE4} %{buildroot}%{_libdir}/pm-utils/sleep.d
 
 # Don't package libtool *.la files
 find ${RPM_BUILD_ROOT}/%{_libdir} -name '*.la' -exec '/bin/rm' '-f' '{}' ';';
@@ -607,7 +605,6 @@ fi
 %config(noreplace) %{_sysconfdir}/openldap/schema/dhcp.schema
 %dir %{_sysconfdir}/NetworkManager
 %dir %{_sysconfdir}/NetworkManager/dispatcher.d
-%{_sysconfdir}/NetworkManager/dispatcher.d/12-dhcpd
 %attr(0644,root,root)   %{_unitdir}/dhcpd.service
 %attr(0644,root,root)   %{_unitdir}/dhcpd6.service
 %attr(0644,root,root)   %{_unitdir}/dhcrelay.service
@@ -662,6 +659,10 @@ fi
 
 
 %changelog
+* Tue Dec 20 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-10.P1
+- hopefully we don't need 12-dhcpd anymore as 'After=network.target'
+  in dhcpd[6].service should take care of the original problem (#565921)
+
 * Mon Dec 19 2011 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-9.P1
 - don't ship legacy SysV initscripts
 - dhcpd6: move '-cf /etc/dhcp/dhcpd6.conf' from sysconfig/dhcpd6 to dhcpd6.service
