@@ -530,22 +530,22 @@ add_ipv6_addr_with_DAD() {
             for i in $(seq 5); do
                 sleep 1 # give the DAD some time
 
-                # tentative flag = DAD is still not complete or failed
-                duplicate=$(ip -6 addr show dev ${interface} tentative \
-                              | grep ${new_ip6_address}/${new_ip6_prefixlen})
+                # tentative flag == DAD is still not complete
+                tentative=$(ip -6 addr show dev ${interface} tentative \
+                           | grep ${new_ip6_address}/${new_ip6_prefixlen})
+                # dadfailed flag == address is already in use somewhere else
+                dadfailed=$(ip -6 addr show dev ${interface} dadfailed \
+                           | grep ${new_ip6_address}/${new_ip6_prefixlen})
 
-                # if there's no tentative flag, address passed DAD
-                if [ -z "${duplicate}" ]; then
-                    break
+                if [ -n "${dadfailed}" ] ; then
+                    #ip -6 addr del ${new_ip6_address}/${new_ip6_prefixlen} dev ${interface}
+                    exit_with_hooks 3
+                fi
+                if [ -z "${tentative}" ] ; then
+                    # DAD is over
+                    return 0
                 fi
             done
-
-            # if there's still tentative flag = address didn't pass DAD = 
-            # = it's duplicate = remove it
-            if [ -n "${duplicate}" ]; then
-                ip -6 addr del ${new_ip6_address}/${new_ip6_prefixlen} dev ${interface}
-                exit_with_hooks 3
-            fi
 }
 
 dh6config() {
