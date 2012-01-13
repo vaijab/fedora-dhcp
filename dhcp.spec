@@ -11,7 +11,7 @@
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
 # Patch version 
-%global patchver P1
+%global patchver P2
 # Pre-Release version
 #%%global prever rc1
 
@@ -22,7 +22,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  12.%{patchver}%{?dist}
+Release:  13.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -100,9 +100,6 @@ Requires(preun): systemd-units
 Requires(postun): initscripts
 Requires(postun): systemd-units
 
-Obsoletes: dhcpv6 <= 2.0.0alpha4-1
-Provides:  dhcpv6  = 2.0.0alpha4-2
-
 # In _docdir we ship some perl scripts and module from contrib subdirectory.
 # Because nothing under _docdir is allowed to "require" anything,
 # prevent _docdir from being scanned. (#674058)
@@ -128,14 +125,6 @@ Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
 Requires(post): coreutils
 Requires(post): grep
-Obsoletes: dhcpcd <= 1.3.22pl1-7
-Provides:  dhcpcd  = 1.3.22pl1-8
-Obsoletes: libdhcp4client <= 12:4.0.0-34
-Provides:  libdhcp4client  = 12:4.0.0-35
-Obsoletes: libdhcp <= 1.99.8-1
-Provides:  libdhcp  = 1.99.8-2
-Obsoletes: dhcpv6-client <= 2.0.0alpha4-1
-Provides:  dhcpv6-client  = 2.0.0alpha4-2
 
 %description -n dhclient
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
@@ -173,10 +162,6 @@ This package contains shared libraries used by ISC dhcp client and server
 %package devel
 Summary: Development headers and libraries for interfacing to the DHCP server
 Group: Development/Libraries
-Obsoletes: libdhcp4client-devel <= 12:4.0.0-34
-Provides:  libdhcp4client-devel  = 12:4.0.0-35
-Obsoletes: libdhcp-devel <= 1.99.8-1
-Provides:  libdhcp-devel  = 1.99.8-2
 Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
 
 %description devel
@@ -658,6 +643,10 @@ fi
 
 
 %changelog
+* Fri Jan 13 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-13.P2
+- 4.2.3-P2: fix for CVE-2011-4868 (#781246)
+- clean up old Provides and Obsoletes
+
 * Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 12:4.2.3-12.P1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
