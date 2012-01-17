@@ -5,6 +5,7 @@ After=syslog.target network.target
 [Service]
 EnvironmentFile=/etc/sysconfig/dhcpd6
 ExecStart=/usr/sbin/dhcpd -d -6 -cf /etc/dhcp/dhcpd6.conf -user dhcpd -group dhcpd --no-pid $DHCPDARGS
+PrivateTmp=true
 
 [Install]
 WantedBy=multi-user.target

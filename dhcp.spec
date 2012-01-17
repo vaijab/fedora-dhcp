@@ -22,7 +22,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  13.%{patchver}%{?dist}
+Release:  14.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -643,6 +643,9 @@ fi
 
 
 %changelog
+* Tue Jan 17 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-14.P2
+- use PrivateTmp=true in service files (#782499)
+
 * Fri Jan 13 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-13.P2
 - 4.2.3-P2: fix for CVE-2011-4868 (#781246)
 - clean up old Provides and Obsoletes
