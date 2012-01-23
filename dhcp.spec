@@ -19,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  5.%{patchver}%{?dist}
+Release:  6.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -28,7 +28,7 @@ Epoch:    12
 License:  ISC
 Group:    System Environment/Daemons
 URL:      http://isc.org/products/DHCP/
-Source0:  ftp://ftp.isc.org/isc/dhcp/dhcp-%{VERSION}.tar.gz
+Source0:  ftp://ftp.isc.org/isc/dhcp/%{VERSION}/dhcp-%{VERSION}.tar.gz
 Source1:  dhcpd.init
 Source2:  dhcpd6.init
 Source3:  dhcrelay.init
@@ -641,6 +641,12 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Mon Jan 23 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-6.P2
+- revert change made in 4.2.3-2 because of failing failover inicialization (#765967)
+  the procedure is now:
+  init lease file, init failover, init PID file, change effective user/group ID
+- dhclient-script: allow static route with a 0.0.0.0 next-hop address (#769463)
+
 * Fri Jan 13 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-5.P2
 - 4.2.3-P2: fix for CVE-2011-4868 (#781246)
 

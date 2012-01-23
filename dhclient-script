@@ -427,7 +427,10 @@ dhconfig() {
                 fi
                 gateway=${static_routes[$i+1]}
 
-                if is_router_reachable ${gateway}; then
+                # special case 0.0.0.0 to allow static routing for link-local addresses
+                # (including IPv4 multicast) which will not have a next-hop (#769463)
+                if [ "${gateway}" = "0.0.0.0" ] ||
+                   is_router_reachable ${gateway}; then
                     metric=''
                     for t in ${route_targets[@]}; do
                         if [ ${t} = ${target} ]; then
@@ -456,11 +459,9 @@ dhconfig() {
 
         # gateways
         if [[ ( "${DEFROUTE}" != "no" ) &&
-              (( -z "${GATEWAYDEV}" ) ||
-               ( "${GATEWAYDEV}" = "${interface}" )) ]]; then
+              (( -z "${GATEWAYDEV}" ) || ( "${GATEWAYDEV}" = "${interface}" )) ]]; then
             if [[ ( -z "$GATEWAY" ) ||
-                  (( -n "$DHCLIENT_IGNORE_GATEWAY" ) &&
-                   ( "$DHCLIENT_IGNORE_GATEWAY" = [Yy]* )) ]]; then
+                  (( -n "$DHCLIENT_IGNORE_GATEWAY" ) && ( "$DHCLIENT_IGNORE_GATEWAY" = [Yy]* )) ]]; then
                 metric="${METRIC:-}"
                 let i="${METRIC:-0}"
                 default_routers=()
