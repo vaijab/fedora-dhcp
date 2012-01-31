@@ -22,7 +22,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  14.%{patchver}%{?dist}
+Release:  15.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -89,15 +89,9 @@ BuildRequires: systemtap-sdt-devel
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
 Requires(pre): shadow-utils
-Requires(post): chkconfig
 Requires(post): coreutils
 Requires(post): systemd-units
-# This is actually needed for the %%triggerun script but Requires(triggerun) is not valid.
-Requires(post): systemd-sysv
-Requires(preun): chkconfig
-Requires(preun): initscripts
 Requires(preun): systemd-units
-Requires(postun): initscripts
 Requires(postun): systemd-units
 
 # In _docdir we ship some perl scripts and module from contrib subdirectory.
@@ -167,14 +161,6 @@ Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
 %description devel
 Header files and API documentation for using the ISC DHCP libraries.  The
 libdhcpctl and libomapi static libraries are also included in this package.
-
-%package sysvinit
-Summary: Legacy SysV initscripts for DHCP server and relay agent
-Group: System Environment/Base
-
-%description sysvinit
-Legacy SysV initscripts for init mechanisms such as upstart
-which do not support the systemd unit file format.
 
 %prep
 %setup -q -n dhcp-%{VERSION}
@@ -552,28 +538,6 @@ fi
 %postun libs -p /sbin/ldconfig
 
 
-%triggerun -- dhcp < 12:4.2.0-21.P1
-# https://fedoraproject.org/wiki/Packaging:ScriptletSnippets#Systemd
-# Save the current service runlevel info
-# User must manually run systemd-sysv-convert --apply dhcpd
-# to migrate them to systemd targets
-/usr/bin/systemd-sysv-convert --save dhcpd >/dev/null 2>&1 ||:
-/usr/bin/systemd-sysv-convert --save dhcpd6 >/dev/null 2>&1 ||:
-/usr/bin/systemd-sysv-convert --save dhcrelay >/dev/null 2>&1 ||:
-# Run these because the SysV package being removed won't do them
-/sbin/chkconfig --del dhcpd >/dev/null 2>&1 || :
-/sbin/chkconfig --del dhcpd6 >/dev/null 2>&1 || :
-/sbin/chkconfig --del dhcrelay >/dev/null 2>&1 || :
-/bin/systemctl try-restart dhcpd.service >/dev/null 2>&1 || :
-/bin/systemctl try-restart dhcpd6.service >/dev/null 2>&1 || :
-/bin/systemctl try-restart dhcrelay.service >/dev/null 2>&1 || :
-
-%triggerpostun -n dhcp-sysvinit -- dhcp < 12:4.2.0-21.P1
-# https://fedoraproject.org/wiki/Packaging:SysVInitScript#Initscripts_in_addition_to_systemd_unit_files
-/sbin/chkconfig --add dhcpd >/dev/null 2>&1 || :
-/sbin/chkconfig --add dhcpd6 >/dev/null 2>&1 || :
-/sbin/chkconfig --add dhcrelay >/dev/null 2>&1 || :
-
 %files
 %doc dhcpd.conf.sample dhcpd6.conf.sample
 %doc contrib/*
@@ -643,6 +607,10 @@ fi
 
 
 %changelog
+* Tue Jan 31 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-15.P2
+- revert previous change (#782499)
+- remove the rest of the sysvinit scriptlets
+
 * Tue Jan 17 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-14.P2
 - use PrivateTmp=true in service files (#782499)
 
