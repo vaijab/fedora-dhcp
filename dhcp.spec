@@ -22,7 +22,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  15.%{patchver}%{?dist}
+Release:  16.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -607,6 +607,9 @@ fi
 
 
 %changelog
+* Wed Feb  1 2012 Adam Williamson <awilliam@redhat.com> - 12:4.2.3-16.P2
+- rebuild for new bind-libs-lite
+
 * Tue Jan 31 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-15.P2
 - revert previous change (#782499)
 - remove the rest of the sysvinit scriptlets
