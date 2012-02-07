@@ -19,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  6.%{patchver}%{?dist}
+Release:  7.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -641,6 +641,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Tue Feb 07 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-7.P2
+- dhclient-script: install link-local static routes with correct scope (#787318)
+
 * Mon Jan 23 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-6.P2
 - revert change made in 4.2.3-2 because of failing failover inicialization (#765967)
   the procedure is now:
