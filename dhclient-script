@@ -406,9 +406,16 @@ dhconfig() {
                 gateway=${static_routes[$i+1]}
 
                 # special case 0.0.0.0 to allow static routing for link-local addresses
-                # (including IPv4 multicast) which will not have a next-hop (#769463)
-                if [ "${gateway}" = "0.0.0.0" ] ||
-                   is_router_reachable ${gateway}; then
+                # (including IPv4 multicast) which will not have a next-hop (#769463, #787318)
+                if [ "${gateway}" = "0.0.0.0" ]; then
+                    valid_gateway=0
+                    scope='scope link'
+                else
+                    is_router_reachable ${gateway}
+                    valid_gateway=$?
+                    scope=''
+                fi
+                if [ ${valid_gateway} -eq 0 ]; then
                     metric=''
                     for t in ${route_targets[@]}; do
                         if [ ${t} = ${target} ]; then
@@ -424,7 +431,7 @@ dhconfig() {
                         metric="metric ${metric}"
                     fi
 
-                    ip -4 route replace ${target}/${prefix} proto static via ${gateway} dev ${interface} ${metric}
+                    ip -4 route replace ${target}/${prefix} proto static via ${gateway} dev ${interface} ${metric} ${scope}
 
                     if [ $? -ne 0 ]; then
                         logmessage "failed to create static route: ${target}/${prefix} via ${gateway} dev ${interface} ${metric}"
