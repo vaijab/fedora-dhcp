@@ -22,7 +22,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  17.%{patchver}%{?dist}
+Release:  18.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -607,6 +607,9 @@ fi
 
 
 %changelog
+* Mon Feb 13 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-18.P2
+- -timeout option (command line) with value 3 or less was driving dhclient mad (#789719)
+
 * Tue Feb 07 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-17.P2
 - dhclient-script: install link-local static routes with correct scope (#787318)
 
