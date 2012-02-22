@@ -22,7 +22,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  18.%{patchver}%{?dist}
+Release:  19.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -73,6 +73,7 @@ Patch34:  dhcp-4.2.2-improved-xid.patch
 Patch35:  dhcp-4.2.2-gpxe-cid.patch
 Patch36:  dhcp-4.2.2-systemtap.patch
 Patch37:  dhcp-4.2.3-dhclient-decline-onetry.patch
+Patch38:  dhcp-4.2.3-P2-log_perror.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -299,6 +300,10 @@ rm bind/bind.tar.gz
 # dhclient had been started with '-1' (#756759).
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #26735])
 %patch37 -p1 -b .decline-onetry
+
+# Don't send log messages to the standard error descriptor by default (#790387)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #28049])
+%patch38 -p1 -b .log_perror
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE1} client/scripts/linux
@@ -607,6 +612,9 @@ fi
 
 
 %changelog
+* Wed Feb 22 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-19.P2
+- don't send log messages to the standard error descriptor by default (#790387)
+
 * Mon Feb 13 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-18.P2
 - -timeout option (command line) with value 3 or less was driving dhclient mad (#789719)
 
