@@ -19,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  7.%{patchver}%{?dist}
+Release:  8.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -69,6 +69,7 @@ Patch29:  dhcp-4.2.2-remove-bind.patch
 Patch30:  dhcp-4.2.2-sharedlib.patch
 Patch31:  dhcp-4.2.0-PPP.patch
 Patch32:  dhcp-4.2.3-paranoia.patch
+Patch33:  dhcp-4.2.3-P2-log_perror.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -307,6 +308,10 @@ rm bind/bind.tar.gz
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #25806])
 # Write lease file AFTER changing of the effective user/group ID.
 %patch32 -p1 -b .paranoia
+
+# Don't send log messages to the standard error descriptor by default (#790387)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #28049])
+%patch33 -p1 -b .log_perror
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -641,6 +646,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Wed Feb 22 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-8.P2
+- don't send log messages to the standard error descriptor by default (#790387)
+
 * Tue Feb 07 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-7.P2
 - dhclient-script: install link-local static routes with correct scope (#787318)
 
