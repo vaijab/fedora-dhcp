@@ -22,7 +22,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  20.%{patchver}%{?dist}
+Release:  21.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -75,6 +75,7 @@ Patch36:  dhcp-4.2.2-systemtap.patch
 Patch37:  dhcp-4.2.3-dhclient-decline-onetry.patch
 Patch38:  dhcp-4.2.3-P2-log_perror.patch
 Patch39:  dhcp-4.2.3-P2-getifaddrs.patch
+Patch40:  dhcp-4.2.3-P2-send_release.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -308,6 +309,9 @@ rm bind/bind.tar.gz
 
 # Use getifaddrs() to scan for interfaces on Linux (#449946)
 %patch39 -p1 -b .getifaddrs
+
+# Don't use fallback_interface when releasing lease (#800561)
+%patch40 -p1 -b .send_release
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE1} client/scripts/linux
@@ -616,6 +620,9 @@ fi
 
 
 %changelog
+* Wed Mar 21 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-21.P2
+- don't use fallback_interface when releasing lease (#800561)
+
 * Wed Mar 21 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-20.P2
 - use getifaddrs() to scan for interfaces on Linux (#449946)
 
