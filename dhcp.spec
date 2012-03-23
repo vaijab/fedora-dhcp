@@ -22,7 +22,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  22.%{patchver}%{?dist}
+Release:  23.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -624,6 +624,9 @@ fi
 
 
 %changelog
+* Fri Mar 23 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-23.P2
+- improve #449946 fix (#806342)
+
 * Wed Mar 21 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-22.P2
 - RFC5970 - DHCPv6 Options for Network Boot (#798735)
 
