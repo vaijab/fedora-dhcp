@@ -1,6 +1,6 @@
 diff -up dhcp-4.2.3-P2/common/discover.c.getifaddrs dhcp-4.2.3-P2/common/discover.c
---- dhcp-4.2.3-P2/common/discover.c.getifaddrs	2012-03-23 18:07:54.744082263 +0100
-+++ dhcp-4.2.3-P2/common/discover.c	2012-03-23 18:14:37.213050709 +0100
+--- dhcp-4.2.3-P2/common/discover.c.getifaddrs	2012-03-23 18:15:12.710606929 +0100
++++ dhcp-4.2.3-P2/common/discover.c	2012-03-23 20:03:41.238239134 +0100
 @@ -379,394 +379,13 @@ end_iface_scan(struct iface_conf_list *i
  	ifaces->sock = -1;
  }
@@ -406,22 +406,24 @@ diff -up dhcp-4.2.3-P2/common/discover.c.getifaddrs dhcp-4.2.3-P2/common/discove
  	if (ifaces->next == NULL) {
  		*err = 0;
  		return 0;
-@@ -825,8 +446,16 @@ next_iface(struct iface_info *info, int
+@@ -825,8 +446,18 @@ next_iface(struct iface_info *info, int
  		return 0;
  	}
  	strcpy(info->name, ifaces->next->ifa_name);
 -	memcpy(&info->addr, ifaces->next->ifa_addr, 
 -	       ifaces->next->ifa_addr->sa_len);
 +
-+#if __linux
-+	if (ifaces->next->ifa_addr->sa_family == AF_INET)
-+		sa_len = sizeof(struct sockaddr_in);
-+	else if (ifaces->next->ifa_addr->sa_family == AF_INET6)
-+		sa_len = sizeof(struct sockaddr_in6);
++	if (ifaces->next->ifa_addr != NULL) {
++#if defined(__linux)
++		if (ifaces->next->ifa_addr->sa_family == AF_INET)
++			sa_len = sizeof(struct sockaddr_in);
++		else if (ifaces->next->ifa_addr->sa_family == AF_INET6)
++			sa_len = sizeof(struct sockaddr_in6);
 +#else
-+	sa_len = ifaces->next->ifa_addr->sa_len
++		sa_len = ifaces->next->ifa_addr->sa_len;
 +#endif
-+	memcpy(&info->addr, ifaces->next->ifa_addr, sa_len);
++		memcpy(&info->addr, ifaces->next->ifa_addr, sa_len);
++	}
  	info->flags = ifaces->next->ifa_flags;
  	ifaces->next = ifaces->next->ifa_next;
  	*err = 0;
