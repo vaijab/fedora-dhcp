@@ -39,7 +39,7 @@ NAME.sh script.  Things of note:
 
 See the scripts in /etc/dhcp/dhclient.d for examples.
 
-NOTE:  Do not use functions defined in /sbin/dhclient-script.  Consider
+NOTE:  Do not use functions defined in /usr/sbin/dhclient-script.  Consider
 dhclient-script a black box.  This script may change over time, so the
 dhclient.d scripts should not be using functions defined in it.
 

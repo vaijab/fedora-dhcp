@@ -1,9 +1,6 @@
 # SystemTap support is enabled by default
 %{!?sdt:%global sdt 1}
 
-# vendor string (e.g., Fedora, EL)
-%global vvendor Fedora
-
 #http://lists.fedoraproject.org/pipermail/devel/2011-August/155358.html
 %global _hardened_build 1
 
@@ -22,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  24.%{patchver}%{?dist}
+Release:  25.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -309,6 +306,7 @@ rm bind/bind.tar.gz
 %patch38 -p1 -b .log_perror
 
 # Use getifaddrs() to scan for interfaces on Linux (#449946)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #28761])
 %patch39 -p1 -b .getifaddrs
 
 # Don't use fallback_interface when releasing lease (#800561)
@@ -316,10 +314,6 @@ rm bind/bind.tar.gz
 
 # RFC5970 - DHCPv6 Options for Network Boot (#798735)
 %patch41 -p1 -b .rfc5970
-
-# Copy in the Fedora/RHEL dhclient script
-%{__install} -p -m 0755 %{SOURCE1} client/scripts/linux
-%{__install} -p -m 0644 %{SOURCE2} .
 
 pushd contrib
 %{__chmod} -x 3.0b1-lease-convert dhclient-tz-exithook.sh ldap/dhcpd-conf-to-ldap
@@ -332,21 +326,17 @@ pushd contrib
 %{__sed} -i -e 's/\r//' ms2isc/ms2isc.pl
 popd
 
-# Replace @PRODUCTNAME@
-%{__sed} -i -e 's|@PRODUCTNAME@|%{vvendor}|g' common/dhcp-options.5
-%{__sed} -i -e 's|@PRODUCTNAME@|%{vvendor}|g' configure.ac
-
 # Update paths in all man pages
 for page in client/dhclient.conf.5 client/dhclient.leases.5 \
             client/dhclient-script.8 client/dhclient.8 ; do
-    %{__sed} -i -e 's|CLIENTBINDIR|/sbin|g' \
+    %{__sed} -i -e 's|CLIENTBINDIR|%{_sbindir}|g' \
                 -e 's|RUNDIR|%{_localstatedir}/run|g' \
                 -e 's|DBDIR|%{_localstatedir}/lib/dhclient|g' \
                 -e 's|ETCDIR|%{dhcpconfdir}|g' $page
 done
 
 for page in server/dhcpd.conf.5 server/dhcpd.leases.5 server/dhcpd.8 ; do
-    %{__sed} -i -e 's|CLIENTBINDIR|/sbin|g' \
+    %{__sed} -i -e 's|CLIENTBINDIR|%{_sbindir}|g' \
                 -e 's|RUNDIR|%{_localstatedir}/run|g' \
                 -e 's|DBDIR|%{_localstatedir}/lib/dhcpd|g' \
                 -e 's|ETCDIR|%{dhcpconfdir}|g' $page
@@ -385,12 +375,25 @@ CFLAGS="%{optflags} -fno-strict-aliasing" \
 %{__rm} -f %{buildroot}%{_sysconfdir}/dhclient.conf
 %{__rm} -f %{buildroot}%{_sysconfdir}/dhcpd.conf
 
-# Install correct dhclient-script
-%{__mkdir} -p %{buildroot}/sbin
-%{__mv} %{buildroot}%{_sbindir}/dhclient %{buildroot}/sbin/dhclient
-%{__install} -p -m 0755 client/scripts/linux %{buildroot}/sbin/dhclient-script
+# dhclient-script
+%{__mkdir} -p %{buildroot}%{_sbindir}
+%{__install} -p -m 0755 %{SOURCE1} %{buildroot}%{_sbindir}/dhclient-script
 
-# Install systemd unit files
+# README.dhclient.d
+%{__install} -p -m 0644 %{SOURCE2} .
+
+# Empty directory for dhclient.d scripts
+%{__mkdir} -p %{buildroot}%{dhcpconfdir}/dhclient.d
+
+# NetworkManager dispatcher script
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
+%{__install} -p -m 0755 %{SOURCE3} %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
+
+# pm-utils script to handle suspend/resume and dhclient leases
+%{__mkdir} -p %{buildroot}%{_libdir}/pm-utils/sleep.d
+%{__install} -p -m 0755 %{SOURCE4} %{buildroot}%{_libdir}/pm-utils/sleep.d
+
+# systemd unit files
 mkdir -p %{buildroot}%{_unitdir}
 install -m 644 %{SOURCE5} %{buildroot}%{_unitdir}
 install -m 644 %{SOURCE6} %{buildroot}%{_unitdir}
@@ -452,17 +455,6 @@ EOF
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/openldap/schema
 %{__install} -p -m 0644 -D contrib/ldap/dhcp.schema \
     %{buildroot}%{_sysconfdir}/openldap/schema
-
-# Install empty directory for dhclient.d scripts
-%{__mkdir} -p %{buildroot}%{dhcpconfdir}/dhclient.d
-
-# Install NetworkManager dispatcher script
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
-%{__install} -p -m 0755 %{SOURCE3} %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
-
-# Install pm-utils script to handle suspend/resume and dhclient leases
-%{__mkdir} -p %{buildroot}%{_libdir}/pm-utils/sleep.d
-%{__install} -p -m 0755 %{SOURCE4} %{buildroot}%{_libdir}/pm-utils/sleep.d
 
 # Don't package libtool *.la files
 find ${RPM_BUILD_ROOT}/%{_libdir} -name '*.la' -exec '/bin/rm' '-f' '{}' ';';
@@ -593,8 +585,8 @@ fi
 %dir %{_sysconfdir}/NetworkManager
 %dir %{_sysconfdir}/NetworkManager/dispatcher.d
 %{_sysconfdir}/NetworkManager/dispatcher.d/11-dhclient
-/sbin/dhclient
-/sbin/dhclient-script
+%{_sbindir}/dhclient
+%{_sbindir}/dhclient-script
 %attr(0755,root,root) %{_libdir}/pm-utils/sleep.d/56dhclient
 %attr(0644,root,root) %{_mandir}/man5/dhclient.conf.5.gz
 %attr(0644,root,root) %{_mandir}/man5/dhclient.leases.5.gz
@@ -624,6 +616,9 @@ fi
 
 
 %changelog
+* Fri Mar 30 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-25.P2
+- move dhclient & dhclient-script from /sbin to /usr/sbin
+
 * Fri Mar 23 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-24.P2
 - one more fix (#806342)
 
