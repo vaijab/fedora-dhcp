@@ -349,7 +349,7 @@ dhconfig() {
        [ ! "${old_broadcast_address}" = "${new_broadcast_address}" ] ||
        [ ! "${old_routers}" = "${new_routers}" ] ||
        [ ! "${old_interface_mtu}" = "${new_interface_mtu}" ]; then
-        ip -4 addr add ${new_ip_address}/${new_prefix} broadcast ${new_broadcast_address} dev ${interface}
+        ip -4 addr add ${new_ip_address}/${new_prefix} broadcast ${new_broadcast_address} dev ${interface} >/dev/null 2>&1
         ip link set dev ${interface} up
 
         # The 576 MTU is only used for X.25 and dialup connections
@@ -358,7 +358,7 @@ dhconfig() {
         # disallow MTUs from 576 and below by default, so that broken
         # MTUs are ignored, but higher stuff is allowed (1492, 1500, etc).
         if [ -n "${new_interface_mtu}" ] && [ ${new_interface_mtu} -gt 576 ]; then
-            ip link set ${interface} mtu ${new_interface_mtu}
+            ip link set dev ${interface} mtu ${new_interface_mtu}
         fi
 
         if [ -x ${ETCDIR}/dhclient-${interface}-up-hooks ]; then
@@ -661,14 +661,9 @@ case "${reason}" in
             ip -4 addr flush dev ${interface} label ${interface}:0 >/dev/null 2>&1
         fi
 
-        if [ "${keep_old_ip}" = "yes" ]; then
-            ip link set ${interface} up
-        else
-            ip -4 addr flush dev ${interface} >/dev/null 2>&1
-            ip link set ${interface} up
-        fi
-
+        ip link set dev ${interface} up
         if [ -n "${DHCLIENT_DELAY}" ] && [ ${DHCLIENT_DELAY} -gt 0 ]; then
+            # We need to give the kernel some time to get the interface up.
             sleep ${DHCLIENT_DELAY}
         fi
 
@@ -677,7 +672,7 @@ case "${reason}" in
 
     PREINIT6)
         # ensure interface is up
-        ip link set ${interface} up
+        ip link set dev ${interface} up
 
         # remove any stale addresses from aborted clients
         ip -6 addr flush dev ${interface} scope global permanent

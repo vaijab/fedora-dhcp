@@ -19,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  0.2.%{prever}%{?dist}
+Release:  0.3.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -48,7 +48,6 @@ Patch8:   dhcp-4.2.2-xen-checksum.patch
 Patch10:  dhcp-4.2.1-manpages.patch
 Patch11:  dhcp-4.2.4-paths.patch
 Patch12:  dhcp-4.2.2-CLOEXEC.patch
-Patch13:  dhcp-4.2.0-inherit-leases.patch
 Patch14:  dhcp-4.2.0-garbage-chars.patch
 Patch15:  dhcp-4.2.0-missing-ipv6-not-fatal.patch
 Patch17:  dhcp-4.2.0-add_timeout_when_NULL.patch
@@ -212,9 +211,6 @@ rm bind/bind.tar.gz
 # Make sure all open file descriptors are closed-on-exec for SELinux (#446632)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19148])
 %patch12 -p1 -b .cloexec
-
-# If we have an active lease, do not down the interface (#453982)
-%patch13 -p1 -b .inherit
 
 # Fix 'garbage in format string' error (#450042)
 %patch14 -p1 -b .garbage
@@ -604,6 +600,9 @@ fi
 
 
 %changelog
+* Thu Apr 26 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-0.3.b1
+- remove inherit-leases.patch - it's probably not needed anymore (#815355)
+
 * Wed Apr 18 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-0.2.b1
 - update paths.patch and source URL
 
