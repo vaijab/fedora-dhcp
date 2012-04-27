@@ -661,6 +661,9 @@ case "${reason}" in
             ip -4 addr flush dev ${interface} label ${interface}:0 >/dev/null 2>&1
         fi
 
+        # upstream dhclient-script removes (ifconfig $interface 0 up) old adresses in PREINIT,
+        # but we sometimes (#125298) need (for iSCSI/nfs root to have a dhcp interface) to keep the existing ip
+        # flush_dev ${interface}
         ip link set dev ${interface} up
         if [ -n "${DHCLIENT_DELAY}" ] && [ ${DHCLIENT_DELAY} -gt 0 ]; then
             # We need to give the kernel some time to get the interface up.

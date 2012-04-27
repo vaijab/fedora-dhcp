@@ -9,7 +9,7 @@
 
 
 #%%global patchver P2
-%global prever b1
+%global prever rc1
 
 
 #%%global VERSION %{version}
@@ -19,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  0.3.%{prever}%{?dist}
+Release:  0.4.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -600,6 +600,9 @@ fi
 
 
 %changelog
+* Tue May 01 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-0.4.rc1
+- 4.2.4rc1
+
 * Thu Apr 26 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-0.3.b1
 - remove inherit-leases.patch - it's probably not needed anymore (#815355)
 
