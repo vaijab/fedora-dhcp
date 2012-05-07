@@ -19,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  0.4.%{prever}%{?dist}
+Release:  0.5.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -457,25 +457,6 @@ fi
 exit 0
 
 %post
-sampleconf="#
-# DHCP Server Configuration file.
-#   see /usr/share/doc/dhcp*/dhcpd.conf.sample
-#   see 'man 5 dhcpd.conf'
-#"
-
-contents="$(/bin/cat %{dhcpconfdir}/dhcpd.conf)"
-prevconf="%{_sysconfdir}/dhcpd.conf"
-
-if [ ! -z "${prevconf}" ]; then
-    if [ ! -f %{dhcpconfdir}/dhcpd.conf -o "${sampleconf}" = "${contents}" ]; then
-        /bin/cp -a ${prevconf} %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
-        /bin/mv ${prevconf} ${prevconf}.rpmsave >/dev/null 2>&1
-        if [ -x /sbin/restorecon ]; then
-            /sbin/restorecon %{dhcpconfdir}/dhcpd.conf >/dev/null 2>&1
-        fi
-    fi
-fi
-
 # Initial installation 
 if [ $1 -eq 1 ] ; then 
     /bin/systemctl daemon-reload >/dev/null 2>&1 || :
@@ -485,23 +466,6 @@ fi
 if [ $1 -gt 1 ] ; then
   chown -R dhcpd:dhcpd %{_localstatedir}/lib/dhcpd/
 fi
-
-
-%post -n dhclient
-/bin/ls -1 %{_sysconfdir}/dhclient* >/dev/null 2>&1
-if [ $? = 0 ]; then
-    /bin/ls -1 %{_sysconfdir}/dhclient* | \
-    /bin/grep -v "\.rpmsave$" 2>/dev/null | \
-    while read etcfile ; do
-        cf="$(/bin/basename ${etcfile})"
-        if [ -f ${etcfile} ] && [ ! -r %{dhcpconfdir}/${cf} ]; then
-            /bin/cp -a ${etcfile} %{dhcpconfdir}/${cf} >/dev/null 2>&1
-            if [ -x /sbin/restorecon ]; then
-                /sbin/restorecon %{dhcpconfdir}/${cf} >/dev/null 2>&1
-            fi
-        fi
-    done || :
-fi || :
 
 
 %preun
@@ -600,6 +564,10 @@ fi
 
 
 %changelog
+* Mon May 07 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-0.5.rc1
+- dhcpd.service: explicitly add -cf to indicate what conf file we use (#819325)
+- no need to copy /etc/*.conf to /etc/dhcp/*.conf in %%prep anymore
+
 * Tue May 01 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-0.4.rc1
 - 4.2.4rc1
 
