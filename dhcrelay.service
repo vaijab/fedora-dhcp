@@ -1,6 +1,6 @@
 [Unit]
 Description=DHCP Relay Agent Daemon
-After=syslog.target network.target
+After=network.target
 
 [Service]
 EnvironmentFile=/etc/sysconfig/dhcrelay
