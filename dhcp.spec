@@ -9,7 +9,7 @@
 
 
 #%%global patchver P2
-%global prever rc1
+%global prever rc2
 
 
 #%%global VERSION %{version}
@@ -19,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  0.5.%{prever}%{?dist}
+Release:  0.6.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -564,6 +564,9 @@ fi
 
 
 %changelog
+* Wed May 23 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-0.6.rc2
+- 4.2.4rc2
+
 * Mon May 07 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-0.5.rc1
 - dhcpd.service: explicitly add -cf to indicate what conf file we use (#819325)
 - no need to copy /etc/*.conf to /etc/dhcp/*.conf in %%prep anymore
