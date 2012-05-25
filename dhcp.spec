@@ -19,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  0.6.%{prever}%{?dist}
+Release:  0.7.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -69,7 +69,7 @@ Patch35:  dhcp-4.2.2-gpxe-cid.patch
 Patch36:  dhcp-4.2.4-systemtap.patch
 Patch37:  dhcp-4.2.3-dhclient-decline-onetry.patch
 Patch38:  dhcp-4.2.3-P2-log_perror.patch
-Patch39:  dhcp-4.2.3-P2-getifaddrs.patch
+Patch39:  dhcp-4.2.4-getifaddrs.patch
 Patch40:  dhcp-4.2.4-send_release.patch
 Patch41:  dhcp-4.2.3-P2-rfc5970-dhcpv6-options-for-network-boot.patch
 
@@ -564,6 +564,9 @@ fi
 
 
 %changelog
+* Fri May 25 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-0.7.rc2
+- getifaddrs.patch: use HAVE_SA_LEN macro
+
 * Wed May 23 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-0.6.rc2
 - 4.2.4rc2
 
