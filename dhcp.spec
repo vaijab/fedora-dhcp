@@ -19,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  0.7.%{prever}%{?dist}
+Release:  0.8.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -32,10 +32,12 @@ Source0:  ftp://ftp.isc.org/isc/dhcp/%{VERSION}/dhcp-%{VERSION}.tar.gz
 Source1:  dhclient-script
 Source2:  README.dhclient.d
 Source3:  11-dhclient
-Source4:  56dhclient
-Source5:  dhcpd.service
-Source6:  dhcpd6.service
-Source7:  dhcrelay.service
+Source4:  12-dhcpd
+Source5:  56dhclient
+Source6:  dhcpd.service
+Source7:  dhcpd6.service
+Source8:  dhcrelay.service
+
 
 Patch0:   dhcp-4.2.0-errwarn-message.patch
 Patch1:   dhcp-4.2.4-options.patch
@@ -372,16 +374,17 @@ CFLAGS="%{optflags} -fno-strict-aliasing" \
 # NetworkManager dispatcher script
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
 %{__install} -p -m 0755 %{SOURCE3} %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
+%{__install} -p -m 0755 %{SOURCE4} %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d
 
 # pm-utils script to handle suspend/resume and dhclient leases
 %{__mkdir} -p %{buildroot}%{_libdir}/pm-utils/sleep.d
-%{__install} -p -m 0755 %{SOURCE4} %{buildroot}%{_libdir}/pm-utils/sleep.d
+%{__install} -p -m 0755 %{SOURCE5} %{buildroot}%{_libdir}/pm-utils/sleep.d
 
 # systemd unit files
 mkdir -p %{buildroot}%{_unitdir}
-install -m 644 %{SOURCE5} %{buildroot}%{_unitdir}
 install -m 644 %{SOURCE6} %{buildroot}%{_unitdir}
 install -m 644 %{SOURCE7} %{buildroot}%{_unitdir}
+install -m 644 %{SOURCE8} %{buildroot}%{_unitdir}
 
 # Start empty lease databases
 %{__mkdir} -p %{buildroot}%{_localstatedir}/lib/dhcpd/
@@ -510,6 +513,7 @@ fi
 %config(noreplace) %{_sysconfdir}/openldap/schema/dhcp.schema
 %dir %{_sysconfdir}/NetworkManager
 %dir %{_sysconfdir}/NetworkManager/dispatcher.d
+%{_sysconfdir}/NetworkManager/dispatcher.d/12-dhcpd
 %attr(0644,root,root)   %{_unitdir}/dhcpd.service
 %attr(0644,root,root)   %{_unitdir}/dhcpd6.service
 %attr(0644,root,root)   %{_unitdir}/dhcrelay.service
@@ -564,6 +568,9 @@ fi
 
 
 %changelog
+* Tue Jun 05 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-0.8.rc2
+- return prematurely removed 12-dhcpd (NM dispatcher script) (#828522)
+
 * Fri May 25 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-0.7.rc2
 - getifaddrs.patch: use HAVE_SA_LEN macro
 
