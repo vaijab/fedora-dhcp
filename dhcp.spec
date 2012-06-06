@@ -9,17 +9,16 @@
 
 
 #%%global patchver P2
-%global prever rc2
+#%%global prever rc2
 
-
-#%%global VERSION %{version}
 #%%global VERSION %{version}-%{patchver}
-%global VERSION %{version}%{prever}
+#%%global VERSION %{version}%{prever}
+%global VERSION %{version}
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  0.8.%{prever}%{?dist}
+Release:  1%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -568,6 +567,9 @@ fi
 
 
 %changelog
+* Wed Jun 06 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-1
+- 4.2.4
+
 * Tue Jun 05 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-0.8.rc2
 - return prematurely removed 12-dhcpd (NM dispatcher script) (#828522)
 
