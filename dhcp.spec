@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  1%{?dist}
+Release:  2%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -567,6 +567,9 @@ fi
 
 
 %changelog
+* Mon Jun 18 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-2
+- define $SAVEDIR in dhclient-script (#833054)
+
 * Wed Jun 06 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-1
 - 4.2.4
 

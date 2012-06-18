@@ -30,6 +30,8 @@
 #
 
 PATH=/bin:/usr/bin:/sbin
+# scripts in dhclient.d/ use $SAVEDIR (#833054)
+SAVEDIR=/var/lib/dhclient
 
 LOGFACILITY="local7"
 LOGLEVEL="notice"
