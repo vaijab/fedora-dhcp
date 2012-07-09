@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  2%{?dist}
+Release:  3%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -502,8 +502,8 @@ fi
 %doc contrib/*
 %attr(0750,root,root) %dir %{dhcpconfdir}
 %attr(0755,dhcpd,dhcpd) %dir %{_localstatedir}/lib/dhcpd
-%attr(0644,dhcpd,dhcpd) %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
-%attr(0644,dhcpd,dhcpd) %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd6.leases
+%attr(0644,dhcpd,dhcpd) %verify(mode) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
+%attr(0644,dhcpd,dhcpd) %verify(mode) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd6.leases
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcpd6
 %config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
@@ -567,6 +567,9 @@ fi
 
 
 %changelog
+* Mon Jul 09 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-3
+- changed list of %verify on the leases files (#837474)
+
 * Mon Jun 18 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-2
 - define $SAVEDIR in dhclient-script (#833054)
 
