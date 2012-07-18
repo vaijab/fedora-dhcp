@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  3%{?dist}
+Release:  4%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -567,8 +567,11 @@ fi
 
 
 %changelog
+* Wed Jul 18 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-4
+- allow dhcpd to listen on alias interfaces (#840601)
+
 * Mon Jul 09 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-3
-- changed list of %verify on the leases files (#837474)
+- changed list of %%verify on the leases files (#837474)
 
 * Mon Jun 18 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-2
 - define $SAVEDIR in dhclient-script (#833054)

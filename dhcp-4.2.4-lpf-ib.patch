@@ -1,6 +1,6 @@
-diff -up dhcp-4.2.4b1/client/dhclient.c.lpf-ib dhcp-4.2.4b1/client/dhclient.c
---- dhcp-4.2.4b1/client/dhclient.c.lpf-ib	2012-04-16 17:41:56.866785839 +0200
-+++ dhcp-4.2.4b1/client/dhclient.c	2012-04-16 17:41:56.879785657 +0200
+diff -up dhcp-4.2.4/client/dhclient.c.lpf-ib dhcp-4.2.4/client/dhclient.c
+--- dhcp-4.2.4/client/dhclient.c.lpf-ib	2012-07-18 16:41:17.958560314 +0200
++++ dhcp-4.2.4/client/dhclient.c	2012-07-18 16:41:17.971560135 +0200
 @@ -113,6 +113,8 @@ static int check_domain_name_list(const
  static int check_option_values(struct universe *universe, unsigned int opt,
  			       const char *ptr, size_t len);
@@ -55,9 +55,9 @@ diff -up dhcp-4.2.4b1/client/dhclient.c.lpf-ib dhcp-4.2.4b1/client/dhclient.c
  /* Individual States:
   *
   * Each routine is called from the dhclient_state_machine() in one of
-diff -up dhcp-4.2.4b1/common/bpf.c.lpf-ib dhcp-4.2.4b1/common/bpf.c
---- dhcp-4.2.4b1/common/bpf.c.lpf-ib	2012-04-16 17:41:56.867785825 +0200
-+++ dhcp-4.2.4b1/common/bpf.c	2012-04-16 17:41:56.879785657 +0200
+diff -up dhcp-4.2.4/common/bpf.c.lpf-ib dhcp-4.2.4/common/bpf.c
+--- dhcp-4.2.4/common/bpf.c.lpf-ib	2012-07-18 16:41:17.959560300 +0200
++++ dhcp-4.2.4/common/bpf.c	2012-07-18 16:41:17.972560121 +0200
 @@ -198,11 +198,44 @@ struct bpf_insn dhcp_bpf_filter [] = {
  	BPF_STMT(BPF_RET+BPF_K, 0),
  };
@@ -103,9 +103,9 @@ diff -up dhcp-4.2.4b1/common/bpf.c.lpf-ib dhcp-4.2.4b1/common/bpf.c
  #if defined (HAVE_TR_SUPPORT)
  struct bpf_insn dhcp_bpf_tr_filter [] = {
          /* accept all token ring packets due to variable length header */
-diff -up dhcp-4.2.4b1/common/lpf.c.lpf-ib dhcp-4.2.4b1/common/lpf.c
---- dhcp-4.2.4b1/common/lpf.c.lpf-ib	2012-04-16 17:41:56.867785825 +0200
-+++ dhcp-4.2.4b1/common/lpf.c	2012-04-16 17:41:56.880785643 +0200
+diff -up dhcp-4.2.4/common/lpf.c.lpf-ib dhcp-4.2.4/common/lpf.c
+--- dhcp-4.2.4/common/lpf.c.lpf-ib	2012-07-18 16:41:17.960560286 +0200
++++ dhcp-4.2.4/common/lpf.c	2012-07-18 16:41:35.004325607 +0200
 @@ -42,6 +42,7 @@
  #include "includes/netinet/udp.h"
  #include "includes/netinet/if_ether.h"
@@ -358,56 +358,76 @@ diff -up dhcp-4.2.4b1/common/lpf.c.lpf-ib dhcp-4.2.4b1/common/lpf.c
  	length = recvmsg (interface -> rfdesc, &msg, 0);
  	if (length <= 0)
  		return length;
-@@ -462,33 +592,44 @@ void maybe_setup_fallback ()
+@@ -461,34 +591,63 @@ void maybe_setup_fallback ()
+ 	}
  }
  
- void
+-void
 -get_hw_addr(const char *name, struct hardware *hw) {
 -	int sock;
 -	struct ifreq tmp;
 -	struct sockaddr *sa;
-+get_hw_addr(struct interface_info *info)
++struct sockaddr_ll *
++get_ll (struct ifaddrs *ifaddrs, struct ifaddrs **ifa, char *name)
 +{
-+	struct hardware *hw = &info->hw_address;
-+	char *name = info->name;
-+	struct ifaddrs *ifaddrs;
-+	struct ifaddrs *ifa;
-+	struct sockaddr_ll *sll = NULL;
++	for (*ifa = ifaddrs; *ifa != NULL; *ifa = (*ifa)->ifa_next) {
++		if ((*ifa)->ifa_addr == NULL)
++			continue;
  
 -	if (strlen(name) >= sizeof(tmp.ifr_name)) {
 -		log_fatal("Device name too long: \"%s\"", name);
 -	}
-+	if (getifaddrs(&ifaddrs) == -1)
-+		log_fatal("Failed to get interfaces");
++		if ((*ifa)->ifa_addr->sa_family != AF_PACKET)
++			continue;
++
++		if ((*ifa)->ifa_flags & IFF_LOOPBACK)
++			continue;
  
 -	sock = socket(AF_INET, SOCK_DGRAM, 0);
 -	if (sock < 0) {
 -		log_fatal("Can't create socket for \"%s\": %m", name);
-+	for (ifa = ifaddrs; ifa != NULL; ifa = ifa->ifa_next) {
-+
-+		if (ifa->ifa_addr == NULL)
-+			continue;
-+
-+		if (ifa->ifa_addr->sa_family != AF_PACKET)
-+			continue;
-+
-+		if (ifa->ifa_flags & IFF_LOOPBACK)
-+			continue;
-+
-+		if (strcmp(ifa->ifa_name, name) == 0) {
-+			sll = (struct sockaddr_ll *)(void *)ifa->ifa_addr;
-+			break;
-+		}
++		if (strcmp((*ifa)->ifa_name, name) == 0)
++			return (struct sockaddr_ll **)(*ifa)->ifa_addr;
  	}
++	return NULL;
++}
  
 -	memset(&tmp, 0, sizeof(tmp));
 -	strcpy(tmp.ifr_name, name);
 -	if (ioctl(sock, SIOCGIFHWADDR, &tmp) < 0) {
 -		log_fatal("Error getting hardware address for \"%s\": %m", 
 -			  name);
-+	if (sll == NULL) {
-+		freeifaddrs(ifaddrs);
-+		log_fatal("Failed to get HW address for %s\n", name);
++void
++get_hw_addr(struct interface_info *info)
++{
++	struct hardware *hw = &info->hw_address;
++	char *name = info->name;
++	struct ifaddrs *ifaddrs = NULL;
++	struct ifaddrs *ifa = NULL;
++	struct sockaddr_ll *sll = NULL;
++
++	if (getifaddrs(&ifaddrs) == -1)
++		log_fatal("Failed to get interfaces");
++
++	if ((sll = get_ll(ifaddrs, &ifa, name)) == NULL) {
++		char *tmp = NULL;
++		char *real_name = strdup (name);
++		/*
++		 * We were unable to get link-layer address for name.
++		 * Reason could be RHBZ#840601.
++		 */
++		if ((tmp = strrchr (real_name, ':')) != NULL) {
++			*tmp = '\0';
++			log_debug("Failed to get HW address for %s. Seems to be an alias, trying %s instead.\n", name, real_name);
++			if ((sll = get_ll(ifaddrs, &ifa, real_name)) == NULL) {
++				freeifaddrs(ifaddrs);
++				log_fatal("Failed to get HW address for %s\n", name);
++			}
++		} else {
++			freeifaddrs(ifaddrs);
++			log_fatal("Failed to get HW address for %s\n", name);
++		}
++		free (real_name);
  	}
  
 -	sa = &tmp.ifr_hwaddr;
@@ -421,7 +441,7 @@ diff -up dhcp-4.2.4b1/common/lpf.c.lpf-ib dhcp-4.2.4b1/common/lpf.c
  			break;
  		case ARPHRD_IEEE802:
  #ifdef ARPHRD_IEEE802_TR
-@@ -496,18 +637,35 @@ get_hw_addr(const char *name, struct har
+@@ -496,18 +655,35 @@ get_hw_addr(const char *name, struct har
  #endif /* ARPHRD_IEEE802_TR */
  			hw->hlen = 7;
  			hw->hbuf[0] = HTYPE_IEEE802;
@@ -461,7 +481,7 @@ diff -up dhcp-4.2.4b1/common/lpf.c.lpf-ib dhcp-4.2.4b1/common/lpf.c
  			hw->hlen = 0;
  			hw->hbuf[0] = HTYPE_RESERVED;
  			/* 0xdeadbeef should never occur on the wire,
-@@ -520,10 +678,11 @@ get_hw_addr(const char *name, struct har
+@@ -520,10 +696,11 @@ get_hw_addr(const char *name, struct har
  			break;
  #endif
  		default:
@@ -475,9 +495,9 @@ diff -up dhcp-4.2.4b1/common/lpf.c.lpf-ib dhcp-4.2.4b1/common/lpf.c
 +	freeifaddrs(ifaddrs);
  }
  #endif
-diff -up dhcp-4.2.4b1/common/socket.c.lpf-ib dhcp-4.2.4b1/common/socket.c
---- dhcp-4.2.4b1/common/socket.c.lpf-ib	2012-03-09 12:28:11.000000000 +0100
-+++ dhcp-4.2.4b1/common/socket.c	2012-04-16 17:41:56.880785643 +0200
+diff -up dhcp-4.2.4/common/socket.c.lpf-ib dhcp-4.2.4/common/socket.c
+--- dhcp-4.2.4/common/socket.c.lpf-ib	2012-03-09 12:28:11.000000000 +0100
++++ dhcp-4.2.4/common/socket.c	2012-07-18 16:41:17.973560107 +0200
 @@ -325,7 +325,7 @@ void if_register_send (info)
  	info->wfdesc = if_register_socket(info, AF_INET, 0);
  	/* If this is a normal IPv4 address, get the hardware address. */
@@ -505,9 +525,9 @@ diff -up dhcp-4.2.4b1/common/socket.c.lpf-ib dhcp-4.2.4b1/common/socket.c
  
  	if (!quiet_interface_discovery) {
  		if (info->shared_network != NULL) {
-diff -up dhcp-4.2.4b1/includes/dhcpd.h.lpf-ib dhcp-4.2.4b1/includes/dhcpd.h
---- dhcp-4.2.4b1/includes/dhcpd.h.lpf-ib	2012-04-16 17:41:56.869785797 +0200
-+++ dhcp-4.2.4b1/includes/dhcpd.h	2012-04-16 17:41:56.882785615 +0200
+diff -up dhcp-4.2.4/includes/dhcpd.h.lpf-ib dhcp-4.2.4/includes/dhcpd.h
+--- dhcp-4.2.4/includes/dhcpd.h.lpf-ib	2012-07-18 16:41:17.961560272 +0200
++++ dhcp-4.2.4/includes/dhcpd.h	2012-07-18 16:41:17.975560079 +0200
 @@ -1243,6 +1243,7 @@ struct interface_info {
  	struct shared_network *shared_network;
  				/* Networks connected to this interface. */
