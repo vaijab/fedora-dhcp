@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  5%{?dist}
+Release:  6%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -571,6 +571,10 @@ fi
 
 
 %changelog
+* Mon Jul 23 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-6
+- ib.patch: added fall-back method (using ioctl(SIOCGIFHWADDR)) when getting
+            of HW address with getifaddrs() fails (#626514-c#63, #840601).
+
 * Mon Jul 23 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-5
 - Dhcpd does not correctly follow DhcpFailOverPeerDN (#838400)
 
