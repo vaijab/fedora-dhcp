@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  4%{?dist}
+Release:  5%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -73,6 +73,7 @@ Patch38:  dhcp-4.2.3-P2-log_perror.patch
 Patch39:  dhcp-4.2.4-getifaddrs.patch
 Patch40:  dhcp-4.2.4-send_release.patch
 Patch41:  dhcp-4.2.3-P2-rfc5970-dhcpv6-options-for-network-boot.patch
+Patch42:  dhcp-4.2.4-failOverPeer.patch 
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -299,6 +300,9 @@ rm bind/bind.tar.gz
 
 # RFC5970 - DHCPv6 Options for Network Boot (#798735)
 %patch41 -p1 -b .rfc5970
+
+# Dhcpd does not correctly follow DhcpFailOverPeerDN (#838400)
+%patch42 -p1 -b .failOverPeer
 
 pushd contrib
 %{__chmod} -x 3.0b1-lease-convert dhclient-tz-exithook.sh ldap/dhcpd-conf-to-ldap
@@ -567,6 +571,9 @@ fi
 
 
 %changelog
+* Mon Jul 23 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-5
+- Dhcpd does not correctly follow DhcpFailOverPeerDN (#838400)
+
 * Wed Jul 18 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-4
 - allow dhcpd to listen on alias interfaces (#840601)
 
