@@ -8,17 +8,17 @@
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
 
-#%%global patchver P2
+%global patchver P1
 #%%global prever rc2
 
-#%%global VERSION %{version}-%{patchver}
+%global VERSION %{version}-%{patchver}
 #%%global VERSION %{version}%{prever}
-%global VERSION %{version}
+#%%global VERSION %{version}
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  6%{?dist}
+Release:  7.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -571,6 +571,9 @@ fi
 
 
 %changelog
+* Wed Jul 25 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-7.P1
+- 4.2.4-P1: fix for CVE-2012-3570 CVE-2012-3571 and CVE-2012-3954 (#842892)
+
 * Mon Jul 23 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-6
 - ib.patch: added fall-back method (using ioctl(SIOCGIFHWADDR)) when getting
             of HW address with getifaddrs() fails (#626514-c#63, #840601).
