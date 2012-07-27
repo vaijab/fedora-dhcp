@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  8.%{patchver}%{?dist}
+Release:  9.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -75,6 +75,7 @@ Patch40:  dhcp-4.2.4-send_release.patch
 Patch41:  dhcp-4.2.3-P2-rfc5970-dhcpv6-options-for-network-boot.patch
 Patch42:  dhcp-4.2.4-failOverPeer.patch 
 Patch43:  dhcp-4.2.4-P1-dhclient6-leases_semicolon_expected.patch
+Patch44:  dhcp-4.2.4-P1-interval.patch 
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -307,6 +308,9 @@ rm bind/bind.tar.gz
 
 # Dhclient does not correctly parse zero-length options in dhclient6.leases (#633318)
 %patch43 -p1 -b .dhclient6-leases_semicolon
+
+# isc_time_nowplusinterval() is not safe with 64-bit time_t (#662254, #789601)
+%patch44 -p1 -b .interval
 
 pushd contrib
 %{__chmod} -x 3.0b1-lease-convert dhclient-tz-exithook.sh ldap/dhcpd-conf-to-ldap
@@ -575,6 +579,9 @@ fi
 
 
 %changelog
+* Fri Jul 27 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-9.P1
+- isc_time_nowplusinterval() is not safe with 64-bit time_t (#662254, #789601)
+
 * Wed Jul 25 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-8.P1
 - Dhclient does not correctly parse zero-length options in 
   dhclient6.leases (#633318)
