@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  8.%{patchver}%{?dist}
+Release:  9.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -575,6 +575,9 @@ fi
 
 
 %changelog
+* Fri Jul 27 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 12:4.2.4-9.P1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Wed Jul 25 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-8.P1
 - Dhclient does not correctly parse zero-length options in 
   dhclient6.leases (#633318)
