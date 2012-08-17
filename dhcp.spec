@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  10.%{patchver}%{?dist}
+Release:  11.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -60,7 +60,8 @@ Patch22:  dhcp-4.2.1-sendDecline.patch
 Patch23:  dhcp-4.2.1-retransmission.patch
 Patch25:  dhcp-4.2.4-rfc3442-classless-static-routes.patch
 Patch27:  dhcp-4.2.0-honor-expired.patch
-Patch29:  dhcp-4.2.2-remove-bind.patch
+Patch28:  dhcp-4.2.2-remove-bind.patch
+Patch29:  dhcp-4.2.4-P1-remove-dst.patch
 Patch30:  dhcp-4.2.2-sharedlib.patch
 Patch31:  dhcp-4.2.4-PPP.patch
 Patch32:  dhcp-4.2.3-paranoia.patch
@@ -171,8 +172,16 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # Remove bundled BIND source
 rm bind/bind.tar.gz
 
+# Remove libdst
+rm -rf dst/
+rm -rf includes/isc-dhcp
+
 # Fire away bundled BIND source.
-%patch29 -p1 -b .remove-bind %{?_rawbuild}
+%patch28 -p1 -b .remove-bind %{?_rawbuild}
+
+# Fire away libdst
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #30692])
+%patch29 -p1 -b .remove-dst %{?_rawbuild}
 
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
@@ -316,6 +325,7 @@ rm bind/bind.tar.gz
 # isc_time_nowplusinterval() is not safe with 64-bit time_t (#662254, #789601)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #28038])
 %patch44 -p1 -b .interval
+
 
 pushd contrib
 %{__chmod} -x 3.0b1-lease-convert dhclient-tz-exithook.sh ldap/dhcpd-conf-to-ldap
@@ -569,21 +579,21 @@ fi
 %files libs
 %{_libdir}/libdhcpctl.so.*
 %{_libdir}/libomapi.so.*
-%{_libdir}/libdst.so.*
 
 %files devel
 %doc doc/IANA-arp-parameters doc/api+protocol
 %{_includedir}/dhcpctl
-%{_includedir}/isc-dhcp
 %{_includedir}/omapip
 %{_libdir}/libdhcpctl.so
 %{_libdir}/libomapi.so
-%{_libdir}/libdst.so
 %attr(0644,root,root) %{_mandir}/man3/dhcpctl.3.gz
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 
 %changelog
+* Fri Aug 17 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-11.P1
+- don't build libdst, it hasn't been used since 4.2.0 (#849166)
+
 * Fri Jul 27 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-10.P1
 - isc_time_nowplusinterval() is not safe with 64-bit time_t (#662254, #789601)
 

@@ -50,7 +50,7 @@ diff -up dhcp-4.2.4b1/Makefile.am.systemtap dhcp-4.2.4b1/Makefile.am
 +++ dhcp-4.2.4b1/Makefile.am	2012-04-16 17:46:10.947226667 +0200
 @@ -29,5 +29,8 @@ endif
  
- SUBDIRS += includes tests common dst omapip client dhcpctl relay server
+ SUBDIRS += includes tests common omapip client dhcpctl relay server
  
 +SUBDIRS += tapset
 +#DIST_SUBDIRS = $(SUBDIRS)
