@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  9.%{patchver}%{?dist}
+Release:  10.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -258,6 +258,7 @@ rm bind/bind.tar.gz
 %patch23 -p1 -b .retransmission
 
 # RFC 3442 - Classless Static Route Option for DHCPv4 (#516325)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #24572])
 %patch25 -p1 -b .rfc3442
 
 # check whether there is any unexpired address in previous lease
@@ -298,19 +299,24 @@ rm bind/bind.tar.gz
 %patch39 -p1 -b .getifaddrs
 
 # Don't use fallback_interface when releasing lease (#800561)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #30544])
 %patch40 -p1 -b .send_release
 
 # RFC5970 - DHCPv6 Options for Network Boot (#798735)
 %patch41 -p1 -b .rfc5970
 
 # Dhcpd does not correctly follow DhcpFailOverPeerDN (#838400)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #30402])
 %patch42 -p1 -b .failOverPeer
 
 # Dhclient does not correctly parse zero-length options in dhclient6.leases (#633318)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #27314])
 %patch43 -p1 -b .dhclient6-leases_semicolon
 
 # isc_time_nowplusinterval() is not safe with 64-bit time_t (#662254, #789601)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #28038])
 %patch44 -p1 -b .interval
+
 
 pushd contrib
 %{__chmod} -x 3.0b1-lease-convert dhclient-tz-exithook.sh ldap/dhcpd-conf-to-ldap
@@ -579,6 +585,9 @@ fi
 
 
 %changelog
+* Mon Aug 20 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-10.P1
+- dhclient-script: fixed CONFIG variable value passed to need_config (#848858)
+
 * Fri Jul 27 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-9.P1
 - isc_time_nowplusinterval() is not safe with 64-bit time_t (#662254, #789601)
 
