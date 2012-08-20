@@ -593,6 +593,8 @@ fi
 %changelog
 * Mon Aug 20 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-12.P1
 - dhclient-script: fixed CONFIG variable value passed to need_config (#848858)
+- dhclient-script: calling dhclient-up-hooks after setting up route, gateways 
+                   & interface alias (#848869)
 
 * Fri Aug 17 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-11.P1
 - don't build libdst, it hasn't been used since 4.2.0 (#849166)
