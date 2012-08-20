@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  11.%{patchver}%{?dist}
+Release:  12.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -591,6 +591,9 @@ fi
 
 
 %changelog
+* Mon Aug 20 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-12.P1
+- dhclient-script: fixed CONFIG variable value passed to need_config (#848858)
+
 * Fri Aug 17 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-11.P1
 - don't build libdst, it hasn't been used since 4.2.0 (#849166)
 
