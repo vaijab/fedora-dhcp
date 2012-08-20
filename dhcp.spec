@@ -587,6 +587,8 @@ fi
 %changelog
 * Mon Aug 20 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-10.P1
 - dhclient-script: fixed CONFIG variable value passed to need_config (#848858)
+- dhclient-script: calling dhclient-up-hooks after setting up route, gateways 
+                   & interface alias (#848869)
 
 * Fri Jul 27 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-9.P1
 - isc_time_nowplusinterval() is not safe with 64-bit time_t (#662254, #789601)
