@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  12.%{patchver}%{?dist}
+Release:  13.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -486,10 +486,10 @@ fi
 exit 0
 
 %post
-# Initial installation 
-if [ $1 -eq 1 ] ; then 
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-fi
+# Initial installation
+%systemd_post dhcpd.service
+%systemd_post dhcpd6.service
+%systemd_post dhcrelay.service
 
 # Update
 if [ $1 -gt 1 ] ; then
@@ -499,24 +499,16 @@ fi
 
 %preun
 # Package removal, not upgrade
-if [ $1 -eq 0 ] ; then
-    /bin/systemctl --no-reload disable dhcpd.service > /dev/null 2>&1 || :
-    /bin/systemctl --no-reload disable dhcpd6.service > /dev/null 2>&1 || :
-    /bin/systemctl --no-reload disable dhcrelay.service > /dev/null 2>&1 || :
-    /bin/systemctl stop dhcpd.service > /dev/null 2>&1 || :
-    /bin/systemctl stop dhcpd6.service > /dev/null 2>&1 || :
-    /bin/systemctl stop dhcrelay.service > /dev/null 2>&1 || :
-fi
+%systemd_preun dhcpd.service
+%systemd_preun dhcpd6.service
+%systemd_preun dhcrelay.service
 
 
 %postun
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 # Package upgrade, not uninstall
-if [ $1 -ge 1 ]; then
-    /bin/systemctl try-restart dhcpd.service >/dev/null 2>&1 || :
-    /bin/systemctl try-restart dhcpd6.service >/dev/null 2>&1 || :
-    /bin/systemctl try-restart dhcrelay.service >/dev/null 2>&1 || :
-fi
+%systemd_postun_with_restart dhcpd.service
+%systemd_postun_with_restart dhcpd6.service
+%systemd_postun_with_restart dhcrelay.service
 
 
 %post libs -p /sbin/ldconfig
@@ -591,6 +583,9 @@ fi
 
 
 %changelog
+* Wed Aug 22 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-13.P1
+- fixed SPEC file so it comply with new systemd-rpm macros guidelines (#850089)
+
 * Mon Aug 20 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-12.P1
 - dhclient-script: fixed CONFIG variable value passed to need_config (#848858)
 - dhclient-script: calling dhclient-up-hooks after setting up route, gateways 
