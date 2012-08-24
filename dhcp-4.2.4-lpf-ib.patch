@@ -378,7 +378,7 @@ diff -up dhcp-4.2.4/common/lpf.c.lpf-ib dhcp-4.2.4/common/lpf.c
 +			continue;
 +
 +		if (strcmp((*ifa)->ifa_name, name) == 0)
-+			return (struct sockaddr_ll *)(*ifa)->ifa_addr;
++			return (struct sockaddr_ll *)(void *)(*ifa)->ifa_addr;
 +	}
 +	return NULL;
 +}
