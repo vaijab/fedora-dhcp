@@ -4,8 +4,7 @@ Documentation=man:dhcrelay(8)
 After=network.target
 
 [Service]
-EnvironmentFile=/etc/sysconfig/dhcrelay
-ExecStart=/usr/sbin/dhcrelay -d --no-pid $DHCRELAYARGS
+ExecStart=/usr/sbin/dhcrelay -d --no-pid
 
 [Install]
 WantedBy=multi-user.target

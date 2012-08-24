@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  13.%{patchver}%{?dist}
+Release:  14.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -418,27 +418,6 @@ touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd.leases
 touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd6.leases
 %{__mkdir} -p %{buildroot}%{_localstatedir}/lib/dhclient/
 
-# Create default sysconfig files for dhcpd and dhcrelay
-%{__mkdir} -p %{buildroot}%{_sysconfdir}/sysconfig
-
-%{__cat} << EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcrelay
-# Command line options here
-#Example: DHCRELAYARGS="-4 -i eth0 192.168.0.1"
-#Example: DHCRELAYARGS="-6 -l eth1 -u eth0"
-DHCRELAYARGS=""
-# Note: We don't use INTERFACES and DHCPSERVERS anymore (they were DHCPv4 only)
-EOF
-
-%{__cat} <<EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcpd
-# Command line options here
-DHCPDARGS=""
-EOF
-
-%{__cat} <<EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcpd6
-# Command line options here
-DHCPDARGS=""
-EOF
-
 # Copy sample conf files into position (called by doc macro)
 %{__cp} -p client/dhclient.conf dhclient.conf.sample
 %{__cp} -p server/dhcpd.conf dhcpd.conf.sample
@@ -523,9 +502,6 @@ fi
 %attr(0755,dhcpd,dhcpd) %dir %{_localstatedir}/lib/dhcpd
 %attr(0644,dhcpd,dhcpd) %verify(mode) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
 %attr(0644,dhcpd,dhcpd) %verify(mode) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd6.leases
-%config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
-%config(noreplace) %{_sysconfdir}/sysconfig/dhcpd6
-%config(noreplace) %{_sysconfdir}/sysconfig/dhcrelay
 %config(noreplace) %{dhcpconfdir}/dhcpd.conf
 %config(noreplace) %{dhcpconfdir}/dhcpd6.conf
 %config(noreplace) %{_sysconfdir}/openldap/schema/dhcp.schema
@@ -583,6 +559,10 @@ fi
 
 
 %changelog
+* Fri Aug 24 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-14.P1
+- SystemD unit files don't use Environment files any more (#850558)
+- NetworkManager dispatcher script doesn't use DHCPDARGS any more 
+
 * Wed Aug 22 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-13.P1
 - fixed SPEC file so it comply with new systemd-rpm macros guidelines (#850089)
 
