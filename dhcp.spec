@@ -8,7 +8,7 @@
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
 
-%global patchver P1
+%global patchver P2
 #%%global prever rc2
 
 %global VERSION %{version}-%{patchver}
@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  12.%{patchver}%{?dist}
+Release:  13.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -585,6 +585,9 @@ fi
 
 
 %changelog
+* Thu Sep 13 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-13.P2
+- 4.2.4-P2: fix for CVE-2012-3955 (#856770)
+
 * Fri Aug 24 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-12.P1
 - revert previous change
 
