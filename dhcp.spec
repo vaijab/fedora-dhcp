@@ -19,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.3
-Release:  11.%{patchver}%{?dist}
+Release:  12.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -72,6 +72,7 @@ Patch32:  dhcp-4.2.3-paranoia.patch
 Patch33:  dhcp-4.2.3-P2-log_perror.patch
 Patch34:  dhcp-4.2.4-CVE-2012-3570-3571-3954.patch
 Patch35:  dhcp-interval.patch
+Patch36:  dhcp-4.2.4-CVE-2012-3955.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -320,6 +321,9 @@ rm bind/bind.tar.gz
 
 # isc_time_nowplusinterval() is not safe with 64-bit time_t
 %patch35 -p1 -b .interval
+
+# 4.2.4-P2: fix for CVE-2012-3955 (#856770)
+%patch36 -p1 -b .CVE-2012-3955
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -654,6 +658,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Thu Sep 13 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.3-12.P2
+- 4.2.4-P2: fix for CVE-2012-3955 (#856770)
+
 * Fri Jul 27 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-11.P2
 - isc_time_nowplusinterval() is not safe with 64-bit time_t (#662254, #789601)
 
