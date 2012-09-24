@@ -18,8 +18,8 @@
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
-Version:  4.2.3
-Release:  12.%{patchver}%{?dist}
+Version:  4.2.4
+Release:  1.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -42,37 +42,34 @@ Source10:  dhcpd6.service
 Source11:  dhcrelay.service
 
 Patch0:   dhcp-4.2.0-errwarn-message.patch
-Patch1:   dhcp-4.2.3-options.patch
+Patch1:   dhcp-4.2.4-options.patch
 Patch2:   dhcp-4.2.0-release-by-ifup.patch
 Patch3:   dhcp-4.2.0-dhclient-decline-backoff.patch
-Patch4:   dhcp-4.2.0-unicast-bootp.patch
+Patch4:   dhcp-4.2.4-unicast-bootp.patch
 Patch6:   dhcp-4.2.2-dhclient-usage.patch
 Patch7:   dhcp-4.2.0-default-requested-options.patch
 Patch8:   dhcp-4.2.2-xen-checksum.patch
 Patch10:  dhcp-4.2.1-manpages.patch
-Patch11:  dhcp-4.2.0-paths.patch
+Patch11:  dhcp-4.2.4-paths.patch
 Patch12:  dhcp-4.2.2-CLOEXEC.patch
 Patch13:  dhcp-4.2.0-inherit-leases.patch
 Patch14:  dhcp-4.2.0-garbage-chars.patch
 Patch15:  dhcp-4.2.0-missing-ipv6-not-fatal.patch
 Patch17:  dhcp-4.2.0-add_timeout_when_NULL.patch
-Patch18:  dhcp-4.2.1-64_bit_lease_parse.patch
+Patch18:  dhcp-4.2.4-64_bit_lease_parse.patch
 Patch19:  dhcp-4.2.2-capability.patch
 Patch20:  dhcp-4.2.0-logpid.patch
-Patch21:  dhcp-4.2.0-UseMulticast.patch
+Patch21:  dhcp-4.2.4-UseMulticast.patch
 Patch22:  dhcp-4.2.1-sendDecline.patch
 Patch23:  dhcp-4.2.1-retransmission.patch
-Patch25:  dhcp-4.2.3-rfc3442-classless-static-routes.patch
+Patch25:  dhcp-4.2.4-rfc3442-classless-static-routes.patch
 Patch27:  dhcp-4.2.0-honor-expired.patch
-Patch28:  dhcp-4.2.0-noprefixavail.patch
 Patch29:  dhcp-4.2.2-remove-bind.patch
 Patch30:  dhcp-4.2.2-sharedlib.patch
-Patch31:  dhcp-4.2.0-PPP.patch
+Patch31:  dhcp-4.2.4-PPP.patch
 Patch32:  dhcp-4.2.3-paranoia.patch
 Patch33:  dhcp-4.2.3-P2-log_perror.patch
-Patch34:  dhcp-4.2.4-CVE-2012-3570-3571-3954.patch
 Patch35:  dhcp-interval.patch
-Patch36:  dhcp-4.2.4-CVE-2012-3955.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -290,17 +287,6 @@ rm bind/bind.tar.gz
 # (Submitted to dhcp-suggest@isc.org - [ISC-Bugs #22675])
 %patch27 -p1 -b .honor-expired
 
-# 1) When server has empty pool of addresses/prefixes it must send Advertise with
-#    NoAddrsAvail/NoPrefixAvail status in response to clients Solicit.
-#    Without this patch server having empty pool of addresses/prefixes was ignoring
-#    client's' Solicit when client was also sending address in IA_NA or prefix in IA_PD as a preference.
-# 2) When client sends prefix in IA_PD as a preference and server doesn't have
-#    this prefix in any pool the server should offer other free prefix.
-#    Without this patch server ignored client's Solicit in which the client was sending
-#    prefix in IA_PD (as a preference) and this prefix was not in any of server's pools.
-#   (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #22676])
-%patch28 -p1 -b .noprefixavail
-
 #Build dhcp's libraries as shared libs instead of static libs.
 %patch30 -p1 -b .sharedlib
 
@@ -316,14 +302,8 @@ rm bind/bind.tar.gz
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #28049])
 %patch33 -p1 -b .log_perror
 
-# 4.2.4-P1: fix for CVE-2012-3570 CVE-2012-3571 and CVE-2012-3954 (#842892)
-%patch34 -p1 -b .CVE-2012-3570-3571-3954
-
 # isc_time_nowplusinterval() is not safe with 64-bit time_t
 %patch35 -p1 -b .interval
-
-# 4.2.4-P2: fix for CVE-2012-3955 (#856770)
-%patch36 -p1 -b .CVE-2012-3955
 
 # Copy in the Fedora/RHEL dhclient script
 %{__install} -p -m 0755 %{SOURCE4} client/scripts/linux
@@ -658,14 +638,17 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Mon Sep 24 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-1.P2
+- 4.2.4-P2 (#786023)
+
 * Thu Sep 13 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.3-12.P2
-- 4.2.4-P2: fix for CVE-2012-3955 (#856770)
+- fix for CVE-2012-3955 (#856770)
 
 * Fri Jul 27 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.3-11.P2
 - isc_time_nowplusinterval() is not safe with 64-bit time_t (#662254, #789601)
 
 * Wed Jul 25 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.3-10.P2
-- 4.2.4-P1: fix for CVE-2012-3570 CVE-2012-3571 and CVE-2012-3954 (#842892)
+- fix for CVE-2012-3570 CVE-2012-3571 and CVE-2012-3954 (#842892)
 
 * Mon Jul 09 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.3-9.P2
 - changed the list of %verify on the leases files (#837474)
