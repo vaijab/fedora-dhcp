@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  13.%{patchver}%{?dist}
+Release:  14.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -39,11 +39,10 @@ Source8:  dhcrelay.service
 
 
 Patch0:   dhcp-4.2.0-errwarn-message.patch
-Patch1:   dhcp-4.2.4-options.patch
+Patch1:   dhcp-4.2.4-dhclient-options.patch
 Patch2:   dhcp-4.2.0-release-by-ifup.patch
 Patch3:   dhcp-4.2.0-dhclient-decline-backoff.patch
 Patch4:   dhcp-4.2.4-unicast-bootp.patch
-Patch6:   dhcp-4.2.2-dhclient-usage.patch
 Patch7:   dhcp-4.2.0-default-requested-options.patch
 Patch8:   dhcp-4.2.2-xen-checksum.patch
 Patch10:  dhcp-4.2.1-manpages.patch
@@ -194,11 +193,6 @@ rm bind/bind.tar.gz
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19146])
 %patch4 -p1 -b .unicast
 
-# Update the usage screen for dhclient(8) indicating new options
-# Use printf() rather than log_info() to display the information
-# Also, return EXIT_FAILURE when the usage() screen is displayed (stop parsing)
-%patch6 -p1 -b .usage
-
 # Add NIS domain, NIS servers, NTP servers, interface-mtu and domain-search
 # to the list of default requested DHCP options
 %patch7 -p1 -b .requested
@@ -206,7 +200,7 @@ rm bind/bind.tar.gz
 # Handle Xen partial UDP checksums
 %patch8 -p1 -b .xen
 
-# Patch man page contents
+# Various man-page-only fixes
 %patch10 -p1 -b .man
 
 # Change paths to conform to our standards
@@ -585,6 +579,9 @@ fi
 
 
 %changelog
+* Wed Sep 26 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-14.P2
+- dhclient-usage.patch+part of manpages.patch merged with dhclient-options.patch
+
 * Thu Sep 13 2012 Tomas Hozza <thozza@redhat.com> - 12:4.2.4-13.P2
 - 4.2.4-P2: fix for CVE-2012-3955 (#856770)
 
