@@ -1,7 +1,7 @@
-diff -up dhcp-4.2.4b1/includes/dhcpd.h.paths dhcp-4.2.4b1/includes/dhcpd.h
---- dhcp-4.2.4b1/includes/dhcpd.h.paths	2012-04-18 11:12:34.000000000 +0200
-+++ dhcp-4.2.4b1/includes/dhcpd.h	2012-04-18 11:14:38.541272405 +0200
-@@ -1420,7 +1420,7 @@ typedef unsigned char option_mask [16];
+diff -up dhcp-4.2.4-P2/includes/dhcpd.h.paths dhcp-4.2.4-P2/includes/dhcpd.h
+--- dhcp-4.2.4-P2/includes/dhcpd.h.paths	2012-10-03 13:37:30.809867722 +0200
++++ dhcp-4.2.4-P2/includes/dhcpd.h	2012-10-03 13:38:05.595345981 +0200
+@@ -1426,7 +1426,7 @@ typedef unsigned char option_mask [16];
  #else /* !DEBUG */
  
  #ifndef _PATH_DHCPD_CONF
@@ -10,7 +10,7 @@ diff -up dhcp-4.2.4b1/includes/dhcpd.h.paths dhcp-4.2.4b1/includes/dhcpd.h
  #endif /* DEBUG */
  
  #ifndef _PATH_DHCPD_DB
-@@ -1442,11 +1442,11 @@ typedef unsigned char option_mask [16];
+@@ -1448,7 +1448,7 @@ typedef unsigned char option_mask [16];
  #endif /* DEBUG */
  
  #ifndef _PATH_DHCLIENT_CONF
@@ -19,8 +19,3 @@ diff -up dhcp-4.2.4b1/includes/dhcpd.h.paths dhcp-4.2.4b1/includes/dhcpd.h
  #endif
  
  #ifndef _PATH_DHCLIENT_SCRIPT
--#define _PATH_DHCLIENT_SCRIPT	"/sbin/dhclient-script"
-+#define _PATH_DHCLIENT_SCRIPT	"/usr/sbin/dhclient-script"
- #endif
- 
- #ifndef _PATH_DHCLIENT_PID

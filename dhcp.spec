@@ -19,7 +19,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  2.%{patchver}%{?dist}
+Release:  3.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -198,6 +198,7 @@ rm bind/bind.tar.gz
 %patch0 -p1 -b .errwarn
 
 # Add more dhclient options (-I, -B, -H, -F, -timeout, -V, and -R)
+# (Submitted to dhcp-suggest@isc.org - [ISC-Bugs #31164])
 %patch1 -p1 -b .options
 
 # Handle releasing interfaces requested by /sbin/ifup
@@ -632,6 +633,9 @@ fi
 %{_initddir}/dhcrelay
 
 %changelog
+* Wed Oct 03 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-3.P2
+- fix paths.patch (#862600)
+
 * Wed Sep 26 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-2.P2
 - dhclient-usage.patch+part of manpages.patch merged with dhclient-options.patch
 
