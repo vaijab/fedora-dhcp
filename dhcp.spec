@@ -94,9 +94,9 @@ Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
 Requires(pre): shadow-utils
 Requires(post): coreutils
-Requires(post): systemd-units
-Requires(preun): systemd-units
-Requires(postun): systemd-units
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
 
 # In _docdir we ship some perl scripts and module from contrib subdirectory.
 # Because nothing under _docdir is allowed to "require" anything,
