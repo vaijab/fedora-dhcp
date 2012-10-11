@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  17.%{patchver}%{?dist}
+Release:  18.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -557,6 +557,9 @@ fi
 
 
 %changelog
+* Thu Oct 11 2012 Adam Tkac <atkac redhat com> - 12:4.2.4-18.P2
+- rebuild against new bind-libs-lite
+
 * Tue Oct 09 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-17.P2
 - do-forward-updates statement wasn't recognized (#863646)
 
