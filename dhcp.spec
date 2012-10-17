@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  18.%{patchver}%{?dist}
+Release:  19.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -63,7 +63,7 @@ Patch28:  dhcp-4.2.2-remove-bind.patch
 Patch29:  dhcp-4.2.4-P1-remove-dst.patch
 Patch30:  dhcp-4.2.2-sharedlib.patch
 Patch31:  dhcp-4.2.4-PPP.patch
-Patch32:  dhcp-4.2.3-paranoia.patch
+Patch32:  dhcp-4.2.4-paranoia.patch
 Patch33:  dhcp-4.2.4-lpf-ib.patch
 Patch34:  dhcp-4.2.4-improved-xid.patch
 Patch35:  dhcp-4.2.2-gpxe-cid.patch
@@ -276,8 +276,9 @@ rm -rf includes/isc-dhcp
 # DHCPv6 over PPP support (#626514)
 %patch31 -p1 -b .PPP
 
-# Write PID file BEFORE changing of the effective user/group ID.
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #25806])
+# dhcpd: BEFORE changing of the effective user/group ID:
+#  - write PID file (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #25806])
+#  - chown leases file (#866714)
 %patch32 -p1 -b .paranoia
 
 # IPoIB support (#660681)
@@ -557,6 +558,9 @@ fi
 
 
 %changelog
+* Wed Oct 17 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-19.P2
+- dhcpd needs to chown leases file created before de-rooting itself (#866714)
+
 * Thu Oct 11 2012 Adam Tkac <atkac redhat com> - 12:4.2.4-18.P2
 - rebuild against new bind-libs-lite
 
