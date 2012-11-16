@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  20.%{patchver}%{?dist}
+Release:  21.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -77,6 +77,7 @@ Patch42:  dhcp-4.2.4-failOverPeer.patch
 Patch43:  dhcp-4.2.4-P1-dhclient6-leases_semicolon_expected.patch
 Patch44:  dhcp-4.2.4-P1-interval.patch
 Patch45:  dhcp-4.2.4-P2-conflex-do-forward-updates.patch
+Patch46:  dhcp-4.2.4-P2-dupl-key.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -324,7 +325,11 @@ rm -rf includes/isc-dhcp
 
 # do-forward-updates statement wasn't recognized (#863646)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #31328])
-%patch45 -p1 -b .forward-updates.patch
+%patch45 -p1 -b .forward-updates
+
+# multiple key statements in zone definition causes inappropriate error (#873794)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #31892])
+%patch46 -p1 -b .dupl-key
 
 pushd contrib
 %{__chmod} -x 3.0b1-lease-convert dhclient-tz-exithook.sh ldap/dhcpd-conf-to-ldap
@@ -558,6 +563,9 @@ fi
 
 
 %changelog
+* Fri Nov 16 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-21.P2
+- multiple key statements in zone definition causes inappropriate error (#873794)
+
 * Fri Oct 26 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-20.P2
 - fix path to dhcpd6.leases in dhcpd6.conf.sample (#870458)
 
