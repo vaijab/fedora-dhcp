@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  21.%{patchver}%{?dist}
+Release:  22.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -81,7 +81,6 @@ Patch46:  dhcp-4.2.4-P2-dupl-key.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
-BuildRequires: groff
 BuildRequires: libtool
 BuildRequires: openldap-devel
 BuildRequires: libcap-ng-devel
@@ -563,6 +562,10 @@ fi
 
 
 %changelog
+* Mon Nov 26 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-22.P2
+- add After=time-sync.target to dhcpd[6].service (#878293)
+- remove groff from BuildRequires (no idea why it's been there)
+
 * Fri Nov 16 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-21.P2
 - multiple key statements in zone definition causes inappropriate error (#873794)
 
