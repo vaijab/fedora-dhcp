@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.4
-Release:  18.%{patchver}%{?dist}
+Release:  19.%{patchver}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -582,6 +582,9 @@ fi
 
 
 %changelog
+* Fri Nov 30 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-19.P2
+- fix two resource leaks in lpf-ib.patch
+
 * Mon Nov 26 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-18.P2
 - add After=time-sync.target to dhcpd[6].service (#878293)
 - remove groff from BuildRequires (no idea why it's been there)
