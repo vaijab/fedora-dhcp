@@ -8,17 +8,17 @@
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
 
-%global patchver P2
-#%%global prever rc2
+#%%global patchver P2
+%global prever rc1
 
-%global VERSION %{version}-%{patchver}
-#%%global VERSION %{version}%{prever}
+#%%global VERSION %{version}-%{patchver}
+%global VERSION %{version}%{prever}
 #%%global VERSION %{version}
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
-Version:  4.2.4
-Release:  23.%{patchver}%{?dist}
+Version:  4.2.5
+Release:  0.1.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -45,7 +45,7 @@ Patch3:   dhcp-4.2.0-dhclient-decline-backoff.patch
 Patch4:   dhcp-4.2.4-unicast-bootp.patch
 Patch7:   dhcp-4.2.0-default-requested-options.patch
 Patch8:   dhcp-4.2.2-xen-checksum.patch
-Patch10:  dhcp-4.2.1-manpages.patch
+Patch10:  dhcp-4.2.5-manpages.patch
 Patch11:  dhcp-4.2.4-paths.patch
 Patch12:  dhcp-4.2.2-CLOEXEC.patch
 Patch14:  dhcp-4.2.0-garbage-chars.patch
@@ -55,26 +55,26 @@ Patch18:  dhcp-4.2.4-64_bit_lease_parse.patch
 Patch19:  dhcp-4.2.2-capability.patch
 Patch20:  dhcp-4.2.0-logpid.patch
 Patch21:  dhcp-4.2.4-UseMulticast.patch
-Patch22:  dhcp-4.2.1-sendDecline.patch
+Patch22:  dhcp-4.2.5-sendDecline.patch
 Patch23:  dhcp-4.2.1-retransmission.patch
-Patch25:  dhcp-4.2.4-rfc3442-classless-static-routes.patch
+Patch25:  dhcp-4.2.5-rfc3442-classless-static-routes.patch
 Patch27:  dhcp-4.2.0-honor-expired.patch
-Patch28:  dhcp-4.2.2-remove-bind.patch
+Patch28:  dhcp-4.2.5-remove-bind.patch
 Patch29:  dhcp-4.2.4-P1-remove-dst.patch
-Patch30:  dhcp-4.2.2-sharedlib.patch
-Patch31:  dhcp-4.2.4-PPP.patch
+Patch30:  dhcp-4.2.5-sharedlib.patch
+Patch31:  dhcp-4.2.5-PPP.patch
 Patch32:  dhcp-4.2.4-paranoia.patch
-Patch33:  dhcp-4.2.4-lpf-ib.patch
+Patch33:  dhcp-4.2.5-lpf-ib.patch
 Patch34:  dhcp-4.2.4-improved-xid.patch
 Patch35:  dhcp-4.2.2-gpxe-cid.patch
-Patch36:  dhcp-4.2.4-systemtap.patch
+Patch36:  dhcp-4.2.5-systemtap.patch
 Patch37:  dhcp-4.2.3-dhclient-decline-onetry.patch
 Patch38:  dhcp-4.2.3-P2-log_perror.patch
 Patch39:  dhcp-4.2.4-getifaddrs.patch
 Patch40:  dhcp-4.2.4-send_release.patch
-Patch41:  dhcp-4.2.3-P2-rfc5970-dhcpv6-options-for-network-boot.patch
+Patch41:  dhcp-4.2.5-rfc5970-dhcpv6-options-for-network-boot.patch
 Patch42:  dhcp-4.2.4-failOverPeer.patch 
-Patch43:  dhcp-4.2.4-P1-dhclient6-leases_semicolon_expected.patch
+Patch43:  dhcp-4.2.5b1-atf-pkgconfig.patch
 Patch44:  dhcp-4.2.4-P1-interval.patch
 Patch45:  dhcp-4.2.4-P2-conflex-do-forward-updates.patch
 Patch46:  dhcp-4.2.4-P2-dupl-key.patch
@@ -85,6 +85,8 @@ BuildRequires: libtool
 BuildRequires: openldap-devel
 BuildRequires: libcap-ng-devel
 BuildRequires: bind-lite-devel
+# %%check
+BuildRequires: atf libatf-c-devel
 %if %sdt
 BuildRequires: systemtap-sdt-devel
 %global tapsetdir    /usr/share/systemtap/tapset
@@ -314,9 +316,9 @@ rm -rf includes/isc-dhcp
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #30402])
 %patch42 -p1 -b .failOverPeer
 
-# Dhclient does not correctly parse zero-length options in dhclient6.leases (#633318)
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #27314])
-%patch43 -p1 -b .dhclient6-leases_semicolon
+# To be able to build with '--with-atf'.
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #32206])
+%patch43 -p1 -b .pkgconfig
 
 # isc_time_nowplusinterval() is not safe with 64-bit time_t (#662254, #789601)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #28038])
@@ -380,15 +382,19 @@ CFLAGS="%{optflags} -fno-strict-aliasing" \
     --enable-systemtap \
     --with-tapset-install-dir=%{tapsetdir} \
 %endif
+    --with-atf \
     --enable-paranoia --enable-early-chroot
 %{__make} %{?_smp_mflags}
+
+%check
+%{__make} check
 
 %install
 %{__make} install DESTDIR=%{buildroot}
 
-# Remove files we don't want
-%{__rm} -f %{buildroot}%{_sysconfdir}/dhclient.conf
-%{__rm} -f %{buildroot}%{_sysconfdir}/dhcpd.conf
+# We don't want example conf files in /etc
+%{__rm} -f %{buildroot}%{_sysconfdir}/dhclient.conf.example
+%{__rm} -f %{buildroot}%{_sysconfdir}/dhcpd.conf.example
 
 # dhclient-script
 %{__mkdir} -p %{buildroot}%{_sbindir}
@@ -422,17 +428,15 @@ touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd6.leases
 %{__mkdir} -p %{buildroot}%{_localstatedir}/lib/dhclient/
 
 # Copy sample conf files into position (called by doc macro)
-%{__cp} -p client/dhclient.conf dhclient.conf.sample
-%{__cp} -p server/dhcpd.conf dhcpd.conf.sample
-%{__cp} -p doc/examples/dhclient-dhcpv6.conf dhclient6.conf.sample
-%{__cp} -p doc/examples/dhcpd-dhcpv6.conf dhcpd6.conf.sample
+%{__cp} -p doc/examples/dhclient-dhcpv6.conf client/dhclient6.conf.example
+%{__cp} -p doc/examples/dhcpd-dhcpv6.conf server/dhcpd6.conf.example
 
 # Install default (empty) dhcpd.conf:
 %{__mkdir} -p %{buildroot}%{dhcpconfdir}
 %{__cat} << EOF > %{buildroot}%{dhcpconfdir}/dhcpd.conf
 #
 # DHCP Server Configuration file.
-#   see /usr/share/doc/dhcp*/dhcpd.conf.sample
+#   see /usr/share/doc/dhcp*/dhcpd.conf.example
 #   see dhcpd.conf(5) man page
 #
 EOF
@@ -441,7 +445,7 @@ EOF
 %{__cat} << EOF > %{buildroot}%{dhcpconfdir}/dhcpd6.conf
 #
 # DHCPv6 Server Configuration file.
-#   see /usr/share/doc/dhcp*/dhcpd6.conf.sample
+#   see /usr/share/doc/dhcp*/dhcpd6.conf.example
 #   see dhcpd.conf(5) man page
 #
 EOF
@@ -469,9 +473,7 @@ exit 0
 
 %post
 # Initial installation
-%systemd_post dhcpd.service
-%systemd_post dhcpd6.service
-%systemd_post dhcrelay.service
+%systemd_post dhcpd.service dhcpd6.service dhcrelay.service
 
 # Update
 if [ $1 -gt 1 ] ; then
@@ -481,16 +483,12 @@ fi
 
 %preun
 # Package removal, not upgrade
-%systemd_preun dhcpd.service
-%systemd_preun dhcpd6.service
-%systemd_preun dhcrelay.service
+%systemd_preun dhcpd.service dhcpd6.service dhcrelay.service
 
 
 %postun
 # Package upgrade, not uninstall
-%systemd_postun_with_restart dhcpd.service
-%systemd_postun_with_restart dhcpd6.service
-%systemd_postun_with_restart dhcrelay.service
+%systemd_postun_with_restart dhcpd.service dhcpd6.service dhcrelay.service
 
 
 %post libs -p /sbin/ldconfig
@@ -499,7 +497,7 @@ fi
 
 
 %files
-%doc dhcpd.conf.sample dhcpd6.conf.sample
+%doc server/dhcpd.conf.example server/dhcpd6.conf.example
 %doc contrib/*
 %attr(0750,root,root) %dir %{dhcpconfdir}
 %attr(0755,dhcpd,dhcpd) %dir %{_localstatedir}/lib/dhcpd
@@ -527,7 +525,7 @@ fi
 %endif
 
 %files -n dhclient
-%doc dhclient.conf.sample dhclient6.conf.sample README.dhclient.d
+%doc client/dhclient.conf.example client/dhclient6.conf.example README.dhclient.d
 %attr(0750,root,root) %dir %{dhcpconfdir}
 %dir %{dhcpconfdir}/dhclient.d
 %dir %{_localstatedir}/lib/dhclient
@@ -562,6 +560,10 @@ fi
 
 
 %changelog
+* Thu Dec 20 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-0.1.rc1
+- 4.2.5rc1
+  - added %%check - upstream unit tests (Automated Test Framework - ATF)
+
 * Fri Nov 30 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-23.P2
 - fix two resource leaks in lpf-ib.patch
 

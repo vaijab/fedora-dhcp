@@ -458,10 +458,10 @@ diff -up dhcp-4.2.4-P2/common/lpf.c.lpf-ib dhcp-4.2.4-P2/common/lpf.c
 +			memcpy(&hw->hbuf[1], sll->sll_addr, 6);
  			break;
  		case ARPHRD_FDDI:
- 			hw->hlen = 17;
+ 			hw->hlen = 7;
  			hw->hbuf[0] = HTYPE_FDDI;
--			memcpy(&hw->hbuf[1], sa->sa_data, 16);
-+			memcpy(&hw->hbuf[1], sll->sll_addr, 16);
+-			memcpy(&hw->hbuf[1], sa->sa_data, 6);
++			memcpy(&hw->hbuf[1], sll->sll_addr, 6);
 +			break;
 +		case ARPHRD_INFINIBAND:
 +			/* For Infiniband, save the broadcast address and store
