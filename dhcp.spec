@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  0.1.%{prever}%{?dist}
+Release:  0.2.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -120,11 +120,10 @@ the ISC DHCP service and relay agent.
 %package -n dhclient
 Summary: Provides the ISC DHCP client daemon and dhclient-script
 Group: System Environment/Base
-Requires: initscripts
+# dhclient-script requires:
+Requires: coreutils grep hostname initscripts iproute iputils sed
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
 Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
-Requires(post): coreutils
-Requires(post): grep
 
 %description -n dhclient
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
@@ -332,17 +331,6 @@ rm -rf includes/isc-dhcp
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #31892])
 %patch46 -p1 -b .dupl-key
 
-pushd contrib
-%{__chmod} -x 3.0b1-lease-convert dhclient-tz-exithook.sh ldap/dhcpd-conf-to-ldap
-%{__chmod} -x sethostname.sh solaris.init
-%{__rm} -f dhcp.spec
-
-# We want UNIX-style line endings
-%{__sed} -i -e 's/\r//' ms2isc/readme.txt
-%{__sed} -i -e 's/\r//' ms2isc/Registry.pm
-%{__sed} -i -e 's/\r//' ms2isc/ms2isc.pl
-popd
-
 # Update paths in all man pages
 for page in client/dhclient.conf.5 client/dhclient.leases.5 \
             client/dhclient-script.8 client/dhclient.8 ; do
@@ -498,7 +486,7 @@ fi
 
 %files
 %doc server/dhcpd.conf.example server/dhcpd6.conf.example
-%doc contrib/*
+%doc contrib/ldap/
 %attr(0750,root,root) %dir %{dhcpconfdir}
 %attr(0755,dhcpd,dhcpd) %dir %{_localstatedir}/lib/dhcpd
 %attr(0644,dhcpd,dhcpd) %verify(mode) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
@@ -560,6 +548,9 @@ fi
 
 
 %changelog
+* Thu Dec 20 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-0.2.rc1
+- don't package ancient contrib/* files
+
 * Thu Dec 20 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-0.1.rc1
 - 4.2.5rc1
   - added %%check - upstream unit tests (Automated Test Framework - ATF)
