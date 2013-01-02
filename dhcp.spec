@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  0.2.%{prever}%{?dist}
+Release:  0.3.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -85,8 +85,11 @@ BuildRequires: libtool
 BuildRequires: openldap-devel
 BuildRequires: libcap-ng-devel
 BuildRequires: bind-lite-devel
+%if 0%{?fedora}
 # %%check
+# there's no atf package in RHEL
 BuildRequires: atf libatf-c-devel
+%endif
 %if %sdt
 BuildRequires: systemtap-sdt-devel
 %global tapsetdir    /usr/share/systemtap/tapset
@@ -370,12 +373,16 @@ CFLAGS="%{optflags} -fno-strict-aliasing" \
     --enable-systemtap \
     --with-tapset-install-dir=%{tapsetdir} \
 %endif
+%if 0%{?fedora}
     --with-atf \
+%endif
     --enable-paranoia --enable-early-chroot
 %{__make} %{?_smp_mflags}
 
+%if 0%{?fedora}
 %check
 %{__make} check
+%endif
 
 %install
 %{__make} install DESTDIR=%{buildroot}
@@ -548,6 +555,9 @@ fi
 
 
 %changelog
+* Wed Jan 02 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-0.3.rc1
+- run %%check in Fedora only, there's no atf package in RHEL
+
 * Thu Dec 20 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-0.2.rc1
 - don't package ancient contrib/* files
 
