@@ -1,11 +1,11 @@
 #!/bin/bash
-export LC_ALL=C
 
-# restart dhcpd whenever $1 interface is brought up by NM (rhbz #565921)
-if [ "$2" = "up" ]; then
-    # exit if the service is not configured to be started in the current runlevel
-    /bin/systemctl is-enabled dhcpd.service || exit 0
+INTERFACE=$1 # The interface which is brought up or down
+STATUS=$2 # The new state of the interface
 
-    # restart service
-    /bin/systemctl restart dhcpd.service || :
+# whenever interface is brought up by NM (rhbz #565921)
+if [ "$STATUS" = "up" ]; then
+    # restart the services
+    systemctl -q is-enabled dhcpd.service && systemctl restart dhcpd.service
+    systemctl -q is-enabled dhcpd6.service && systemctl restart dhcpd6.service
 fi
