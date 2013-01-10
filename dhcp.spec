@@ -8,17 +8,17 @@
 %global dhcpconfdir %{_sysconfdir}/dhcp
 
 
-%global patchver P2
+#%%global patchver P2
 #%%global prever rc2
 
-%global VERSION %{version}-%{patchver}
+#%%global VERSION %{version}-%{patchver}
 #%%global VERSION %{version}%{prever}
-#%%global VERSION %{version}
+%global VERSION %{version}
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
-Version:  4.2.4
-Release:  19.%{patchver}%{?dist}
+Version:  4.2.5
+Release:  1%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -37,7 +37,6 @@ Source6:  dhcpd.service
 Source7:  dhcpd6.service
 Source8:  dhcrelay.service
 
-
 Patch0:   dhcp-4.2.0-errwarn-message.patch
 Patch1:   dhcp-4.2.4-dhclient-options.patch
 Patch2:   dhcp-4.2.0-release-by-ifup.patch
@@ -45,7 +44,7 @@ Patch3:   dhcp-4.2.0-dhclient-decline-backoff.patch
 Patch4:   dhcp-4.2.4-unicast-bootp.patch
 Patch7:   dhcp-4.2.0-default-requested-options.patch
 Patch8:   dhcp-4.2.2-xen-checksum.patch
-Patch10:  dhcp-4.2.1-manpages.patch
+Patch10:  dhcp-4.2.5-manpages.patch
 Patch11:  dhcp-4.2.4-paths.patch
 Patch12:  dhcp-4.2.2-CLOEXEC.patch
 Patch14:  dhcp-4.2.0-garbage-chars.patch
@@ -55,25 +54,25 @@ Patch18:  dhcp-4.2.4-64_bit_lease_parse.patch
 Patch19:  dhcp-4.2.2-capability.patch
 Patch20:  dhcp-4.2.0-logpid.patch
 Patch21:  dhcp-4.2.4-UseMulticast.patch
-Patch22:  dhcp-4.2.1-sendDecline.patch
+Patch22:  dhcp-4.2.5-sendDecline.patch
 Patch23:  dhcp-4.2.1-retransmission.patch
-Patch25:  dhcp-4.2.4-rfc3442-classless-static-routes.patch
+Patch25:  dhcp-4.2.5-rfc3442-classless-static-routes.patch
 Patch27:  dhcp-4.2.0-honor-expired.patch
-Patch29:  dhcp-4.2.2-remove-bind.patch
-Patch30:  dhcp-4.2.2-sharedlib.patch
-Patch31:  dhcp-4.2.4-PPP.patch
+Patch28:  dhcp-4.2.5-remove-bind.patch
+Patch29:  dhcp-4.2.4-P1-remove-dst.patch
+Patch30:  dhcp-4.2.5-sharedlib.patch
+Patch31:  dhcp-4.2.5-PPP.patch
 Patch32:  dhcp-4.2.3-paranoia.patch
-Patch33:  dhcp-4.2.4-lpf-ib.patch
+Patch33:  dhcp-4.2.5-lpf-ib.patch
 Patch34:  dhcp-4.2.4-improved-xid.patch
 Patch35:  dhcp-4.2.2-gpxe-cid.patch
-Patch36:  dhcp-4.2.4-systemtap.patch
+Patch36:  dhcp-4.2.5-systemtap.patch
 Patch37:  dhcp-4.2.3-dhclient-decline-onetry.patch
 Patch38:  dhcp-4.2.3-P2-log_perror.patch
 Patch39:  dhcp-4.2.4-getifaddrs.patch
 Patch40:  dhcp-4.2.4-send_release.patch
-Patch41:  dhcp-4.2.3-P2-rfc5970-dhcpv6-options-for-network-boot.patch
+Patch41:  dhcp-4.2.5-rfc5970-dhcpv6-options-for-network-boot.patch
 Patch42:  dhcp-4.2.4-failOverPeer.patch 
-Patch43:  dhcp-4.2.4-P1-dhclient6-leases_semicolon_expected.patch
 Patch44:  dhcp-4.2.4-P1-interval.patch
 Patch45:  dhcp-4.2.4-P2-conflex-do-forward-updates.patch
 
@@ -170,8 +169,16 @@ libdhcpctl and libomapi static libraries are also included in this package.
 # Remove bundled BIND source
 rm bind/bind.tar.gz
 
+# Remove libdst
+rm -rf dst/
+rm -rf includes/isc-dhcp
+
 # Fire away bundled BIND source.
-%patch29 -p1 -b .remove-bind %{?_rawbuild}
+%patch28 -p1 -b .remove-bind %{?_rawbuild}
+
+# Fire away libdst
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #30692])
+%patch29 -p1 -b .remove-dst %{?_rawbuild}
 
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
@@ -266,8 +273,8 @@ rm bind/bind.tar.gz
 # DHCPv6 over PPP support (#626514)
 %patch31 -p1 -b .PPP
 
-# Write PID file BEFORE changing of the effective user/group ID.
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #25806])
+# dhcpd: BEFORE changing of the effective user/group ID:
+#  - write PID file (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #25806])
 %patch32 -p1 -b .paranoia
 
 # IPoIB support (#660681)
@@ -303,17 +310,13 @@ rm bind/bind.tar.gz
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #30402])
 %patch42 -p1 -b .failOverPeer
 
-# Dhclient does not correctly parse zero-length options in dhclient6.leases (#633318)
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #27314])
-%patch43 -p1 -b .dhclient6-leases_semicolon
-
 # isc_time_nowplusinterval() is not safe with 64-bit time_t (#662254, #789601)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #28038])
 %patch44 -p1 -b .interval
 
 # do-forward-updates statement wasn't recognized (#863646)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #31328])
-%patch45 -p1 -b .forward-updates.patch
+%patch45 -p1 -b .forward-updates
 
 pushd contrib
 %{__chmod} -x 3.0b1-lease-convert dhclient-tz-exithook.sh ldap/dhcpd-conf-to-ldap
@@ -371,9 +374,9 @@ CFLAGS="%{optflags} -fno-strict-aliasing" \
 %install
 %{__make} install DESTDIR=%{buildroot}
 
-# Remove files we don't want
-%{__rm} -f %{buildroot}%{_sysconfdir}/dhclient.conf
-%{__rm} -f %{buildroot}%{_sysconfdir}/dhcpd.conf
+# We don't want example conf files in /etc
+%{__rm} -f %{buildroot}%{_sysconfdir}/dhclient.conf.example
+%{__rm} -f %{buildroot}%{_sysconfdir}/dhcpd.conf.example
 
 # dhclient-script
 %{__mkdir} -p %{buildroot}%{_sbindir}
@@ -428,10 +431,8 @@ DHCPDARGS=""
 EOF
 
 # Copy sample conf files into position (called by doc macro)
-%{__cp} -p client/dhclient.conf dhclient.conf.sample
-%{__cp} -p server/dhcpd.conf dhcpd.conf.sample
-%{__cp} -p doc/examples/dhclient-dhcpv6.conf dhclient6.conf.sample
-%{__cp} -p doc/examples/dhcpd-dhcpv6.conf dhcpd6.conf.sample
+%{__cp} -p doc/examples/dhclient-dhcpv6.conf client/dhclient6.conf.example
+%{__cp} -p doc/examples/dhcpd-dhcpv6.conf server/dhcpd6.conf.example
 
 # Install default (empty) dhcpd.conf:
 %{__mkdir} -p %{buildroot}%{dhcpconfdir}
@@ -513,7 +514,7 @@ fi
 
 
 %files
-%doc dhcpd.conf.sample dhcpd6.conf.sample
+%doc server/dhcpd.conf.example server/dhcpd6.conf.example
 %doc contrib/*
 %attr(0750,root,root) %dir %{dhcpconfdir}
 %attr(0755,dhcpd,dhcpd) %dir %{_localstatedir}/lib/dhcpd
@@ -544,7 +545,7 @@ fi
 %endif
 
 %files -n dhclient
-%doc dhclient.conf.sample dhclient6.conf.sample README.dhclient.d
+%doc client/dhclient.conf.example client/dhclient6.conf.example README.dhclient.d
 %attr(0750,root,root) %dir %{dhcpconfdir}
 %dir %{dhcpconfdir}/dhclient.d
 %dir %{_localstatedir}/lib/dhclient
@@ -567,21 +568,22 @@ fi
 %files libs
 %{_libdir}/libdhcpctl.so.*
 %{_libdir}/libomapi.so.*
-%{_libdir}/libdst.so.*
 
 %files devel
 %doc doc/IANA-arp-parameters doc/api+protocol
 %{_includedir}/dhcpctl
-%{_includedir}/isc-dhcp
 %{_includedir}/omapip
 %{_libdir}/libdhcpctl.so
 %{_libdir}/libomapi.so
-%{_libdir}/libdst.so
 %attr(0644,root,root) %{_mandir}/man3/dhcpctl.3.gz
 %attr(0644,root,root) %{_mandir}/man3/omapi.3.gz
 
 
 %changelog
+* Thu Jan 10 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-1
+- 4.2.5
+- don't build libdst, it hasn't been used since 4.2.0 (#849166)
+
 * Fri Nov 30 2012 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.4-19.P2
 - fix two resource leaks in lpf-ib.patch
 
