@@ -493,22 +493,22 @@ fi
 %triggerun -- dhcp < 12:4.2.4-14.P1
 # convert DHC*ARGS from /etc/sysconfig/dhc* to /etc/systemd/system/dhc*.service
 for servicename in dhcpd dhcpd6 dhcrelay; do
-  if [ -f %{dhcpconfdir}/sysconfig/${servicename} ]; then
+  if [ -f %{_sysconfdir}/sysconfig/${servicename} ]; then
     if [ "${servicename}" == "dhcrelay" ]; then
         key="DHCRELAYARGS"
     else
         key="DHCPDARGS"
     fi
     # get the value of $key from /etc/sysconfig/$servicename
-    args=$(grep $key %{dhcpconfdir}/sysconfig/${servicename} | sed -r "s/${key}=\"?([^\"]*)\"?/\1/")
+    args=$(grep "^${key}" %{_sysconfdir}/sysconfig/${servicename} | sed -r "s/${key}=\"?([^\"]*)\"?/\1/")
     # value is non-empty (i.e. user modified) and there isn't a service unit yet
-    if [ -n "${args}" -a ! -f %{dhcpconfdir}/systemd/system/${servicename}.service ]; then
+    if [ -n "${args}" -a ! -f %{_sysconfdir}/systemd/system/${servicename}.service ]; then
       # in $args replace / with \/ otherwise the next sed won't take it
       args=$(echo $args | sed 's/\//\\\//'g)
       # add $args to the end of ExecStart line
       sed -r -e "s/(ExecStart=[^$]*)/\1 ${args}/" \
                 < %{_unitdir}/${servicename}.service \
-                > %{dhcpconfdir}/systemd/system/${servicename}.service
+                > %{_sysconfdir}/systemd/system/${servicename}.service
     fi
   fi
 done
