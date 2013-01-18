@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  2%{?dist}
+Release:  3%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -494,19 +494,19 @@ fi
 # convert DHC*ARGS from /etc/sysconfig/dhc* to /etc/systemd/system/dhc*.service
 for servicename in dhcpd dhcpd6 dhcrelay; do
   if [ -f %{_sysconfdir}/sysconfig/${servicename} ]; then
+    # get DHCPDARGS/DHCRELAYARGS value from /etc/sysconfig/${servicename}
+    source %{_sysconfdir}/sysconfig/${servicename}
     if [ "${servicename}" == "dhcrelay" ]; then
-        key="DHCRELAYARGS"
+        args=$DHCRELAYARGS
     else
-        key="DHCPDARGS"
+        args=$DHCPDARGS
     fi
-    # get the value of $key from /etc/sysconfig/$servicename
-    args=$(grep "^${key}" %{_sysconfdir}/sysconfig/${servicename} | sed -r "s/${key}=\"?([^\"]*)\"?/\1/")
     # value is non-empty (i.e. user modified) and there isn't a service unit yet
     if [ -n "${args}" -a ! -f %{_sysconfdir}/systemd/system/${servicename}.service ]; then
       # in $args replace / with \/ otherwise the next sed won't take it
       args=$(echo $args | sed 's/\//\\\//'g)
       # add $args to the end of ExecStart line
-      sed -r -e "s/(ExecStart=[^$]*)/\1 ${args}/" \
+      sed -r -e "/ExecStart=/ s/$/ ${args}/" \
                 < %{_unitdir}/${servicename}.service \
                 > %{_sysconfdir}/systemd/system/${servicename}.service
     fi
@@ -577,6 +577,9 @@ done
 
 
 %changelog
+* Fri Jan 18 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-3
+- simplify the previously added triggerun scriptlet
+
 * Thu Jan 17 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-2
 - during update convert DHC*ARGS from /etc/sysconfig/dhc*
   to /etc/systemd/system/dhc*.service (#895475)
