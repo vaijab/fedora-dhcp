@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  3%{?dist}
+Release:  4%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -78,6 +78,7 @@ Patch43:  dhcp-4.2.5b1-atf-pkgconfig.patch
 Patch44:  dhcp-4.2.4-P1-interval.patch
 Patch45:  dhcp-4.2.4-P2-conflex-do-forward-updates.patch
 Patch46:  dhcp-4.2.4-P2-dupl-key.patch
+Patch47:  dhcp-4.2.5-range6.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -334,6 +335,10 @@ rm -rf includes/isc-dhcp
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #31892])
 %patch46 -p1 -b .dupl-key
 
+# Make sure range6 is correct for subnet6 where it's declared (#902966)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #32453])
+%patch47 -p1 -b .range6
+
 # Update paths in all man pages
 for page in client/dhclient.conf.5 client/dhclient.leases.5 \
             client/dhclient-script.8 client/dhclient.8 ; do
@@ -577,6 +582,9 @@ done
 
 
 %changelog
+* Wed Jan 23 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-4
+- Make sure range6 is correct for subnet6 where it's declared (#902966)
+
 * Fri Jan 18 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-3
 - simplify the previously added triggerun scriptlet
 
