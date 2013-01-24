@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  4%{?dist}
+Release:  5%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -49,7 +49,6 @@ Patch10:  dhcp-4.2.5-manpages.patch
 Patch11:  dhcp-4.2.4-paths.patch
 Patch12:  dhcp-4.2.2-CLOEXEC.patch
 Patch14:  dhcp-4.2.0-garbage-chars.patch
-Patch15:  dhcp-4.2.0-missing-ipv6-not-fatal.patch
 Patch17:  dhcp-4.2.0-add_timeout_when_NULL.patch
 Patch18:  dhcp-4.2.4-64_bit_lease_parse.patch
 Patch19:  dhcp-4.2.2-capability.patch
@@ -227,10 +226,6 @@ rm -rf includes/isc-dhcp
 
 # Fix 'garbage in format string' error (#450042)
 %patch14 -p1 -b .garbage
-
-# If the ipv6 kernel module is missing, do not segfault
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19367])
-%patch15 -p1 -b .noipv6
 
 # Handle cases in add_timeout() where the function is called with a NULL
 # value for the 'when' parameter
@@ -582,6 +577,10 @@ done
 
 
 %changelog
+* Thu Jan 24 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-5
+- remove missing-ipv6-not-fatal.patch because the concerning code is later
+  removed with getifaddrs.patch
+
 * Wed Jan 23 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-4
 - Make sure range6 is correct for subnet6 where it's declared (#902966)
 
