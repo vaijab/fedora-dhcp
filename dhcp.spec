@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  6%{?dist}
+Release:  7%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -490,7 +490,7 @@ fi
 
 %postun libs -p /sbin/ldconfig
 
-%triggerun -- dhcp < 12:4.2.4-14.P1
+%triggerun -- dhcp
 # convert DHC*ARGS from /etc/sysconfig/dhc* to /etc/systemd/system/dhc*.service
 for servicename in dhcpd dhcpd6 dhcrelay; do
   if [ -f %{_sysconfdir}/sysconfig/${servicename} ]; then
@@ -577,6 +577,9 @@ done
 
 
 %changelog
+* Fri Feb 22 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-7
+- remove triggerun condition (#895475)
+
 * Wed Feb 13 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 12:4.2.5-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
