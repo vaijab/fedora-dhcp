@@ -1018,7 +1018,7 @@ done
 * Tue Jun 29 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-24.P1
 - Fix parsing of date (#514828)
 
-* Wed Jun 03 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-23.P1
+* Thu Jun 03 2010 Jiri Popelka <jpopelka@redhat.com> - 12:4.1.1-23.P1
 - 4.1.1-P1: pair of bug fixes including one for CVE-2010-2156 (#601405)
 - Compile with -fno-strict-aliasing
 
@@ -1778,7 +1778,7 @@ done
 * Mon Dec 05 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-16
 - fix gcc 4.1 compile warnings (-Werror)
 
-* Fri Nov 19 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-12
+* Fri Nov 18 2005 Jason Vas Dias <jvdias@redhat.com> - 11:3.0.3-12
 - fix bug 173619: dhclient-script should reconfig on RENEW if 
                   subnet-mask, broadcast-address, mtu, routers, etc.
                   have changed
@@ -1862,7 +1862,7 @@ done
 * Fri Jul 08 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-14.FC5
 - Allow package to compile with glibc-headers-2.3.5-11 (tr.c's use of __u16)
 
-* Fri May 10 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-14
+* Fri Jun 17 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-14
 - Fix bug 159929: prevent dhclient flooding network on repeated DHCPDECLINE
 - dhclient fast startup:
    remove dhclient's  random 1-5 second delay on startup if only
@@ -1921,7 +1921,7 @@ done
 * Mon Feb 21 2005 Jason Vas Dias <jvdias@redhat.com> 10:3.0.2-1
 - Upgrade to ISC 3.0.2 Final Release (documentation change only).
 
-* Tue Feb 14 2005 Jason Vas Dias <jvdias@redhat.com> 8:3.0.2rc3-8
+* Wed Feb 16 2005 Jason Vas Dias <jvdias@redhat.com> 8:3.0.2rc3-8
 - Add better execshield security link options
 - fix dhcpd.init when no /etc/dhcpd.conf exists and -cf in DHCPDARGS
 
@@ -2056,7 +2056,7 @@ done
 * Thu Mar 25 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc12-5
 - Add static routes patch to dhclient-script
 
-* Wed Mar 25 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc12-4
+* Thu Mar 25 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc12-4
 - Fix init to check config during restart
 
 * Wed Mar 24 2004 Dan Walsh <dwalsh@redhat.com> 1:3.0.1rc12-3
@@ -2159,7 +2159,7 @@ done
 * Mon Feb 3 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-23
 - fix script to handle ntp.conf correctly
 
-* Thu Jan 29 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-22
+* Wed Jan 29 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-22
 - Increment release to add to 8.1
 
 * Wed Jan 29 2003 Dan Walsh <dwalsh@redhat.com> 3.0pl1-21
@@ -2225,10 +2225,10 @@ done
 - No apparent reason for the dhclient -> dhcp dep mentioned in #68001,
   so removed it
 
-* Wed Jun 27 2002 David Sainty <saint@redhat.com> 3.0pl1-2
+* Thu Jun 27 2002 David Sainty <saint@redhat.com> 3.0pl1-2
 - Move dhclient.conf.sample from dhcp to dhclient
 
-* Mon Jun 25 2002 David Sainty <saint@redhat.com> 3.0pl1-1
+* Tue Jun 25 2002 David Sainty <saint@redhat.com> 3.0pl1-1
 - Change to dhclient, dhcp, dhcp-devel packaging
 - Move to 3.0pl1, do not strip binaries
 - Drop in sysconfig-enabled dhclient-script
