@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  7%{?dist}
+Release:  8%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -62,7 +62,7 @@ Patch28:  dhcp-4.2.5-remove-bind.patch
 Patch29:  dhcp-4.2.4-P1-remove-dst.patch
 Patch30:  dhcp-4.2.5-sharedlib.patch
 Patch31:  dhcp-4.2.5-PPP.patch
-Patch32:  dhcp-4.2.4-paranoia.patch
+Patch32:  dhcp-4.2.5-paranoia.patch
 Patch33:  dhcp-4.2.5-lpf-ib.patch
 Patch34:  dhcp-4.2.4-improved-xid.patch
 Patch35:  dhcp-4.2.2-gpxe-cid.patch
@@ -577,6 +577,9 @@ done
 
 
 %changelog
+* Tue Mar 26 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-8
+- describe -user/-group/-chroot in dhcpd.8
+
 * Fri Feb 22 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-7
 - remove triggerun condition (#895475)
 
