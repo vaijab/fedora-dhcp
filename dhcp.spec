@@ -211,7 +211,10 @@ rm -rf includes/isc-dhcp
 # to the list of default requested DHCP options
 %patch7 -p1 -b .requested
 
-# Handle Xen partial UDP checksums
+# Handle partial UDP checksums (#221964)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #22806] - by Michael S. Tsirkin)
+# http://comments.gmane.org/gmane.comp.emulators.kvm.devel/65236
+# https://lists.isc.org/pipermail/dhcp-hackers/2010-April/001835.html
 %patch8 -p1 -b .xen
 
 # Various man-page-only fixes
