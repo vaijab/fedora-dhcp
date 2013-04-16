@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  9%{?dist}
+Release:  10%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -585,6 +585,9 @@ done
 
 
 %changelog
+* Tue Apr 16 2013 Adam Tkac <atkac redhat com> - 12:4.2.5-10
+- rebuild against new bind
+
 * Wed Apr 03 2013 Tomas Hozza <thozza@redhat.com> - 12:4.2.5-9
 - Expose next-server DHCPv4 option to dhclient script
 
