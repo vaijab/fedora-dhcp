@@ -497,7 +497,7 @@ diff -up dhcp-4.2.4-P2/common/lpf.c.lpf-ib dhcp-4.2.4-P2/common/lpf.c
 -			log_fatal("Unsupported device type %ld for \"%s\"",
 -				  (long int)sa->sa_family, name);
 +			freeifaddrs(ifaddrs);
-+			log_fatal("Unsupported device type %h for \"%s\"",
++			log_fatal("Unsupported device type %hu for \"%s\"",
 +				  sll->sll_hatype, name);
  	}
  
