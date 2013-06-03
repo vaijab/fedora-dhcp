@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  1%{?dist}
+Release:  2%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -580,6 +580,9 @@ fi
 
 
 %changelog
+* Mon Jun 03 2013 Tomas Hozza <thozza@redhat.com> - 12:4.2.5-2
+- rebuild against new bind
+
 * Thu Jan 10 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-1
 - 4.2.5
 - don't build libdst, it hasn't been used since 4.2.0 (#849166)
