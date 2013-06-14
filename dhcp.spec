@@ -585,7 +585,7 @@ done
 
 
 %changelog
-* Mon Jun 03 2013 Tomas Hozza <thozza@redhat.com> - 12:4.2.5-12
+* Tue May 14 2013 Adam Williamson <awilliam@redhat.com> - 12:4.2.5-12
 - rebuild against new bind
 
 * Tue Apr 30 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-11
