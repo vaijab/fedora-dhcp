@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  12%{?dist}
+Release:  13%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -430,6 +430,29 @@ touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd.leases
 touch %{buildroot}%{_localstatedir}/lib/dhcpd/dhcpd6.leases
 %{__mkdir} -p %{buildroot}%{_localstatedir}/lib/dhclient/
 
+# default sysconfig file for dhcpd
+%{__mkdir} -p %{buildroot}%{_sysconfdir}/sysconfig
+%{__cat} <<EOF > %{buildroot}%{_sysconfdir}/sysconfig/dhcpd
+# WARNING: This file is NOT used anymore.
+
+# If you are here to restrict what interfaces should dhcpd listen on,
+# be aware that dhcpd listens *only* on interfaces for which it finds subnet
+# declaration in dhcpd.conf. It means that explicitly enumerating interfaces
+# also on command line should not be required in most cases.
+
+# If you still insist on adding some command line options,
+# copy dhcpd.service from /lib/systemd/system to /etc/systemd/system and modify
+# it there.
+# https://fedoraproject.org/wiki/Systemd#How_do_I_customize_a_unit_file.2F_add_a_custom_unit_file.3F
+
+# example:
+# $ cp /usr/lib/systemd/system/dhcpd.service /etc/systemd/system/
+# $ vi /etc/systemd/system/dhcpd.service
+# $ ExecStart=/usr/sbin/dhcpd -f -cf /etc/dhcp/dhcpd.conf -user dhcpd -group dhcpd --no-pid <your_interface_name(s)>
+# $ systemctl --system daemon-reload
+# $ systemctl restart dhcpd.service
+EOF
+
 # Copy sample conf files into position (called by doc macro)
 %{__cp} -p doc/examples/dhclient-dhcpv6.conf client/dhclient6.conf.example
 %{__cp} -p doc/examples/dhcpd-dhcpv6.conf server/dhcpd6.conf.example
@@ -528,6 +551,7 @@ done
 %attr(0755,dhcpd,dhcpd) %dir %{_localstatedir}/lib/dhcpd
 %attr(0644,dhcpd,dhcpd) %verify(mode) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd.leases
 %attr(0644,dhcpd,dhcpd) %verify(mode) %config(noreplace) %{_localstatedir}/lib/dhcpd/dhcpd6.leases
+%config(noreplace) %{_sysconfdir}/sysconfig/dhcpd
 %config(noreplace) %{dhcpconfdir}/dhcpd.conf
 %config(noreplace) %{dhcpconfdir}/dhcpd6.conf
 %config(noreplace) %{_sysconfdir}/openldap/schema/dhcp.schema
@@ -585,6 +609,9 @@ done
 
 
 %changelog
+* Fri Jun 14 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-13
+- return /etc/sysconfig/dhcpd back, but do NOT use it (#909733)
+
 * Tue May 14 2013 Adam Williamson <awilliam@redhat.com> - 12:4.2.5-12
 - rebuild against new bind
 
