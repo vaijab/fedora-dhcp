@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  13%{?dist}
+Release:  14%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -609,6 +609,9 @@ done
 
 
 %changelog
+* Tue Jun 18 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-14
+- rebuilt against bind once more
+
 * Fri Jun 14 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-13
 - return /etc/sysconfig/dhcpd back, but do NOT use it (#909733)
 
