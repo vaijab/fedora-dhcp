@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  14%{?dist}
+Release:  15%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -70,7 +70,7 @@ Patch36:  dhcp-4.2.5-systemtap.patch
 Patch37:  dhcp-4.2.3-dhclient-decline-onetry.patch
 Patch38:  dhcp-4.2.3-P2-log_perror.patch
 Patch39:  dhcp-4.2.4-getifaddrs.patch
-Patch40:  dhcp-4.2.4-send_release.patch
+Patch40:  dhcp-4.2.5-omapi-leak.patch
 Patch41:  dhcp-4.2.5-rfc5970-dhcpv6-options-for-network-boot.patch
 Patch42:  dhcp-4.2.4-failOverPeer.patch 
 Patch43:  dhcp-4.2.5b1-atf-pkgconfig.patch
@@ -307,9 +307,9 @@ rm -rf includes/isc-dhcp
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #28761])
 %patch39 -p1 -b .getifaddrs
 
-# Don't use fallback_interface when releasing lease (#800561)
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #30544])
-%patch40 -p1 -b .send_release
+# Fix several memory leaks in omapi (#978420)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #33990])
+%patch40 -p1 -b .leak
 
 # RFC5970 - DHCPv6 Options for Network Boot (#798735)
 %patch41 -p1 -b .rfc5970
@@ -609,6 +609,10 @@ done
 
 
 %changelog
+* Tue Jul 02 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-15
+- fix several memory leaks in omapi (#978420)
+- remove send_release.patch (#979510)
+
 * Tue Jun 18 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-14
 - rebuilt against bind once more
 
