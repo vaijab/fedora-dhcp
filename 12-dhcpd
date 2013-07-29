@@ -9,3 +9,5 @@ if [ "$STATUS" = "up" ]; then
     systemctl -q is-enabled dhcpd.service && systemctl restart dhcpd.service
     systemctl -q is-enabled dhcpd6.service && systemctl restart dhcpd6.service
 fi
+
+exit 0
