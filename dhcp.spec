@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  17%{?dist}
+Release:  18%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -86,6 +86,7 @@ BuildRequires: libtool
 BuildRequires: openldap-devel
 BuildRequires: libcap-ng-devel
 BuildRequires: bind-lite-devel
+BuildRequires: systemd
 %if 0%{?fedora}
 # %%check
 # there's no atf package in RHEL
@@ -609,6 +610,9 @@ done
 
 
 %changelog
+* Sun Aug 04 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-18
+- BuildRequires: systemd due to  %%{_unitdir}
+
 * Mon Jul 29 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-17
 - 12-dhcpd previously exited with error status 1 (#989207)
 
