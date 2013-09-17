@@ -79,7 +79,7 @@ Patch45:  dhcp-4.2.4-P2-conflex-do-forward-updates.patch
 Patch46:  dhcp-4.2.4-P2-dupl-key.patch
 Patch47:  dhcp-4.2.5-range6.patch
 Patch48:  dhcp-4.2.5-next-server.patch
-Patch49:  dhcp-bind-link-local.patch
+Patch49:  dhcp-bindtodevice-inet6.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -344,9 +344,9 @@ rm -rf includes/isc-dhcp
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #33098])
 %patch48 -p1 -b .next-server
 
-# Bind DHCPv6 client to link-local address instead of 0 address (#1001742)
+# dhclient -6: bind socket to interface (#1001742)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #34784])
-%patch49 -p1 -b .bind-link-local
+%patch49 -p1 -b .bindtodevice_inet6
 
 # Update paths in all man pages
 for page in client/dhclient.conf.5 client/dhclient.leases.5 \
@@ -617,6 +617,7 @@ done
 %changelog
 * Tue Sep 17 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-21
 - 12-dhcpd: wait a few seconds before restarting services (#1003695)
+- another solution for #1001742 (1005814#c10)
 
 * Thu Sep 12 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-20
 - bind DHCPv6 client to link-local address instead of 0 address (#1001742)
