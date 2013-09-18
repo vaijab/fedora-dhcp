@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  21%{?dist}
+Release:  22%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -615,9 +615,12 @@ done
 
 
 %changelog
+* Wed Sep 18 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-22
+- fix segfault introduced with previous commit
+
 * Tue Sep 17 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-21
 - 12-dhcpd: wait a few seconds before restarting services (#1003695)
-- another solution for #1001742 (1005814#c10)
+- another solution for #1001742 (#1005814#c10)
 
 * Thu Sep 12 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-20
 - bind DHCPv6 client to link-local address instead of 0 address (#1001742)
