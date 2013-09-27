@@ -620,7 +620,8 @@ done
 
 %changelog
 * Fri Sep 27 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-23
-- 'No subnet declaration for <iface>' should be info, not error.
+- 'No subnet declaration for <iface>' should be info, not error
+- decrease the sleep in 12-dhcpd due to timeout (#1003695#8)
 
 * Wed Sep 18 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-22
 - fix segfault introduced with previous commit

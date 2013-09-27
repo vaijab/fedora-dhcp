@@ -7,8 +7,8 @@ STATUS=$2 # The new state of the interface
 if [ "$STATUS" = "up" ]; then
     # wait a few seconds to allow interface startup to complete
     # (important at boot time without this the service still fails
-    # 2 seconds is too short, 5 seconds works - davebooth)
-    sleep 5
+    # time-out for dispatcher script is 3s (rhbz#1003695#8)
+    sleep 2
     # restart the services
     systemctl -q is-enabled dhcpd.service && systemctl restart dhcpd.service
     systemctl -q is-enabled dhcpd6.service && systemctl restart dhcpd6.service
