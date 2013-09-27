@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  22%{?dist}
+Release:  23%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -80,6 +80,7 @@ Patch46:  dhcp-4.2.4-P2-dupl-key.patch
 Patch47:  dhcp-4.2.5-range6.patch
 Patch48:  dhcp-4.2.5-next-server.patch
 Patch49:  dhcp-bindtodevice-inet6.patch
+Patch50:  dhcp-no-subnet-error2info.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -348,6 +349,9 @@ rm -rf includes/isc-dhcp
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #34784])
 %patch49 -p1 -b .bindtodevice_inet6
 
+# 'No subnet declaration for <iface>' should be info, not error.
+%patch50 -p1 -b .error2info
+
 # Update paths in all man pages
 for page in client/dhclient.conf.5 client/dhclient.leases.5 \
             client/dhclient-script.8 client/dhclient.8 ; do
@@ -615,6 +619,9 @@ done
 
 
 %changelog
+* Fri Sep 27 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-23
+- 'No subnet declaration for <iface>' should be info, not error.
+
 * Wed Sep 18 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-22
 - fix segfault introduced with previous commit
 
