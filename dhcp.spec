@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  23%{?dist}
+Release:  24%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -81,6 +81,7 @@ Patch47:  dhcp-4.2.5-range6.patch
 Patch48:  dhcp-4.2.5-next-server.patch
 Patch49:  dhcp-bindtodevice-inet6.patch
 Patch50:  dhcp-no-subnet-error2info.patch
+Patch51:  dhcp-ffff-checksum.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -352,6 +353,10 @@ rm -rf includes/isc-dhcp
 # 'No subnet declaration for <iface>' should be info, not error.
 %patch50 -p1 -b .error2info
 
+# dhcpd rejects the udp packet with checksum=0xffff (#1015997)
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #25587])
+%patch51 -p1 -b .ffff
+
 # Update paths in all man pages
 for page in client/dhclient.conf.5 client/dhclient.leases.5 \
             client/dhclient-script.8 client/dhclient.8 ; do
@@ -619,6 +624,9 @@ done
 
 
 %changelog
+* Mon Oct 07 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-24
+- dhcpd rejects the udp packet with checksum=0xffff (#1015997)
+
 * Fri Sep 27 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-23
 - 'No subnet declaration for <iface>' should be info, not error
 - decrease the sleep in 12-dhcpd due to timeout (#1003695#8)
