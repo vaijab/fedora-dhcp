@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  24%{?dist}
+Release:  25%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -79,7 +79,7 @@ Patch45:  dhcp-4.2.4-P2-conflex-do-forward-updates.patch
 Patch46:  dhcp-4.2.4-P2-dupl-key.patch
 Patch47:  dhcp-4.2.5-range6.patch
 Patch48:  dhcp-4.2.5-next-server.patch
-Patch49:  dhcp-bindtodevice-inet6.patch
+Patch49:  dhcp-dhclient6-bind.patch
 Patch50:  dhcp-no-subnet-error2info.patch
 Patch51:  dhcp-ffff-checksum.patch
 
@@ -348,7 +348,7 @@ rm -rf includes/isc-dhcp
 
 # dhclient -6: bind socket to interface (#1001742)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #34784])
-%patch49 -p1 -b .bindtodevice_inet6
+%patch49 -p1 -b .dhclient6-bind
 
 # 'No subnet declaration for <iface>' should be info, not error.
 %patch50 -p1 -b .error2info
@@ -624,6 +624,9 @@ done
 
 
 %changelog
+* Thu Oct 24 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-25
+- use upstream patch for #1001742 ([ISC-Bugs #34784])
+
 * Mon Oct 07 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-24
 - dhcpd rejects the udp packet with checksum=0xffff (#1015997)
 
