@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  26%{?dist}
+Release:  27%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -477,7 +477,7 @@ EOF
 %{__cat} << EOF > %{buildroot}%{dhcpconfdir}/dhcpd.conf
 #
 # DHCP Server Configuration file.
-#   see /usr/share/doc/dhcp*/dhcpd.conf.example
+#   see /usr/share/doc/dhcp/dhcpd.conf.example
 #   see dhcpd.conf(5) man page
 #
 EOF
@@ -486,7 +486,7 @@ EOF
 %{__cat} << EOF > %{buildroot}%{dhcpconfdir}/dhcpd6.conf
 #
 # DHCPv6 Server Configuration file.
-#   see /usr/share/doc/dhcp*/dhcpd6.conf.example
+#   see /usr/share/doc/dhcp/dhcpd6.conf.example
 #   see dhcpd.conf(5) man page
 #
 EOF
@@ -496,7 +496,7 @@ EOF
 %{__cat} << EOF > %{buildroot}%{dhcpconfdir}/dhclient.conf
 #
 # DHCP Client Configuration file.
-#   see /usr/share/doc/dhclient-*/dhclient.conf.sample
+#   see /usr/share/doc/dhclient/dhclient.conf.example
 #   see dhclient.conf(5) man page
 #
 # Send client identifier as "hardware-type.link-layer address" (e.g. "1.c2.23.7d.c3.52.2c")
@@ -641,6 +641,9 @@ done
 
 
 %changelog
+* Thu Nov 14 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-27
+- dhclient-script(RENEW6|REBIND6): delete old ip6_address if it changed (#1015729)
+
 * Thu Oct 31 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-26
 - Provide default /etc/dhcp/dhclient.conf
 - Client always sends dhcp-client-identifier (#560361)

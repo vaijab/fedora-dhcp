@@ -3,7 +3,7 @@
 # dhclient-script: Network interface configuration script run by
 #                  dhclient based on DHCP client communication
 #
-# Copyright (C) 2008, 2009, 2010  Red Hat, Inc.
+# Copyright (C) 2008-2013  Red Hat, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Author(s): David Cantrell <dcantrell@redhat.com>
+#            Jiri Popelka <jpopelka@redhat.com>
 #
 # ----------
 # This script is a rewrite/reworking on dhclient-script originally
@@ -594,6 +595,7 @@ dh6config() {
             fi
 
             if [  ! "${new_ip6_address}" = "${old_ip6_address}" ]; then
+                [[ -n "${old_ip6_address}" ]] && ip -6 addr del ${old_ip6_address} dev ${interface}
                 add_ipv6_addr_with_DAD
             fi
 
