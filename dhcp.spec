@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.2.5
-Release:  27%{?dist}
+Release:  28%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -641,6 +641,9 @@ done
 
 
 %changelog
+* Thu Nov 21 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-28
+- dhclient-script: set address lifetimes (#1032809)
+
 * Thu Nov 14 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-27
 - dhclient-script(RENEW6|REBIND6): delete old ip6_address if it changed (#1015729)
 

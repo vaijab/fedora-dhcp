@@ -354,7 +354,8 @@ dhconfig() {
        [ ! "${old_broadcast_address}" = "${new_broadcast_address}" ] ||
        [ ! "${old_routers}" = "${new_routers}" ] ||
        [ ! "${old_interface_mtu}" = "${new_interface_mtu}" ]; then
-        ip -4 addr add ${new_ip_address}/${new_prefix} broadcast ${new_broadcast_address} dev ${interface} >/dev/null 2>&1
+        ip -4 addr add ${new_ip_address}/${new_prefix} broadcast ${new_broadcast_address} dev ${interface} \
+           valid_lft ${new_dhcp_lease_time} preferred_lft ${new_dhcp_lease_time} >/dev/null 2>&1
         ip link set dev ${interface} up
 
         # The 576 MTU is only used for X.25 and dialup connections
@@ -546,7 +547,8 @@ dhconfig() {
 # using that address for traffic.
 add_ipv6_addr_with_DAD() {
             ip -6 addr add ${new_ip6_address}/${new_ip6_prefixlen} \
-                dev ${interface} scope global
+                dev ${interface} scope global valid_lft ${new_max_life} \
+                                          preferred_lft ${new_preferred_life}
 
             # repeatedly test whether newly added address passed
             # duplicate address detection (DAD)
@@ -770,7 +772,9 @@ case "${reason}" in
                 ip -4 addr flush dev ${interface} label ${interface}:0 >/dev/null 2>&1
             fi
 
-            ip -4 addr add ${new_ip_address}/${new_prefix} broadcast ${new_broadcast_address} dev ${interface}
+            ip -4 addr add ${new_ip_address}/${new_prefix} \
+                broadcast ${new_broadcast_address} dev ${interface} \
+                valid_lft ${new_dhcp_lease_time} preferred_lft ${new_dhcp_lease_time}
             set ${new_routers}
 
             if ping -q -c 1 -w 10 -I ${interface} ${1}; then
