@@ -9,23 +9,22 @@
 
 
 #%%global patchver P2
-#%%global prever rc1
+%global prever a1
 
 #%%global VERSION %{version}-%{patchver}
-#%%global VERSION %{version}%{prever}
-%global VERSION %{version}
+#%%global VERSION %{version}
+%global VERSION %{version}%{prever}
 
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
-Version:  4.2.5
-Release:  28%{?dist}
+Version:  4.3.0
+Release:  0.1.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
 # So we are stuck with it.
 Epoch:    12
 License:  ISC
-Group:    System Environment/Daemons
 URL:      http://isc.org/products/DHCP/
 Source0:  ftp://ftp.isc.org/isc/dhcp/%{VERSION}/dhcp-%{VERSION}.tar.gz
 Source1:  dhclient-script
@@ -37,58 +36,55 @@ Source6:  dhcpd.service
 Source7:  dhcpd6.service
 Source8:  dhcrelay.service
 
-
-Patch0:   dhcp-4.2.0-errwarn-message.patch
-Patch1:   dhcp-4.2.4-dhclient-options.patch
-Patch2:   dhcp-4.2.0-release-by-ifup.patch
-Patch3:   dhcp-4.2.0-dhclient-decline-backoff.patch
-Patch4:   dhcp-4.2.4-unicast-bootp.patch
-Patch7:   dhcp-4.2.0-default-requested-options.patch
-Patch8:   dhcp-4.2.2-xen-checksum.patch
-Patch10:  dhcp-4.2.5-manpages.patch
-Patch11:  dhcp-4.2.4-paths.patch
-Patch12:  dhcp-4.2.2-CLOEXEC.patch
-Patch14:  dhcp-4.2.0-garbage-chars.patch
-Patch17:  dhcp-4.2.0-add_timeout_when_NULL.patch
-Patch18:  dhcp-4.2.4-64_bit_lease_parse.patch
-Patch19:  dhcp-4.2.2-capability.patch
-Patch20:  dhcp-4.2.0-logpid.patch
-Patch21:  dhcp-4.2.4-UseMulticast.patch
-Patch22:  dhcp-4.2.5-sendDecline.patch
-Patch23:  dhcp-4.2.1-retransmission.patch
-Patch25:  dhcp-4.2.5-rfc3442-classless-static-routes.patch
-Patch27:  dhcp-4.2.0-honor-expired.patch
-Patch28:  dhcp-4.2.5-remove-bind.patch
-Patch29:  dhcp-4.2.4-P1-remove-dst.patch
-Patch30:  dhcp-4.2.5-sharedlib.patch
-Patch31:  dhcp-4.2.5-PPP.patch
-Patch32:  dhcp-4.2.5-paranoia.patch
-Patch33:  dhcp-4.2.5-lpf-ib.patch
-Patch34:  dhcp-4.2.4-improved-xid.patch
-Patch35:  dhcp-4.2.2-gpxe-cid.patch
-Patch36:  dhcp-4.2.5-systemtap.patch
-Patch37:  dhcp-4.2.3-dhclient-decline-onetry.patch
-Patch38:  dhcp-4.2.3-P2-log_perror.patch
-Patch39:  dhcp-4.2.4-getifaddrs.patch
-Patch40:  dhcp-4.2.5-omapi-leak.patch
-Patch41:  dhcp-4.2.5-rfc5970-dhcpv6-options-for-network-boot.patch
-Patch42:  dhcp-4.2.4-failOverPeer.patch 
-Patch43:  dhcp-4.2.5b1-atf-pkgconfig.patch
-Patch44:  dhcp-4.2.4-P1-interval.patch
-Patch45:  dhcp-4.2.4-P2-conflex-do-forward-updates.patch
-Patch46:  dhcp-4.2.4-P2-dupl-key.patch
-Patch47:  dhcp-4.2.5-range6.patch
-Patch48:  dhcp-4.2.5-next-server.patch
-Patch49:  dhcp-dhclient6-bind.patch
-Patch50:  dhcp-no-subnet-error2info.patch
-Patch51:  dhcp-ffff-checksum.patch
+Patch0:   dhcp-remove-bind.patch
+Patch1:   dhcp-remove-dst.patch
+Patch2:   dhcp-sharedlib.patch
+Patch3:   dhcp-errwarn-message.patch
+Patch4:   dhcp-dhclient-options.patch
+Patch5:   dhcp-release-by-ifup.patch
+Patch6:   dhcp-dhclient-decline-backoff.patch
+Patch7:   dhcp-unicast-bootp.patch
+Patch8:   dhcp-default-requested-options.patch
+Patch9:   dhcp-xen-checksum.patch
+Patch10:  dhcp-manpages.patch
+Patch11:  dhcp-paths.patch
+Patch12:  dhcp-CLOEXEC.patch
+Patch13:  dhcp-garbage-chars.patch
+Patch14:  dhcp-add_timeout_when_NULL.patch
+Patch15:  dhcp-64_bit_lease_parse.patch
+Patch16:  dhcp-capability.patch
+Patch17:  dhcp-logpid.patch
+Patch18:  dhcp-UseMulticast.patch
+Patch19:  dhcp-sendDecline.patch
+Patch20:  dhcp-retransmission.patch
+Patch21:  dhcp-rfc3442-classless-static-routes.patch
+Patch22:  dhcp-honor-expired.patch
+Patch23:  dhcp-PPP.patch
+Patch24:  dhcp-paranoia.patch
+Patch25:  dhcp-lpf-ib.patch
+Patch26:  dhcp-improved-xid.patch
+Patch27:  dhcp-gpxe-cid.patch
+Patch28:  dhcp-systemtap.patch
+Patch29:  dhcp-dhclient-decline-onetry.patch
+Patch30:  dhcp-log_perror.patch
+Patch31:  dhcp-getifaddrs.patch
+Patch32:  dhcp-omapi-leak.patch
+Patch33:  dhcp-rfc5970-dhcpv6-options-for-network-boot.patch
+Patch34:  dhcp-failOverPeer.patch
+Patch35:  dhcp-interval.patch
+Patch36:  dhcp-conflex-do-forward-updates.patch
+Patch37:  dhcp-dupl-key.patch
+Patch38:  dhcp-range6.patch
+Patch39:  dhcp-next-server.patch
+Patch40:  dhcp-no-subnet-error2info.patch
+Patch41:  dhcp-ffff-checksum.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: libtool
 BuildRequires: openldap-devel
 BuildRequires: libcap-ng-devel
-BuildRequires: bind-lite-devel
+BuildRequires: bind-lite-devel >= 32:9.9.5-0.1.b1
 BuildRequires: systemd
 %if 0%{?fedora}
 # %%check
@@ -127,7 +123,6 @@ the ISC DHCP service and relay agent.
 
 %package -n dhclient
 Summary: Provides the ISC DHCP client daemon and dhclient-script
-Group: System Environment/Base
 # dhclient-script requires:
 Requires: coreutils grep hostname initscripts iproute iputils sed
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
@@ -146,7 +141,6 @@ provides the ISC DHCP client daemon.
 
 %package common
 Summary: Common files used by ISC dhcp client and server
-Group: System Environment/Base
 Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
 
 %description common
@@ -160,7 +154,6 @@ This package provides common files used by dhcp and dhclient package.
 
 %package libs
 Summary: Shared libraries used by ISC dhcp client and server
-Group: System Environment/Base
 
 %description libs
 This package contains shared libraries used by ISC dhcp client and server
@@ -168,7 +161,6 @@ This package contains shared libraries used by ISC dhcp client and server
 
 %package devel
 Summary: Development headers and libraries for interfacing to the DHCP server
-Group: Development/Libraries
 Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
 
 %description devel
@@ -186,41 +178,44 @@ rm -rf dst/
 rm -rf includes/isc-dhcp
 
 # Fire away bundled BIND source.
-%patch28 -p1 -b .remove-bind %{?_rawbuild}
+%patch0 -p1 -b .remove-bind %{?_rawbuild}
 
 # Fire away libdst
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #30692])
-%patch29 -p1 -b .remove-dst %{?_rawbuild}
+%patch1 -p1 -b .remove-dst %{?_rawbuild}
+
+#Build dhcp's libraries as shared libs instead of static libs.
+%patch2 -p1 -b .sharedlib
 
 # Replace the standard ISC warning message about requesting help with an
 # explanation that this is a patched build of ISC DHCP and bugs should be
 # reported through bugzilla.redhat.com
-%patch0 -p1 -b .errwarn
+%patch3 -p1 -b .errwarn
 
 # Add more dhclient options (-I, -B, -H, -F, -timeout, -V, and -R)
-%patch1 -p1 -b .options
+%patch4 -p1 -b .options
 
 # Handle releasing interfaces requested by /sbin/ifup
 # pid file is assumed to be /var/run/dhclient-$interface.pid
-%patch2 -p1 -b .ifup
+%patch5 -p1 -b .ifup
 
 # If we receive a DHCP offer in dhclient and it's DECLINEd in dhclient-script,
 # backoff for an amount of time before trying again
-%patch3 -p1 -b .backoff
+%patch6 -p1 -b .backoff
 
 # Support unicast BOOTP for IBM pSeries systems (and maybe others)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19146])
-%patch4 -p1 -b .unicast
+%patch7 -p1 -b .unicast
 
 # Add NIS domain, NIS servers, NTP servers, interface-mtu and domain-search
 # to the list of default requested DHCP options
-%patch7 -p1 -b .requested
+%patch8 -p1 -b .requested
 
 # Handle partial UDP checksums (#221964)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #22806] - by Michael S. Tsirkin)
 # http://comments.gmane.org/gmane.comp.emulators.kvm.devel/65236
 # https://lists.isc.org/pipermail/dhcp-hackers/2010-April/001835.html
-%patch8 -p1 -b .xen
+%patch9 -p1 -b .xen
 
 # Various man-page-only fixes
 %patch10 -p1 -b .man
@@ -233,129 +228,118 @@ rm -rf includes/isc-dhcp
 %patch12 -p1 -b .cloexec
 
 # Fix 'garbage in format string' error (#450042)
-%patch14 -p1 -b .garbage
+%patch13 -p1 -b .garbage
 
 # Handle cases in add_timeout() where the function is called with a NULL
 # value for the 'when' parameter
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #19867])
-%patch17 -p1 -b .dracut
+%patch14 -p1 -b .dracut
 
 # Ensure 64-bit platforms parse lease file dates & times correctly (#448615, #628258)
 # (Partly submitted to dhcp-bugs@isc.org - [ISC-Bugs #22033])
-%patch18 -p1 -b .64-bit_lease_parse
+%patch15 -p1 -b .64-bit_lease_parse
 
 # Drop unnecessary capabilities in
 # dhclient (#517649, #546765), dhcpd/dhcrelay (#699713)
-%patch19 -p1 -b .capability
+%patch16 -p1 -b .capability
 
 # dhclient logs its pid to make troubleshooting NM managed systems
 # with multiple dhclients running easier (#546792)
-%patch20 -p1 -b .logpid
+%patch17 -p1 -b .logpid
 
 # Discard unicast Request/Renew/Release/Decline message
 # (unless we set unicast option) and respond with Reply
 # with UseMulticast Status Code option (#573090)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21235])
-%patch21 -p1 -b .UseMulticast
+%patch18 -p1 -b .UseMulticast
 
 # If any of the bound addresses are found to be in use on the link,
 # the dhcpv6 client sends a Decline message to the server
 # as described in section 18.1.7 of RFC-3315 (#559147)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21237])
-%patch22 -p1 -b .sendDecline
+%patch19 -p1 -b .sendDecline
 
 # In client initiated message exchanges stop retransmission
 # upon reaching the MRD rather than at some point after it (#559153)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #21238])
-%patch23 -p1 -b .retransmission
+%patch20 -p1 -b .retransmission
 
 # RFC 3442 - Classless Static Route Option for DHCPv4 (#516325)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #24572])
-%patch25 -p1 -b .rfc3442
+%patch21 -p1 -b .rfc3442
 
 # check whether there is any unexpired address in previous lease
 # prior to confirming (INIT-REBOOT) the lease (#585418)
 # (Submitted to dhcp-suggest@isc.org - [ISC-Bugs #22675])
-%patch27 -p1 -b .honor-expired
-
-#Build dhcp's libraries as shared libs instead of static libs.
-%patch30 -p1 -b .sharedlib
+%patch22 -p1 -b .honor-expired
 
 # DHCPv6 over PPP support (#626514)
-%patch31 -p1 -b .PPP
+%patch23 -p1 -b .PPP
 
 # dhcpd: BEFORE changing of the effective user/group ID:
 #  - write PID file (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #25806])
 #  - chown leases file (#866714)
-%patch32 -p1 -b .paranoia
+%patch24 -p1 -b .paranoia
 
 # IPoIB support (#660681)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #24249])
-%patch33 -p1 -b .lpf-ib
-%patch34 -p1 -b .improved-xid
-%patch35 -p1 -b .gpxe-cid
+%patch25 -p1 -b .lpf-ib
+%patch26 -p1 -b .improved-xid
+%patch27 -p1 -b .gpxe-cid
 
 # http://sourceware.org/systemtap/wiki/SystemTap
-%patch36 -p1 -b .systemtap
+%patch28 -p1 -b .systemtap
 
 # Send DHCPDECLINE and exit(2) when duplicate address was detected and
 # dhclient had been started with '-1' (#756759).
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #26735])
-%patch37 -p1 -b .decline-onetry
+%patch29 -p1 -b .decline-onetry
 
 # Don't send log messages to the standard error descriptor by default (#790387)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #28049])
-%patch38 -p1 -b .log_perror
+%patch30 -p1 -b .log_perror
 
 # Use getifaddrs() to scan for interfaces on Linux (#449946)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #28761])
-%patch39 -p1 -b .getifaddrs
+%patch31 -p1 -b .getifaddrs
 
 # Fix several memory leaks in omapi (#978420)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #33990])
-%patch40 -p1 -b .leak
+%patch32 -p1 -b .leak
 
 # RFC5970 - DHCPv6 Options for Network Boot (#798735)
-%patch41 -p1 -b .rfc5970
+%patch33 -p1 -b .rfc5970
 
 # Dhcpd does not correctly follow DhcpFailOverPeerDN (#838400)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #30402])
-%patch42 -p1 -b .failOverPeer
-
-# To be able to build with '--with-atf'.
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #32206])
-%patch43 -p1 -b .pkgconfig
+%patch34 -p1 -b .failOverPeer
 
 # isc_time_nowplusinterval() is not safe with 64-bit time_t (#662254, #789601)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #28038])
-%patch44 -p1 -b .interval
+%patch35 -p1 -b .interval
 
 # do-forward-updates statement wasn't recognized (#863646)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #31328])
-%patch45 -p1 -b .forward-updates
+%patch36 -p1 -b .forward-updates
 
 # multiple key statements in zone definition causes inappropriate error (#873794)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #31892])
-%patch46 -p1 -b .dupl-key
+%patch37 -p1 -b .dupl-key
 
 # Make sure range6 is correct for subnet6 where it's declared (#902966)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #32453])
-%patch47 -p1 -b .range6
+%patch38 -p1 -b .range6
 
 # Expose next-server DHCPv4 option to dhclient script
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #33098])
-%patch48 -p1 -b .next-server
-
-# dhclient -6: bind socket to interface (#1001742)
-# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #34784])
-%patch49 -p1 -b .dhclient6-bind
+%patch39 -p1 -b .next-server
 
 # 'No subnet declaration for <iface>' should be info, not error.
-%patch50 -p1 -b .error2info
+%patch40 -p1 -b .error2info
 
 # dhcpd rejects the udp packet with checksum=0xffff (#1015997)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #25587])
-%patch51 -p1 -b .ffff
+%patch41 -p1 -b .ffff
 
 # Update paths in all man pages
 for page in client/dhclient.conf.5 client/dhclient.leases.5 \
@@ -641,6 +625,9 @@ done
 
 
 %changelog
+* Thu Dec 19 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.3.0-0.1.a1
+- 4.3.0a1: requires bind-9.9.5
+
 * Thu Nov 21 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.2.5-28
 - dhclient-script: set address lifetimes (#1032809)
 
