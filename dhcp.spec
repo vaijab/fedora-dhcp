@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.3.0
-Release:  0.1.%{prever}%{?dist}
+Release:  0.2.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -78,6 +78,7 @@ Patch38:  dhcp-range6.patch
 Patch39:  dhcp-next-server.patch
 Patch40:  dhcp-no-subnet-error2info.patch
 Patch41:  dhcp-ffff-checksum.patch
+Patch42:  dhcp-430a1.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -340,6 +341,10 @@ rm -rf includes/isc-dhcp
 # dhcpd rejects the udp packet with checksum=0xffff (#1015997)
 # (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #25587])
 %patch41 -p1 -b .ffff
+
+# make 4.3.0a1 build with LDAP support
+# (Submitted to dhcp-bugs@isc.org - [ISC-Bugs #35159])
+%patch42 -p1 -b .430a1
 
 # Update paths in all man pages
 for page in client/dhclient.conf.5 client/dhclient.leases.5 \
@@ -625,6 +630,9 @@ done
 
 
 %changelog
+* Tue Jan 07 2014 Jiri Popelka <jpopelka@redhat.com> - 12:4.3.0-0.2.a1
+- make it actually build
+
 * Thu Dec 19 2013 Jiri Popelka <jpopelka@redhat.com> - 12:4.3.0-0.1.a1
 - 4.3.0a1: requires bind-9.9.5
 

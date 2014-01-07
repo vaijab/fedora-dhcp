@@ -35,7 +35,7 @@ diff -up dhcp-4.3.0a1/server/dhcpv6.c.UseMulticast dhcp-4.3.0a1/server/dhcpv6.c
 +		}
 +
 +		execute_statements_in_scope(NULL, NULL, NULL, NULL, NULL,
-+				opt_state, &global_scope, root_group, NULL);
++			     opt_state, &global_scope, root_group, NULL, NULL);
 +
 +		oc = lookup_option(&dhcpv6_universe, opt_state, D6O_UNICAST);
 +		unicast_option_defined = (oc != NULL);
