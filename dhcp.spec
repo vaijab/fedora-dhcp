@@ -18,7 +18,7 @@
 Summary:  Dynamic host configuration protocol software
 Name:     dhcp
 Version:  4.3.0
-Release:  0.2.%{prever}%{?dist}
+Release:  0.3.%{prever}%{?dist}
 # NEVER CHANGE THE EPOCH on this package.  The previous maintainer (prior to
 # dcantrell maintaining the package) made incorrect use of the epoch and
 # that's why it is at 12 now.  It should have never been used, but it was.
@@ -630,6 +630,9 @@ done
 
 
 %changelog
+* Mon Jan 13 2014 Jiri Popelka <jpopelka@redhat.com> - 12:4.3.0-0.3.a1
+- update address lifetimes on RENEW/RENEW6 (#1032809)
+
 * Tue Jan 07 2014 Jiri Popelka <jpopelka@redhat.com> - 12:4.3.0-0.2.a1
 - make it actually build
 
